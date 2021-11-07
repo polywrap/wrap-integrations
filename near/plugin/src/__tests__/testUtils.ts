@@ -9,7 +9,7 @@ export const networkId = 'testnet';
 export const testAccountId = "polywraptest.testnet";
 const PRIVATE_KEY = "ed25519:3ZASru2hHvoDpT4jut4b8LqRBnz4GqMhtp24AzkLwdhuLDm6xgptkNmXVGWwfdyFHnnnG512Xb5RJcA7Cup3yjcG";
 
-const HELLO_WASM_PATH = path.resolve(__dirname + '../../node_modules/near-hello/dist/main.wasm');
+const HELLO_WASM_PATH = path.resolve(__dirname + '../../../node_modules/near-hello/dist/main.wasm');
 const HELLO_WASM_BALANCE = new BN("1000000000000000000000000");
 export const HELLO_WASM_METHODS = {
   viewMethods: ['getValue', 'getLastResult'],

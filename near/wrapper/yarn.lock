@@ -1388,19 +1388,6 @@
     axios "0.21.1"
     dotenv "10.0.0"
 
-"@web3api/core-js@0.0.1-prealpha.48":
-  version "0.0.1-prealpha.48"
-  resolved "https://registry.yarnpkg.com/@web3api/core-js/-/core-js-0.0.1-prealpha.48.tgz#518b7a5d3c9d8a8815f13e348811b20ba8b96dbe"
-  integrity sha512-fSaxpSmVk1iCraLSDC7FVnDsITSzHiG1ALDDsM0siXrpGr5ZOL0PdKX0HUXPHU9WziP1jCPRbTL9KMz5CE5rgg==
-  dependencies:
-    "@web3api/manifest-schemas" "0.0.1-prealpha.48"
-    "@web3api/tracing-js" "0.0.1-prealpha.48"
-    graphql "15.5.0"
-    graphql-tag "2.10.4"
-    js-yaml "3.14.0"
-    jsonschema "1.4.0"
-    semver "7.3.5"
-
 "@web3api/core-js@0.0.1-prealpha.49":
   version "0.0.1-prealpha.49"
   resolved "https://registry.yarnpkg.com/@web3api/core-js/-/core-js-0.0.1-prealpha.49.tgz#7a89325376afadf02fa38f054ea1590f207f2ee0"
@@ -1478,11 +1465,6 @@
   dependencies:
     "@web3api/core-js" "0.0.1-prealpha.49"
 
-"@web3api/manifest-schemas@0.0.1-prealpha.48":
-  version "0.0.1-prealpha.48"
-  resolved "https://registry.yarnpkg.com/@web3api/manifest-schemas/-/manifest-schemas-0.0.1-prealpha.48.tgz#b3a58c8bb8af4913952c688aa4df6a3908180347"
-  integrity sha512-dnJtZjNNDb0lCScTrANaVoMskk8fmsPq1F9EDygMRvGCCSCohg0N/weJmtDBzNeGE6CX0zyqGu4YxyZE49jZdA==
-
 "@web3api/manifest-schemas@0.0.1-prealpha.49":
   version "0.0.1-prealpha.49"
   resolved "https://registry.yarnpkg.com/@web3api/manifest-schemas/-/manifest-schemas-0.0.1-prealpha.49.tgz#e5e93d7467fc6ca4fac23de1cf511b95fcda81f6"
@@ -1534,23 +1516,6 @@
   dependencies:
     axios "0.21.1"
     spawn-command "0.0.2-1"
-
-"@web3api/tracing-js@0.0.1-prealpha.48":
-  version "0.0.1-prealpha.48"
-  resolved "https://registry.yarnpkg.com/@web3api/tracing-js/-/tracing-js-0.0.1-prealpha.48.tgz#171fc1b362efac642045feda980919c2694e37ab"
-  integrity sha512-/foBRFatojuYlTt2/ZR7/+rWVa5Ni50CM7J8+SQwtK36BvTSLWQo9P0c6Vmp7VwEvGjbHx2nQaFb9JJv1gh2eA==
-  dependencies:
-    "@opentelemetry/api" "0.20.0"
-    "@opentelemetry/context-zone" "0.20.0"
-    "@opentelemetry/core" "0.20.0"
-    "@opentelemetry/exporter-collector" "0.20.0"
-    "@opentelemetry/exporter-jaeger" "0.20.0"
-    "@opentelemetry/exporter-zipkin" "0.20.0"
-    "@opentelemetry/node" "0.20.0"
-    "@opentelemetry/propagator-b3" "0.20.0"
-    "@opentelemetry/tracing" "0.20.0"
-    "@opentelemetry/web" "0.20.0"
-    browser-util-inspect "0.2.0"
 
 "@web3api/tracing-js@0.0.1-prealpha.49":
   version "0.0.1-prealpha.49"
@@ -5196,10 +5161,12 @@ near-hello@0.5.1:
   resolved "https://registry.yarnpkg.com/near-hello/-/near-hello-0.5.1.tgz#68621928857afc21f5a7e0c21a47069a5dc058ef"
   integrity sha512-k7S8VFyESWgkKYDso99B4XbxAdo0VX9b3+GAaO5PvMgQjNr/6o09PHRywg/NkBQpf+ZYj7nNpJcyrNJGQsvA3w==
 
-"near-polywrap-js@file:../plugin":
+near-polywrap-js-test2@0.0.1:
   version "0.0.1"
+  resolved "https://registry.yarnpkg.com/near-polywrap-js-test2/-/near-polywrap-js-test2-0.0.1.tgz#e08c6c67597d5d10f3d77660b2ae1868c88fbb76"
+  integrity sha512-giuNhQ2qyyIahwXyOAM86YlaajUJxtO98/b+avXmAeMfxjLvIQ+ylOHW97Wf+QjUP/fXniKdygVLAtHwC3SSLw==
   dependencies:
-    "@web3api/core-js" "0.0.1-prealpha.48"
+    "@web3api/core-js" "0.0.1-prealpha.49"
     bn.js "5.2.0"
     js-sha256 "0.9.0"
     near-api-js "0.43.1"
