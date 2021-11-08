@@ -1,5 +1,5 @@
 # Near Wrapper (WIP)
-A work-in-progress implementation of a Near polywrapper.
+A limited implementation of a Near polywrapper.
 
 # How To Run
 
