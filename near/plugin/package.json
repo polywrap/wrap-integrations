@@ -2,7 +2,7 @@
   "name": "near-polywrap-js",
   "description": "Polywrap TypeScript plugin for NEAR Protocol",
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "files": [
