@@ -1,0 +1,6 @@
+
+type Mutation {
+  swap (
+    param: Boolean
+  ): Boolean!
+}
