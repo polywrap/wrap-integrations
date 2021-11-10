@@ -1,0 +1,25 @@
+#import { Currency, Token, TokenAmount } from "../common/schema.graphql"
+
+type Query {
+
+  # Token
+  currencyEquals(
+    currency: Currency!
+    other: Currency!
+  ): Boolean!
+
+  tokenEquals(
+    token: Token!
+    other: Token!
+  ): Boolean!
+
+  tokenAmountEquals(
+    tokenAmount0: TokenAmount!
+    tokenAmount1: TokenAmount!
+  ): Boolean!
+
+  tokenSortsBefore(
+    token: Token!
+    other: Token!
+  ): Boolean!
+}

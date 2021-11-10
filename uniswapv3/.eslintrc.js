@@ -54,7 +54,7 @@ module.exports = {
       {selector: ["parameter"], format: ['snake_case', "camelCase"], leadingUnderscore: "allow"},
       {selector: "enumMember", format: null},
       {selector: "function", format: null, leadingUnderscore: "allowSingleOrDouble"},
-    ]
+    ],
   },
   "overrides": [
     {
