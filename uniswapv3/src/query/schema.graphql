@@ -1,25 +1,244 @@
-#import { Currency, Token, TokenAmount } from "../common/schema.graphql"
+#import { ChainId, TradeType, Rounding, Currency, Token, TokenAmount, TradeOptions, Tick, TickListDataProvider, Pool, FeeAmount, Route, Trade, BestTradeOptions, SwapParameters, TxOverrides } from "../common/schema.graphql"
+
+# Return value of nextInitializedTickWithinOneWord(...)
+type NextTickResult {
+  index: UInt32!
+  found: Boolean!
+}
+
+# Return value of getPoolInputAmount(...) and getPoolOutputAmount(...)
+type PoolChangeResult {
+  tokenAmount: TokenAmount!
+  pool: Pool!
+}
+
+# Input used to create a trade
+type TradeRoute {
+  route: Route! # The route of the trade
+  amount: TokenAmount! # The amount being passed in or out, depending on the trade type
+}
+
+# Input used to create an unchecked trade
+type UncheckedTradeRoute {
+  route: Route! # The route of the trade
+  inputAmount: TokenAmount! # The amount being passed in
+  outputAmount: TokenAmount! # The amount returned by the trade when executed
+}
 
 type Query {
 
   # Token
   currencyEquals(
-    currency: Currency!
-    other: Currency!
+    currencyA: Currency!
+    currencyB: Currency!
   ): Boolean!
 
   tokenEquals(
-    token: Token!
-    other: Token!
+    tokenA: Token!
+    tokenB: Token!
   ): Boolean!
 
   tokenAmountEquals(
-    tokenAmount0: TokenAmount!
-    tokenAmount1: TokenAmount!
+    tokenAmountA: TokenAmount!
+    tokenAmountB: TokenAmount!
   ): Boolean!
 
   tokenSortsBefore(
-    token: Token!
-    other: Token!
+    tokenA: Token!
+    tokenB: Token!
   ): Boolean!
+
+  # TickDataProvider
+
+  # constructs and validates TickListDataProvider
+  createTickListDataProvider(
+    ticks: [Tick!]!
+    tickSpacing: UInt32!
+  ): TickListDataProvider!
+
+  # returns tick at requested index
+  getTick(
+    tickIndex: UInt32!
+    tickDataProvider: TickListDataProvider!
+  ): Tick!
+
+  # returns next initialized tick, or max or min tick. Returns true if a tick is found at index
+  nextInitializedTickWithinOneWord(
+    tick: UInt32!
+    lte: Boolean!
+    tickSpacing: UInt32!
+    tickDataProvider: TickListDataProvider!
+  ): NextTickResult!
+
+  # Pool
+
+  # constructs and validates pool
+  createPool(
+    tokenA: Token!
+    tokenB: Token!
+    fee: FeeAmount!
+    sqrtRatioX96: BigInt!
+    liquidity: BigInt!
+    tickCurrent: UInt32!
+    ticks: TickListDataProvider!
+  ): Pool!
+
+  getPoolAddress(
+    tokenA: Token!
+    tokenB: Token!
+    fee: FeeAmount!
+    initCodeHashManualOverride: String
+  ): String!
+
+  # Returns true if the token is either token0 or token1
+  poolInvolvesToken(
+    token: Token! # The token to check
+    pool: Pool!
+  ): Boolean!
+
+  # Returns the current mid price of the pool in terms of token0, i.e. the ratio of token1 over token0
+  poolToken0Price(
+    pool: Pool!
+  ): String!
+
+  # Returns the current mid price of the pool in terms of token1, i.e. the ratio of token0 over token1
+  poolToken1Price(
+    pool: Pool!
+  ): String!
+
+  # Return the price of the given token in terms of the other token in the pool.
+  poolPriceOf(
+    token: Token! # The token to return price of
+    pool: Pool!
+  ): String!
+
+  # Returns the chain ID of the tokens in the pool.
+  poolChainId(
+    pool: Pool!
+  ): ChainId!
+
+  # Given an input amount of a token, return the computed output amount, and a pool with state updated after the trade
+  getPoolOutputAmount(
+    inputAmount: TokenAmount! # The input amount for which to quote the output amount
+    sqrtPriceLimitX96: BigInt # The Q64.96 sqrt price limit
+  ): PoolChangeResult!
+
+  # Given a desired output amount of a token, return the computed input amount and a pool with state updated after the trade
+  getPoolInputAmount(
+    outputAmount: TokenAmount! # The output amount for which to quote the input amount
+    sqrtPriceLimitX96: BigInt # The Q64.96 sqrt price limit. If zero for one, the price cannot be less than this value after the swap. If one for zero, the price cannot be greater than this value after the swap.
+  ): PoolChangeResult!
+
+  getPoolTickSpacing(
+    pool: Pool!
+  ): UInt32!
+
+  # Route
+
+  # Constructs and validates route
+  createRoute(
+    pools: [Pool!]!
+    input: Token!
+    output: Token
+  ): Route!
+
+  # Returns the chain id of the tokens in the route
+  routeChainId(
+    route: Route!
+  ): ChainId!
+
+  #  Returns the mid price of the route
+  routeMidPrice(
+    route: Route!
+  ): String!
+
+  # Trade
+
+  # Constructs an exact in trade with the given amount in and route
+  createTradeExactIn(
+    route: TradeRoute! # the route of the exact in trade and the amount being passed in
+  ): Trade!
+
+  # Constructs an exact out trade with the given amount out and route
+  createTradeExactOut(
+    route: TradeRoute! # the route of the exact out trade and the amount returned
+  ): Trade!
+
+  # Constructs a trade by simulating swaps through the given route
+  createTradeFromRoute(
+    route: TradeRoute!  # the route to swap through and the amount specified, either input or output, depending on the trade type
+    tradeType: TradeType! # whether the trade is an exact input or exact output swap
+  ): Trade!
+
+  createTradeFromRoutes(
+    routes: [TradeRoute!]! # the routes to swap through and how much of the amount should be routed through each
+    tradeType: TradeType! # whether the trade is an exact input or exact output swap
+  ): Trade!
+
+  # Creates a trade without computing the result of swapping through the route. Useful when you have simulated the trade elsewhere and do not have any tick data
+  createUncheckedTrade(
+    route: UncheckedTradeRoute! # the route to swap through, the amount being passed in, and the amount returned when the trade is executed
+    tradeType: TradeType! # the type of the trade, either exact in or exact out
+  ): Trade!
+
+  # Creates a trade without computing the result of swapping through the routes. Useful when you have simulated the trade elsewhere and do not have any tick data
+  createUncheckedTradeWithMultipleRoutes(
+    routes: [UncheckedTradeRoute!]! # the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
+    tradeType: TradeType! # the type of the trade, either exact in or exact out
+  ): Trade!
+
+  # The price expressed in terms of output amount/input amount.
+  tradeExecutionPrice(
+    trade: Trade!
+  ): String!
+
+  # Returns the percent difference between the route's mid price and the price impact
+  tradePriceImpact(
+    trade: Trade!
+  ): String!
+
+  # Get the minimum amount that must be received from this trade for the given slippage tolerance
+  tradeMinimumAmountOut(
+    slippageTolerance: String! # The tolerance of unfavorable slippage from the execution price of this trade
+    trade: Trade!
+  ): TokenAmount!
+
+  # Get the maximum amount in that can be spent via this trade for the given slippage tolerance
+  tradeMaximumAmountIn(
+    slippageTolerance: String! # The tolerance of unfavorable slippage from the execution price of this trade
+    trade: Trade!
+  ): TokenAmount!
+
+  # Return the execution price after accounting for slippage tolerance
+  tradeWorstExecutionPrice(
+    slippageTolerance: String! # the allowed tolerated slippage
+    trade: Trade!
+  ): String!
+
+  """
+  Given a list of pools, and a fixed amount in, returns the top `maxNumResults` trades that go from an input token
+  amount to an output token, making at most `maxHops` hops.
+  Note this does not consider aggregation, as routes are linear. It's possible a better route exists by splitting
+  the amount in among multiple routes.
+  """
+  bestTradeExactIn(
+    pools: [Pool!]! # the pools to consider in finding the best trade
+    amountIn: TokenAmount! # exact amount of input currency to spend
+    tokenOut: Token! # the desired currency out
+    options: BestTradeOptions
+  ): [Trade!]!
+
+  """
+  similar to bestTradeExactIn(...) but instead targets a fixed output amount
+  given a list of pools, and a fixed amount out, returns the top `maxNumResults` trades that go from an input token
+  to an output token amount, making at most `maxHops` hops
+  note this does not consider aggregation, as routes are linear. it's possible a better route exists by splitting
+  the amount in among multiple routes.
+  """
+  bestTradeExactOut(
+    pools: [Pool!]! # the pools to consider in finding the best trade
+    tokenIn: Token! # the currency to spend
+    amountOut: TokenAmount! # the desired currency amount out
+    options: BestTradeOptions
+  ): [Trade!]!
 }

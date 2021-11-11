@@ -1,9 +1,18 @@
+# used
+
 enum ChainId {
   MAINNET
   ROPSTEN
   RINKEBY
   GOERLI
   KOVAN
+}
+
+enum FeeAmount {
+  LOWEST
+  LOW
+  MEDIUM
+  HIGH
 }
 
 enum TradeType {
@@ -15,15 +24,6 @@ enum Rounding {
   ROUND_DOWN
   ROUND_HALF_UP
   ROUND_UP
-}
-
-type TradeOptions {
-  allowedSlippage: String!
-  recipient: String!
-  unixTimestamp: UInt32!
-  ttl: UInt32
-  deadline: UInt32
-  feeOnTransfer: Boolean
 }
 
 type Token {
@@ -38,33 +38,71 @@ type Currency {
   name: String
 }
 
+# maybe should be CurrencyAmount? Is TokenAmount still in use?
 type TokenAmount {
   token: Token!
   amount: BigInt!
 }
 
-type Pair {
-  tokenAmount0: TokenAmount!
-  tokenAmount1: TokenAmount!
+type Tick {
+  index: UInt32!
+  liquidityGross: BigInt!
+  liquidityNet: BigInt!
+}
+
+type TickListDataProvider {
+  ticks: [Tick!]!
+}
+
+type Pool {
+  token0: Token!
+  token1: Token!
+  fee: FeeAmount!
+  sqrtRatioX96: BigInt!
+  liquidity: BigInt!
+  tickCurrent: UInt32!
+  tickDataProvider: TickListDataProvider
 }
 
 type Route {
+  pools: [Pool!]!
   path: [Token!]!
-  pairs: [Pair!]!
   input: Token!
   output: Token!
+  midPrice: String
 }
 
-type Trade {
+# Options used when determining the best trade in bestTradeExactIn(...) and bestTradeExactOut(...)
+type BestTradeOptions {
+  maxNumResults: UInt32 # maximum number of results to return
+  maxHops: UInt32 # maximum number of hops a returned trade can make, e.g. 1 hop goes through a single pool
+}
+
+type TradeSwap {
   route: Route!
   inputAmount: TokenAmount!
   outputAmount: TokenAmount!
-  tradeType: TradeType!
 }
 
-type BestTradeOptions {
-  maxNumResults: UInt32
-  maxHops: UInt32
+type Trade {
+  swaps: [TradeSwap!]!
+  tradeType: TradeType!
+  inputAmount: TokenAmount!
+  outputAmount: TokenAmount!
+  executionPrice: String
+  priceImpact: String
+}
+
+
+# types from v2 for which i'm not sure yet if they will be used
+
+type TradeOptions {
+  allowedSlippage: String!
+  recipient: String!
+  unixTimestamp: UInt32!
+  ttl: UInt32
+  deadline: UInt32
+  feeOnTransfer: Boolean
 }
 
 type SwapParameters {

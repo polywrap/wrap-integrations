@@ -1,4 +1,4 @@
-import { ChainId, Token, TokenAmount } from "../query/w3";
+import { ChainId, Token, TokenAmount, FeeAmount } from "../query/w3";
 import { ETHER } from "./Currency";
 import { currencyEquals } from "../query";
 
@@ -87,4 +87,19 @@ export function copyTokenAmount(tokenAmount: TokenAmount): TokenAmount {
     token: copyToken(tokenAmount.token),
     amount: tokenAmount.amount,
   };
+}
+
+export function getFeeAmount(feeAmount: FeeAmount): u32 {
+  switch(feeAmount) {
+    case FeeAmount.LOWEST:
+      return 100;
+    case FeeAmount.LOW:
+      return 500;
+    case FeeAmount.MEDIUM:
+      return 3000;
+    case FeeAmount.HIGH:
+      return 10000;
+    default:
+      throw new Error("Unknown FeeAmount");
+  }
 }
