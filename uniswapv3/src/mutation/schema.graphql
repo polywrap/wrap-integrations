@@ -1,19 +1,6 @@
 
-type SwapResult {
-  amountCalculated: BigInt!
-  sqrtRatioX96: BigInt!
-  liquidity: BigInt!
-  tickCurrent: UInt32!
-}
-
 type Mutation {
-
-  # Executes a swap
-  swap(
-    zeroForOne: Boolean! # Whether the amount in is token0 or token1
-    amountSpecified: BigInt! # The amount of the swap, which implicitly configures the swap as exact input (positive), or exact output (negative)
-    sqrtPriceLimitX96: BigInt # The Q64.96 sqrt price limit. If zero for one, the price cannot be less than this value after the swap. If one for zero, the price cannot be greater than this value after the swap.
-    pool: Pool! # The pool on which to execute the swap
-  ): SwapResult!
-
+  swap (
+    param: Boolean
+  ): Boolean!
 }

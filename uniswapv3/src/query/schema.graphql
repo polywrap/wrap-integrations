@@ -25,6 +25,13 @@ type UncheckedTradeRoute {
   outputAmount: TokenAmount! # The amount returned by the trade when executed
 }
 
+type SimulatedSwapResult {
+  amountCalculated: BigInt!
+  sqrtRatioX96: BigInt!
+  liquidity: BigInt!
+  tickCurrent: UInt32!
+}
+
 type Query {
 
   # Token
@@ -128,6 +135,14 @@ type Query {
     outputAmount: TokenAmount! # The output amount for which to quote the input amount
     sqrtPriceLimitX96: BigInt # The Q64.96 sqrt price limit. If zero for one, the price cannot be less than this value after the swap. If one for zero, the price cannot be greater than this value after the swap.
   ): PoolChangeResult!
+
+  # Simulations a swap execuation
+  simulateSwap(
+    zeroForOne: Boolean! # Whether the amount in is token0 or token1
+    amountSpecified: BigInt! # The amount of the swap, which implicitly configures the swap as exact input (positive), or exact output (negative)
+    sqrtPriceLimitX96: BigInt # The Q64.96 sqrt price limit. If zero for one, the price cannot be less than this value after the swap. If one for zero, the price cannot be greater than this value after the swap.
+    pool: Pool! # The pool on which to execute the swap
+  ): SimulatedSwapResult!
 
   getPoolTickSpacing(
     pool: Pool!
