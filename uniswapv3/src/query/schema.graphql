@@ -1,4 +1,4 @@
-#import { ChainId, TradeType, Rounding, Currency, Token, TokenAmount, TradeOptions, Tick, TickListDataProvider, Pool, FeeAmount, Route, Trade, BestTradeOptions, SwapParameters, TxOverrides } from "../common/schema.graphql"
+#import { ChainId, TradeType, Rounding, Currency, Token, TokenAmount, TradeOptions, Tick, TickListDataProvider, Pool, FeeAmount, Route, Trade, BestTradeOptions } from "../common/schema.graphql"
 
 # Return value of nextInitializedTickWithinOneWord(...)
 type NextTickResult {
@@ -25,6 +25,7 @@ type UncheckedTradeRoute {
   outputAmount: TokenAmount! # The amount returned by the trade when executed
 }
 
+# Pool state after swap execution; Return value of simulateSwap(...)
 type SimulatedSwapResult {
   amountCalculated: BigInt!
   sqrtRatioX96: BigInt!
@@ -136,7 +137,7 @@ type Query {
     sqrtPriceLimitX96: BigInt # The Q64.96 sqrt price limit. If zero for one, the price cannot be less than this value after the swap. If one for zero, the price cannot be greater than this value after the swap.
   ): PoolChangeResult!
 
-  # Simulations a swap execuation
+  # Simulations execution of a swap and returns next pool state
   simulateSwap(
     zeroForOne: Boolean! # Whether the amount in is token0 or token1
     amountSpecified: BigInt! # The amount of the swap, which implicitly configures the swap as exact input (positive), or exact output (negative)
