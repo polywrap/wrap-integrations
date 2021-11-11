@@ -11,4 +11,4 @@ Each project below is a different Polywrap wrapper (API) or plugin implementatio
 | [Uniswap V2 Wrapper](./uniswapv2/wrapper)    | Complete | /ens/v2.uniswap.web3api.eth                                                |
 | [Uniswap V2 dApp](./uniswapv2)               | Complete | Live: [dApp](https://demo.uniswap.polywrap.io/)                            |
 | [Near Wrapper (limited)](./near/wrapper)     | Complete | NPM: [near-polywrap-js](https://www.npmjs.com/package/near-polywrap-js)    |
-| [Near JS Plugin (limited)](./near/plugin-js) | Complete | Not deployed. [Full Specification](near/Near Polywrapper Specification.md) |                                                           |
+| [Near JS Plugin (limited)](./near/plugin-js) | Complete | Not deployed. See the [full Near wrapper specification](near/Near%20Polywrapper%20Specification.md) |                                                           |
