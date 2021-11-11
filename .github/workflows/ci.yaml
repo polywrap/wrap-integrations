@@ -74,7 +74,73 @@ jobs:
     #
 
     # NEAR
+      - name: (NEAR Wrapper) Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: near-nvm
+        working-directory: ./near/wrapper
+
+      - name: (NEAR Wrapper) Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: '${{ steps.near-nvm.outputs.NVMRC }}'
+        working-directory: ./near/wrapper
+
+      - name: (NEAR Wrapper) Install dependencies
+        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+        working-directory: ./near/wrapper
+
+      - name: (NEAR Wrapper) Build
+        run: yarn build
+        working-directory: ./near/wrapper
+
+      - name: (NEAR Wrapper) Test
+        run: yarn test
+    #
 
     # Uniswap V2
+      - name: (Uniswap V2 Wrapper) Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: uniswapv2-nvm
+        working-directory: ./uniswapv2/wrapper
+
+      - name: (Uniswap V2 Wrapper) Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: '${{ steps.uniswapv2-nvm.outputs.NVMRC }}'
+        working-directory: ./uniswapv2/wrapper
+
+      - name: (Uniswap V2 Wrapper) Install dependencies
+        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+        working-directory: ./uniswapv2/wrapper
+
+      - name: (Uniswap V2 Wrapper) Build
+        run: yarn build
+        working-directory: ./uniswapv2/wrapper
+
+      - name: (Uniswap V2 Wrapper) Test
+        run: yarn test
+    #
 
     # Uniswap V3
+      - name: (Uniswap V3 Wrapper) Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: uniswapv3-nvm
+        working-directory: ./uniswapv3/wrapper
+
+      - name: (Uniswap V3 Wrapper) Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: '${{ steps.uniswapv3-nvm.outputs.NVMRC }}'
+        working-directory: ./uniswapv3/wrapper
+
+      - name: (Uniswap V3 Wrapper) Install dependencies
+        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+        working-directory: ./uniswapv3/wrapper
+
+      - name: (Uniswap V3 Wrapper) Build
+        run: yarn build
+        working-directory: ./uniswapv3/wrapper
+
+      - name: (Uniswap V3 Wrapper) Test
+        run: yarn test
+    #
