@@ -4,27 +4,38 @@ import {
   Input_tickIsBelowSmallest,
   Input_tickListIsSorted,
   Input_validateTickList,
-  Tick
+  Tick,
 } from "./w3";
+
 import { BigInt } from "@web3api/wasm-as";
 
 export function validateTickList(input: Input_validateTickList): boolean {
   const ticks: Tick[] = input.ticks;
   const tickSpacing: u32 = input.tickSpacing;
   if (tickSpacing <= 0) {
-    throw new Error("TICK_SPACING_NONZERO: Tick spacing must be greater than zero");
+    throw new Error(
+      "TICK_SPACING_NONZERO: Tick spacing must be greater than zero"
+    );
   }
   // ensure ticks are spaced appropriately
   for (let i = 0; i < ticks.length; i++) {
     if (ticks[i].index % tickSpacing != 0) {
-      throw new Error("TICK_SPACING: Tick indices must be multiples of tickSpacing");
+      throw new Error(
+        "TICK_SPACING: Tick indices must be multiples of tickSpacing"
+      );
     }
   }
- // ensure tick liquidity deltas sum to 0
-  if (BigInt.ne(
-    ticks.reduce<BigInt>((accumulator: BigInt, tick: Tick) => BigInt.add(accumulator, tick.liquidityNet), BigInt.ZERO),
-    BigInt.ZERO
-  )) {
+  // ensure tick liquidity deltas sum to 0
+  if (
+    BigInt.ne(
+      ticks.reduce<BigInt>(
+        (accumulator: BigInt, tick: Tick) =>
+          BigInt.add(accumulator, tick.liquidityNet),
+        BigInt.ZERO
+      ),
+      BigInt.ZERO
+    )
+  ) {
     throw new Error("ZERO_NET: tick net liquidity values must sum to 0");
   }
   if (!isSorted(ticks, tickComparator)) {
@@ -42,7 +53,9 @@ export function tickIsBelowSmallest(input: Input_tickIsBelowSmallest): boolean {
   return tick < ticks[0].index;
 }
 
-export function tickIsAtOrAboveLargest(input: Input_tickIsAtOrAboveLargest): boolean {
+export function tickIsAtOrAboveLargest(
+  input: Input_tickIsAtOrAboveLargest
+): boolean {
   const ticks: Tick[] = input.ticks;
   const tick: u32 = input.tick;
   if (ticks.length == 0) {
@@ -59,22 +72,27 @@ export function tickIsAtOrAboveLargest(input: Input_tickIsAtOrAboveLargest): boo
  */
 function binarySearch(ticks: Tick[], tick: u32): u32 {
   if (tickIsBelowSmallest({ ticks: ticks, tick: tick })) {
-    throw new Error("BELOW_SMALLEST: target tick index is below smallest tick index in list");
+    throw new Error(
+      "BELOW_SMALLEST: target tick index is below smallest tick index in list"
+    );
   }
   let l: u32 = 0;
   let r: u32 = ticks.length - 1;
-  let i: u32;
+  // eslint-disable-next-line no-constant-condition
   while (true) {
-    i = (l + r) / 2;
+    const i: u32 = (l + r) / 2;
 
-    if (ticks[i].index <= tick && (i === ticks.length - 1 || ticks[i + 1].index > tick)) {
-      return i
+    if (
+      ticks[i].index <= tick &&
+      (i === ticks.length - 1 || ticks[i + 1].index > tick)
+    ) {
+      return i;
     }
 
     if (ticks[i].index < tick) {
-      l = i + 1
+      l = i + 1;
     } else {
-      r = i - 1
+      r = i - 1;
     }
   }
 }
@@ -82,9 +100,9 @@ function binarySearch(ticks: Tick[], tick: u32): u32 {
 export function getTick(ticks: Tick[], index: u32): Tick {
   const tick: Tick = ticks[binarySearch(ticks, index)];
   if (tick.index != index) {
-    throw new Error(("NOT_CONTAINED: requested tick not found in tick list"));
+    throw new Error("NOT_CONTAINED: requested tick not found in tick list");
   }
-  return tick
+  return tick;
 }
 
 export function nextInitializedTick(input: Input_nextInitializedTick): Tick {
@@ -94,7 +112,9 @@ export function nextInitializedTick(input: Input_nextInitializedTick): Tick {
 
   if (lte) {
     if (tickIsBelowSmallest({ ticks: ticks, tick: tick })) {
-      throw new Error("BELOW_SMALLEST: tick is below smallest tick index in the list")
+      throw new Error(
+        "BELOW_SMALLEST: tick is below smallest tick index in the list"
+      );
     }
     if (tickIsAtOrAboveLargest({ ticks: ticks, tick: tick })) {
       return ticks[ticks.length - 1];
@@ -103,7 +123,9 @@ export function nextInitializedTick(input: Input_nextInitializedTick): Tick {
     return ticks[index];
   } else {
     if (tickIsAtOrAboveLargest({ ticks: ticks, tick: tick })) {
-      throw new Error("AT_OR_ABOVE_LARGEST: tick is at or above largest tick index in the list");
+      throw new Error(
+        "AT_OR_ABOVE_LARGEST: tick is at or above largest tick index in the list"
+      );
     }
     if (tickIsBelowSmallest({ ticks: ticks, tick: tick })) {
       return ticks[0];
@@ -115,10 +137,10 @@ export function nextInitializedTick(input: Input_nextInitializedTick): Tick {
 
 /**
  * Returns true if a tick list is sorted by tick index
- * @param list The tick list
+ * @param input.ticks the tick list
  * @returns true if sorted
  */
-export  function tickListIsSorted(input: Input_tickListIsSorted): boolean {
+export function tickListIsSorted(input: Input_tickListIsSorted): boolean {
   return isSorted(input.ticks, tickComparator);
 }
 
@@ -126,7 +148,10 @@ function tickComparator(a: Tick, b: Tick): u32 {
   return a.index - b.index;
 }
 
-function isSorted<T>(list: Array<T>, comparator: (a: T, b: T) => number): boolean {
+function isSorted<T>(
+  list: Array<T>,
+  comparator: (a: T, b: T) => number
+): boolean {
   for (let i = 0; i < list.length - 1; i++) {
     if (comparator(list[i], list[i + 1]) > 0) {
       return false;
@@ -134,6 +159,3 @@ function isSorted<T>(list: Array<T>, comparator: (a: T, b: T) => number): boolea
   }
   return true;
 }
-
-
-

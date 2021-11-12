@@ -1,7 +1,7 @@
 import { FeeAmount } from "../query/w3";
 
 export function getFeeAmount(feeAmount: FeeAmount): u32 {
-  switch(feeAmount) {
+  switch (feeAmount) {
     case FeeAmount.LOWEST:
       return 100;
     case FeeAmount.LOW:
@@ -16,7 +16,7 @@ export function getFeeAmount(feeAmount: FeeAmount): u32 {
 }
 
 export function getTickSpacings(feeAmount: FeeAmount): u32 {
-  switch(feeAmount) {
+  switch (feeAmount) {
     case FeeAmount.LOWEST:
       return 1;
     case FeeAmount.LOW:

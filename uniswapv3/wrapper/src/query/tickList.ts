@@ -1,17 +1,19 @@
 import {
   Input_createTickListDataProvider,
   Input_getTick,
-  Input_nextInitializedTickWithinOneWord, NextTickResult,
+  Input_nextInitializedTickWithinOneWord,
+  NextTickResult,
   Tick,
-  TickListDataProvider
+  TickListDataProvider,
 } from "./w3";
-
 import * as TickUtils from "./tickListUtils";
 
 /**
  * constructs and validates TickListDataProvider
  */
-export function createTickListDataProvider(input: Input_createTickListDataProvider): TickListDataProvider {
+export function createTickListDataProvider(
+  input: Input_createTickListDataProvider
+): TickListDataProvider {
   const ticks: Tick[] = input.ticks;
   const tickSpacing: u32 = input.tickSpacing;
   TickUtils.validateTickList({ ticks: ticks, tickSpacing: tickSpacing });
@@ -21,8 +23,8 @@ export function createTickListDataProvider(input: Input_createTickListDataProvid
 }
 
 /**
-* returns tick at requested index
-*/
+ * returns tick at requested index
+ */
 export function getTick(input: Input_getTick): Tick {
   const tickIndex: u32 = input.tickIndex;
   const ticks: Tick[] = input.tickDataProvider.ticks;
@@ -30,9 +32,11 @@ export function getTick(input: Input_getTick): Tick {
 }
 
 /**
-* returns next initialized tick, or max or min tick. Returns true if a tick is found at index
-*/
-export function nextInitializedTickWithinOneWord(input: Input_nextInitializedTickWithinOneWord): NextTickResult {
+ * returns next initialized tick, or max or min tick. Returns true if a tick is found at index
+ */
+export function nextInitializedTickWithinOneWord(
+  input: Input_nextInitializedTickWithinOneWord
+): NextTickResult {
   const tick: u32 = input.tick;
   const lte: boolean = input.lte;
   const tickSpacing: u32 = input.tickSpacing;
@@ -51,7 +55,11 @@ export function nextInitializedTickWithinOneWord(input: Input_nextInitializedTic
       };
     }
 
-    const index: u32 = TickUtils.nextInitializedTick({ ticks: ticks, tick: tick, lte: lte }).index
+    const index: u32 = TickUtils.nextInitializedTick({
+      ticks: ticks,
+      tick: tick,
+      lte: lte,
+    }).index;
     const nextInitializedTick: u32 = index > minimum ? index : minimum;
     return {
       index: nextInitializedTick,
@@ -68,7 +76,11 @@ export function nextInitializedTickWithinOneWord(input: Input_nextInitializedTic
       };
     }
 
-    const index: u32 = TickUtils.nextInitializedTick({ ticks: ticks, tick: tick, lte: lte }).index
+    const index: u32 = TickUtils.nextInitializedTick({
+      ticks: ticks,
+      tick: tick,
+      lte: lte,
+    }).index;
     const nextInitializedTick = maximum < index ? maximum : index;
     return {
       index: nextInitializedTick,
