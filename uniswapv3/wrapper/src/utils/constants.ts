@@ -1,3 +1,5 @@
+import { BigInt } from "@web3api/wasm-as";
+
 export const UNISWAP_ROUTER_CONTRACT = "";
 
 export const FACTORY_ADDRESS = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
@@ -16,3 +18,21 @@ export const POOL_INIT_CODE_HASH_OPTIMISM_KOVAN = '0x1fc830513acbdb1608b8c18fd3c
 //   [FeeAmount.MEDIUM]: 60,
 //   [FeeAmount.HIGH]: 200
 // }
+
+// constants used internally but not expected to be used externally
+export const NEGATIVE_ONE = BigInt.from(JSBI.BigInt(-1);
+export const ZERO = JSBI.BigInt(0)
+export const ONE = JSBI.BigInt(1)
+
+// used in liquidity amount math
+export const Q96 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96))
+export const Q192 = JSBI.exponentiate(Q96, JSBI.BigInt(2))
+
+ // The minimum tick that can be used on any pool.
+public static MIN_TICK: number = -887272
+ // The maximum tick that can be used on any pool.
+public static MAX_TICK: number = -TickMath.MIN_TICK
+ // The sqrt ratio corresponding to the minimum tick that could be used on any pool.
+public static MIN_SQRT_RATIO: JSBI = JSBI.BigInt('4295128739')
+ // The sqrt ratio corresponding to the maximum tick that could be used on any pool.
+public static MAX_SQRT_RATIO: JSBI = JSBI.BigInt('1461446703485210103287273052203988822378723970342')
