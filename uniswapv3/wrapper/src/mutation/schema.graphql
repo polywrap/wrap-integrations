@@ -1,6 +1,14 @@
 #import { Mutation, TxResponse } into Ethereum from "w3://ens/ethereum.web3api.eth"
-#import { ChainId, Currency, Route, Trade, Pair, SwapOptions, MethodParameters, GasOptions } from "../common/schema.graphql"
+#import { ChainId, Currency, Token, Route, Trade, Pool, SwapOptions, MethodParameters, GasOptions } from "../common/schema.graphql"
 
+type SwapArgs {
+  tokenIn: Token!
+  tokenOut: Token!
+  amount: BigInt!
+  tradeType: TradeType!
+}
+
+# TODO: should we add functions to create pools, add liquidity, remove liquidity, etc? Possibly as Query functions that return MethodParameters to be used with execCall(...)?
 type Mutation {
 
   swap (
@@ -26,6 +34,4 @@ type Mutation {
     amount: BigInt
     gasOptions: GasOptions
   ): Ethereum_TxResponse!
-
-  # TODO: should we add functions to create pools, add liquidity, remove liquidity, etc? Possible as Query functions that return MethodParameters to be used with execCall(...)?
 }

@@ -1,5 +1,3 @@
-# used
-
 enum ChainId {
   MAINNET
   ROPSTEN
@@ -18,12 +16,6 @@ enum FeeAmount {
 enum TradeType {
   EXACT_INPUT
   EXACT_OUTPUT
-}
-
-enum Rounding {
-  ROUND_DOWN
-  ROUND_HALF_UP
-  ROUND_UP
 }
 
 enum PermitV {
@@ -105,7 +97,7 @@ type MintAmounts {
   amount1: BigInt!
 }
 
-# TODO: should getters for cached results return the Position passed in but with the result filled in? Should we be caching results at all?
+# TODO: should getters for cached results return the object passed in but with the result filled in? Should we be caching results at all?
 type Position {
   pool: Pool!
   tickLower: UInt32!
@@ -116,24 +108,33 @@ type Position {
   mintAmounts: MintAmounts # cached result for getter
 }
 
-
-type StandardPermitArguments {
+#type StandardPermitArguments {
+#  v: PermitV!
+#  r: String!
+#  s: String!
+#  amount: BigInt!
+#  deadline: BigInt!
+#}
+#
+#type AllowedPermitArguments {
+#  v: PermitV!
+#  r: String!
+#  s: String!
+#  nonce: BigInt!
+#  expiry: BigInt!
+#}
+#
+#union PermitOptions = StandardPermitArguments | AllowedPermitArguments
+# TODO: Return to use of union type once union type support is merged
+type PermitOptions {
   v: PermitV!
   r: String!
   s: String!
-  amount: BigInt!
-  deadline: BigInt!
+  amount: BigInt
+  deadline: BigInt
+  nonce: BigInt
+  expiry: BigInt
 }
-
-type AllowedPermitArguments {
-  v: PermitV!
-  r: String!
-  s: String!
-  nonce: BigInt!
-  expiry: BigInt!
-}
-
-union PermitOptions = StandardPermitArguments | AllowedPermitArguments
 
 type FeeOptions {
   fee: String! # The percent of the output that will be taken as a fee.
@@ -152,92 +153,6 @@ type SwapOptions {
 type MethodParameters {
   calldata: String! # The hex encoded calldata to perform the given operation
   value: String! # The amount of ether (wei) to send in hex.
-}
-
-# Represents a unique staking program.
-type IncentiveKey {
-  rewardToken: Token! # The token rewarded for participating in the staking program.
-  pool: Pool! # The pool that the staked positions must provide in.
-  startTime: BigInt! # The time when the incentive program begins.
-  endTime: BigInt! # The time that the incentive program ends.
-  refundee: String! #  The address which receives any remaining reward tokens at `endTime`.
-}
-
-# Options to specify when claiming rewards.
-type ClaimOptions {
-  tokenId: BigInt! # The id of the NFT
-  recipient: String! # Address to send rewards to.
-  amount: BigInt # The amount of `rewardToken` to claim. 0 claims all.
-}
-
-type FullWithdrawOptions implements ClaimOptions {
-  owner: String! # Set when withdrawing. The position will be sent to `owner` on withdraw.
-  data: String #  Set when withdrawing. `data` is passed to `safeTransferFrom` when transferring the position from contract back to owner.
-}
-
-# Optional arguments to send to the quoter.
-type QuoteOptions {
-  sqrtPriceLimitX96: BigInt # The optional price limit for the trade.
-}
-
-# Options for producing the calldata to add liquidity.
-type CommonAddLiquidityOptions {
-  slippageTolerance: String! # How much the pool price is allowed to move.
-  deadline: BigInt! # When the transaction expires, in epoch seconds.
-  useNative: Token # Whether to spend ether. If true, one of the pool tokens must be WETH, by default false
-  token0Permit: PermitOptions # The optional permit parameters for spending token0
-  token1Permit: PermitOptions # The optional permit parameters for spending token1
-}
-
-type MintOptions implements CommonAddLiquidityOptions {
-  recipient: String! # The account that should receive the minted NFT.
-  createPool: Boolean # Creates pool if not initialized before mint.
-}
-
-type IncreaseOptions implements CommonAddLiquidityOptions {
-  tokenId: BigInt! # Indicates the ID of the position to increase liquidity for.
-}
-
-union AddLiquidityOptions = MintOptions | IncreaseOptions
-
-type SafeTransferOptions {
-  sender: String! # The account sending the NFT.
-  recipient: String! # The account that should receive the NFT.
-  tokenId: BigInt! # The id of the token being sent.
-  data: String # The optional parameter that passes data to the `onERC721Received` call for the staker
-}
-
-type CollectOptions {
-  tokenId: BigInt! # Indicates the ID of the position to collect for.
-  expectedCurrencyOwed0: TokenAmount! # Expected value of tokensOwed0, including as-of-yet-unaccounted-for fees/liquidity value to be burned
-  expectedCurrencyOwed1: TokenAmount! # Expected value of tokensOwed1, including as-of-yet-unaccounted-for fees/liquidity value to be burned
-  recipient: String! # The account that should receive the tokens.
-}
-
-type NFTPermitOptions {
-  v: PermitV!
-  r: String!
-  s: String!
-  deadline: BigInt!
-  spender: String!
-}
-
-# Options for producing the calldata to exit a position.
-type RemoveLiquidityOptions {
-  tokenId: BigInt! # The ID of the token to exit
-  liquidityPercentage: String! # The percentage of position liquidity to exit.
-  slippageTolerance: String! # How much the pool price is allowed to move.
-  deadline: BigInt! # When the transaction expires, in epoch seconds.
-  burnToken: Boolean # Whether the NFT should be burned if the entire position is being exited, by default false.
-  permit: NFTPermitOptions # The optional permit of the token ID being exited, in case the exit transaction is being sent by an account that does not own the NFT
-  collectOptions: CollectOptions! # Parameters to be passed on to collect
-}
-
-type SwapArgs {
-  tokenIn: Token!
-  tokenOut: Token!
-  amount: BigInt!
-  tradeType: TradeType!
 }
 
 # TODO: does this need to change to account for the new Ethereum gas price structure?
