@@ -367,7 +367,7 @@ type Query {
   encodePermit(
     token: Token!
     options: PermitOptions!
-  ): Boolean! # TODO: make this a transaction receipt
+  ): String!
 
   ## Payments
 

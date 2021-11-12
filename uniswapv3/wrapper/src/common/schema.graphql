@@ -232,3 +232,16 @@ type RemoveLiquidityOptions {
   permit: NFTPermitOptions # The optional permit of the token ID being exited, in case the exit transaction is being sent by an account that does not own the NFT
   collectOptions: CollectOptions! # Parameters to be passed on to collect
 }
+
+type SwapArgs {
+  tokenIn: Token!
+  tokenOut: Token!
+  amount: BigInt!
+  tradeType: TradeType!
+}
+
+# TODO: does this need to change to account for the new Ethereum gas price structure?
+type GasOptions {
+  gasPrice: BigInt
+  gasLimit: BigInt
+}
