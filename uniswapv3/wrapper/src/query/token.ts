@@ -32,7 +32,7 @@ export function tokenAmountEquals(input: Input_tokenAmountEquals): boolean {
   const amtA: TokenAmount = input.tokenAmountA;
   const amtB: TokenAmount = input.tokenAmountB;
   return (
-    tokenEquals({ token: amtA.token, other: amtB.token }) &&
+    tokenEquals({ tokenA: amtA.token, tokenB: amtB.token }) &&
     amtA.amount == amtB.amount
   );
 }

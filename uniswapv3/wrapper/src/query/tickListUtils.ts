@@ -15,8 +15,10 @@ export function validateTickList(input: Input_validateTickList): boolean {
     throw new Error("TICK_SPACING_NONZERO: Tick spacing must be greater than zero");
   }
   // ensure ticks are spaced appropriately
-  if (ticks.every((tick: Tick) => tick.index % tickSpacing != 0)) {
-    throw new Error("TICK_SPACING: Tick indices must be multiples of tickSpacing");
+  for (let i = 0; i < ticks.length; i++) {
+    if (ticks[i].index % tickSpacing != 0) {
+      throw new Error("TICK_SPACING: Tick indices must be multiples of tickSpacing");
+    }
   }
  // ensure tick liquidity deltas sum to 0
   if (BigInt.ne(
@@ -120,17 +122,17 @@ export  function tickListIsSorted(input: Input_tickListIsSorted): boolean {
   return isSorted(input.ticks, tickComparator);
 }
 
-function tickComparator(a: Tick, b: Tick) {
-  return a.index - b.index
+function tickComparator(a: Tick, b: Tick): u32 {
+  return a.index - b.index;
 }
 
 function isSorted<T>(list: Array<T>, comparator: (a: T, b: T) => number): boolean {
   for (let i = 0; i < list.length - 1; i++) {
     if (comparator(list[i], list[i + 1]) > 0) {
-      return false
+      return false;
     }
   }
-  return true
+  return true;
 }
 
 
