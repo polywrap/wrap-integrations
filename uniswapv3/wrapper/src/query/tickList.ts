@@ -9,7 +9,7 @@ import {
 import * as TickUtils from "./tickListUtils";
 
 /**
- * constructs and validates TickListDataProvider
+ * constructs and validates a TickListDataProvider
  */
 export function createTickListDataProvider(
   input: Input_createTickListDataProvider

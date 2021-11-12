@@ -159,7 +159,7 @@ type Query {
 
   ## TickDataProvider
 
-  # constructs and validates TickListDataProvider
+  # constructs and validates a TickListDataProvider
   createTickListDataProvider(
     ticks: [Tick!]!
     tickSpacing: UInt32!
@@ -181,7 +181,7 @@ type Query {
 
   ## Pool
 
-  # constructs and validates pool
+  # constructs and validates a Pool
   createPool(
     tokenA: Token!
     tokenB: Token!
@@ -192,6 +192,7 @@ type Query {
     ticks: TickListDataProvider!
   ): Pool!
 
+  # Returns the Ethereum address of the Pool contract
   getPoolAddress(
     tokenA: Token!
     tokenB: Token!
@@ -215,13 +216,13 @@ type Query {
     pool: Pool!
   ): String!
 
-  # Return the price of the given token in terms of the other token in the pool.
+  # Returns the price of the given token in terms of the other token in the pool
   poolPriceOf(
     token: Token! # The token to return price of
     pool: Pool!
   ): String!
 
-  # Returns the chain ID of the tokens in the pool.
+  # Returns the chain ID of the tokens in the pool
   poolChainId(
     pool: Pool!
   ): ChainId!
@@ -246,13 +247,14 @@ type Query {
     pool: Pool! # The pool on which to execute the swap
   ): SimulatedSwapResult!
 
+  # Returns the tick spacing of ticks in the pool
   getPoolTickSpacing(
     pool: Pool!
   ): UInt32!
 
   ## Route
 
-  # Constructs and validates route
+  # Constructs and validates a Route
   createRoute(
     pools: [Pool!]!
     input: Token!
@@ -361,7 +363,7 @@ type Query {
 
   ## Position
 
-  # Constructs and validates a position for a given pool with the given liquidity
+  # Constructs and validates a Position for a given Pool with the given liquidity
   createPosition(
     pool: Pool!
     tickLower: UInt32!
@@ -541,6 +543,7 @@ type Query {
     bigint: BigInt!
   ): String!
 
+  # Returns the Ethereum address of the Pool contract
   computePoolAddress(
     tokenA: Token!
     tokenB: Token!
