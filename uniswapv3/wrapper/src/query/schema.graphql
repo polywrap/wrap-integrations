@@ -1,4 +1,5 @@
-#import { ChainId, TradeType, Currency, Token, TokenAmount, Tick, TickListDataProvider, Pool, FeeAmount, Route, Trade, BestTradeOptions, Position, PermitOptions, FeeOptions, SwapOptions, MethodParameters } from "../common/schema.graphql"
+#import { StaticTxResult } into Ethereum from "w3://ens/ethereum.web3api.eth"
+#import { ChainId, TradeType, Currency, Token, TokenAmount, Tick, TickListDataProvider, Pool, FeeAmount, Route, Trade, BestTradeOptions, Position, PermitOptions, FeeOptions, SwapOptions, MethodParameters, GasOptions } from "../common/schema.graphql"
 
 enum Rounding {
   ROUND_DOWN
@@ -446,6 +447,12 @@ type Query {
     chainId: ChainId
   ): BigInt!
 
+  # TODO: why did i drop this function before?
+  execCallStatic(
+    parameters: MethodParameters!
+    chainId: ChainId!
+    gasOptions: GasOptions!
+  ): Ethereum_StaticTxResult!
 
   ## MultiCall
 
@@ -532,6 +539,14 @@ type Query {
   # Converts a big int to a hex string
   toHex(
     bigint: BigInt!
+  ): String!
+
+  computePoolAddress(
+    tokenA: Token!
+    tokenB: Token!
+    fee: FeeAmount!
+    initCodeHashManualOverride: String
+    factoryAddress: String!
   ): String!
 
   # Converts a route to a hex encoded path
@@ -667,7 +682,6 @@ type Query {
   getTickAtSqrtRatio(
     sqrtRatioX96: BigInt! # the sqrt ratio as a Q64.96 for which to compute the tick
   ): UInt32!
-
 
   ##  Fetch
 
