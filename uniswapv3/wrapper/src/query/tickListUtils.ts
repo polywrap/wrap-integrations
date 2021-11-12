@@ -28,6 +28,7 @@ export function validateTickList(input: Input_validateTickList): boolean {
   if (!isSorted(ticks, tickComparator)) {
     throw new Error("SORTED: tick list must be sorted by index");
   }
+  return true;
 }
 
 export function tickIsBelowSmallest(input: Input_tickIsBelowSmallest): boolean {
@@ -88,26 +89,27 @@ export function nextInitializedTick(input: Input_nextInitializedTick): Tick {
   const ticks: Tick[] = input.ticks;
   const tick: u32 = input.tick;
   const lte: boolean = input.lte;
+
+  if (lte) {
+    if (tickIsBelowSmallest({ ticks: ticks, tick: tick })) {
+      throw new Error("BELOW_SMALLEST: tick is below smallest tick index in the list")
+    }
+    if (tickIsAtOrAboveLargest({ ticks: ticks, tick: tick })) {
+      return ticks[ticks.length - 1];
+    }
+    const index: u32 = binarySearch(ticks, tick);
+    return ticks[index];
+  } else {
+    if (tickIsAtOrAboveLargest({ ticks: ticks, tick: tick })) {
+      throw new Error("AT_OR_ABOVE_LARGEST: tick is at or above largest tick index in the list");
+    }
+    if (tickIsBelowSmallest({ ticks: ticks, tick: tick })) {
+      return ticks[0];
+    }
+    const index: u32 = binarySearch(ticks, tick);
+    return ticks[index + 1];
+  }
 }
-
-// public static nextInitializedTick(ticks: readonly Tick[], tick: number, lte: boolean): Tick {
-//   if (lte) {
-//     invariant(!TickList.isBelowSmallest(ticks, tick), 'BELOW_SMALLEST')
-//     if (TickList.isAtOrAboveLargest(ticks, tick)) {
-//       return ticks[ticks.length - 1]
-//     }
-//     const index = this.binarySearch(ticks, tick)
-//     return ticks[index]
-//   } else {
-//     invariant(!this.isAtOrAboveLargest(ticks, tick), 'AT_OR_ABOVE_LARGEST')
-//     if (this.isBelowSmallest(ticks, tick)) {
-//       return ticks[0]
-//     }
-//     const index = this.binarySearch(ticks, tick)
-//     return ticks[index + 1]
-//   }
-// }
-
 
 /**
  * Returns true if a tick list is sorted by tick index
