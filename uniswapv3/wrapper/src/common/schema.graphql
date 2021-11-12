@@ -63,6 +63,7 @@ type Pool {
   tickDataProvider: TickListDataProvider
 }
 
+# TODO: should getters for cached results return the object passed in but with the result filled in? Should we be caching results at all?
 type Route {
   pools: [Pool!]!
   path: [Token!]!
@@ -83,6 +84,7 @@ type TradeSwap {
   outputAmount: TokenAmount!
 }
 
+# TODO: should getters for cached results return the object passed in but with the result filled in? Should we be caching results at all?
 type Trade {
   swaps: [TradeSwap!]!
   tradeType: TradeType!
