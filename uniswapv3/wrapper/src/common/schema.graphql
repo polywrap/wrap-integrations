@@ -6,24 +6,23 @@ enum ChainId {
   KOVAN
 }
 
+enum FeeAmount {
+  LOWEST
+  LOW
+  MEDIUM
+  HIGH
+}
+
 enum TradeType {
   EXACT_INPUT
   EXACT_OUTPUT
 }
 
-enum Rounding {
-  ROUND_DOWN
-  ROUND_HALF_UP
-  ROUND_UP
-}
-
-type TradeOptions {
-  allowedSlippage: String!
-  recipient: String!
-  unixTimestamp: UInt32!
-  ttl: UInt32
-  deadline: UInt32
-  feeOnTransfer: Boolean
+enum PermitV {
+  v_0
+  v_1
+  v_27
+  v_28
 }
 
 type Token {
@@ -38,42 +37,128 @@ type Currency {
   name: String
 }
 
+# maybe should be CurrencyAmount? Is TokenAmount still in use?
 type TokenAmount {
   token: Token!
   amount: BigInt!
 }
 
-type Pair {
-  tokenAmount0: TokenAmount!
-  tokenAmount1: TokenAmount!
+type Tick {
+  index: UInt32!
+  liquidityGross: BigInt!
+  liquidityNet: BigInt!
 }
 
+type TickListDataProvider {
+  ticks: [Tick!]!
+}
+
+type Pool {
+  token0: Token!
+  token1: Token!
+  fee: FeeAmount!
+  sqrtRatioX96: BigInt!
+  liquidity: BigInt!
+  tickCurrent: UInt32!
+  tickDataProvider: TickListDataProvider
+}
+
+# TODO: should getters for cached results return the object passed in but with the result filled in? Should we be caching results at all?
 type Route {
+  pools: [Pool!]!
   path: [Token!]!
-  pairs: [Pair!]!
   input: Token!
   output: Token!
+  midPrice: String # cached result for getter
 }
 
-type Trade {
+# Options used when determining the best trade in bestTradeExactIn(...) and bestTradeExactOut(...)
+type BestTradeOptions {
+  maxNumResults: UInt32 # maximum number of results to return
+  maxHops: UInt32 # maximum number of hops a returned trade can make, e.g. 1 hop goes through a single pool
+}
+
+type TradeSwap {
   route: Route!
   inputAmount: TokenAmount!
   outputAmount: TokenAmount!
+}
+
+# TODO: should getters for cached results return the object passed in but with the result filled in? Should we be caching results at all?
+type Trade {
+  swaps: [TradeSwap!]!
   tradeType: TradeType!
+  inputAmount: TokenAmount!
+  outputAmount: TokenAmount!
+  executionPrice: String # cached result for getter
+  priceImpact: String # cached result for getter
 }
 
-type BestTradeOptions {
-  maxNumResults: UInt32
-  maxHops: UInt32
+type MintAmounts {
+  amount0: BigInt!
+  amount1: BigInt!
 }
 
-type SwapParameters {
-  methodName: String!
-  args: [String!]!
-  value: String!
+# TODO: should getters for cached results return the object passed in but with the result filled in? Should we be caching results at all?
+type Position {
+  pool: Pool!
+  tickLower: UInt32!
+  tickUpper: UInt32!
+  liquidity: BigInt!
+  token0Amount: TokenAmount # cached result for getter
+  token1Amount: TokenAmount # cached result for getter
+  mintAmounts: MintAmounts # cached result for getter
 }
 
-type TxOverrides {
+#type StandardPermitArguments {
+#  v: PermitV!
+#  r: String!
+#  s: String!
+#  amount: BigInt!
+#  deadline: BigInt!
+#}
+#
+#type AllowedPermitArguments {
+#  v: PermitV!
+#  r: String!
+#  s: String!
+#  nonce: BigInt!
+#  expiry: BigInt!
+#}
+#
+#union PermitOptions = StandardPermitArguments | AllowedPermitArguments
+# TODO: Return to use of union type once union type support is merged
+type PermitOptions {
+  v: PermitV!
+  r: String!
+  s: String!
+  amount: BigInt
+  deadline: BigInt
+  nonce: BigInt
+  expiry: BigInt
+}
+
+type FeeOptions {
+  fee: String! # The percent of the output that will be taken as a fee.
+  recipient: String! # The recipient of the fee.
+}
+
+type SwapOptions {
+  slippageTolerance: String! # How much the execution price is allowed to move unfavorably from the trade execution price.
+  recipient: String! # The account that should receive the output.
+  deadline: BigInt! # When the transaction expires, in epoch seconds.
+  inputTokenPermit: PermitOptions # The optional permit parameters for spending the input.
+  sqrtPriceLimitX96: BigInt # The optional price limit for the trade.
+  fee: FeeOptions # Optional information for taking a fee on output.
+}
+
+type MethodParameters {
+  calldata: String! # The hex encoded calldata to perform the given operation
+  value: String! # The amount of ether (wei) to send in hex.
+}
+
+# TODO: does this need to change to account for the new Ethereum gas price structure?
+type GasOptions {
   gasPrice: BigInt
   gasLimit: BigInt
 }

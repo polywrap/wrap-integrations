@@ -10,38 +10,38 @@ import {
 
 // Checks if the current instance is equal to another (has an identical chainId and address).
 export function currencyEquals(input: Input_currencyEquals): boolean {
-  const currency: Currency = input.currency;
-  const other: Currency = input.other;
+  const currencyA: Currency = input.currencyA;
+  const currencyB: Currency = input.currencyB;
   return (
-    currency.name == other.name &&
-    currency.symbol == other.symbol &&
-    currency.decimals == other.decimals
+    currencyA.name == currencyB.name &&
+    currencyA.symbol == currencyB.symbol &&
+    currencyA.decimals == currencyB.decimals
   );
 }
 
 // Checks if the current instance is equal to another (has an identical chainId and address).
 export function tokenEquals(input: Input_tokenEquals): boolean {
-  const token: Token = input.token;
-  const other: Token = input.other;
-  return token.chainId == other.chainId && token.address == other.address;
+  const tokenA: Token = input.tokenA;
+  const tokenB: Token = input.tokenB;
+  return tokenA.chainId == tokenB.chainId && tokenA.address == tokenB.address;
 }
 
 // compares two TokenAmount types for equality, returning true if they have the
 // same token and same amount
 export function tokenAmountEquals(input: Input_tokenAmountEquals): boolean {
-  const amt0: TokenAmount = input.tokenAmount0;
-  const amt1: TokenAmount = input.tokenAmount1;
+  const amtA: TokenAmount = input.tokenAmountA;
+  const amtB: TokenAmount = input.tokenAmountB;
   return (
-    tokenEquals({ token: amt0.token, other: amt1.token }) &&
-    amt0.amount == amt1.amount
+    tokenEquals({ token: amtA.token, other: amtB.token }) &&
+    amtA.amount == amtB.amount
   );
 }
 
 // Checks if the current instance sorts before another, by address.
 export function tokenSortsBefore(input: Input_tokenSortsBefore): boolean {
-  const token: Token = input.token;
-  const other: Token = input.other;
-  const tokenAddress: string = token.address.toLowerCase();
-  const otherAddress: string = other.address.toLowerCase();
+  const tokenA: Token = input.tokenA;
+  const tokenB: Token = input.tokenB;
+  const tokenAddress: string = tokenA.address.toLowerCase();
+  const otherAddress: string = tokenB.address.toLowerCase();
   return tokenAddress.localeCompare(otherAddress) < 0;
 }
