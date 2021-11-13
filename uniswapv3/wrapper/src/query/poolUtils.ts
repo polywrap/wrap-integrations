@@ -1,4 +1,4 @@
-import { FeeAmount, Input_computePoolAddress, Input_getPoolAddress, Token } from "./w3";
+import { FeeAmount, Input_computePoolAddress, Token } from "./w3";
 
 /**
  * Returns the Ethereum address of the Pool contract

@@ -12,7 +12,7 @@ import { BigInt } from "@web3api/wasm-as";
 export function validateTickList(input: Input_validateTickList): boolean {
   const ticks: Tick[] = input.ticks;
   const tickSpacing: u32 = input.tickSpacing;
-  if (tickSpacing <= 0) {
+  if (tickSpacing == 0) {
     throw new Error(
       "TICK_SPACING_NONZERO: Tick spacing must be greater than zero"
     );

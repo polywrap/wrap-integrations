@@ -587,7 +587,7 @@ type Query {
     useFullPrecision: Boolean! # if false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
   ): BigInt!
 
-  # mostSignificantBit
+  # Returns the most significant bit of a 256 bit integer
   mostSignificantBit(
     x: BigInt!
   ): UInt32
@@ -598,7 +598,7 @@ type Query {
     tickSpacing: UInt32! # the spacing of the pool
   ): UInt32!
 
-  # Returns a price object corresponding to the input tick and the base/quote token. Inputs must be tokens because the address order is used to interpret the price represented by the tick
+  # Returns a price object corresponding to the input tick and the base/quote token. Inputs must be tokens because the address order is used to interpret the price represented by the tick.
   tickToPrice(
     baseToken: Token! # the base token of the price
     quoteToken: Token! # the quote token of the price
@@ -607,6 +607,8 @@ type Query {
 
   # Returns the first tick for which the given price is greater than or equal to the tick price
   priceToClosestTick(
+    baseToken: Token! # the base token of the price
+    quoteToken: Token! # the quote token of the price
     price: String! # price for which to return the closest tick that represents a price less than or equal to the input price, i.e. the price of the returned tick is less than or equal to the input price
   ): UInt32!
 
