@@ -173,7 +173,7 @@ export function getSqrtRatioAtTick(input: Input_getSqrtRatioAtTick): BigInt {
   if (tick > 0) ratio = BigInt.div(MAX_UINT_256, ratio);
 
   // back to Q96
-  return BigInt.gt(BigInt.mod(ratio, Q32), BigInt.ZERO)
+  return BigInt.mod(ratio, Q32) > BigInt.ZERO
     ? BigInt.add(BigInt.div(ratio, Q32), BigInt.ONE)
     : BigInt.div(ratio, Q32);
 }
@@ -197,7 +197,7 @@ export function getTickAtSqrtRatio(input: Input_getTickAtSqrtRatio): u32 {
   const bi128: BigInt = BigInt.fromUInt16(128);
 
   let r: BigInt;
-  if (BigInt.gte(biMsb, bi128)) {
+  if (biMsb >= bi128) {
     r = sqrtRatioX128.divPowTwo(msb - 127);
   } else {
     r = sqrtRatioX128.mulPowTwo(127 - msb);
@@ -230,7 +230,7 @@ export function getTickAtSqrtRatio(input: Input_getTickAtSqrtRatio): u32 {
 
   return tickLow == tickHigh
     ? tickLow
-    : BigInt.lte(getSqrtRatioAtTick({ tick: tickHigh }), sqrtRatioX96)
+    : getSqrtRatioAtTick({ tick: tickHigh }) <= sqrtRatioX96
     ? tickHigh
     : tickLow;
 }

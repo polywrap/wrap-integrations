@@ -16,10 +16,10 @@ import * as MathUtils from "./mathUtils";
 import { BigInt } from "@web3api/wasm-as";
 
 class PartialSwapStepResult {
-  sqrtRatioNextX96: BigInt | null;
-  amountIn: BigInt | null;
-  amountOut: BigInt | null;
-  feeAmount: BigInt | null;
+  sqrtRatioNextX96: BigInt;
+  amountIn: BigInt;
+  amountOut: BigInt;
+  feeAmount: BigInt;
 }
 
 /**
@@ -78,10 +78,10 @@ export function computeSwapStep(input: Input_computeSwapStep): SwapStepResult {
   const feePips: u32 = getFeeAmount(input.feePips);
 
   const returnValues: PartialSwapStepResult = {
-    sqrtRatioNextX96: null,
-    amountIn: null,
-    amountOut: null,
-    feeAmount: null,
+    sqrtRatioNextX96: BigInt.ZERO,
+    amountIn: BigInt.ZERO,
+    amountOut: BigInt.ZERO,
+    feeAmount: BigInt.ZERO,
   };
 
   const zeroForOne: boolean = sqrtRatioCurrentX96 >= sqrtRatioTargetX96;
@@ -110,7 +110,7 @@ export function computeSwapStep(input: Input_computeSwapStep): SwapStepResult {
           liquidity: liquidity,
           roundUp: true,
         });
-    if (amountRemainingLessFee >= returnValues.amountIn!) {
+    if (amountRemainingLessFee >= returnValues.amountIn) {
       returnValues.sqrtRatioNextX96 = sqrtRatioTargetX96;
     } else {
       returnValues.sqrtRatioNextX96 = MathUtils.getNextSqrtPriceFromInput({
@@ -189,26 +189,26 @@ export function computeSwapStep(input: Input_computeSwapStep): SwapStepResult {
   }
 
   const negAmountRemaining: BigInt = amountRemaining.opposite();
-  if (!exactIn && returnValues.amountOut! > negAmountRemaining) {
+  if (!exactIn && returnValues.amountOut > negAmountRemaining) {
     returnValues.amountOut = negAmountRemaining;
   }
 
   if (exactIn && returnValues.sqrtRatioNextX96 != sqrtRatioTargetX96) {
     // we didn't reach the target, so take the remainder of the maximum input as fee
-    returnValues.feeAmount = amountRemaining.sub(returnValues.amountIn!);
+    returnValues.feeAmount = amountRemaining.sub(returnValues.amountIn);
   } else {
     returnValues.feeAmount = MathUtils.mulDivRoundingUp({
-      a: returnValues.amountIn!,
+      a: returnValues.amountIn,
       b: BigInt.fromUInt32(feePips),
       denominator: MAX_FEE.subInt(feePips),
     });
   }
 
   return {
-    sqrtRatioNextX96: returnValues.sqrtRatioNextX96!,
-    amountIn: returnValues.amountIn!,
-    amountOut: returnValues.amountOut!,
-    feeAmount: returnValues.feeAmount!,
+    sqrtRatioNextX96: returnValues.sqrtRatioNextX96,
+    amountIn: returnValues.amountIn,
+    amountOut: returnValues.amountOut,
+    feeAmount: returnValues.feeAmount,
   };
 }
 

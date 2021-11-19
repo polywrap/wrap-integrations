@@ -97,7 +97,7 @@ function binarySearch(ticks: Tick[], tick: u32): u32 {
   }
 }
 
-export function getTick(ticks: Tick[], index: u32): Tick {
+export function findTick(ticks: Tick[], index: u32): Tick {
   const tick: Tick = ticks[binarySearch(ticks, index)];
   if (tick.index != index) {
     throw new Error("NOT_CONTAINED: requested tick not found in tick list");

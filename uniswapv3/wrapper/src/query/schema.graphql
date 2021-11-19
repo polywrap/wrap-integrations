@@ -255,296 +255,296 @@ type Query {
     pool: Pool!
   ): UInt32!
 
-  ## Route
+   ## Route
 
-  # Constructs and validates a Route
-  createRoute(
-    pools: [Pool!]!
-    input: Token!
-    output: Token
-  ): Route!
+#  # Constructs and validates a Route
+#  createRoute(
+#    pools: [Pool!]!
+#    input: Token!
+#    output: Token
+#  ): Route!
+#
+#  # Returns the chain id of the tokens in the route
+#  routeChainId(
+#    route: Route!
+#  ): ChainId!
+#
+#  #  Returns the mid price of the route
+#  routeMidPrice(
+#    route: Route!
+#  ): String!
 
-  # Returns the chain id of the tokens in the route
-  routeChainId(
-    route: Route!
-  ): ChainId!
+   ## Trade
 
-  #  Returns the mid price of the route
-  routeMidPrice(
-    route: Route!
-  ): String!
+#  # Constructs an exact in trade with the given amount in and route
+#  createTradeExactIn(
+#    route: TradeRoute! # the route of the exact in trade and the amount being passed in
+#  ): Trade!
+#
+#  # Constructs an exact out trade with the given amount out and route
+#  createTradeExactOut(
+#    route: TradeRoute! # the route of the exact out trade and the amount returned
+#  ): Trade!
+#
+#  # Constructs a trade by simulating swaps through the given route
+#  createTradeFromRoute(
+#    route: TradeRoute!  # the route to swap through and the amount specified, either input or output, depending on the trade type
+#    tradeType: TradeType! # whether the trade is an exact input or exact output swap
+#  ): Trade!
+#
+#  createTradeFromRoutes(
+#    routes: [TradeRoute!]! # the routes to swap through and how much of the amount should be routed through each
+#    tradeType: TradeType! # whether the trade is an exact input or exact output swap
+#  ): Trade!
+#
+#  # Creates a trade without computing the result of swapping through the route. Useful when you have simulated the trade elsewhere and do not have any tick data
+#  createUncheckedTrade(
+#    route: UncheckedTradeRoute! # the route to swap through, the amount being passed in, and the amount returned when the trade is executed
+#    tradeType: TradeType! # the type of the trade, either exact in or exact out
+#  ): Trade!
+#
+#  # Creates a trade without computing the result of swapping through the routes. Useful when you have simulated the trade elsewhere and do not have any tick data
+#  createUncheckedTradeWithMultipleRoutes(
+#    routes: [UncheckedTradeRoute!]! # the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
+#    tradeType: TradeType! # the type of the trade, either exact in or exact out
+#  ): Trade!
+#
+#  # The price expressed in terms of output amount/input amount.
+#  tradeExecutionPrice(
+#    trade: Trade!
+#  ): String!
+#
+#  # Returns the percent difference between the route's mid price and the price impact
+#  tradePriceImpact(
+#    trade: Trade!
+#  ): String!
+#
+#  # Get the minimum amount that must be received from this trade for the given slippage tolerance
+#  tradeMinimumAmountOut(
+#    slippageTolerance: String! # The tolerance of unfavorable slippage from the execution price of this trade
+#    trade: Trade!
+#  ): TokenAmount!
+#
+#  # Get the maximum amount in that can be spent via this trade for the given slippage tolerance
+#  tradeMaximumAmountIn(
+#    slippageTolerance: String! # The tolerance of unfavorable slippage from the execution price of this trade
+#    trade: Trade!
+#  ): TokenAmount!
+#
+#  # Return the execution price after accounting for slippage tolerance
+#  tradeWorstExecutionPrice(
+#    slippageTolerance: String! # the allowed tolerated slippage
+#    trade: Trade!
+#  ): String!
+#
+#  """
+#  Given a list of pools, and a fixed amount in, returns the top `maxNumResults` trades that go from an input token
+#  amount to an output token, making at most `maxHops` hops.
+#  Note this does not consider aggregation, as routes are linear. It's possible a better route exists by splitting
+#  the amount in among multiple routes.
+#  """
+#  bestTradeExactIn(
+#    pools: [Pool!]! # the pools to consider in finding the best trade
+#    amountIn: TokenAmount! # exact amount of input currency to spend
+#    tokenOut: Token! # the desired currency out
+#    options: BestTradeOptions
+#  ): [Trade!]!
+#
+#  """
+#  similar to bestTradeExactIn(...) but instead targets a fixed output amount
+#  given a list of pools, and a fixed amount out, returns the top `maxNumResults` trades that go from an input token
+#  to an output token amount, making at most `maxHops` hops
+#  note this does not consider aggregation, as routes are linear. it's possible a better route exists by splitting
+#  the amount in among multiple routes.
+#  """
+#  bestTradeExactOut(
+#    pools: [Pool!]! # the pools to consider in finding the best trade
+#    tokenIn: Token! # the currency to spend
+#    amountOut: TokenAmount! # the desired currency amount out
+#    options: BestTradeOptions
+#  ): [Trade!]!
 
-  ## Trade
+   ## Position
 
-  # Constructs an exact in trade with the given amount in and route
-  createTradeExactIn(
-    route: TradeRoute! # the route of the exact in trade and the amount being passed in
-  ): Trade!
+#  # Constructs and validates a Position for a given Pool with the given liquidity
+#  createPosition(
+#    pool: Pool!
+#    tickLower: UInt32!
+#    tickUpper: UInt32!
+#    liquidity: BigInt!
+#  ): Position!
+#
+#  # Computes the maximum amount of liquidity received for a given amount of token0, token1, and the prices at the tick boundaries.
+#  createPositionFromAmounts(
+#    pool: Pool! # The pool for which the position should be created
+#    tickLower: UInt32! # The lower tick of the position
+#    tickUpper: UInt32! # The upper tick of the position
+#    amount0: BigInt! # token0 amount
+#    amount1: BigInt! # token1 amount
+#    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
+#  ): Position!
+#
+#  # Computes a position with the maximum amount of liquidity received for a given amount of token0, assuming an unlimited amount of token1
+#  createPositionFromAmount0(
+#    pool: Pool! # The pool for which the position should be created
+#    tickLower: UInt32! # The lower tick of the position
+#    tickUpper: UInt32! # The upper tick of the position
+#    amount0: BigInt! # The desired amount of token0
+#    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
+#  ): Position!
+#
+#  # Computes a position with the maximum amount of liquidity received for a given amount of token1, assuming an unlimited amount of token0
+#  createPositionFromAmount1(
+#    pool: Pool! # The pool for which the position should be created
+#    tickLower: UInt32! # The lower tick of the position
+#    tickUpper: UInt32! # The upper tick of the position
+#    amount1: BigInt! # The desired amount of token1
+#    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
+#  ): Position!
+#
+#  # Returns the price of token0 at the lower tick
+#  positionToken0PriceLower(
+#    position: Position!
+#  ): String!
+#
+#  # Returns the price of token0 at the upper tick
+#  positionToken0PriceUpper(
+#    position: Position!
+#  ): String!
+#
+#  # Returns the amount of token0 that this position's liquidity could be burned for at the current pool price
+#  positionAmount0(
+#    position: Position!
+#  ): TokenAmount!
+#
+#  # Returns the amount of token1 that this position's liquidity could be burned for at the current pool price
+#  positionAmount1(
+#    position: Position!
+#  ): TokenAmount!
+#
+#  # Returns the minimum amounts that must be sent in order to safely mint the amount of liquidity held by the position with the given slippage tolerance
+#  mintAmountsWithSlippage(
+#    slippageTolerance: String! # Tolerance of unfavorable slippage from the current price
+#    position: Position!
+#  ): MintAmounts!
+#
+#  # Returns the minimum amounts that should be requested in order to safely burn the amount of liquidity held by the position with the given slippage tolerance
+#  burnAmountsWithSlippage(
+#    slippageTolerance: String! # Tolerance of unfavorable slippage from the current price
+#    position: Position!
+#  ): MintAmounts!
+#
+#  # Returns the minimum amounts that must be sent in order to mint the amount of liquidity held by the position at the current price for the pool
+#  mintAmounts(
+#    position: Position!
+#  ): MintAmounts!
 
-  # Constructs an exact out trade with the given amount out and route
-  createTradeExactOut(
-    route: TradeRoute! # the route of the exact out trade and the amount returned
-  ): Trade!
+   ## Router
 
-  # Constructs a trade by simulating swaps through the given route
-  createTradeFromRoute(
-    route: TradeRoute!  # the route to swap through and the amount specified, either input or output, depending on the trade type
-    tradeType: TradeType! # whether the trade is an exact input or exact output swap
-  ): Trade!
+#  # Produces the on-chain method name to call and the hex encoded parameters to pass as arguments for a given trade.
+#  swapCallParameters(
+#    trades: [Trade!]! # trade to produce call parameters for
+#    options: SwapOptions! # options for the call parameters
+#  ): MethodParameters!
+#
+#  estimateGas(
+#    parameters: MethodParameters!
+#    chainId: ChainId
+#  ): BigInt!
+#
+#  # TODO: why did i drop this function before?
+#  execCallStatic(
+#    parameters: MethodParameters!
+#    chainId: ChainId!
+#    gasOptions: GasOptions!
+#  ): Ethereum_StaticTxResult!
 
-  createTradeFromRoutes(
-    routes: [TradeRoute!]! # the routes to swap through and how much of the amount should be routed through each
-    tradeType: TradeType! # whether the trade is an exact input or exact output swap
-  ): Trade!
+   ## MultiCall
 
-  # Creates a trade without computing the result of swapping through the route. Useful when you have simulated the trade elsewhere and do not have any tick data
-  createUncheckedTrade(
-    route: UncheckedTradeRoute! # the route to swap through, the amount being passed in, and the amount returned when the trade is executed
-    tradeType: TradeType! # the type of the trade, either exact in or exact out
-  ): Trade!
+#  encodeMulticall(
+#    calldatas: [String!]!
+#  ): String!
 
-  # Creates a trade without computing the result of swapping through the routes. Useful when you have simulated the trade elsewhere and do not have any tick data
-  createUncheckedTradeWithMultipleRoutes(
-    routes: [UncheckedTradeRoute!]! # the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
-    tradeType: TradeType! # the type of the trade, either exact in or exact out
-  ): Trade!
+   ## SelfPermit
 
-  # The price expressed in terms of output amount/input amount.
-  tradeExecutionPrice(
-    trade: Trade!
-  ): String!
+#  encodePermit(
+#    token: Token!
+#    options: PermitOptions!
+#  ): String!
 
-  # Returns the percent difference between the route's mid price and the price impact
-  tradePriceImpact(
-    trade: Trade!
-  ): String!
+   ## Payments
 
-  # Get the minimum amount that must be received from this trade for the given slippage tolerance
-  tradeMinimumAmountOut(
-    slippageTolerance: String! # The tolerance of unfavorable slippage from the execution price of this trade
-    trade: Trade!
-  ): TokenAmount!
+#  encodeUnwrapWETH9(
+#    amountMinimum: BigInt!
+#    recipient: String!
+#    feeOptions: FeeOptions
+#  ): String!
+#
+#  encodeSweepToken(
+#    token: Token!
+#    amountMinimum: BigInt!
+#    recipient: String!
+#    feeOptions: FeeOptions
+#  ): String!
+#
+#  encodeRefundETH: String!
 
-  # Get the maximum amount in that can be spent via this trade for the given slippage tolerance
-  tradeMaximumAmountIn(
-    slippageTolerance: String! # The tolerance of unfavorable slippage from the execution price of this trade
-    trade: Trade!
-  ): TokenAmount!
+   ## Staker
 
-  # Return the execution price after accounting for slippage tolerance
-  tradeWorstExecutionPrice(
-    slippageTolerance: String! # the allowed tolerated slippage
-    trade: Trade!
-  ): String!
+#  # Returns the calldatas for 'unstakeToken', 'claimReward', and 'stakeToken'.
+#  # Note:  A `tokenId` can be staked in many programs but to claim rewards and continue the program you must unstake, claim, and then restake.
+#  collectRewards(
+#    incentiveKeys: [IncentiveKey!]! # An IncentiveKey or array of IncentiveKeys that `tokenId` is staked in. Input an array of IncentiveKeys to claim rewards for each program.
+#    options: ClaimOptions! # ClaimOptions to specify tokenId, recipient, and amount wanting to collect. Note that you can only specify one amount and one recipient across the various programs if you are collecting from multiple programs at once.
+#  ): MethodParameters!
+#
+#  # Returns calldata for unstaking, claiming, and withdrawing.
+#  withdrawToken(
+#    incentiveKeys: [IncentiveKey!]! # A list of incentiveKeys to unstake from. Should include all incentiveKeys (unique staking programs) that `options.tokenId` is staked in.
+#    withdrawOptions: FullWithdrawOptions! # Options for producing claim calldata and withdraw calldata. Can't withdraw without unstaking all programs for `tokenId`.
+#  ): MethodParameters!
 
-  """
-  Given a list of pools, and a fixed amount in, returns the top `maxNumResults` trades that go from an input token
-  amount to an output token, making at most `maxHops` hops.
-  Note this does not consider aggregation, as routes are linear. It's possible a better route exists by splitting
-  the amount in among multiple routes.
-  """
-  bestTradeExactIn(
-    pools: [Pool!]! # the pools to consider in finding the best trade
-    amountIn: TokenAmount! # exact amount of input currency to spend
-    tokenOut: Token! # the desired currency out
-    options: BestTradeOptions
-  ): [Trade!]!
+   ## Quoter
 
-  """
-  similar to bestTradeExactIn(...) but instead targets a fixed output amount
-  given a list of pools, and a fixed amount out, returns the top `maxNumResults` trades that go from an input token
-  to an output token amount, making at most `maxHops` hops
-  note this does not consider aggregation, as routes are linear. it's possible a better route exists by splitting
-  the amount in among multiple routes.
-  """
-  bestTradeExactOut(
-    pools: [Pool!]! # the pools to consider in finding the best trade
-    tokenIn: Token! # the currency to spend
-    amountOut: TokenAmount! # the desired currency amount out
-    options: BestTradeOptions
-  ): [Trade!]!
-
-  ## Position
-
-  # Constructs and validates a Position for a given Pool with the given liquidity
-  createPosition(
-    pool: Pool!
-    tickLower: UInt32!
-    tickUpper: UInt32!
-    liquidity: BigInt!
-  ): Position!
-
-  # Computes the maximum amount of liquidity received for a given amount of token0, token1, and the prices at the tick boundaries.
-  createPositionFromAmounts(
-    pool: Pool! # The pool for which the position should be created
-    tickLower: UInt32! # The lower tick of the position
-    tickUpper: UInt32! # The upper tick of the position
-    amount0: BigInt! # token0 amount
-    amount1: BigInt! # token1 amount
-    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
-  ): Position!
-
-  # Computes a position with the maximum amount of liquidity received for a given amount of token0, assuming an unlimited amount of token1
-  createPositionFromAmount0(
-    pool: Pool! # The pool for which the position should be created
-    tickLower: UInt32! # The lower tick of the position
-    tickUpper: UInt32! # The upper tick of the position
-    amount0: BigInt! # The desired amount of token0
-    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
-  ): Position!
-
-  # Computes a position with the maximum amount of liquidity received for a given amount of token1, assuming an unlimited amount of token0
-  createPositionFromAmount1(
-    pool: Pool! # The pool for which the position should be created
-    tickLower: UInt32! # The lower tick of the position
-    tickUpper: UInt32! # The upper tick of the position
-    amount1: BigInt! # The desired amount of token1
-    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
-  ): Position!
-
-  # Returns the price of token0 at the lower tick
-  positionToken0PriceLower(
-    position: Position!
-  ): String!
-
-  # Returns the price of token0 at the upper tick
-  positionToken0PriceUpper(
-    position: Position!
-  ): String!
-
-  # Returns the amount of token0 that this position's liquidity could be burned for at the current pool price
-  positionAmount0(
-    position: Position!
-  ): TokenAmount!
-
-  # Returns the amount of token1 that this position's liquidity could be burned for at the current pool price
-  positionAmount1(
-    position: Position!
-  ): TokenAmount!
-
-  # Returns the minimum amounts that must be sent in order to safely mint the amount of liquidity held by the position with the given slippage tolerance
-  mintAmountsWithSlippage(
-    slippageTolerance: String! # Tolerance of unfavorable slippage from the current price
-    position: Position!
-  ): MintAmounts!
-
-  # Returns the minimum amounts that should be requested in order to safely burn the amount of liquidity held by the position with the given slippage tolerance
-  burnAmountsWithSlippage(
-    slippageTolerance: String! # Tolerance of unfavorable slippage from the current price
-    position: Position!
-  ): MintAmounts!
-
-  # Returns the minimum amounts that must be sent in order to mint the amount of liquidity held by the position at the current price for the pool
-  mintAmounts(
-    position: Position!
-  ): MintAmounts!
-
-  ## Router
-
-  # Produces the on-chain method name to call and the hex encoded parameters to pass as arguments for a given trade.
-  swapCallParameters(
-    trades: [Trade!]! # trade to produce call parameters for
-    options: SwapOptions! # options for the call parameters
-  ): MethodParameters!
-
-  estimateGas(
-    parameters: MethodParameters!
-    chainId: ChainId
-  ): BigInt!
-
-  # TODO: why did i drop this function before?
-  execCallStatic(
-    parameters: MethodParameters!
-    chainId: ChainId!
-    gasOptions: GasOptions!
-  ): Ethereum_StaticTxResult!
-
-  ## MultiCall
-
-  encodeMulticall(
-    calldatas: [String!]!
-  ): String!
-
-  ## SelfPermit
-
-  encodePermit(
-    token: Token!
-    options: PermitOptions!
-  ): String!
-
-  ## Payments
-
-  encodeUnwrapWETH9(
-    amountMinimum: BigInt!
-    recipient: String!
-    feeOptions: FeeOptions
-  ): String!
-
-  encodeSweepToken(
-    token: Token!
-    amountMinimum: BigInt!
-    recipient: String!
-    feeOptions: FeeOptions
-  ): String!
-
-  encodeRefundETH: String!
-
-  ## Staker
-
-  # Returns the calldatas for 'unstakeToken', 'claimReward', and 'stakeToken'.
-  # Note:  A `tokenId` can be staked in many programs but to claim rewards and continue the program you must unstake, claim, and then restake.
-  collectRewards(
-    incentiveKeys: [IncentiveKey!]! # An IncentiveKey or array of IncentiveKeys that `tokenId` is staked in. Input an array of IncentiveKeys to claim rewards for each program.
-    options: ClaimOptions! # ClaimOptions to specify tokenId, recipient, and amount wanting to collect. Note that you can only specify one amount and one recipient across the various programs if you are collecting from multiple programs at once.
-  ): MethodParameters!
-
-  # Returns calldata for unstaking, claiming, and withdrawing.
-  withdrawToken(
-    incentiveKeys: [IncentiveKey!]! # A list of incentiveKeys to unstake from. Should include all incentiveKeys (unique staking programs) that `options.tokenId` is staked in.
-    withdrawOptions: FullWithdrawOptions! # Options for producing claim calldata and withdraw calldata. Can't withdraw without unstaking all programs for `tokenId`.
-  ): MethodParameters!
-
-  ## Quoter
-
-  # Produces the on-chain method name of the appropriate function within QuoterV2, and the relevant hex encoded parameters.
-  quoteCallParameters(
-    route: Route! # The swap route, a list of pools through which a swap can occur
-    amount: TokenAmount! # The amount of the quote, either an amount in, or an amount out
-    tradeType: TradeType! # The trade type, either exact input or exact output
-    options: QuoteOptions
-  ): MethodParameters!
-
-  ## NonfungiblePositionManager
-
-  createCallParametersNFPM(
-    pool: Pool!
-  ): MethodParameters!
-
-  addCallParametersNFPM(
-    position: Position!
-    options: AddLiquidityOptions!
-  ): MethodParameters!
-
-  collectCallParametersNFPM(
-    options: CollectOptions!
-  ): MethodParameters!
-
-  # Produces the calldata for completely or partially exiting a position
-  removeCallParameters(
-    position: Position! # The position to exit
-    options: RemoveLiquidityOptions! # Additional information necessary for generating the calldata
-  ): MethodParameters!
-
-  safeTransferFromParameters(
-    options: SafeTransferOptions!
-  ): MethodParameters!
+#  # Produces the on-chain method name of the appropriate function within QuoterV2, and the relevant hex encoded parameters.
+#  quoteCallParameters(
+#    route: Route! # The swap route, a list of pools through which a swap can occur
+#    amount: TokenAmount! # The amount of the quote, either an amount in, or an amount out
+#    tradeType: TradeType! # The trade type, either exact input or exact output
+#    options: QuoteOptions
+#  ): MethodParameters!
+#
+#  ## NonfungiblePositionManager
+#
+#  createCallParametersNFPM(
+#    pool: Pool!
+#  ): MethodParameters!
+#
+#  addCallParametersNFPM(
+#    position: Position!
+#    options: AddLiquidityOptions!
+#  ): MethodParameters!
+#
+#  collectCallParametersNFPM(
+#    options: CollectOptions!
+#  ): MethodParameters!
+#
+#  # Produces the calldata for completely or partially exiting a position
+#  removeCallParameters(
+#    position: Position! # The position to exit
+#    options: RemoveLiquidityOptions! # Additional information necessary for generating the calldata
+#  ): MethodParameters!
+#
+#  safeTransferFromParameters(
+#    options: SafeTransferOptions!
+#  ): MethodParameters!
 
   ## Utils
 
   # Converts a big int to a hex string
-  toHex(
-    bigint: BigInt!
-  ): String!
+#  toHex(
+#    bigint: BigInt!
+#  ): String!
 
   # Computes a pool address
   computePoolAddress(
@@ -556,10 +556,10 @@ type Query {
   ): String!
 
   # Converts a route to a hex encoded path
-  encodeRouteToPath(
-    route: Route! # the v3 path to convert to an encoded path
-    exactOutput: Boolean! # whether the route should be encoded in reverse, for making exact output swaps
-  ): String!
+#  encodeRouteToPath(
+#    route: Route! # the v3 path to convert to an encoded path
+#    exactOutput: Boolean! # whether the route should be encoded in reverse, for making exact output swaps
+#  ): String!
 
   # Returns the sqrt ratio as a Q64.96 corresponding to a given ratio of amount1 and amount0
   encodeSqrtRatioX96(
@@ -581,19 +581,19 @@ type Query {
   ): BigInt!
 
   # Computes the maximum amount of liquidity received for a given amount of token0, token1, and the prices at the tick boundaries.
-  maxLiquidityForAmounts(
-    sqrtRatioCurrentX96: BigInt! # the current price
-    sqrtRatioAX96: BigInt! # price at lower boundary
-    sqrtRatioBX96: BigInt! # price at upper boundary
-    amount0: BigInt! # token0 amount
-    amount1: BigInt! # token1 amount
-    useFullPrecision: Boolean! # if false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
-  ): BigInt!
+#  maxLiquidityForAmounts(
+#    sqrtRatioCurrentX96: BigInt! # the current price
+#    sqrtRatioAX96: BigInt! # price at lower boundary
+#    sqrtRatioBX96: BigInt! # price at upper boundary
+#    amount0: BigInt! # token0 amount
+#    amount1: BigInt! # token1 amount
+#    useFullPrecision: Boolean! # if false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
+#  ): BigInt!
 
   # Returns the most significant bit of a positive integer
   mostSignificantBit(
     x: BigInt!
-  ): UInt32
+  ): UInt32!
 
   # Returns the closest tick that is nearest a given tick and usable for the given tick spacing
   nearestUsableTick(
@@ -698,22 +698,22 @@ type Query {
 
   ##  Fetch
 
-  fetchTokenData(
-    chainId: ChainId!
-    address: String!
-  ): Token!
-
-  fetchPoolData(
-    token0: Token!
-    token1: Token!
-  ): Pool!
-
-  fetchTotalSupply(
-    token: Token!
-  ): TokenAmount!
+#  fetchTokenData(
+#    chainId: ChainId!
+#    address: String!
+#  ): Token!
+#
+#  fetchPoolData(
+#    token0: Token!
+#    token1: Token!
+#  ): Pool!
+#
+#  fetchTotalSupply(
+#    token: Token!
+#  ): TokenAmount!
 
   ##  constants
 
-  FACTORY_ADDRESS: String!
-  POOL_INIT_CODE_HASH: String!
+#  FACTORY_ADDRESS: String!
+#  POOL_INIT_CODE_HASH: String!
 }

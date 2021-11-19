@@ -49,13 +49,13 @@ class SimulatedSwapState {
 }
 
 class StepComputations {
-  sqrtPriceStartX96: BigInt | null;
-  tickNext: u32 | null;
-  initialized: boolean | null;
-  sqrtPriceNextX96: BigInt | null;
-  amountIn: BigInt | null;
-  amountOut: BigInt | null;
-  feeAmount: BigInt | null;
+  sqrtPriceStartX96: BigInt;
+  tickNext: u32;
+  initialized: boolean;
+  sqrtPriceNextX96: BigInt;
+  amountIn: BigInt;
+  amountOut: BigInt;
+  feeAmount: BigInt;
 }
 
 /**
@@ -81,8 +81,8 @@ export function createPool(input: Input_createPool): Pool {
     tick: tickCurrent + 1,
   });
   if (
-    sqrtRatioX96.lt(tickCurrentSqrtRatioX96) ||
-    sqrtRatioX96.gt(nextTickSqrtRatioX96)
+    sqrtRatioX96 < tickCurrentSqrtRatioX96 ||
+    sqrtRatioX96 > nextTickSqrtRatioX96
   ) {
     throw new Error("PRICE_BOUNDS: sqrtRatioX96 is invalid for current tick");
   }
@@ -289,33 +289,34 @@ export function getPoolInputAmount(
 export function simulateSwap(input: Input_simulateSwap): SimulatedSwapResult {
   const zeroForOne: boolean = input.zeroForOne;
   const amountSpecified: BigInt = input.amountSpecified;
-  let sqrtPriceLimitX96: BigInt | null = input.sqrtPriceLimitX96;
   const pool: Pool = input.pool;
-
-  if (sqrtPriceLimitX96 == null) {
+  let sqrtPriceLimitX96: BigInt;
+  if (input.sqrtPriceLimitX96 !== null) {
+    sqrtPriceLimitX96 = input.sqrtPriceLimitX96!;
+  } else {
     sqrtPriceLimitX96 = zeroForOne
       ? BigInt.add(MIN_SQRT_RATIO, BigInt.ONE)
       : BigInt.sub(MAX_SQRT_RATIO, BigInt.ONE);
   }
 
   if (zeroForOne) {
-    if (sqrtPriceLimitX96.lte(MIN_SQRT_RATIO)) {
+    if (sqrtPriceLimitX96 <= MIN_SQRT_RATIO) {
       throw new Error(
         `RATIO_MIN: input sqrtPriceLimitX96 ${sqrtPriceLimitX96.toString()} is less than or equal to the minimum sqrt ratio ${MIN_SQRT_RATIO.toString()}`
       );
     }
-    if (sqrtPriceLimitX96.gte(pool.sqrtRatioX96)) {
+    if (sqrtPriceLimitX96 >= pool.sqrtRatioX96) {
       throw new Error(
         `RATIO_CURRENT: input sqrtPriceLimitX96 ${sqrtPriceLimitX96.toString()} is greater than or equal to the pool's current sqrt ratio ${pool.sqrtRatioX96.toString()}`
       );
     }
   } else {
-    if (sqrtPriceLimitX96.gte(MAX_SQRT_RATIO)) {
+    if (sqrtPriceLimitX96 >= MAX_SQRT_RATIO) {
       throw new Error(
         `RATIO_MAX: input sqrtPriceLimitX96 ${sqrtPriceLimitX96.toString()} is greater than or equal to the maximum sqrt ratio ${MAX_SQRT_RATIO.toString()}`
       );
     }
-    if (sqrtPriceLimitX96.lte(pool.sqrtRatioX96)) {
+    if (sqrtPriceLimitX96 <= pool.sqrtRatioX96) {
       throw new Error(
         `RATIO_CURRENT: input sqrtPriceLimitX96 ${sqrtPriceLimitX96.toString()} is less than or equal to the pool's current sqrt ratio ${pool.sqrtRatioX96.toString()}`
       );
@@ -323,7 +324,7 @@ export function simulateSwap(input: Input_simulateSwap): SimulatedSwapResult {
   }
 
   const ZERO: BigInt = BigInt.ZERO;
-  const exactInput: boolean = BigInt.gte(amountSpecified, ZERO);
+  const exactInput: boolean = amountSpecified >= ZERO;
 
   // keep track of swap state
   const state: SimulatedSwapState = {
@@ -340,13 +341,13 @@ export function simulateSwap(input: Input_simulateSwap): SimulatedSwapResult {
     state.sqrtPriceX96 != sqrtPriceLimitX96
   ) {
     const step: StepComputations = {
-      sqrtPriceStartX96: null,
-      tickNext: null,
-      initialized: null,
-      sqrtPriceNextX96: null,
-      amountIn: null,
-      amountOut: null,
-      feeAmount: null,
+      sqrtPriceStartX96: BigInt.ZERO,
+      tickNext: 0,
+      initialized: false,
+      sqrtPriceNextX96: BigInt.ZERO,
+      amountIn: BigInt.ZERO,
+      amountOut: BigInt.ZERO,
+      feeAmount: BigInt.ZERO,
     };
     step.sqrtPriceStartX96 = state.sqrtPriceX96;
 

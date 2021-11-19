@@ -1,5 +1,5 @@
-import { Input_swap } from "./w3";
+import { Input_placeholder } from "./w3";
 
-export function swap(input: Input_swap): boolean {
-  return input.param.value === true;
+export function placeholder(input: Input_placeholder): boolean {
+  return input.param;
 }
