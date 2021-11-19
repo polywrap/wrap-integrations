@@ -2,7 +2,11 @@ import { BigInt } from "@web3api/wasm-as";
 
 /* SDK CORE CONSTANTS */
 
-export const MAX_UINT_256 = BigInt.fromString('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 16);
+export const MAX_UINT_256 = BigInt.fromString(
+  "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+  16
+);
+// export const MAX_UINT_160 = BigInt.ONE.mulPowTwo(256).subInt(1);
 
 /* V3 SDK PUBLIC CONSTANTS */
 
@@ -19,10 +23,9 @@ export const POOL_INIT_CODE_HASH_OPTIMISM_KOVAN =
 
 /* V3 SDK INTERNAL CONSTANTS */
 
-// constants used internally but not expected to be used externally
-export const NEGATIVE_ONE = BigInt.fromString("-1");
 // used in liquidity amount math
-export const Q96 = BigInt.pow(BigInt.fromUInt16(2), 96);
+// export const Q96 = BigInt.pow(BigInt.fromUInt16(2), 96);
+export const Q96 = BigInt.ONE.mulPowTwo(96);
 export const Q192 = BigInt.pow(Q96, 2);
 
 /* TICK MATH CONSTANTS */
@@ -38,3 +41,13 @@ export const MIN_SQRT_RATIO: BigInt = BigInt.fromString("4295128739");
 export const MAX_SQRT_RATIO: BigInt = BigInt.fromString(
   "1461446703485210103287273052203988822378723970342"
 );
+
+/* SWAP MATH CONSTANTS */
+
+export const MAX_FEE = BigInt.fromUInt32(10 ** 6);
+
+export const MAX_UINT_160 = BigInt.fromString(
+  "ffffffffffffffffffffffffffffffffffffffff",
+  16
+);
+// export const MAX_UINT_160 = BigInt.ONE.mulPowTwo(160).subInt(1);

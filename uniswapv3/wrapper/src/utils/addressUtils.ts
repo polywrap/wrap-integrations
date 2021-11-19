@@ -42,6 +42,18 @@ function arrayify(hex: string): Uint8Array {
   return result;
 }
 
+// function arraifyUInt32(value: u32):Uint8Array {
+//   const result: Uint8Array = new Uint8Array(hex.length / 2);
+//   while (value) {
+//     result.unshift(value & 0xff);
+//     value = parseInt(String(value / 256));
+//   }
+//   if (result.length === 0) { result.push(0); }
+//
+//   return addSlice(new Uint8Array(result));
+// }
+// }
+
 // https://github.com/ethers-io/ethers.js/blob/d395d16fa357ec5dda9b59922cf21c39dc34c071/packages/bytes/lib.esm/index.js#L89
 export function concat(items: string[]): Uint8Array {
   const objects: Uint8Array[] = items.map<Uint8Array>((item: string) =>
@@ -59,3 +71,15 @@ export function concat(items: string[]): Uint8Array {
   }
   return result;
 }
+
+// export function zeroPad(value: u32, length: i32): Uint8Array {
+//   value = arrayify(value);
+//
+//   if (value.length > length) {
+//     throw new Error("value out of range");
+//   }
+//
+//   const result = new Uint8Array(length);
+//   result.set(value, length - value.length);
+//   return result;
+// }

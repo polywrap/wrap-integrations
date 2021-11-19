@@ -4,14 +4,23 @@ import {
   Input_nearestUsableTick,
   Input_priceToClosestTick,
   Input_tickToPrice,
-  Token
+  Token,
 } from "./w3";
-import { BigInt } from "@web3api/wasm-as";
-import { MAX_SQRT_RATIO, MAX_TICK, MAX_UINT_256, MIN_SQRT_RATIO, MIN_TICK, Q192, Q32 } from "../utils/constants";
+import {
+  MAX_SQRT_RATIO,
+  MAX_TICK,
+  MAX_UINT_256,
+  MIN_SQRT_RATIO,
+  MIN_TICK,
+  Q192,
+  Q32,
+} from "../utils/constants";
 import { tokenSortsBefore } from "./token";
 import Price from "../utils/Price";
 import { mostSignificantBit, encodeSqrtRatioX96 } from "./mathUtils";
 import Fraction from "../utils/Fraction";
+
+import { BigInt } from "@web3api/wasm-as";
 
 /**
  * Returns the closest tick that is nearest a given tick and usable for the given tick spacing
@@ -25,7 +34,9 @@ export function nearestUsableTick(input: Input_nearestUsableTick): u32 {
     throw new Error("TICK_SPACING: tick spacing must be greater than 0");
   }
   if (tick < MIN_TICK || tick > MAX_TICK) {
-    throw new Error(`TICK_BOUND: tick index is out of range ${MIN_TICK} to ${MAX_TICK}`);
+    throw new Error(
+      `TICK_BOUND: tick index is out of range ${MIN_TICK} to ${MAX_TICK}`
+    );
   }
 
   const rounded: u32 = roundedDiv(tick, tickSpacing);
@@ -41,7 +52,7 @@ export function nearestUsableTick(input: Input_nearestUsableTick): u32 {
  * @param input.tick the tick for which to return the price
  */
 export function tickToPrice(input: Input_tickToPrice): string {
-  return _tickToPrice(input).toFixed();
+  return _tickToPrice(input).toFixed(18);
 }
 
 function _tickToPrice(input: Input_tickToPrice): Price {
@@ -70,14 +81,27 @@ export function priceToClosestTick(input: Input_priceToClosestTick): u32 {
     priceFraction.numerator
   );
 
-  const sorted: boolean = tokenSortsBefore({ tokenA: price.baseToken, tokenB: price.quoteToken });
+  const sorted: boolean = tokenSortsBefore({
+    tokenA: price.baseToken,
+    tokenB: price.quoteToken,
+  });
 
   const sqrtRatioX96: BigInt = sorted
-    ? encodeSqrtRatioX96({ amount1: price.numerator, amount0: price.denominator })
-    : encodeSqrtRatioX96({ amount1: price.denominator, amount0: price.numerator })
+    ? encodeSqrtRatioX96({
+        amount1: price.numerator,
+        amount0: price.denominator,
+      })
+    : encodeSqrtRatioX96({
+        amount1: price.denominator,
+        amount0: price.numerator,
+      });
 
   let tick: u32 = getTickAtSqrtRatio({ sqrtRatioX96: sqrtRatioX96 });
-  const nextTickPrice: Price = _tickToPrice({ baseToken: price.baseToken, quoteToken: price.quoteToken, tick: tick + 1 });
+  const nextTickPrice: Price = _tickToPrice({
+    baseToken: price.baseToken,
+    quoteToken: price.quoteToken,
+    tick: tick + 1,
+  });
   if (sorted) {
     if (!price.lt(nextTickPrice)) {
       tick++;
@@ -97,33 +121,54 @@ export function priceToClosestTick(input: Input_priceToClosestTick): u32 {
 export function getSqrtRatioAtTick(input: Input_getSqrtRatioAtTick): BigInt {
   const tick: u32 = input.tick;
   if (tick < MIN_TICK || tick > MAX_TICK) {
-    throw new Error(`TICK_BOUND: tick index is out of range ${MIN_TICK} to ${MAX_TICK}`);
+    throw new Error(
+      `TICK_BOUND: tick index is out of range ${MIN_TICK} to ${MAX_TICK}`
+    );
   }
   const absTick: u32 = tick < 0 ? tick * -1 : tick;
 
   let ratio: BigInt =
     (absTick & 0x1) != 0
-      ? BigInt.fromString('0xfffcb933bd6fad37aa2d162d1a594001', 16)
-      : BigInt.fromString('0x100000000000000000000000000000000', 16);
-  if ((absTick & 0x2) != 0) ratio = mulShift(ratio, '0xfff97272373d413259a46990580e213a');
-  if ((absTick & 0x4) != 0) ratio = mulShift(ratio, '0xfff2e50f5f656932ef12357cf3c7fdcc');
-  if ((absTick & 0x8) != 0) ratio = mulShift(ratio, '0xffe5caca7e10e4e61c3624eaa0941cd0');
-  if ((absTick & 0x10) != 0) ratio = mulShift(ratio, '0xffcb9843d60f6159c9db58835c926644');
-  if ((absTick & 0x20) != 0) ratio = mulShift(ratio, '0xff973b41fa98c081472e6896dfb254c0');
-  if ((absTick & 0x40) != 0) ratio = mulShift(ratio, '0xff2ea16466c96a3843ec78b326b52861');
-  if ((absTick & 0x80) != 0) ratio = mulShift(ratio, '0xfe5dee046a99a2a811c461f1969c3053');
-  if ((absTick & 0x100) != 0) ratio = mulShift(ratio, '0xfcbe86c7900a88aedcffc83b479aa3a4');
-  if ((absTick & 0x200) != 0) ratio = mulShift(ratio, '0xf987a7253ac413176f2b074cf7815e54');
-  if ((absTick & 0x400) != 0) ratio = mulShift(ratio, '0xf3392b0822b70005940c7a398e4b70f3');
-  if ((absTick & 0x800) != 0) ratio = mulShift(ratio, '0xe7159475a2c29b7443b29c7fa6e889d9');
-  if ((absTick & 0x1000) != 0) ratio = mulShift(ratio, '0xd097f3bdfd2022b8845ad8f792aa5825');
-  if ((absTick & 0x2000) != 0) ratio = mulShift(ratio, '0xa9f746462d870fdf8a65dc1f90e061e5');
-  if ((absTick & 0x4000) != 0) ratio = mulShift(ratio, '0x70d869a156d2a1b890bb3df62baf32f7');
-  if ((absTick & 0x8000) != 0) ratio = mulShift(ratio, '0x31be135f97d08fd981231505542fcfa6');
-  if ((absTick & 0x10000) != 0) ratio = mulShift(ratio, '0x9aa508b5b7a84e1c677de54f3e99bc9');
-  if ((absTick & 0x20000) != 0) ratio = mulShift(ratio, '0x5d6af8dedb81196699c329225ee604');
-  if ((absTick & 0x40000) != 0) ratio = mulShift(ratio, '0x2216e584f5fa1ea926041bedfe98');
-  if ((absTick & 0x80000) != 0) ratio = mulShift(ratio, '0x48a170391f7dc42444e8fa2');
+      ? BigInt.fromString("0xfffcb933bd6fad37aa2d162d1a594001", 16)
+      : BigInt.fromString("0x100000000000000000000000000000000", 16);
+  if ((absTick & 0x2) != 0)
+    ratio = mulShift(ratio, "0xfff97272373d413259a46990580e213a");
+  if ((absTick & 0x4) != 0)
+    ratio = mulShift(ratio, "0xfff2e50f5f656932ef12357cf3c7fdcc");
+  if ((absTick & 0x8) != 0)
+    ratio = mulShift(ratio, "0xffe5caca7e10e4e61c3624eaa0941cd0");
+  if ((absTick & 0x10) != 0)
+    ratio = mulShift(ratio, "0xffcb9843d60f6159c9db58835c926644");
+  if ((absTick & 0x20) != 0)
+    ratio = mulShift(ratio, "0xff973b41fa98c081472e6896dfb254c0");
+  if ((absTick & 0x40) != 0)
+    ratio = mulShift(ratio, "0xff2ea16466c96a3843ec78b326b52861");
+  if ((absTick & 0x80) != 0)
+    ratio = mulShift(ratio, "0xfe5dee046a99a2a811c461f1969c3053");
+  if ((absTick & 0x100) != 0)
+    ratio = mulShift(ratio, "0xfcbe86c7900a88aedcffc83b479aa3a4");
+  if ((absTick & 0x200) != 0)
+    ratio = mulShift(ratio, "0xf987a7253ac413176f2b074cf7815e54");
+  if ((absTick & 0x400) != 0)
+    ratio = mulShift(ratio, "0xf3392b0822b70005940c7a398e4b70f3");
+  if ((absTick & 0x800) != 0)
+    ratio = mulShift(ratio, "0xe7159475a2c29b7443b29c7fa6e889d9");
+  if ((absTick & 0x1000) != 0)
+    ratio = mulShift(ratio, "0xd097f3bdfd2022b8845ad8f792aa5825");
+  if ((absTick & 0x2000) != 0)
+    ratio = mulShift(ratio, "0xa9f746462d870fdf8a65dc1f90e061e5");
+  if ((absTick & 0x4000) != 0)
+    ratio = mulShift(ratio, "0x70d869a156d2a1b890bb3df62baf32f7");
+  if ((absTick & 0x8000) != 0)
+    ratio = mulShift(ratio, "0x31be135f97d08fd981231505542fcfa6");
+  if ((absTick & 0x10000) != 0)
+    ratio = mulShift(ratio, "0x9aa508b5b7a84e1c677de54f3e99bc9");
+  if ((absTick & 0x20000) != 0)
+    ratio = mulShift(ratio, "0x5d6af8dedb81196699c329225ee604");
+  if ((absTick & 0x40000) != 0)
+    ratio = mulShift(ratio, "0x2216e584f5fa1ea926041bedfe98");
+  if ((absTick & 0x80000) != 0)
+    ratio = mulShift(ratio, "0x48a170391f7dc42444e8fa2");
 
   if (tick > 0) ratio = BigInt.div(MAX_UINT_256, ratio);
 
@@ -140,7 +185,9 @@ export function getSqrtRatioAtTick(input: Input_getSqrtRatioAtTick): BigInt {
 export function getTickAtSqrtRatio(input: Input_getTickAtSqrtRatio): u32 {
   const sqrtRatioX96: BigInt = input.sqrtRatioX96;
   if (sqrtRatioX96 < MIN_SQRT_RATIO || sqrtRatioX96 > MAX_SQRT_RATIO) {
-    throw new Error(`SQRT_RATIO_BOUND: sqrt ratio is out of range ${MIN_SQRT_RATIO} to ${MAX_SQRT_RATIO}`);
+    throw new Error(
+      `SQRT_RATIO_BOUND: sqrt ratio is out of range ${MIN_SQRT_RATIO} to ${MAX_SQRT_RATIO}`
+    );
   }
 
   const sqrtRatioX128: BigInt = sqrtRatioX96.mulPowTwo(32);
@@ -165,7 +212,10 @@ export function getTickAtSqrtRatio(input: Input_getTickAtSqrtRatio): u32 {
     r = r.divPowTwo(toUint32(f));
   }
 
-  const logSqrt10001 = BigInt.mul(log2, BigInt.fromString('255738958999603826347141'));
+  const logSqrt10001 = BigInt.mul(
+    log2,
+    BigInt.fromString("255738958999603826347141")
+  );
 
   const tickLow: u32 = toUint32(
     logSqrt10001
@@ -174,7 +224,7 @@ export function getTickAtSqrtRatio(input: Input_getTickAtSqrtRatio): u32 {
   );
   const tickHigh: u32 = toUint32(
     logSqrt10001
-      .add(BigInt.fromString('291339464771989622907027621153398088495'))
+      .add(BigInt.fromString("291339464771989622907027621153398088495"))
       .divPowTwo(128)
   );
 
@@ -200,10 +250,5 @@ function toUint32(val: BigInt): u32 {
 }
 
 function roundedDiv(a: u32, b: u32): u32 {
-  const x: BigInt = BigInt.fromUInt32(a);
-  const y: BigInt = BigInt.fromUInt32(b);
-  const rounded: BigInt = x.mod(y).mul2().gte(x)
-    ? x.div(y).addInt(1)
-    : x.div(y);
-  return toUint32(rounded);
+  return <u32>((<u64>a + b / 2) / b);
 }

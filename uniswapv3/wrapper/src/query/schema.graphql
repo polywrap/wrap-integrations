@@ -1,5 +1,6 @@
-#import { StaticTxResult } into Ethereum from "w3://ens/ethereum.web3api.eth"
-#import { ChainId, TradeType, Currency, Token, TokenAmount, Tick, TickListDataProvider, Pool, FeeAmount, Route, Trade, BestTradeOptions, Position, PermitOptions, FeeOptions, SwapOptions, MethodParameters, GasOptions } from "../common/schema.graphql"
+#import { Query, StaticTxResult } into Ethereum from "w3://ens/ethereum.web3api.eth"
+#import { Query } into SHA3 from "w3://ens/sha3.web3api.eth"
+#import { ChainId, TradeType, Currency, Token, TokenAmount, Tick, TickListDataProvider, Pool, FeeAmount, Route, Trade, BestTradeOptions, Position, PermitOptions, FeeOptions, SwapOptions, MethodParameters, GasOptions, MintAmounts } from "../common/schema.graphql"
 
 enum Rounding {
   ROUND_DOWN
@@ -194,10 +195,10 @@ type Query {
 
   # Returns the Ethereum address of the Pool contract
   getPoolAddress(
-    tokenA: Token!
-    tokenB: Token!
-    fee: FeeAmount!
-    initCodeHashManualOverride: String
+    tokenA: Token! # The first token of the pool, irrespective of sort order
+    tokenB: Token! # The second token of the pool, irrespective of sort order
+    fee: FeeAmount! # The fee tier of the pool
+    initCodeHashManualOverride: String # Override the init code hash used to compute the pool address if necessary
   ): String!
 
   # Returns true if the token is either token0 or token1
@@ -231,12 +232,14 @@ type Query {
   getPoolOutputAmount(
     inputAmount: TokenAmount! # The input amount for which to quote the output amount
     sqrtPriceLimitX96: BigInt # The Q64.96 sqrt price limit
+    pool: Pool!
   ): PoolChangeResult!
 
   # Given a desired output amount of a token, return the computed input amount and a pool with state updated after the trade
   getPoolInputAmount(
     outputAmount: TokenAmount! # The output amount for which to quote the input amount
     sqrtPriceLimitX96: BigInt # The Q64.96 sqrt price limit. If zero for one, the price cannot be less than this value after the swap. If one for zero, the price cannot be greater than this value after the swap.
+    pool: Pool!
   ): PoolChangeResult!
 
   # Simulations execution of a swap and returns next pool state
@@ -543,13 +546,13 @@ type Query {
     bigint: BigInt!
   ): String!
 
-  # Returns the Ethereum address of the Pool contract
+  # Computes a pool address
   computePoolAddress(
-    tokenA: Token!
-    tokenB: Token!
-    fee: FeeAmount!
-    initCodeHashManualOverride: String
-    factoryAddress: String!
+    factoryAddress: String! # The Uniswap V3 factory address
+    tokenA: Token! # The first token of the pool, irrespective of sort order
+    tokenB: Token! # The second token of the pool, irrespective of sort order
+    fee: FeeAmount! # The fee tier of the pool
+    initCodeHashManualOverride: String # Override the init code hash used to compute the pool address if necessary
   ): String!
 
   # Converts a route to a hex encoded path
@@ -587,7 +590,7 @@ type Query {
     useFullPrecision: Boolean! # if false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
   ): BigInt!
 
-  # Returns the most significant bit of a 256 bit integer
+  # Returns the most significant bit of a positive integer
   mostSignificantBit(
     x: BigInt!
   ): UInt32
