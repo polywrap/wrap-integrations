@@ -190,7 +190,7 @@ type Query {
     sqrtRatioX96: BigInt!
     liquidity: BigInt!
     tickCurrent: UInt32!
-    ticks: TickListDataProvider!
+    ticks: TickListDataProvider
   ): Pool!
 
   # Returns the Ethereum address of the Pool contract
@@ -698,19 +698,28 @@ type Query {
 
   ##  Fetch
 
-#  fetchTokenData(
-#    chainId: ChainId!
-#    address: String!
-#  ): Token!
-#
-#  fetchPoolData(
-#    token0: Token!
-#    token1: Token!
-#  ): Pool!
-#
-#  fetchTotalSupply(
-#    token: Token!
-#  ): TokenAmount!
+  # returns token object constructed from on-chain token contract; assumes chanId is MAINNET if null
+  fetchToken(
+    address: String!
+    chainId: ChainId
+  ): Token!
+
+  # returns pool object constructed from on-chain pool contract
+  fetchPoolFromTokens(
+    tokenA: Token!
+    tokenB: Token!
+    fee: FeeAmount!
+  ): Pool!
+
+  # returns pool object constructed from on-chain pool contract; assumes chanId is MAINNET if null
+  fetchPoolFromAddress(
+    address: String!
+    chainId: ChainId
+  ): Pool!
+
+  fetchTotalSupply(
+    token: Token!
+  ): TokenAmount!
 
   ##  constants
 

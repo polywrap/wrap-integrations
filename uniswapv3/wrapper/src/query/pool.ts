@@ -68,7 +68,7 @@ export function createPool(input: Input_createPool): Pool {
   const sqrtRatioX96: BigInt = input.sqrtRatioX96;
   const liquidity: BigInt = input.liquidity;
   const tickCurrent: u32 = input.tickCurrent;
-  const ticks: TickListDataProvider = input.ticks;
+  const ticks: TickListDataProvider | null = input.ticks;
 
   if (fee >= 1_000_000) {
     throw new Error("FEE: fee amount exceeds the maximum value of 1,000,000.");

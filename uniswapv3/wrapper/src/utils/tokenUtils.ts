@@ -62,7 +62,7 @@ export function getWETH9(chainId: ChainId): Token {
 // check if need to wrap ether
 export function wrapIfEther(token: Token): Token {
   if (
-    currencyEquals({ currency: token.currency, other: ETHER }) &&
+    currencyEquals({ currencyA: token.currency, currencyB: ETHER }) &&
     token.address == ""
   ) {
     return getWETH9(token.chainId);
@@ -85,6 +85,6 @@ export function copyToken(token: Token): Token {
 export function copyTokenAmount(tokenAmount: TokenAmount): TokenAmount {
   return {
     token: copyToken(tokenAmount.token),
-    amount: tokenAmount.amount,
+    amount: tokenAmount.amount.copy(),
   };
 }
