@@ -11,7 +11,9 @@
     "test:e2e": "jest --passWithNoTests --runInBand --verbose",
     "test:unit": "asp --verbose",
     "test": "yarn test:unit && yarn test:e2e",
-    "test:ci": "yarn test:unit && yarn test:e2e"
+    "test:ci": "yarn test:unit && yarn test:e2e",
+    "lint": "yarn eslint src",
+    "lint:fix": "yarn eslint src --fix"
   },
   "dependencies": {
     "as-bigfloat": "0.0.4"

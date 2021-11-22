@@ -673,6 +673,11 @@ type Query {
     lte: Boolean!
   ): Tick!
 
+  # Returns true if a tick list is sorted by tick index
+  tickListIsSorted(
+    ticks: [Tick!]! # The tick list
+  ): Boolean!
+
   # Returns the sqrt ratio as a Q64.96 for the given tick. The sqrt ratio is computed as sqrt(1.0001)^tick
   getSqrtRatioAtTick(
     tick: UInt32! # the tick for which to compute the sqrt ratio
