@@ -217,6 +217,7 @@ export function getTickAtSqrtRatio(input: Input_getTickAtSqrtRatio): i32 {
     BigInt.fromString("255738958999603826347141")
   );
 
+  // TODO: replace divPowTwo with a signedRightShift function like in JSBI: https://github.com/GoogleChromeLabs/jsbi/blob/main/lib/jsbi.ts#L303
   const tickLow: i32 = logSqrt10001
     .sub(BigInt.fromString("3402992956809132418596140100660247210"))
     .divPowTwo(128)

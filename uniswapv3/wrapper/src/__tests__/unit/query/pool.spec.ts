@@ -14,6 +14,7 @@ import {
 } from "../../../query";
 import { MAX_TICK, MIN_TICK } from "../../../utils/constants";
 import { getTickSpacings } from "../../../utils/utils";
+import { BigFloat } from "as-bigfloat";
 
 
 const ONE_ETHER: BigInt = BigInt.pow(BigInt.fromUInt16(10), 18);
@@ -31,7 +32,7 @@ const DAI: Token = {
   chainId: ChainId.MAINNET,
   address: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
   currency: {
-    decimals: 6,
+    decimals: 18,
     symbol: "DAI",
     name: "DAI Stablecoin",
   },
@@ -259,7 +260,9 @@ describe('Pool', () => {
         tickCurrent: getTickAtSqrtRatio({ sqrtRatioX96 }),
         ticks: { ticks: [] },
       });
-      expect(poolToken1Price({ pool: poolA }).substring(0, 6)).toStrictEqual("0.9901");
+      const priceA: string = poolToken1Price({ pool: poolA });
+      const priceRoundedA: string = BigFloat.fromString(priceA).toFixed(4);
+      expect(priceRoundedA).toStrictEqual("0.9901");
 
       const poolB: Pool = createPool({
         tokenA: DAI,
@@ -270,7 +273,9 @@ describe('Pool', () => {
         tickCurrent: getTickAtSqrtRatio({ sqrtRatioX96 }),
         ticks: { ticks: [] },
       });
-      expect(poolToken1Price({ pool: poolB }).substring(0, 6)).toStrictEqual("0.9901");
+      const priceB: string = poolToken1Price({ pool: poolB });
+      const priceRoundedB: string = BigFloat.fromString(priceB).toFixed(4);
+      expect(priceRoundedB).toStrictEqual("0.9901");
     });
   });
 
@@ -376,6 +381,7 @@ describe('Pool', () => {
     });
 
     describe('getOutputAmount', () => {
+
       it('USDC -> DAI', () => {
         const inputAmount: TokenAmount = {
           token: USDC,
@@ -400,6 +406,7 @@ describe('Pool', () => {
     });
 
     describe('getInputAmount', () => {
+
       it('USDC -> DAI', () => {
         const outputAmount: TokenAmount = {
           token: DAI,
