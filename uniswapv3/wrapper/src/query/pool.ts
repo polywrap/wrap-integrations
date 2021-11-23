@@ -73,6 +73,9 @@ export function createPool(input: Input_createPool): Pool {
   if (tokenA.chainId != tokenB.chainId) {
     throw new Error("CHAIN_IDS: tokens in a pool must have the same chain id");
   }
+  if (tokenEquals({ tokenA, tokenB })) {
+    throw new Error("ADDRESSES: tokens in a pool cannot have the same address");
+  }
 
   const tickCurrentSqrtRatioX96: BigInt = TickUtils.getSqrtRatioAtTick({
     tick: tickCurrent,
