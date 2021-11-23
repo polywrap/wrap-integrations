@@ -10,7 +10,7 @@ enum Rounding {
 
 # Return value of nextInitializedTickWithinOneWord(...)
 type NextTickResult {
-  index: UInt32!
+  index: Int32!
   found: Boolean!
 }
 
@@ -38,7 +38,7 @@ type SimulatedSwapResult {
   amountCalculated: BigInt!
   sqrtRatioX96: BigInt!
   liquidity: BigInt!
-  tickCurrent: UInt32!
+  tickCurrent: Int32!
 }
 
 # Return value of computeSwapStep(...), a utility function
@@ -163,20 +163,20 @@ type Query {
   # constructs and validates a TickListDataProvider
   createTickListDataProvider(
     ticks: [Tick!]!
-    tickSpacing: UInt32!
+    tickSpacing: Int32!
   ): TickListDataProvider!
 
   # returns tick at requested index
   getTick(
-    tickIndex: UInt32!
+    tickIndex: Int32!
     tickDataProvider: TickListDataProvider!
   ): Tick!
 
   # returns next initialized tick, or max or min tick. Returns true if a tick is found at index
   nextInitializedTickWithinOneWord(
-    tick: UInt32!
+    tick: Int32!
     lte: Boolean!
-    tickSpacing: UInt32!
+    tickSpacing: Int32!
     tickDataProvider: TickListDataProvider!
   ): NextTickResult!
 
@@ -189,7 +189,7 @@ type Query {
     fee: FeeAmount!
     sqrtRatioX96: BigInt!
     liquidity: BigInt!
-    tickCurrent: UInt32!
+    tickCurrent: Int32!
     ticks: TickListDataProvider
   ): Pool!
 
@@ -253,7 +253,7 @@ type Query {
   # Returns the tick spacing of ticks in the pool
   getPoolTickSpacing(
     pool: Pool!
-  ): UInt32!
+  ): Int32!
 
    ## Route
 
@@ -369,16 +369,16 @@ type Query {
 #  # Constructs and validates a Position for a given Pool with the given liquidity
 #  createPosition(
 #    pool: Pool!
-#    tickLower: UInt32!
-#    tickUpper: UInt32!
+#    tickLower: Int32!
+#    tickUpper: Int32!
 #    liquidity: BigInt!
 #  ): Position!
 #
 #  # Computes the maximum amount of liquidity received for a given amount of token0, token1, and the prices at the tick boundaries.
 #  createPositionFromAmounts(
 #    pool: Pool! # The pool for which the position should be created
-#    tickLower: UInt32! # The lower tick of the position
-#    tickUpper: UInt32! # The upper tick of the position
+#    tickLower: Int32! # The lower tick of the position
+#    tickUpper: Int32! # The upper tick of the position
 #    amount0: BigInt! # token0 amount
 #    amount1: BigInt! # token1 amount
 #    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
@@ -387,8 +387,8 @@ type Query {
 #  # Computes a position with the maximum amount of liquidity received for a given amount of token0, assuming an unlimited amount of token1
 #  createPositionFromAmount0(
 #    pool: Pool! # The pool for which the position should be created
-#    tickLower: UInt32! # The lower tick of the position
-#    tickUpper: UInt32! # The upper tick of the position
+#    tickLower: Int32! # The lower tick of the position
+#    tickUpper: Int32! # The upper tick of the position
 #    amount0: BigInt! # The desired amount of token0
 #    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
 #  ): Position!
@@ -396,8 +396,8 @@ type Query {
 #  # Computes a position with the maximum amount of liquidity received for a given amount of token1, assuming an unlimited amount of token0
 #  createPositionFromAmount1(
 #    pool: Pool! # The pool for which the position should be created
-#    tickLower: UInt32! # The lower tick of the position
-#    tickUpper: UInt32! # The upper tick of the position
+#    tickLower: Int32! # The lower tick of the position
+#    tickUpper: Int32! # The upper tick of the position
 #    amount1: BigInt! # The desired amount of token1
 #    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
 #  ): Position!
@@ -590,22 +590,22 @@ type Query {
 #    useFullPrecision: Boolean! # if false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
 #  ): BigInt!
 
-  # Returns the most significant bit of a positive integer
+  # Returns the most significant bit of a positive integer, starting with first bit = 0
   mostSignificantBit(
     x: BigInt!
   ): UInt32!
 
   # Returns the closest tick that is nearest a given tick and usable for the given tick spacing
   nearestUsableTick(
-    tick: UInt32! # the target tick
-    tickSpacing: UInt32! # the spacing of the pool
-  ): UInt32!
+    tick: Int32! # the target tick
+    tickSpacing: Int32! # the spacing of the pool
+  ): Int32!
 
   # Returns a price object corresponding to the input tick and the base/quote token. Inputs must be tokens because the address order is used to interpret the price represented by the tick.
   tickToPrice(
     baseToken: Token! # the base token of the price
     quoteToken: Token! # the quote token of the price
-    tick: UInt32! # the tick for which to return the price
+    tick: Int32! # the tick for which to return the price
   ): String!
 
   # Returns the first tick for which the given price is greater than or equal to the tick price
@@ -613,7 +613,15 @@ type Query {
     baseToken: Token! # the base token of the price
     quoteToken: Token! # the quote token of the price
     price: String! # price for which to return the closest tick that represents a price less than or equal to the input price, i.e. the price of the returned tick is less than or equal to the input price
-  ): UInt32!
+  ): Int32!
+
+#  # Returns the first tick for which the given price is greater than or equal to the tick price
+#  priceToClosestTick(
+#    baseToken: Token! # the base token of the price
+#    quoteToken: Token! # the quote token of the price
+#    priceDenominator: BigInt! # amount of base token used to calculate price for which to return the closest tick that represents a price less than or equal to the input price, i.e. the price of the returned tick is less than or equal to the input price
+#    priceNumerator: BigInt! # amount of quote token used to calculate price for which to return the closest tick that represents a price less than or equal to the input price, i.e. the price of the returned tick is less than or equal to the input price
+#  ): Int32!
 
   # sqrtPriceMath
   getAmount0Delta(
@@ -659,25 +667,25 @@ type Query {
   # validates a tick list
   validateTickList(
     ticks: [Tick!]!
-    tickSpacing: UInt32!
+    tickSpacing: Int32!
   ): Boolean!
 
   # TickList
   tickIsBelowSmallest(
     ticks: [Tick!]!
-    tick: UInt32!
+    tick: Int32!
   ): Boolean!
 
   # TickList
   tickIsAtOrAboveLargest(
     ticks: [Tick!]!
-    tick: UInt32!
+    tick: Int32!
   ): Boolean!
 
   # TickList
   nextInitializedTick(
     ticks: [Tick!]!
-    tick: UInt32!
+    tick: Int32!
     lte: Boolean!
   ): Tick!
 
@@ -688,20 +696,20 @@ type Query {
 
   # Returns the sqrt ratio as a Q64.96 for the given tick. The sqrt ratio is computed as sqrt(1.0001)^tick
   getSqrtRatioAtTick(
-    tick: UInt32! # the tick for which to compute the sqrt ratio
+    tick: Int32! # the tick for which to compute the sqrt ratio
   ): BigInt!
 
   # Returns the tick corresponding to a given sqrt ratio, s.t. #getSqrtRatioAtTick(tick) <= sqrtRatioX96 and #getSqrtRatioAtTick(tick + 1) > sqrtRatioX96
   getTickAtSqrtRatio(
     sqrtRatioX96: BigInt! # the sqrt ratio as a Q64.96 for which to compute the tick
-  ): UInt32!
+  ): Int32!
 
   ##  Fetch
 
   # returns token object constructed from on-chain token contract; assumes chanId is MAINNET if null
   fetchToken(
     address: String!
-    chainId: ChainId
+    chainId: ChainId!
   ): Token!
 
   # returns pool object constructed from on-chain pool contract
@@ -714,7 +722,7 @@ type Query {
   # returns pool object constructed from on-chain pool contract; assumes chanId is MAINNET if null
   fetchPoolFromAddress(
     address: String!
-    chainId: ChainId
+    chainId: ChainId!
   ): Pool!
 
   fetchTotalSupply(

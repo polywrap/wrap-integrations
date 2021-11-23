@@ -44,13 +44,13 @@ class SimulatedSwapState {
   amountSpecifiedRemaining: BigInt;
   amountCalculated: BigInt;
   sqrtPriceX96: BigInt;
-  tick: u32;
+  tick: i32;
   liquidity: BigInt;
 }
 
 class StepComputations {
   sqrtPriceStartX96: BigInt;
-  tickNext: u32;
+  tickNext: i32;
   initialized: boolean;
   sqrtPriceNextX96: BigInt;
   amountIn: BigInt;
@@ -67,11 +67,11 @@ export function createPool(input: Input_createPool): Pool {
   const fee: FeeAmount = input.fee;
   const sqrtRatioX96: BigInt = input.sqrtRatioX96;
   const liquidity: BigInt = input.liquidity;
-  const tickCurrent: u32 = input.tickCurrent;
+  const tickCurrent: i32 = input.tickCurrent;
   const ticks: TickListDataProvider | null = input.ticks;
 
-  if (fee >= 1_000_000) {
-    throw new Error("FEE: fee amount exceeds the maximum value of 1,000,000.");
+  if (tokenA.chainId != tokenB.chainId) {
+    throw new Error("CHAIN_IDS: tokens in a pool must have the same chain id");
   }
 
   const tickCurrentSqrtRatioX96: BigInt = TickUtils.getSqrtRatioAtTick({
@@ -208,7 +208,7 @@ export function getPoolOutputAmount(
   const outputAmount: BigInt = simulatedSwapResult.amountCalculated;
   const sqrtRatioX96: BigInt = simulatedSwapResult.sqrtRatioX96;
   const liquidity: BigInt = simulatedSwapResult.liquidity;
-  const tickCurrent: u32 = simulatedSwapResult.tickCurrent;
+  const tickCurrent: i32 = simulatedSwapResult.tickCurrent;
 
   const outputToken: Token = zeroForOne ? pool.token1 : pool.token0;
   return {
@@ -259,7 +259,7 @@ export function getPoolInputAmount(
   const inputAmount: BigInt = simulatedSwapResult.amountCalculated;
   const sqrtRatioX96: BigInt = simulatedSwapResult.sqrtRatioX96;
   const liquidity: BigInt = simulatedSwapResult.liquidity;
-  const tickCurrent: u32 = simulatedSwapResult.tickCurrent;
+  const tickCurrent: i32 = simulatedSwapResult.tickCurrent;
 
   const inputToken = zeroForOne ? pool.token0 : pool.token1;
   return {
@@ -441,6 +441,6 @@ export function simulateSwap(input: Input_simulateSwap): SimulatedSwapResult {
 /**
  * Returns the tick spacing of ticks in the pool
  */
-export function getPoolTickSpacing(input: Input_getPoolTickSpacing): u32 {
+export function getPoolTickSpacing(input: Input_getPoolTickSpacing): i32 {
   return getTickSpacings(input.pool.fee);
 }

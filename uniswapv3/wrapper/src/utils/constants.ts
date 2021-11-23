@@ -6,7 +6,6 @@ export const MAX_UINT_256 = BigInt.fromString(
   "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
   16
 );
-// export const MAX_UINT_160 = BigInt.ONE.mulPowTwo(256).subInt(1);
 
 /* V3 SDK PUBLIC CONSTANTS */
 
@@ -32,9 +31,9 @@ export const Q192 = BigInt.pow(Q96, 2);
 
 export const Q32 = BigInt.pow(BigInt.fromUInt16(2), 32);
 // The minimum tick that can be used on any pool.
-export const MIN_TICK: u32 = -887272;
+export const MIN_TICK: i32 = -887272;
 // The maximum tick that can be used on any pool.
-export const MAX_TICK: u32 = -MIN_TICK;
+export const MAX_TICK: i32 = -MIN_TICK;
 // The sqrt ratio corresponding to the minimum tick that could be used on any pool.
 export const MIN_SQRT_RATIO: BigInt = BigInt.fromString("4295128739");
 // The sqrt ratio corresponding to the maximum tick that could be used on any pool.
@@ -50,4 +49,3 @@ export const MAX_UINT_160 = BigInt.fromString(
   "ffffffffffffffffffffffffffffffffffffffff",
   16
 );
-// export const MAX_UINT_160 = BigInt.ONE.mulPowTwo(160).subInt(1);

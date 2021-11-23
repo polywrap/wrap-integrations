@@ -13,25 +13,14 @@ import { MAX_UINT_160, MAX_UINT_256, Q96 } from "../utils/constants";
 import { BigInt } from "@web3api/wasm-as";
 
 /**
- * Returns the most significant bit of a positive integer
+ * Returns the most significant bit of a positive integer, starting with first bit = 0
  */
 export function mostSignificantBit(input: Input_mostSignificantBit): u32 {
   const x: BigInt = input.x;
   if (x.isNegative || x.isZero()) {
     throw new Error("ZERO: input is less than or equal to zero");
   }
-  return <u32>x.countBits();
-  //
-  // const TWO: BigInt = BigInt.fromUInt16(2);
-  // let msb: u32 = 0;
-  // for (let power = 128; power >= 1; power /= 2) {
-  //   const min: BigInt = BigInt.pow(TWO, power);
-  //   if (BigInt.gte(x, min)) {
-  //     x = x.divPowTwo(power);
-  //     msb += power;
-  //   }
-  // }
-  // return msb;
+  return <u32>x.countBits() - 1;
 }
 
 /**

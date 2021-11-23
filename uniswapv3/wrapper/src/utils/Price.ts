@@ -28,6 +28,26 @@ export default class Price extends Fraction {
     );
   }
 
+  // TODO: optimize
+  public static fromString(
+    baseToken: Token,
+    quoteToken: Token,
+    price: string
+  ): Price {
+    const priceFraction: Fraction = Fraction.fromString(price).div(
+      new Fraction(
+        BigInt.pow(BigInt.fromUInt16(10), baseToken.currency.decimals),
+        BigInt.pow(BigInt.fromUInt16(10), quoteToken.currency.decimals)
+      )
+    );
+    return new Price(
+      baseToken,
+      quoteToken,
+      priceFraction.denominator,
+      priceFraction.numerator
+    );
+  }
+
   public raw(): Fraction {
     return new Fraction(this.numerator, this.denominator);
   }

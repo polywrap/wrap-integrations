@@ -26,30 +26,24 @@ import { BigInt } from "@web3api/wasm-as";
 export function fetchToken(input: Input_fetchToken): Token {
   const address: string = input.address;
   const chainId: ChainId = input.chainId;
-  const symbol: string =
-    input.symbol != null
-      ? input.symbol!
-      : Ethereum_Query.callContractView({
-          address: address,
-          method: "function symbol() external pure returns (string memory)",
-          args: [],
-          connection: {
-            node: null,
-            networkNameOrChainId: getChainIdKey(chainId),
-          },
-        });
-  const name: string =
-    input.name != null
-      ? input.name!
-      : Ethereum_Query.callContractView({
-          address: address,
-          method: "function name() external pure returns (string memory)",
-          args: [],
-          connection: {
-            node: null,
-            networkNameOrChainId: getChainIdKey(chainId),
-          },
-        });
+  const symbol: string = Ethereum_Query.callContractView({
+    address: address,
+    method: "function symbol() external pure returns (string memory)",
+    args: [],
+    connection: {
+      node: null,
+      networkNameOrChainId: getChainIdKey(chainId),
+    },
+  });
+  const name: string = Ethereum_Query.callContractView({
+    address: address,
+    method: "function name() external pure returns (string memory)",
+    args: [],
+    connection: {
+      node: null,
+      networkNameOrChainId: getChainIdKey(chainId),
+    },
+  });
   const decimals: string = Ethereum_Query.callContractView({
     address: address,
     method: "function decimals() external pure returns (uint8)",
