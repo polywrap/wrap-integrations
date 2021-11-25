@@ -1,11 +1,13 @@
-import { ChainId, Token } from "./types";
+import { ChainId, Token, Pool, FeeAmount } from "./types";
 import { ClientConfig, coreInterfaceUris, Web3ApiClient } from "@web3api/client-js";
 import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
 import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
 import { ensPlugin } from "@web3api/ens-plugin-js";
 import tokenList from "./testData/tokenList.json";
-import { Pair } from "../../../../../uniswapv2/wrapper/src/__tests__/e2e/types";
-import { Pool } from "../../query/w3";
+import poolList from "./testData/poolList.json";
+import { getUniswapPool } from "./testData/uniswapCreatePool";
+import { ethers } from "ethers";
+import { Pool as UniPool } from "@uniswap/v3-sdk";
 
 export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): ClientConfig {
  return {
@@ -69,57 +71,112 @@ export async function getTokenList(): Promise<Token[]> {
   return tokens;
 }
 
-export async function getPoolData(token0: Token, token1: Token, client: Web3ApiClient, ensUri: string): Promise<Pool | undefined> {
+export async function getPools(client: Web3ApiClient, ensUri: string): Promise<Pool[]> {
+  return poolList.map(
+    async (address: string): Promise<Pool> => {
+      return await getPoolFromAddress(address, ChainId.MAINNET, client, ensUri);
+    });
+}
+
+export async function getUniPools(provider: ethers.providers.BaseProvider): Promise<UniPool[]> {
+  return Promise.all(poolList.map((address: string)  => getUniswapPool(address, provider)));
+}
+
+export async function getPoolFromAddress(address: string, client: Web3ApiClient, ensUri: string): Promise<Pool | undefined> {
   const poolData = await client.query<{
-    fetchPoolFromTokens: Pool;
+    fetchPoolFromAddress: Pool;
   }>({
     uri: ensUri,
     query: `
         query {
-          fetchPoolFromTokens(
-            token0: $token0
-            token1: $token1
-            fee: $fee
+          fetchPoolFromAddress(
+            chainId: $chainId
+            address: $address
           )
         }
       `,
     variables: {
-      token0: token0,
-      token1: token1,
-      fee: "MEDIUM"
+      chainId: ChainId.MAINNET,
+      address: address,
     },
   });
-
   if (poolData.errors) {
     throw poolData.errors;
   }
-
-  return poolData.data?.fetchPoolFromTokens;
+  return poolData.data?.fetchPoolFromAddress;
 }
 
-export function getUniPairs(pairs: Pair[], chainId: number): uni.Pair[] {
-  return pairs.map(pair => {
-    return new uni.Pair(
-      new uni.TokenAmount(
-        new uni.Token(
-          chainId,
-          pair.tokenAmount0.token.address,
-          pair.tokenAmount0.token.currency.decimals,
-          pair.tokenAmount0.token.currency.symbol || "",
-          pair.tokenAmount0.token.currency.name || ""
-        ),
-        pair.tokenAmount0.amount
-      ),
-      new uni.TokenAmount(
-        new uni.Token(
-          chainId,
-          pair.tokenAmount1.token.address,
-          pair.tokenAmount1.token.currency.decimals,
-          pair.tokenAmount1.token.currency.symbol || "",
-          pair.tokenAmount1.token.currency.name || ""
-        ),
-        pair.tokenAmount1.amount
-      ),
-    );
-  });
+// export async function getPoolFromTokens(token0: Token, token1: Token, fee: FeeAmount, client: Web3ApiClient, ensUri: string): Promise<Pool | undefined> {
+//   const poolData = await client.query<{
+//     fetchPoolFromTokens: Pool;
+//   }>({
+//     uri: ensUri,
+//     query: `
+//         query {
+//           fetchPoolFromTokens(
+//             token0: $token0
+//             token1: $token1
+//             fee: $fee
+//           )
+//         }
+//       `,
+//     variables: {
+//       token0: token0,
+//       token1: token1,
+//       fee: fee
+//     },
+//   });
+//   if (poolData.errors) {
+//     throw poolData.errors;
+//   }
+//   return poolData.data?.fetchPoolFromTokens;
+// }
+
+// export function mapToPolywrapChainId(input: number): ChainId {
+//   switch (input) {
+//     case 1:
+//       return ChainId.MAINNET;
+//     case 3:
+//       return ChainId.ROPSTEN;
+//     case 4:
+//       return ChainId.RINKEBY;
+//     case 5:
+//       return ChainId.GOERLI;
+//     case 42:
+//       return ChainId.KOVAN;
+//     default:
+//       throw new Error('Unknown chain ID. This should never happen.');
+//   }
+// }
+//
+// export function MapToUniChainId(input: ChainId): number {
+//   switch (input) {
+//     case ChainId.MAINNET:
+//       return 1;
+//     case ChainId.ROPSTEN:
+//       return 3;
+//     case ChainId.RINKEBY:
+//       return 4;
+//     case ChainId.GOERLI:
+//       return 5;
+//     case ChainId.KOVAN:
+//       return 42;
+//     default:
+//       throw new Error('Unknown chain ID. This should never happen.')
+//   }
+// }
+
+export function getFeeAmount(feeAmount: FeeAmount): number {
+  switch (feeAmount) {
+    case FeeAmount.LOWEST:
+      return 100;
+    case FeeAmount.LOW:
+      return 500;
+    case FeeAmount.MEDIUM:
+      return 3000;
+    case FeeAmount.HIGH:
+      return 10000;
+    default:
+      throw new Error("Unknown FeeAmount");
+  }
 }

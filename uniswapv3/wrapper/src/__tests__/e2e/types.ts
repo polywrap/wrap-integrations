@@ -6,6 +6,13 @@ export enum ChainId {
   KOVAN="KOVAN"
 }
 
+export enum FeeAmount {
+  LOWEST="LOWEST",
+  LOW="LOW",
+  MEDIUM="MEDIUM",
+  HIGH="HIGH",
+}
+
 export interface Token {
   chainId: ChainId;
   address: string;
@@ -23,23 +30,24 @@ export interface TokenAmount {
   amount: string;
 }
 
-export interface Pair {
-  tokenAmount0: TokenAmount;
-  tokenAmount1: TokenAmount;
+export interface Tick {
+  index: number;
+  liquidityGross: string;
+  liquidityNet: string;
 }
 
-export interface Route {
-  path: Token[];
-  pairs: Pair[];
-  input: Token;
-  output: Token;
+export interface TickListDataProvider {
+  ticks: Tick[];
 }
 
-export interface Trade {
-  route: Route;
-  inputAmount: TokenAmount;
-  outputAmount: TokenAmount;
-  tradeType: TradeType;
+export interface Pool {
+  token0: Token;
+  token1: Token;
+  fee: FeeAmount;
+  sqrtRatioX96: string;
+  liquidity: string;
+  tickCurrent: number;
+  tickDataProvider?: TickListDataProvider;
 }
 
 export enum TradeType {

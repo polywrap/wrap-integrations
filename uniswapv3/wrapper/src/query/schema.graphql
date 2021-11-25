@@ -706,25 +706,34 @@ type Query {
 
   ##  Fetch
 
-  # returns token object constructed from on-chain token contract; assumes chanId is MAINNET if null
+  # returns token object constructed from on-chain token contract
   fetchToken(
-    address: String!
-    chainId: ChainId!
+    address: String! # the Ethereum address of token's ERC20 contract
+    chainId: ChainId! # the id of the chain to be queried
   ): Token!
 
   # returns pool object constructed from on-chain pool contract
   fetchPoolFromTokens(
-    tokenA: Token!
-    tokenB: Token!
-    fee: FeeAmount!
+    tokenA: Token! # a token in the pool
+    tokenB: Token! # the other token in the pool
+    fee: FeeAmount! # the pool's fee amount
+    fetchTicks: Boolean! # if true, the full list of pool ticks will be fetched
   ): Pool!
 
-  # returns pool object constructed from on-chain pool contract; assumes chanId is MAINNET if null
+  # returns pool object constructed from on-chain pool contract
   fetchPoolFromAddress(
-    address: String!
-    chainId: ChainId!
+    address: String! # the Ethereum address of the pool contract
+    chainId: ChainId! # the id of the chain to be queried
+    fetchTicks: Boolean! # if true, the full list of pool ticks will be fetched
   ): Pool!
 
+  # returns array of ticks from on-chain pool contract at given address
+  fetchTickList(
+    address: String! # the Ethereum address of the pool contract
+    chainId: ChainId! # the id of the chain to be queried
+  ): [Tick!]!
+
+  # returns total supply of ERC20-compliant token
   fetchTotalSupply(
     token: Token!
   ): TokenAmount!
