@@ -28,7 +28,7 @@ In code:
 import { Console_Query } from "./w3";
 
 function customMethod(): bool {
-  Console_Query.info("some useful info about my API");
+  Console_Query.info({ message: "some useful info about my API" });
 
   return true;
 }
