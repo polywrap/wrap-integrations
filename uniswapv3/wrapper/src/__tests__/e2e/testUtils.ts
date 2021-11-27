@@ -5,7 +5,7 @@ import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
 import { ensPlugin } from "@web3api/ens-plugin-js";
 import tokenList from "./testData/tokenList.json";
 import poolList from "./testData/poolList.json";
-import { getUniswapPool } from "./testData/uniswapCreatePool";
+import { getUniswapPool } from "./uniswapCreatePool";
 import { ethers } from "ethers";
 import { Pool as UniPool } from "@uniswap/v3-sdk";
 
@@ -71,10 +71,17 @@ export async function getTokenList(): Promise<Token[]> {
   return tokens;
 }
 
-export async function getPools(client: Web3ApiClient, ensUri: string): Promise<Pool[]> {
-  return poolList.map(
+export function getTokens(pools: Pool[]): Token[] {
+  return pools
+  .map<Token[]>((pool: Pool): Token[] => [pool.token0, pool.token1]) // get tokens
+  .reduce((accum: Token[], current: Token[]) => accum.concat(current), []) // flatten array
+  .filter((val: Token, i: number, arr: Token[]) => arr.indexOf(val) === i); // remove duplicates
+}
+
+export async function getPools(client: Web3ApiClient, ensUri: string, fetchTicks?: boolean, sliceStart?: number, sliceEnd?: number): Promise<Pool[]> {
+  return poolList.slice(sliceStart, sliceEnd).map(
     async (address: string): Promise<Pool> => {
-      return await getPoolFromAddress(address, ChainId.MAINNET, client, ensUri);
+      return await getPoolFromAddress(address, fetchTicks, client, ensUri);
     });
 }
 
@@ -82,7 +89,7 @@ export async function getUniPools(provider: ethers.providers.BaseProvider): Prom
   return Promise.all(poolList.map((address: string)  => getUniswapPool(address, provider)));
 }
 
-export async function getPoolFromAddress(address: string, client: Web3ApiClient, ensUri: string): Promise<Pool | undefined> {
+export async function getPoolFromAddress(address: string, fetchTicks: boolean, client: Web3ApiClient, ensUri: string): Promise<Pool | undefined> {
   const poolData = await client.query<{
     fetchPoolFromAddress: Pool;
   }>({
@@ -92,12 +99,14 @@ export async function getPoolFromAddress(address: string, client: Web3ApiClient,
           fetchPoolFromAddress(
             chainId: $chainId
             address: $address
+            fetchTicks: $fetchTicks
           )
         }
       `,
     variables: {
       chainId: ChainId.MAINNET,
       address: address,
+      fetchTicks: fetchTicks,
     },
   });
   if (poolData.errors) {

@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { Pool } from "@uniswap/v3-sdk";
+import { Pool, Tick, TickMath } from "@uniswap/v3-sdk";
 import { Token } from "@uniswap/sdk-core";
 import { abi as IUniswapV3PoolABI } from "@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json";
 
@@ -68,6 +68,27 @@ async function getPoolState(poolContract: ethers.Contract): Promise<State> {
   };
 }
 
+async function getTickAtIndex(poolContract: ethers.Contract, index: number): Promise<Tick> {
+  const tickInfo = await poolContract.ticks(index);
+  return new Tick({
+    index: index,
+    liquidityGross: tickInfo[0],
+    liquidityNet: tickInfo[1],
+  });
+}
+
+async function getPoolTicks(poolContract: ethers.Contract, tickSpacing: number): Promise<Tick[]> {
+  const ticks: Promise<Tick>[] = [];
+  for (let i = 0; i >= TickMath.MIN_TICK; i -= tickSpacing) {
+    ticks.push(getTickAtIndex(poolContract, i));
+  }
+  ticks.reverse();
+  for (let i = tickSpacing; i <= TickMath.MAX_TICK; i += tickSpacing) {
+    ticks.push(getTickAtIndex(poolContract, i));
+  }
+  return Promise.all(ticks);
+}
+
 async function getToken(tokenContract: ethers.Contract): Promise<Token> {
   const [decimals, symbol, name] = await Promise.all([
     tokenContract.decimals(),
@@ -85,23 +106,25 @@ export async function getUniswapPool(poolAddress: string, provider: ethers.provi
     provider
   );
 
-  const [immutables, state] = await Promise.all([
-    getPoolImmutables(poolContract),
-    getPoolState(poolContract),
-  ]);
+  const immutables: Immutables = await getPoolImmutables(poolContract);
 
   const tokenContractA: ethers.Contract = new ethers.Contract(immutables.token0, ERC20ABI, provider);
-  const TokenA: Token = await getToken(tokenContractA);
-
   const tokenContractB: ethers.Contract = new ethers.Contract(immutables.token1, ERC20ABI, provider);
-  const TokenB: Token = await getToken(tokenContractB);
+
+  const [state, tokenA, tokenB, ticks] = await Promise.all([
+    getPoolState(poolContract),
+    getToken(tokenContractA),
+    getToken(tokenContractB),
+    getPoolTicks(poolContract, immutables.tickSpacing)
+  ]);
 
   return new Pool(
-    TokenA,
-    TokenB,
+    tokenA,
+    tokenB,
     immutables.fee,
     state.sqrtPriceX96.toString(),
     state.liquidity.toString(),
-    state.tick
+    state.tick,
+    ticks
   );
 }

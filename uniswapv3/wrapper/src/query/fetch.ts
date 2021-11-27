@@ -11,9 +11,8 @@ import {
   Tick,
   Input_fetchTickList,
   Input_fetchPoolFromTokens,
-  Input_fetchTotalSupply,
-  TokenAmount,
   FeeAmount,
+  ERC20_Query,
 } from "./w3";
 import { createPool, getPoolAddress } from "./pool";
 import {
@@ -25,8 +24,6 @@ import {
 } from "../utils/fetchUtils";
 import { wrapIfEther } from "../utils/tokenUtils";
 
-import { BigInt } from "@web3api/wasm-as";
-
 /**
  * returns token object constructed from on-chain token contract
  * @param input.address the Ethereum address of token's ERC20 contract
@@ -35,28 +32,22 @@ import { BigInt } from "@web3api/wasm-as";
 export function fetchToken(input: Input_fetchToken): Token {
   const chainId: ChainId = input.chainId;
   const address: string = input.address;
-  const symbol: string = Ethereum_Query.callContractView({
+  const symbol: string = ERC20_Query.symbol({
     address: address,
-    method: "function symbol() external pure returns (string memory)",
-    args: [],
     connection: {
       node: null,
       networkNameOrChainId: getChainIdKey(chainId),
     },
   });
-  const name: string = Ethereum_Query.callContractView({
+  const name: string = ERC20_Query.name({
     address: address,
-    method: "function name() external pure returns (string memory)",
-    args: [],
     connection: {
       node: null,
       networkNameOrChainId: getChainIdKey(chainId),
     },
   });
-  const decimals: string = Ethereum_Query.callContractView({
+  const decimals: i32 = ERC20_Query.decimals({
     address: address,
-    method: "function decimals() external pure returns (uint8)",
-    args: [],
     connection: {
       node: null,
       networkNameOrChainId: getChainIdKey(chainId),
@@ -66,7 +57,7 @@ export function fetchToken(input: Input_fetchToken): Token {
     chainId: chainId,
     address: address,
     currency: {
-      decimals: U8.parseInt(decimals),
+      decimals: <u8>decimals,
       symbol: symbol,
       name: name,
     },
@@ -129,9 +120,6 @@ export function fetchPoolFromAddress(input: Input_fetchPoolFromAddress): Pool {
   const ticks: TickListDataProvider | null = fetchTicks
     ? { ticks: fetchTickList({ address, chainId }) }
     : null;
-  // const ticks: TickListDataProvider | null = fetchTicks
-  //   ? { ticks: fetchPoolTicks(address, chainId, immutables.tickSpacing) }
-  //   : null;
 
   return createPool({
     tokenA: fetchToken({ address: immutables.token0, chainId: chainId }),
@@ -142,26 +130,6 @@ export function fetchPoolFromAddress(input: Input_fetchPoolFromAddress): Pool {
     tickCurrent: state.tick,
     ticks: ticks,
   });
-}
-
-/**
- * returns total supply of ERC20-compliant token
- */
-export function fetchTotalSupply(input: Input_fetchTotalSupply): TokenAmount {
-  const token: Token = input.token;
-  const res: string = Ethereum_Query.callContractView({
-    address: token.address,
-    method: "function totalSupply() external view returns (uint)",
-    args: [],
-    connection: {
-      node: null,
-      networkNameOrChainId: getChainIdKey(token.chainId),
-    },
-  });
-  return {
-    token: token,
-    amount: BigInt.fromString(res),
-  };
 }
 
 /**

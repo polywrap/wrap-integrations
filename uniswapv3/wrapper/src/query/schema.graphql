@@ -1,5 +1,6 @@
 #import { Query, StaticTxResult } into Ethereum from "w3://ens/ethereum.web3api.eth"
 #import { Query } into SHA3 from "w3://ens/sha3.web3api.eth"
+#import { Query } into ERC20 from "w3://ipfs/QmeiPWHe2ixfitcgjRwP5AaJD5R7DbsGhQNQwT4rFNyxx8"
 #import { ChainId, TradeType, Currency, Token, TokenAmount, Tick, TickListDataProvider, Pool, FeeAmount, Route, Trade, BestTradeOptions, Position, PermitOptions, FeeOptions, SwapOptions, MethodParameters, GasOptions, MintAmounts } from "../common/schema.graphql"
 
 enum Rounding {
@@ -168,16 +169,16 @@ type Query {
 
   # returns tick at requested index
   getTick(
-    tickIndex: Int32!
     tickDataProvider: TickListDataProvider!
+    tickIndex: Int32!
   ): Tick!
 
   # returns next initialized tick, or max or min tick. Returns true if a tick is found at index
   nextInitializedTickWithinOneWord(
+    tickDataProvider: TickListDataProvider!
     tick: Int32!
     lte: Boolean!
     tickSpacing: Int32!
-    tickDataProvider: TickListDataProvider!
   ): NextTickResult!
 
   ## Pool
@@ -203,8 +204,8 @@ type Query {
 
   # Returns true if the token is either token0 or token1
   poolInvolvesToken(
-    token: Token! # The token to check
     pool: Pool!
+    token: Token! # The token to check
   ): Boolean!
 
   # Returns the current mid price of the pool in terms of token0, i.e. the ratio of token1 over token0
@@ -219,8 +220,8 @@ type Query {
 
   # Returns the price of the given token in terms of the other token in the pool
   poolPriceOf(
-    token: Token! # The token to return price of
     pool: Pool!
+    token: Token! # The token to return price of
   ): String!
 
   # Returns the chain ID of the tokens in the pool
@@ -230,24 +231,24 @@ type Query {
 
   # Given an input amount of a token, return the computed output amount, and a pool with state updated after the trade
   getPoolOutputAmount(
+    pool: Pool!
     inputAmount: TokenAmount! # The input amount for which to quote the output amount
     sqrtPriceLimitX96: BigInt # The Q64.96 sqrt price limit
-    pool: Pool!
   ): PoolChangeResult!
 
   # Given a desired output amount of a token, return the computed input amount and a pool with state updated after the trade
   getPoolInputAmount(
+    pool: Pool!
     outputAmount: TokenAmount! # The output amount for which to quote the input amount
     sqrtPriceLimitX96: BigInt # The Q64.96 sqrt price limit. If zero for one, the price cannot be less than this value after the swap. If one for zero, the price cannot be greater than this value after the swap.
-    pool: Pool!
   ): PoolChangeResult!
 
   # Simulations execution of a swap and returns next pool state
   simulateSwap(
+    pool: Pool! # The pool on which to execute the swap
     zeroForOne: Boolean! # Whether the amount in is token0 or token1
     amountSpecified: BigInt! # The amount of the swap, which implicitly configures the swap as exact input (positive), or exact output (negative)
     sqrtPriceLimitX96: BigInt # The Q64.96 sqrt price limit. If zero for one, the price cannot be less than this value after the swap. If one for zero, the price cannot be greater than this value after the swap.
-    pool: Pool! # The pool on which to execute the swap
   ): SimulatedSwapResult!
 
   # Returns the tick spacing of ticks in the pool
@@ -732,11 +733,6 @@ type Query {
     address: String! # the Ethereum address of the pool contract
     chainId: ChainId! # the id of the chain to be queried
   ): [Tick!]!
-
-  # returns total supply of ERC20-compliant token
-  fetchTotalSupply(
-    token: Token!
-  ): TokenAmount!
 
   ##  constants
 

@@ -111,39 +111,29 @@ export function fetchPoolTicks(
 ): Tick[] {
   const ticks: Tick[] = [];
   for (let i = 0; i >= MIN_TICK; i -= tickSpacing) {
-    const tickStr: string = Ethereum_Query.callContractView({
-      address: address,
-      method: poolStateAbi[2],
-      args: [],
-      connection: {
-        node: null,
-        networkNameOrChainId: getChainIdKey(chainId),
-      },
-    });
-    const tickInfo: string[] = tickStr.split(",");
-    ticks.push({
-      index: i,
-      liquidityGross: BigInt.fromString(tickInfo[0]),
-      liquidityNet: BigInt.fromString(tickInfo[1]),
-    });
+    ticks.push(fetchTick(address, chainId, i));
   }
   ticks.reverse();
   for (let i = tickSpacing; i <= MAX_TICK; i += tickSpacing) {
-    const tickStr: string = Ethereum_Query.callContractView({
-      address: address,
-      method: poolStateAbi[2],
-      args: [],
-      connection: {
-        node: null,
-        networkNameOrChainId: getChainIdKey(chainId),
-      },
-    });
-    const tickInfo: string[] = tickStr.split(",");
-    ticks.push({
-      index: i,
-      liquidityGross: BigInt.fromString(tickInfo[0]),
-      liquidityNet: BigInt.fromString(tickInfo[1]),
-    });
+    ticks.push(fetchTick(address, chainId, i));
   }
   return ticks;
+}
+
+function fetchTick(address: string, chainId: ChainId, index: i32): Tick {
+  const tickStr: string = Ethereum_Query.callContractView({
+    address: address,
+    method: poolStateAbi[2],
+    args: [index.toString()],
+    connection: {
+      node: null,
+      networkNameOrChainId: getChainIdKey(chainId),
+    },
+  });
+  const tickInfo: string[] = tickStr.split(",");
+  return {
+    index: index,
+    liquidityGross: BigInt.fromString(tickInfo[0]),
+    liquidityNet: BigInt.fromString(tickInfo[1]),
+  };
 }
