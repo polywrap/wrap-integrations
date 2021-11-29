@@ -1,6 +1,6 @@
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
-import { ChainId, Pool, Tick, Token } from "../types";
+import { ChainIdEnum, Pool, Tick, Token } from "../types";
 import path from "path";
 import { getFeeAmount, getPlugins, getPools, getTokens, getUniPools } from "../testUtils";
 import * as uni from "@uniswap/v3-sdk";
@@ -50,7 +50,7 @@ describe("Fetch", () => {
       }
     `,
       variables: {
-        chainId: ChainId.MAINNET,
+        chainId: ChainIdEnum.MAINNET,
         address: poolAddresses[0],
       },
     });
@@ -85,7 +85,7 @@ describe("Fetch", () => {
         }
       `,
         variables: {
-          chainId: ChainId.MAINNET,
+          chainId: ChainIdEnum.MAINNET,
           address: poolAddresses[i],
           fetchTicks: false,
         },

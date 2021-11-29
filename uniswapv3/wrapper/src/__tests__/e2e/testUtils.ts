@@ -1,4 +1,4 @@
-import { ChainId, Token, Pool, FeeAmount } from "./types";
+import { Token, Pool, FeeAmountEnum, FeeAmount, ChainIdEnum } from "./types";
 import { ClientConfig, coreInterfaceUris, Web3ApiClient } from "@web3api/client-js";
 import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
 import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
@@ -60,7 +60,7 @@ export async function getTokenList(): Promise<Token[]> {
     symbol: string;
     name: string;
   }) => tokens.push({
-    chainId: ChainId.MAINNET,
+    chainId: ChainIdEnum.MAINNET,
     address: token.address,
     currency: {
       decimals: token.decimals,
@@ -104,7 +104,7 @@ export async function getPoolFromAddress(address: string, fetchTicks: boolean, c
         }
       `,
     variables: {
-      chainId: ChainId.MAINNET,
+      chainId: ChainIdEnum.MAINNET,
       address: address,
       fetchTicks: fetchTicks,
     },
@@ -177,13 +177,17 @@ export async function getPoolFromAddress(address: string, fetchTicks: boolean, c
 
 export function getFeeAmount(feeAmount: FeeAmount): number {
   switch (feeAmount) {
-    case FeeAmount.LOWEST:
+    case FeeAmountEnum.LOWEST:
+    case "LOWEST":
       return 100;
-    case FeeAmount.LOW:
+    case FeeAmountEnum.LOW:
+    case "LOW":
       return 500;
-    case FeeAmount.MEDIUM:
+    case FeeAmountEnum.MEDIUM:
+    case "MEDIUM":
       return 3000;
-    case FeeAmount.HIGH:
+    case FeeAmountEnum.HIGH:
+    case "HIGH":
       return 10000;
     default:
       throw new Error("Unknown FeeAmount");
