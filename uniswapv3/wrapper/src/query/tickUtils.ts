@@ -4,6 +4,7 @@ import {
   Input_nearestUsableTick,
   Input_priceToClosestTick,
   Input_tickToPrice,
+  Price as PriceType,
   Token,
 } from "./w3";
 import {
@@ -51,8 +52,8 @@ export function nearestUsableTick(input: Input_nearestUsableTick): i32 {
  * @param input.quoteToken the quote token of the price
  * @param input.tick the tick for which to return the price
  */
-export function tickToPrice(input: Input_tickToPrice): string {
-  return _tickToPrice(input).toFixed(18);
+export function tickToPrice(input: Input_tickToPrice): PriceType {
+  return _tickToPrice(input).toPriceType();
 }
 
 function _tickToPrice(input: Input_tickToPrice): Price {
@@ -73,10 +74,11 @@ function _tickToPrice(input: Input_tickToPrice): Price {
  * @param input.price price for which to return the closest tick that represents a price less than or equal to the input price, i.e. the price of the returned tick is less than or equal to the input price
  */
 export function priceToClosestTick(input: Input_priceToClosestTick): i32 {
-  const price: Price = Price.fromString(
-    input.baseToken,
-    input.quoteToken,
-    input.price
+  const price: Price = new Price(
+    input.price.baseToken,
+    input.price.quoteToken,
+    input.price.denominator,
+    input.price.numerator
   );
 
   const sorted: boolean = tokenSortsBefore({
@@ -190,7 +192,7 @@ export function getTickAtSqrtRatio(input: Input_getTickAtSqrtRatio): i32 {
     );
   }
 
-  const sqrtRatioX128: BigInt = sqrtRatioX96.mulPowTwo(32);
+  const sqrtRatioX128: BigInt = sqrtRatioX96.leftShift(32);
 
   const msb: u32 = mostSignificantBit({ x: sqrtRatioX128 });
   const biMsb: BigInt = BigInt.fromUInt32(msb);
@@ -198,18 +200,18 @@ export function getTickAtSqrtRatio(input: Input_getTickAtSqrtRatio): i32 {
 
   let r: BigInt;
   if (biMsb >= bi128) {
-    r = sqrtRatioX128.divPowTwo(msb - 127);
+    r = sqrtRatioX128.rightShift(msb - 127);
   } else {
-    r = sqrtRatioX128.mulPowTwo(127 - msb);
+    r = sqrtRatioX128.leftShift(127 - msb);
   }
 
-  let log2: BigInt = biMsb.sub(bi128).mulPowTwo(64);
+  let log2: BigInt = biMsb.sub(bi128).leftShift(64);
 
   for (let i = 0; i < 14; i++) {
-    r = r.mul(r).divPowTwo(127);
-    const f: BigInt = r.divPowTwo(128);
-    log2 = BigInt.bitwiseOr(log2, f.mulPowTwo(63 - i));
-    r = r.divPowTwo(f.toInt32());
+    r = r.mul(r).rightShift(127);
+    const f: BigInt = r.rightShift(128);
+    log2 = BigInt.bitwiseOr(log2, f.leftShift(63 - i));
+    r = r.rightShift(f.toInt32());
   }
 
   const logSqrt10001 = BigInt.mul(
@@ -217,14 +219,13 @@ export function getTickAtSqrtRatio(input: Input_getTickAtSqrtRatio): i32 {
     BigInt.fromString("255738958999603826347141")
   );
 
-  // TODO: replace divPowTwo with a signedRightShift function like in JSBI: https://github.com/GoogleChromeLabs/jsbi/blob/main/lib/jsbi.ts#L303
   const tickLow: i32 = logSqrt10001
     .sub(BigInt.fromString("3402992956809132418596140100660247210"))
-    .divPowTwo(128)
+    .rightShift(128)
     .toInt32();
   const tickHigh: i32 = logSqrt10001
     .add(BigInt.fromString("291339464771989622907027621153398088495"))
-    .divPowTwo(128)
+    .rightShift(128)
     .toInt32();
 
   return tickLow == tickHigh
@@ -241,5 +242,5 @@ export function getTickAtSqrtRatio(input: Input_getTickAtSqrtRatio): i32 {
  */
 function mulShift(val: BigInt, mulBy: string): BigInt {
   const biMulBy: BigInt = BigInt.fromString(mulBy, 16);
-  return val.mul(biMulBy).divPowTwo(128);
+  return val.mul(biMulBy).rightShift(128);
 }

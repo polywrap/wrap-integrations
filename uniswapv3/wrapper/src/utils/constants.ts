@@ -24,7 +24,7 @@ export const POOL_INIT_CODE_HASH_OPTIMISM_KOVAN =
 
 // used in liquidity amount math
 // export const Q96 = BigInt.pow(BigInt.fromUInt16(2), 96);
-export const Q96 = BigInt.ONE.mulPowTwo(96);
+export const Q96 = BigInt.ONE.leftShift(96);
 export const Q192 = BigInt.pow(Q96, 2);
 
 /* TICK MATH CONSTANTS */

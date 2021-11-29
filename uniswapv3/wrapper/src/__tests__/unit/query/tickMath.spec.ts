@@ -31,7 +31,7 @@ describe('TickMath', () => {
     });
 
     it('returns the correct value for tick 0', () => {
-      expect(TickUtils.getSqrtRatioAtTick({ tick: 0 }).toString()).toStrictEqual(BigInt.ONE.mulPowTwo(96).toString());
+      expect(TickUtils.getSqrtRatioAtTick({ tick: 0 }).toString()).toStrictEqual(BigInt.ONE.leftShift(96).toString());
     });
 
     it('returns the correct value for max tick', () => {

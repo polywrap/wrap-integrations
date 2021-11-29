@@ -37,7 +37,14 @@ type Currency {
   name: String
 }
 
-# maybe should be CurrencyAmount? Is TokenAmount still in use?
+type Price {
+  baseToken: Token! # the base token of the price
+  quoteToken: Token! # the quote token of the price
+  denominator: BigInt! # amount of base token used to calculate price
+  numerator: BigInt! # amount of quote token used to calculate price
+  price: String! # a string representation of the price
+}
+
 type TokenAmount {
   token: Token!
   amount: BigInt!

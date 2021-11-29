@@ -29,7 +29,7 @@ export function mostSignificantBit(input: Input_mostSignificantBit): u32 {
  * @param input.amount0 The denominator amount i.e., the amount of token0
  */
 export function encodeSqrtRatioX96(input: Input_encodeSqrtRatioX96): BigInt {
-  const numerator: BigInt = input.amount1.mulPowTwo(192);
+  const numerator: BigInt = input.amount1.leftShift(192);
   const denominator: BigInt = input.amount0;
   const ratioX192: BigInt = BigInt.div(numerator, denominator);
   return ratioX192.sqrt();
@@ -83,7 +83,7 @@ export function getAmount0Delta(input: Input_getAmount0Delta): BigInt {
     sqrtRatioBX96 = input.sqrtRatioAX96;
   }
 
-  const numerator1: BigInt = liquidity.mulPowTwo(96);
+  const numerator1: BigInt = liquidity.leftShift(96);
   const numerator2: BigInt = sqrtRatioBX96.sub(sqrtRatioAX96);
 
   if (roundUp) {
@@ -216,7 +216,7 @@ function getNextSqrtPriceFromAmount0RoundingUp(
   if (amount == BigInt.ZERO) {
     return sqrtPX96;
   }
-  const numerator1: BigInt = liquidity.mulPowTwo(96);
+  const numerator1: BigInt = liquidity.leftShift(96);
   const product: BigInt = multiplyIn256(amount, sqrtPX96);
 
   if (add) {
@@ -264,7 +264,7 @@ function getNextSqrtPriceFromAmount1RoundingDown(
   if (add) {
     const quotient: BigInt =
       amount <= MAX_UINT_160
-        ? amount.mulPowTwo(96).div(liquidity)
+        ? amount.leftShift(96).div(liquidity)
         : amount.mul(Q96).div(liquidity);
 
     return sqrtPX96.add(quotient);

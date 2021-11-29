@@ -1,4 +1,4 @@
-import { ChainId, Input_priceToClosestTick, Input_tickToPrice, Token } from "../../../query/w3";
+import { ChainId, Input_priceToClosestTick, Input_tickToPrice, Token, Price as PriceType } from "../../../query/w3";
 import { priceToClosestTick, tickToPrice } from "../../../query";
 import { BigFloat } from "as-bigfloat";
 import Price from "../../../utils/Price";
@@ -26,9 +26,8 @@ function reciprocal(baseToken: Token, quoteToken: Token, tick: i32): i32 {
     quoteToken: quoteToken,
     tick: tick,
   };
+
   const priceToTickInput: Input_priceToClosestTick = {
-    baseToken: baseToken,
-    quoteToken: quoteToken,
     price: tickToPrice(tickToPriceInput),
   };
   return priceToClosestTick(priceToTickInput);
@@ -43,25 +42,25 @@ describe('priceTickConversions', () => {
   describe('tickToPrice', () => {
 
     it('1800 t0/1 t1', () => {
-      const price: string = tickToPrice({ baseToken: token1, quoteToken: token0, tick: -74959 });
+      const price: string = tickToPrice({ baseToken: token1, quoteToken: token0, tick: -74959 }).price;
       const result: string = BigFloat.fromString(price).toSignificant(5);
       expect(result).toStrictEqual('1800.0');
     });
 
     it('1 t1/1800 t0', () => {
-      const price: string = tickToPrice({ baseToken: token0, quoteToken: token1, tick: -74959 });
+      const price: string = tickToPrice({ baseToken: token0, quoteToken: token1, tick: -74959 }).price;
       const result: string = BigFloat.fromString(price).toSignificant(8);
       expect(result).toStrictEqual('0.00055556');
     });
 
     it('1800 t1/1 t0', () => {
-      const price: string = tickToPrice({ baseToken: token0, quoteToken: token1, tick: 74959 });
+      const price: string = tickToPrice({ baseToken: token0, quoteToken: token1, tick: 74959 }).price;
       const result: string = BigFloat.fromString(price).toSignificant(5);
       expect(result).toStrictEqual('1800.0');
     });
 
     it('1 t0/1800 t1', () => {
-      const price: string = tickToPrice({ baseToken: token1, quoteToken: token0, tick: 74959 });
+      const price: string = tickToPrice({ baseToken: token1, quoteToken: token0, tick: 74959 }).price;
       const result: string = BigFloat.fromString(price).toSignificant(8);
       expect(result).toStrictEqual('0.00055556');
     });
@@ -69,31 +68,31 @@ describe('priceTickConversions', () => {
     describe('12 decimal difference', () => {
 
       it('1.01 t2/1 t0', () => {
-        const price: string = tickToPrice({ baseToken: token0, quoteToken: token2_6decimals, tick: -276225 });
+        const price: string = tickToPrice({ baseToken: token0, quoteToken: token2_6decimals, tick: -276225 }).price;
         const result: string = BigFloat.fromString(price).toSignificant(3);
         expect(result).toStrictEqual('1.01');
       });
 
       it('1 t0/1.01 t2', () => {
-        const price: string = tickToPrice({ baseToken: token2_6decimals, quoteToken: token0, tick: -276225 });
+        const price: string = tickToPrice({ baseToken: token2_6decimals, quoteToken: token0, tick: -276225 }).price;
         const result: string = BigFloat.fromString(price).toSignificant(5);
         expect(result).toStrictEqual('0.99015');
       });
 
       it('1 t2/1.01 t0', () => {
-        const price: string = tickToPrice({ baseToken: token0, quoteToken: token2_6decimals, tick: -276423 });
+        const price: string = tickToPrice({ baseToken: token0, quoteToken: token2_6decimals, tick: -276423 }).price;
         const result: string = BigFloat.fromString(price).toSignificant(5);
         expect(result).toStrictEqual('0.99015');
       });
 
       it('1.01 t0/1 t2', () => {
-        const price: string = tickToPrice({ baseToken: token2_6decimals, quoteToken: token0, tick: -276423 });
+        const price: string = tickToPrice({ baseToken: token2_6decimals, quoteToken: token0, tick: -276423 }).price;
         const result: string = BigFloat.fromString(price).toSignificant(5);
         expect(result).toStrictEqual('1.0099');
       });
 
       it('1.01 t2/1 t0', () => {
-        const price: string = tickToPrice({ baseToken: token0, quoteToken: token2_6decimals, tick: -276225 });
+        const price: string = tickToPrice({ baseToken: token0, quoteToken: token2_6decimals, tick: -276225 }).price;
         const result: string = BigFloat.fromString(price).toSignificant(3);
         expect(result).toStrictEqual('1.01');
       });
@@ -103,34 +102,26 @@ describe('priceTickConversions', () => {
   describe('priceToClosestTick', () => {
 
     it('1800 t0/1 t1', () => {
-      // mine: 1800.000000000000000000
-      // real: 1800.000000000000000000
-      const price: string = new Price(token1, token0, BigInt.ONE, BigInt.fromString("1800")).toFixed(18);
-      const input: Input_priceToClosestTick = { baseToken: token1, quoteToken: token0, price };
+      const price: PriceType = new Price(token1, token0, BigInt.ONE, BigInt.fromString("1800")).toPriceType();
+      const input: Input_priceToClosestTick = { price };
       expect(priceToClosestTick(input)).toStrictEqual(-74960);
     });
 
     it('1 t1/1800 t0', () => {
-      // mine: 0.000555555555555556
-      // real: 0.000555555555555556
-      const price: string = new Price(token0, token1, BigInt.fromString("1800"), BigInt.ONE).toFixed(18);
-      const input: Input_priceToClosestTick = { baseToken: token0, quoteToken: token1, price };
+      const price: PriceType = new Price(token0, token1, BigInt.fromString("1800"), BigInt.ONE).toPriceType();
+      const input: Input_priceToClosestTick = { price };
       expect(priceToClosestTick(input)).toStrictEqual(-74960);
     });
 
     it('1.01 t2/1 t0', () => {
-      // mine:  1.010000000000000000
-      // real: 1010000000000.000000000000000000
-      const price: string = new Price(token0, token2_6decimals, BigInt.fromString("100000000000000000000"), BigInt.fromString("101000000")).toFixed(18);
-      const input: Input_priceToClosestTick = { baseToken: token0, quoteToken: token2_6decimals, price };
+      const price: PriceType = new Price(token0, token2_6decimals, BigInt.fromString("100000000000000000000"), BigInt.fromString("101000000")).toPriceType();
+      const input: Input_priceToClosestTick = { price };
       expect(priceToClosestTick(input)).toStrictEqual(-276225);
     });
 
     it('1 t0/1.01 t2', () => {
-      // mine: 0.990099009900990099
-      // real: 0.000000000000990099
-      const price: string = new Price(token2_6decimals, token0, BigInt.fromString("101000000"), BigInt.fromString("100000000000000000000")).toFixed(18);
-      const input: Input_priceToClosestTick = { baseToken: token2_6decimals, quoteToken: token0, price };
+      const price: PriceType = new Price(token2_6decimals, token0, BigInt.fromString("101000000"), BigInt.fromString("100000000000000000000")).toPriceType();
+      const input: Input_priceToClosestTick = { price };
       expect(priceToClosestTick(input)).toStrictEqual(-276225);
     });
 

@@ -14,14 +14,14 @@ describe('mostSignificantBit', () => {
 
   it('correct value for every power of 2', () => {
     for (let i = 1; i < 256; i++) {
-      const x: BigInt = BigInt.ONE.mulPowTwo(i);
+      const x: BigInt = BigInt.ONE.leftShift(i);
       expect(mostSignificantBit({ x })).toStrictEqual(i);
     }
   });
 
   it('correct value for every power of 2 - 1', () => {
     for (let i = 2; i < 256; i++) {
-      const x: BigInt = BigInt.ONE.mulPowTwo(i).subInt(1);
+      const x: BigInt = BigInt.ONE.leftShift(i).subInt(1);
       expect(mostSignificantBit({ x })).toStrictEqual(i - 1);
     }
   });
@@ -29,8 +29,4 @@ describe('mostSignificantBit', () => {
   it('succeeds for MaxUint256', () => {
     expect(mostSignificantBit({ x: MAX_UINT_256 })).toStrictEqual(255);
   });
-
-  // it('throws for MaxUint256 + 1', () => {
-  //   expect(() => mostSignificantBit({ x: MAX_UINT_256.addInt(1) })).toThrow('MAX')
-  // });
 })
