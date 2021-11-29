@@ -81,6 +81,11 @@ export interface TradeOptions {
   feeOnTransfer?: boolean;
 }
 
+export interface PoolChangeResult {
+  tokenAmount: TokenAmount;
+  pool: Pool;
+}
+
 export interface Log {
   blockNumber: string;
   blockHash: string;

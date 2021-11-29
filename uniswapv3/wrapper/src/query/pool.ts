@@ -283,13 +283,20 @@ export function getPoolInputAmount(
 }
 
 /**
+ * Returns the tick spacing of ticks in the pool
+ */
+export function getPoolTickSpacing(input: Input_getPoolTickSpacing): i32 {
+  return getTickSpacings(input.pool.fee);
+}
+
+/**
  * Simulations execution of a swap and returns next pool state
  * @param input.zeroForOne Whether the amount in is token0 or token1
  * @param input.input.amountSpecified The amount of the swap, which implicitly configures the swap as exact input (positive), or exact output (negative)
  * @param input.input.sqrtPriceLimitX96 The Q64.96 sqrt price limit. If zero for one, the price cannot be less than this value after the swap. If one for zero, the price cannot be greater than this value after the swap.
  * @param input.input.pool The pool on which to execute the swap
  */
-export function simulateSwap(input: Input_simulateSwap): SimulatedSwapResult {
+function simulateSwap(input: Input_simulateSwap): SimulatedSwapResult {
   const zeroForOne: boolean = input.zeroForOne;
   const amountSpecified: BigInt = input.amountSpecified;
   const pool: Pool = input.pool;
@@ -439,11 +446,4 @@ export function simulateSwap(input: Input_simulateSwap): SimulatedSwapResult {
     liquidity: state.liquidity,
     tickCurrent: state.tick,
   };
-}
-
-/**
- * Returns the tick spacing of ticks in the pool
- */
-export function getPoolTickSpacing(input: Input_getPoolTickSpacing): i32 {
-  return getTickSpacings(input.pool.fee);
 }
