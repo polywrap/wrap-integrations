@@ -28,15 +28,22 @@ export default class Price extends Fraction {
     );
   }
 
-  // public static fromPriceType(price: PriceType): Price {
-  //   return new Price(
-  //     price.baseToken,
-  //     price.quoteToken,
-  //     price.denominator,
-  //     price.numerator
-  //   );
-  // }
+  public static from<T>(price: T): Price {
+    if (price instanceof Price) return price;
+    if (price instanceof PriceType) return Price.fromPriceType(price);
+    throw new TypeError("Unsupported generic type " + nameof<T>(price));
+  }
 
+  public static fromPriceType(price: PriceType): Price {
+    return new Price(
+      price.baseToken,
+      price.quoteToken,
+      price.denominator,
+      price.numerator
+    );
+  }
+
+  // doesn't work: although this produces an equivalent value, the correct numerator and denominator cannot be recovered
   // public static fromString(
   //   baseToken: Token,
   //   quoteToken: Token,

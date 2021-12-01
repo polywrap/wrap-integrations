@@ -236,22 +236,22 @@ type Query {
 
    ## Route
 
-#  # Constructs and validates a Route
-#  createRoute(
-#    pools: [Pool!]!
-#    input: Token!
-#    output: Token
-#  ): Route!
-#
-#  # Returns the chain id of the tokens in the route
-#  routeChainId(
-#    route: Route!
-#  ): ChainId!
-#
-#  #  Returns the mid price of the route
-#  routeMidPrice(
-#    route: Route!
-#  ): String!
+  # Constructs and validates a Route
+  createRoute(
+    pools: [Pool!]! # the ordered list of pools from which to construct the route
+    inToken: Token! # the input token
+    outToken: Token! # the output token
+  ): Route!
+
+  # Returns the chain id of the tokens in the route
+  routeChainId(
+    route: Route!
+  ): ChainId!
+
+  #  Returns the mid price of the route
+  routeMidPrice(
+    route: Route!
+  ): Price!
 
    ## Trade
 
