@@ -1,4 +1,4 @@
-import { Token, Pool, FeeAmountEnum, FeeAmount, ChainIdEnum } from "./types";
+import { Token, Pool, FeeAmountEnum, FeeAmount, ChainIdEnum, ChainId } from "./types";
 import { ClientConfig, coreInterfaceUris, Web3ApiClient } from "@web3api/client-js";
 import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
 import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
@@ -8,6 +8,7 @@ import poolList from "./testData/poolList.json";
 import { getUniswapPool } from "./uniswapCreatePool";
 import { ethers } from "ethers";
 import { Pool as UniPool } from "@uniswap/v3-sdk";
+import * as uniCore from "@uniswap/sdk-core";
 
 export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): ClientConfig {
  return {
@@ -115,6 +116,16 @@ export async function getPoolFromAddress(address: string, fetchTicks: boolean, c
   return poolData.data?.fetchPoolFromAddress;
 }
 
+export function toUniToken(token: Token): uniCore.Token {
+  return new uniCore.Token(
+    toUniChainId(token.chainId),
+    token.address,
+    token.currency.decimals,
+    token.currency.symbol,
+    token.currency.name
+  );
+}
+
 // export async function getPoolFromTokens(token0: Token, token1: Token, fee: FeeAmount, client: Web3ApiClient, ensUri: string): Promise<Pool | undefined> {
 //   const poolData = await client.query<{
 //     fetchPoolFromTokens: Pool;
@@ -158,22 +169,22 @@ export async function getPoolFromAddress(address: string, fetchTicks: boolean, c
 //   }
 // }
 //
-// export function MapToUniChainId(input: ChainId): number {
-//   switch (input) {
-//     case ChainId.MAINNET:
-//       return 1;
-//     case ChainId.ROPSTEN:
-//       return 3;
-//     case ChainId.RINKEBY:
-//       return 4;
-//     case ChainId.GOERLI:
-//       return 5;
-//     case ChainId.KOVAN:
-//       return 42;
-//     default:
-//       throw new Error('Unknown chain ID. This should never happen.')
-//   }
-// }
+export function toUniChainId(input: ChainId): number {
+  switch (input) {
+    case ChainId.MAINNET:
+      return 1;
+    case ChainId.ROPSTEN:
+      return 3;
+    case ChainId.RINKEBY:
+      return 4;
+    case ChainId.GOERLI:
+      return 5;
+    case ChainId.KOVAN:
+      return 42;
+    default:
+      throw new Error('Unknown chain ID. This should never happen.')
+  }
+}
 
 export function getFeeAmount(feeAmount: FeeAmount): number {
   switch (feeAmount) {

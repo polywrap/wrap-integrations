@@ -33,6 +33,14 @@ export interface Token {
   currency: Currency;
 }
 
+export interface Price {
+  baseToken: Token;
+  quoteToken: Token;
+  denominator: BigInt;
+  numerator: BigInt;
+  price: string;
+}
+
 export interface Route {
   pools: Array<Pool>;
   path: Array<Token>;
