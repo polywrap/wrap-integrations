@@ -6,17 +6,17 @@ import {
   Tick,
   TickListDataProvider,
 } from "./w3";
-import * as TickUtils from "./tickListUtils";
+import * as TickListUtils from "./tickListUtils";
 
 /**
- * constructs and validates TickListDataProvider
+ * constructs and validates a TickListDataProvider
  */
 export function createTickListDataProvider(
   input: Input_createTickListDataProvider
 ): TickListDataProvider {
   const ticks: Tick[] = input.ticks;
-  const tickSpacing: u32 = input.tickSpacing;
-  TickUtils.validateTickList({ ticks: ticks, tickSpacing: tickSpacing });
+  const tickSpacing: i32 = input.tickSpacing;
+  TickListUtils.validateTickList({ ticks: ticks, tickSpacing: tickSpacing });
   return {
     ticks: ticks,
   };
@@ -26,9 +26,9 @@ export function createTickListDataProvider(
  * returns tick at requested index
  */
 export function getTick(input: Input_getTick): Tick {
-  const tickIndex: u32 = input.tickIndex;
+  const tickIndex: i32 = input.tickIndex;
   const ticks: Tick[] = input.tickDataProvider.ticks;
-  return TickUtils.getTick(ticks, tickIndex);
+  return TickListUtils.findTick(ticks, tickIndex);
 }
 
 /**
@@ -37,30 +37,30 @@ export function getTick(input: Input_getTick): Tick {
 export function nextInitializedTickWithinOneWord(
   input: Input_nextInitializedTickWithinOneWord
 ): NextTickResult {
-  const tick: u32 = input.tick;
+  const tick: i32 = input.tick;
   const lte: boolean = input.lte;
-  const tickSpacing: u32 = input.tickSpacing;
+  const tickSpacing: i32 = input.tickSpacing;
   const ticks: Tick[] = input.tickDataProvider.ticks;
 
-  const compressed: u32 = tick / tickSpacing;
+  const compressed: i32 = tick / tickSpacing;
 
   if (lte) {
-    const wordPos: u32 = compressed >> 8;
-    const minimum: u32 = (wordPos << 8) * tickSpacing;
+    const wordPos: i32 = compressed >> 8;
+    const minimum: i32 = (wordPos << 8) * tickSpacing;
 
-    if (TickUtils.tickIsBelowSmallest({ ticks: ticks, tick: tick })) {
+    if (TickListUtils.tickIsBelowSmallest({ ticks: ticks, tick: tick })) {
       return {
         index: minimum,
         found: false,
       };
     }
 
-    const index: u32 = TickUtils.nextInitializedTick({
+    const index: i32 = TickListUtils.nextInitializedTick({
       ticks: ticks,
       tick: tick,
       lte: lte,
     }).index;
-    const nextInitializedTick: u32 = index > minimum ? index : minimum;
+    const nextInitializedTick: i32 = index > minimum ? index : minimum;
     return {
       index: nextInitializedTick,
       found: nextInitializedTick == index,
@@ -69,14 +69,14 @@ export function nextInitializedTickWithinOneWord(
     const wordPos = (compressed + 1) >> 8;
     const maximum = ((wordPos + 1) << 8) * tickSpacing - 1;
 
-    if (TickUtils.tickIsAtOrAboveLargest({ ticks: ticks, tick: tick })) {
+    if (TickListUtils.tickIsAtOrAboveLargest({ ticks: ticks, tick: tick })) {
       return {
         index: maximum,
         found: false,
       };
     }
 
-    const index: u32 = TickUtils.nextInitializedTick({
+    const index: i32 = TickListUtils.nextInitializedTick({
       ticks: ticks,
       tick: tick,
       lte: lte,

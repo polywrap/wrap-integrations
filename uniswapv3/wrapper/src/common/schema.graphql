@@ -37,14 +37,21 @@ type Currency {
   name: String
 }
 
-# maybe should be CurrencyAmount? Is TokenAmount still in use?
+type Price {
+  baseToken: Token! # the base token of the price
+  quoteToken: Token! # the quote token of the price
+  denominator: BigInt! # amount of base token used to calculate price
+  numerator: BigInt! # amount of quote token used to calculate price
+  price: String! # a string representation of the price
+}
+
 type TokenAmount {
   token: Token!
   amount: BigInt!
 }
 
 type Tick {
-  index: UInt32!
+  index: Int32!
   liquidityGross: BigInt!
   liquidityNet: BigInt!
 }
@@ -59,17 +66,15 @@ type Pool {
   fee: FeeAmount!
   sqrtRatioX96: BigInt!
   liquidity: BigInt!
-  tickCurrent: UInt32!
+  tickCurrent: Int32!
   tickDataProvider: TickListDataProvider
 }
 
-# TODO: should getters for cached results return the object passed in but with the result filled in? Should we be caching results at all?
 type Route {
   pools: [Pool!]!
   path: [Token!]!
   input: Token!
   output: Token!
-  midPrice: String # cached result for getter
 }
 
 # Options used when determining the best trade in bestTradeExactIn(...) and bestTradeExactOut(...)
@@ -84,14 +89,11 @@ type TradeSwap {
   outputAmount: TokenAmount!
 }
 
-# TODO: should getters for cached results return the object passed in but with the result filled in? Should we be caching results at all?
 type Trade {
   swaps: [TradeSwap!]!
   tradeType: TradeType!
   inputAmount: TokenAmount!
   outputAmount: TokenAmount!
-  executionPrice: String # cached result for getter
-  priceImpact: String # cached result for getter
 }
 
 type MintAmounts {
@@ -99,15 +101,11 @@ type MintAmounts {
   amount1: BigInt!
 }
 
-# TODO: should getters for cached results return the object passed in but with the result filled in? Should we be caching results at all?
 type Position {
   pool: Pool!
   tickLower: UInt32!
   tickUpper: UInt32!
   liquidity: BigInt!
-  token0Amount: TokenAmount # cached result for getter
-  token1Amount: TokenAmount # cached result for getter
-  mintAmounts: MintAmounts # cached result for getter
 }
 
 #type StandardPermitArguments {

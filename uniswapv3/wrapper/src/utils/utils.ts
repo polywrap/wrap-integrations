@@ -15,7 +15,22 @@ export function getFeeAmount(feeAmount: FeeAmount): u32 {
   }
 }
 
-export function getTickSpacings(feeAmount: FeeAmount): u32 {
+export function getFeeAmountEnum(feeAmount: u32): FeeAmount {
+  switch (feeAmount) {
+    case 100:
+      return FeeAmount.LOWEST;
+    case 500:
+      return FeeAmount.LOW;
+    case 3000:
+      return FeeAmount.MEDIUM;
+    case 10000:
+      return FeeAmount.HIGH;
+    default:
+      throw new Error("Unknown FeeAmount");
+  }
+}
+
+export function getTickSpacings(feeAmount: FeeAmount): i32 {
   switch (feeAmount) {
     case FeeAmount.LOWEST:
       return 1;

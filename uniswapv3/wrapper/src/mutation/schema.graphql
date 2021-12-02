@@ -11,27 +11,31 @@ type SwapArgs {
 # TODO: should we add functions to create pools, add liquidity, remove liquidity, etc? Possibly as Query functions that return MethodParameters to be used with execCall(...)?
 type Mutation {
 
-  swap (
-    swaps: [SwapArgs!]!
-    swapOptions: SwapOptions!
-    gasOptions: GasOptions
-  ): Ethereum_TxResponse!
+  placeholder(
+    param: Boolean!
+  ): Boolean!
 
-  exec(
-    trade: [Trade!]!
-    swapOptions: SwapOptions!
-    gasOptions: GasOptions
-  ): Ethereum_TxResponse!
-
-  execCall(
-    parameters: MethodParameters!
-    chainId: ChainId!
-    gasOptions: GasOptions
-  ): Ethereum_TxResponse!
-
-  approve(
-    token: Token!
-    amount: BigInt
-    gasOptions: GasOptions
-  ): Ethereum_TxResponse!
+#  swap(
+#    swaps: [SwapArgs!]!
+#    swapOptions: SwapOptions!
+#    gasOptions: GasOptions
+#  ): Ethereum_TxResponse!
+#
+#  exec(
+#    trade: [Trade!]!
+#    swapOptions: SwapOptions!
+#    gasOptions: GasOptions
+#  ): Ethereum_TxResponse!
+#
+#  execCall(
+#    parameters: MethodParameters!
+#    chainId: ChainId!
+#    gasOptions: GasOptions
+#  ): Ethereum_TxResponse!
+#
+#  approve(
+#    token: Token!
+#    amount: BigInt
+#    gasOptions: GasOptions
+#  ): Ethereum_TxResponse!
 }
