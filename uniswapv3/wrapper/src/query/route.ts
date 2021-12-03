@@ -14,7 +14,7 @@ import {
   poolToken0Price,
   poolToken1Price,
 } from "./pool";
-import { wrapIfEther } from "../utils/tokenUtils";
+import { wrapToken } from "../utils/tokenUtils";
 import { tokenEquals } from "./token";
 import Price from "../utils/Price";
 
@@ -50,14 +50,14 @@ export function createRoute(input: Input_createRoute): Route {
     throw new Error("CHAIN_IDS: all pools must be on the same chain");
   }
 
-  const wrappedInput: Token = wrapIfEther(inToken);
+  const wrappedInput: Token = wrapToken(inToken);
   if (!poolInvolvesToken({ pool: pools[0], token: wrappedInput })) {
     throw new Error(
       "INPUT: the first pool in pools must involve the input token"
     );
   }
 
-  const wrappedOutput: Token = wrapIfEther(outToken);
+  const wrappedOutput: Token = wrapToken(outToken);
   if (
     !poolInvolvesToken({ pool: pools[pools.length - 1], token: wrappedOutput })
   ) {
@@ -125,7 +125,7 @@ export function routeMidPrice(input: Input_routeMidPrice): PriceType {
     },
     tokenEquals({
       tokenA: route.pools[0].token0,
-      tokenB: wrapIfEther(route.input),
+      tokenB: wrapToken(route.input),
     })
       ? {
           nextInput: route.pools[0].token1,

@@ -22,7 +22,7 @@ import {
   PoolImmutables,
   PoolState,
 } from "../utils/fetchUtils";
-import { wrapIfEther } from "../utils/tokenUtils";
+import { wrapToken } from "../utils/tokenUtils";
 
 /**
  * returns token object constructed from on-chain token contract
@@ -77,8 +77,8 @@ export function fetchPoolFromTokens(input: Input_fetchPoolFromTokens): Pool {
   const fee: FeeAmount = input.fee;
   const fetchTicks: boolean = input.fetchTicks;
   // wrap if ether
-  tokenA = wrapIfEther(tokenA);
-  tokenB = wrapIfEther(tokenB);
+  tokenA = wrapToken(tokenA);
+  tokenB = wrapToken(tokenB);
   // get pool address
   const address = getPoolAddress({
     tokenA,

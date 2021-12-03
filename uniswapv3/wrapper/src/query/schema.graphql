@@ -1,7 +1,7 @@
 #import { Query, StaticTxResult } into Ethereum from "w3://ens/ethereum.web3api.eth"
 #import { Query } into SHA3 from "w3://ens/sha3.web3api.eth"
 #import { Query } into ERC20 from "w3://ipfs/QmeiPWHe2ixfitcgjRwP5AaJD5R7DbsGhQNQwT4rFNyxx8"
-#import { ChainId, TradeType, Currency, Token, Price, TokenAmount, Tick, TickListDataProvider, Pool, FeeAmount, Route, Trade, BestTradeOptions, Position, PermitOptions, FeeOptions, SwapOptions, MethodParameters, GasOptions, MintAmounts } from "../common/schema.graphql"
+#import { ChainId, TradeType, Currency, Token, Price, TokenAmount, Tick, TickListDataProvider, Pool, FeeAmount, Route, TradeSwap, Trade, BestTradeOptions, Position, PermitOptions, FeeOptions, SwapOptions, MethodParameters, GasOptions, MintAmounts } from "../common/schema.graphql"
 
 #ximport { Query } into Console from "w3://ipfs/QmVGwj3FtvhiErJ1wWbmRuHpvEQ3t1BPNESvEiMJM57p2y"
 
@@ -27,13 +27,6 @@ type PoolChangeResult {
 type TradeRoute {
   route: Route! # The route of the trade
   amount: TokenAmount! # The amount being passed in or out, depending on the trade type
-}
-
-# Input used to create an unchecked trade
-type UncheckedTradeRoute {
-  route: Route! # The route of the trade
-  inputAmount: TokenAmount! # The amount being passed in
-  outputAmount: TokenAmount! # The amount returned by the trade when executed
 }
 
 # Represents a unique staking program.
@@ -255,93 +248,111 @@ type Query {
 
    ## Trade
 
-#  # Constructs an exact in trade with the given amount in and route
-#  createTradeExactIn(
-#    route: TradeRoute! # the route of the exact in trade and the amount being passed in
-#  ): Trade!
-#
-#  # Constructs an exact out trade with the given amount out and route
-#  createTradeExactOut(
-#    route: TradeRoute! # the route of the exact out trade and the amount returned
-#  ): Trade!
-#
-#  # Constructs a trade by simulating swaps through the given route
-#  createTradeFromRoute(
-#    route: TradeRoute!  # the route to swap through and the amount specified, either input or output, depending on the trade type
-#    tradeType: TradeType! # whether the trade is an exact input or exact output swap
-#  ): Trade!
-#
-#  createTradeFromRoutes(
-#    routes: [TradeRoute!]! # the routes to swap through and how much of the amount should be routed through each
-#    tradeType: TradeType! # whether the trade is an exact input or exact output swap
-#  ): Trade!
-#
-#  # Creates a trade without computing the result of swapping through the route. Useful when you have simulated the trade elsewhere and do not have any tick data
-#  createUncheckedTrade(
-#    route: UncheckedTradeRoute! # the route to swap through, the amount being passed in, and the amount returned when the trade is executed
-#    tradeType: TradeType! # the type of the trade, either exact in or exact out
-#  ): Trade!
-#
-#  # Creates a trade without computing the result of swapping through the routes. Useful when you have simulated the trade elsewhere and do not have any tick data
-#  createUncheckedTradeWithMultipleRoutes(
-#    routes: [UncheckedTradeRoute!]! # the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
-#    tradeType: TradeType! # the type of the trade, either exact in or exact out
-#  ): Trade!
-#
-#  # The price expressed in terms of output amount/input amount.
-#  tradeExecutionPrice(
-#    trade: Trade!
-#  ): String!
-#
-#  # Returns the percent difference between the route's mid price and the price impact
-#  tradePriceImpact(
-#    trade: Trade!
-#  ): String!
-#
-#  # Get the minimum amount that must be received from this trade for the given slippage tolerance
-#  tradeMinimumAmountOut(
-#    slippageTolerance: String! # The tolerance of unfavorable slippage from the execution price of this trade
-#    trade: Trade!
-#  ): TokenAmount!
-#
-#  # Get the maximum amount in that can be spent via this trade for the given slippage tolerance
-#  tradeMaximumAmountIn(
-#    slippageTolerance: String! # The tolerance of unfavorable slippage from the execution price of this trade
-#    trade: Trade!
-#  ): TokenAmount!
-#
-#  # Return the execution price after accounting for slippage tolerance
-#  tradeWorstExecutionPrice(
-#    slippageTolerance: String! # the allowed tolerated slippage
-#    trade: Trade!
-#  ): String!
-#
-#  """
-#  Given a list of pools, and a fixed amount in, returns the top `maxNumResults` trades that go from an input token
-#  amount to an output token, making at most `maxHops` hops.
-#  Note this does not consider aggregation, as routes are linear. It's possible a better route exists by splitting
-#  the amount in among multiple routes.
-#  """
-#  bestTradeExactIn(
-#    pools: [Pool!]! # the pools to consider in finding the best trade
-#    amountIn: TokenAmount! # exact amount of input currency to spend
-#    tokenOut: Token! # the desired currency out
-#    options: BestTradeOptions
-#  ): [Trade!]!
-#
-#  """
-#  similar to bestTradeExactIn(...) but instead targets a fixed output amount
-#  given a list of pools, and a fixed amount out, returns the top `maxNumResults` trades that go from an input token
-#  to an output token amount, making at most `maxHops` hops
-#  note this does not consider aggregation, as routes are linear. it's possible a better route exists by splitting
-#  the amount in among multiple routes.
-#  """
-#  bestTradeExactOut(
-#    pools: [Pool!]! # the pools to consider in finding the best trade
-#    tokenIn: Token! # the currency to spend
-#    amountOut: TokenAmount! # the desired currency amount out
-#    options: BestTradeOptions
-#  ): [Trade!]!
+  # Constructs an exact in trade with the given amount in and route
+  createTradeExactIn(
+    tradeRoute: TradeRoute! # the route of the exact in trade and the amount being passed in
+  ): Trade!
+
+  # Constructs an exact out trade with the given amount out and route
+  createTradeExactOut(
+    tradeRoute: TradeRoute! # the route of the exact out trade and the amount returned
+  ): Trade!
+
+  # Constructs a trade by simulating swaps through the given route
+  createTradeFromRoute(
+    tradeRoute: TradeRoute!  # the route to swap through and the amount specified, either input or output, depending on the trade type
+    tradeType: TradeType! # whether the trade is an exact input or exact output swap
+  ): Trade!
+
+  # Constructs a trade by simulating swaps through the given routes
+  createTradeFromRoutes(
+    tradeRoutes: [TradeRoute!]! # the routes to swap through and how much of the amount should be routed through each
+    tradeType: TradeType! # whether the trade is an exact input or exact output swap
+  ): Trade!
+
+  # Creates a trade without computing the result of swapping through the route. Useful when you have simulated the trade elsewhere and do not have any tick data
+  createUncheckedTrade(
+    swap: TradeSwap! # the route to swap through, the amount being passed in, and the amount returned when the trade is executed
+    tradeType: TradeType! # the type of the trade, either exact in or exact out
+  ): Trade!
+
+  # Creates a trade without computing the result of swapping through the routes. Useful when you have simulated the trade elsewhere and do not have any tick data
+  createUncheckedTradeWithMultipleRoutes(
+    swaps: [TradeSwap!]! # the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
+    tradeType: TradeType! # the type of the trade, either exact in or exact out
+  ): Trade!
+
+  # The input amount for the trade assuming no slippage
+  tradeInputAmount(
+    swaps: [TradeSwap!]! # the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
+  ): TokenAmount!
+
+  # The output amount for the trade assuming no slippage
+  tradeOutputAmount(
+    swaps: [TradeSwap!]! # the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
+  ): TokenAmount!
+
+  # The price expressed in terms of output amount/input amount
+  tradeExecutionPrice(
+    inputAmount: TokenAmount! # the trade input amount, e.g. from Trade object or tradeInputAmount(...)
+    outputAmount: TokenAmount! # the trade output amount, e.g. from Trade object or tradeOutputAmount(...)
+  ): Price!
+
+  # Returns the percent difference between the route's mid price and the price impact
+  tradePriceImpact(
+    swaps: [TradeSwap!]! # the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
+    outputAmount: TokenAmount! # the trade output amount, e.g. from Trade object or tradeOutputAmount(...)
+  ): String!
+
+  # Get the minimum amount that must be received from the trade for the given slippage tolerance
+  tradeMinimumAmountOut(
+    slippageTolerance: String! # The tolerance of unfavorable slippage from the execution price of this trade; a decimal number between 0 and 1 (e.g. "0.03") that represents a percentage
+    amountOut: TokenAmount! # The output amount of the trade, before slippage, e.g. from Trade object or tradeOutputAmount(...)
+    tradeType: TradeType! # The type of the trade, either exact in or exact out
+  ): TokenAmount!
+
+  # Get the maximum amount in that can be spent via the trade for the given slippage tolerance
+  tradeMaximumAmountIn(
+    slippageTolerance: String! # The tolerance of unfavorable slippage from the execution price of this trade; a decimal number between 0 and 1 (e.g. "0.03") that represents a percentage
+    amountIn: TokenAmount! # The input amount of the trade, before slippage, e.g. from Trade object or tradeInputAmount(...)
+    tradeType: TradeType! # The type of the trade, either exact in or exact out
+  ): TokenAmount!
+
+  # Return the execution price after accounting for slippage tolerance
+  tradeWorstExecutionPrice(
+    swaps: [TradeSwap!]! # the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
+    tradeType: TradeType! # the type of the trade, either exact in or exact out
+    inputAmount: TokenAmount! # the trade input amount, e.g. from Trade object or tradeInputAmount(...)
+    outputAmount: TokenAmount! # the trade output amount, e.g. from Trade object or tradeOutputAmount(...)
+    slippageTolerance: String! # the allowed tolerated slippage
+  ): Price!
+
+  """
+  Given a list of pools, and a fixed amount in, returns the top `maxNumResults` trades that go from an input token
+  amount to an output token, making at most `maxHops` hops.
+  Note this does not consider aggregation, as routes are linear. It's possible a better route exists by splitting
+  the amount in among multiple routes.
+  """
+  bestTradeExactIn(
+    pools: [Pool!]! # the pools to consider in finding the best trade
+    amountIn: TokenAmount! # exact amount of input currency to spend
+    tokenOut: Token! # the desired currency out
+    options: BestTradeOptions # options used when determining the best trade
+  ): [Trade!]!
+
+  """
+  similar to bestTradeExactIn(...) but instead targets a fixed output amount
+  given a list of pools, and a fixed amount out, returns the top `maxNumResults` trades that go from an input token
+  to an output token amount, making at most `maxHops` hops
+  note this does not consider aggregation, as routes are linear. it's possible a better route exists by splitting
+  the amount in among multiple routes.
+  """
+  bestTradeExactOut(
+    pools: [Pool!]! # the pools to consider in finding the best trade
+    tokenIn: Token! # the currency to spend
+    amountOut: TokenAmount! # the desired currency amount out
+    options: BestTradeOptions # options used when determining the best trade
+  ): [Trade!]!
 
    ## Position
 

@@ -98,7 +98,7 @@ async function getToken(tokenContract: ethers.Contract): Promise<Token> {
   return new Token(1, tokenContract.address, decimals, symbol, name);
 }
 
-export async function getUniswapPool(poolAddress: string, provider: ethers.providers.Provider): Promise<Pool> {
+export async function getUniswapPool(poolAddress: string, provider: ethers.providers.Provider, fetchTicks?: boolean): Promise<Pool> {
 
   const poolContract: ethers.Contract = new ethers.Contract(
     poolAddress,
@@ -115,7 +115,7 @@ export async function getUniswapPool(poolAddress: string, provider: ethers.provi
     getPoolState(poolContract),
     getToken(tokenContractA),
     getToken(tokenContractB),
-    getPoolTicks(poolContract, immutables.tickSpacing)
+    fetchTicks ? getPoolTicks(poolContract, immutables.tickSpacing) : undefined
   ]);
 
   return new Pool(

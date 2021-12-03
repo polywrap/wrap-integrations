@@ -80,17 +80,18 @@ export function getTokens(pools: Pool[]): Token[] {
 }
 
 export async function getPools(client: Web3ApiClient, ensUri: string, fetchTicks?: boolean, sliceStart?: number, sliceEnd?: number): Promise<Pool[]> {
-  return poolList.slice(sliceStart, sliceEnd).map(
+  const pools: Promise<Pool>[] = poolList.slice(sliceStart, sliceEnd).map(
     async (address: string): Promise<Pool> => {
-      return await getPoolFromAddress(address, fetchTicks, client, ensUri);
+      return await getPoolFromAddress(address, fetchTicks ?? false, client, ensUri);
     });
+  return Promise.all(pools);
 }
 
-export async function getUniPools(provider: ethers.providers.BaseProvider): Promise<UniPool[]> {
-  return Promise.all(poolList.map((address: string)  => getUniswapPool(address, provider)));
+export async function getUniPools(provider: ethers.providers.BaseProvider, fetchTicks?: boolean, sliceStart?: number, sliceEnd?: number): Promise<UniPool[]> {
+  return Promise.all(poolList.slice(sliceStart, sliceEnd).map((address: string)  => getUniswapPool(address, provider, fetchTicks)));
 }
 
-export async function getPoolFromAddress(address: string, fetchTicks: boolean, client: Web3ApiClient, ensUri: string): Promise<Pool | undefined> {
+export async function getPoolFromAddress(address: string, fetchTicks: boolean, client: Web3ApiClient, ensUri: string): Promise<Pool> {
   const poolData = await client.query<{
     fetchPoolFromAddress: Pool;
   }>({
@@ -113,7 +114,7 @@ export async function getPoolFromAddress(address: string, fetchTicks: boolean, c
   if (poolData.errors) {
     throw poolData.errors;
   }
-  return poolData.data?.fetchPoolFromAddress;
+  return poolData.data!.fetchPoolFromAddress;
 }
 
 export function toUniToken(token: Token): uniCore.Token {
@@ -121,8 +122,8 @@ export function toUniToken(token: Token): uniCore.Token {
     toUniChainId(token.chainId),
     token.address,
     token.currency.decimals,
-    token.currency.symbol,
-    token.currency.name
+    token.currency.symbol ?? undefined,
+    token.currency.name ?? undefined
   );
 }
 
@@ -168,18 +169,23 @@ export function toUniToken(token: Token): uniCore.Token {
 //       throw new Error('Unknown chain ID. This should never happen.');
 //   }
 // }
-//
+
 export function toUniChainId(input: ChainId): number {
   switch (input) {
-    case ChainId.MAINNET:
+    case ChainIdEnum.MAINNET:
+    case "MAINNET":
       return 1;
-    case ChainId.ROPSTEN:
+    case ChainIdEnum.ROPSTEN:
+    case "ROPSTEN":
       return 3;
-    case ChainId.RINKEBY:
+    case ChainIdEnum.RINKEBY:
+    case "RINKEBY":
       return 4;
-    case ChainId.GOERLI:
+    case ChainIdEnum.GOERLI:
+    case "GOERLI":
       return 5;
-    case ChainId.KOVAN:
+    case ChainIdEnum.KOVAN:
+    case "KOVAN":
       return 42;
     default:
       throw new Error('Unknown chain ID. This should never happen.')
