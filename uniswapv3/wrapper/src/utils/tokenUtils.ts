@@ -13,7 +13,44 @@ export const wethCurrency: Currency = {
   name: "Wrapped Ether",
 };
 
-export function getWETH9(chainId: ChainId): Token {
+// export function getEther(chainId: ChainId): Token {
+//   switch (chainId) {
+//     case ChainId.MAINNET:
+//       return {
+//         chainId: ChainId.MAINNET,
+//         address: "",
+//         currency: copyCurrency(ETHER),
+//       };
+//     case ChainId.ROPSTEN:
+//       return {
+//         chainId: ChainId.ROPSTEN,
+//         address: "",
+//         currency: copyCurrency(ETHER),
+//       };
+//     case ChainId.RINKEBY:
+//       return {
+//         chainId: ChainId.RINKEBY,
+//         address: "",
+//         currency: copyCurrency(ETHER),
+//       };
+//     case ChainId.GOERLI:
+//       return {
+//         chainId: ChainId.GOERLI,
+//         address: "",
+//         currency: copyCurrency(ETHER),
+//       };
+//     case ChainId.KOVAN:
+//       return {
+//         chainId: ChainId.KOVAN,
+//         address: "",
+//         currency: copyCurrency(ETHER),
+//       };
+//     default:
+//       throw new Error("Unknown chain ID. This should never happen.");
+//   }
+// }
+
+export function getWETH(chainId: ChainId): Token {
   switch (chainId) {
     case ChainId.MAINNET:
       return {
@@ -56,7 +93,7 @@ export function wrapToken(token: Token): Token {
     currencyEquals({ currencyA: token.currency, currencyB: ETHER }) &&
     token.address == ""
   ) {
-    return getWETH9(token.chainId);
+    return getWETH(token.chainId);
   }
   return token;
 }

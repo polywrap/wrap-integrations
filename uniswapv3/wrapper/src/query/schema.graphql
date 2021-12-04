@@ -320,10 +320,7 @@ type Query {
 
   # Return the execution price after accounting for slippage tolerance
   tradeWorstExecutionPrice(
-    swaps: [TradeSwap!]! # the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
-    tradeType: TradeType! # the type of the trade, either exact in or exact out
-    inputAmount: TokenAmount! # the trade input amount, e.g. from Trade object or tradeInputAmount(...)
-    outputAmount: TokenAmount! # the trade output amount, e.g. from Trade object or tradeOutputAmount(...)
+    trade: Trade!
     slippageTolerance: String! # the allowed tolerated slippage
   ): Price!
 

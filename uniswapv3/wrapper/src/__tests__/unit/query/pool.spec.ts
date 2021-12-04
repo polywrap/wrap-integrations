@@ -1,6 +1,6 @@
 import { BigInt } from "@web3api/wasm-as";
 import { ChainId, FeeAmount, Pool, PoolChangeResult, Token, TokenAmount } from "../../../query/w3";
-import { getWETH9 } from "../../../utils/tokenUtils";
+import { getWETH } from "../../../utils/tokenUtils";
 import {
   createPool,
   encodeSqrtRatioX96, getPoolInputAmount, getPoolOutputAmount,
@@ -48,7 +48,7 @@ describe('Pool', () => {
       const error = (): void => {
         createPool({
           tokenA: USDC,
-          tokenB: getWETH9(ChainId.ROPSTEN),
+          tokenB: getWETH(ChainId.ROPSTEN),
           fee: FeeAmount.MEDIUM,
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
@@ -78,7 +78,7 @@ describe('Pool', () => {
       const error = (): void => {
         createPool({
           tokenA: USDC,
-          tokenB: getWETH9(ChainId.MAINNET),
+          tokenB: getWETH(ChainId.MAINNET),
           fee: FeeAmount.MEDIUM,
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
@@ -91,7 +91,7 @@ describe('Pool', () => {
       const errorNeg = (): void => {
         createPool({
           tokenA: USDC,
-          tokenB: getWETH9(ChainId.MAINNET),
+          tokenB: getWETH(ChainId.MAINNET),
           fee: FeeAmount.MEDIUM,
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }).addInt(1),
           liquidity: BigInt.ZERO,
@@ -106,7 +106,7 @@ describe('Pool', () => {
       const noError = (): void => {
         createPool({
           tokenA: USDC,
-          tokenB: getWETH9(ChainId.MAINNET),
+          tokenB: getWETH(ChainId.MAINNET),
           fee: FeeAmount.MEDIUM,
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
@@ -121,7 +121,7 @@ describe('Pool', () => {
       const noError = (): void => {
         createPool({
           tokenA: USDC,
-          tokenB: getWETH9(ChainId.MAINNET),
+          tokenB: getWETH(ChainId.MAINNET),
           fee: FeeAmount.LOW,
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
@@ -136,7 +136,7 @@ describe('Pool', () => {
       const noError = (): void => {
         createPool({
           tokenA: USDC,
-          tokenB: getWETH9(ChainId.MAINNET),
+          tokenB: getWETH(ChainId.MAINNET),
           fee: FeeAmount.LOWEST,
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
@@ -151,7 +151,7 @@ describe('Pool', () => {
       const noError = (): void => {
         createPool({
           tokenA: USDC,
-          tokenB: getWETH9(ChainId.MAINNET),
+          tokenB: getWETH(ChainId.MAINNET),
           fee: FeeAmount.HIGH,
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
@@ -306,7 +306,7 @@ describe('Pool', () => {
           tickCurrent: 0,
           ticks: { ticks: [] },
         });
-        poolPriceOf({ token: getWETH9(ChainId.MAINNET), pool: pool });
+        poolPriceOf({ token: getWETH(ChainId.MAINNET), pool: pool });
       };
       expect(error).toThrow("TOKEN: Cannot return the price of a token that is not in the pool");
     });
@@ -351,7 +351,7 @@ describe('Pool', () => {
       });
       expect(poolInvolvesToken({ token: USDC, pool: pool })).toStrictEqual(true);
       expect(poolInvolvesToken({ token: DAI, pool: pool })).toStrictEqual(true);
-      expect(poolInvolvesToken({ token: getWETH9(ChainId.MAINNET), pool: pool })).toStrictEqual(false);
+      expect(poolInvolvesToken({ token: getWETH(ChainId.MAINNET), pool: pool })).toStrictEqual(false);
     });
   });
 

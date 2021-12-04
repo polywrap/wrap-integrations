@@ -420,10 +420,10 @@ export function tradeMaximumAmountIn(
 export function tradeWorstExecutionPrice(
   input: Input_tradeWorstExecutionPrice
 ): PriceType {
-  const swaps: TradeSwap[] = input.swaps;
-  const tradeType: TradeType = input.tradeType;
-  const amountIn: TokenAmount = input.inputAmount;
-  const amountOut: TokenAmount = input.outputAmount;
+  const swaps: TradeSwap[] = input.trade.swaps;
+  const tradeType: TradeType = input.trade.tradeType;
+  const amountIn: TokenAmount = input.trade.inputAmount;
+  const amountOut: TokenAmount = input.trade.outputAmount;
   const slippageTolerance: string = input.slippageTolerance;
 
   return new Price(
