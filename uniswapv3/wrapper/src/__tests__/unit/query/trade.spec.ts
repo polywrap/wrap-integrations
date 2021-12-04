@@ -134,31 +134,31 @@ const getSwap = (pools: Pool[], inToken: Token, outToken: Token, inputAmount: u1
   };
 };
 
-const uncheckedTrade = (inputAmount: u16, outputAmount: u16, tradeType: TradeType): Trade => {
-  const swap: TradeSwap = getSwap([pool_0_1, pool_1_2], token0, token2, inputAmount, outputAmount);
+const uncheckedTrade = (inToken: Token, outToken: Token, pools: Pool[], inputAmount: u16, outputAmount: u16, tradeType: TradeType): Trade => {
+  const swap: TradeSwap = getSwap(pools, inToken, outToken, inputAmount, outputAmount);
   return createUncheckedTrade({ swap, tradeType });
 };
 
-const uncheckedTradeMultiRoute = (in0: u16, out0: u16, in1: u16, out1: u16, tradeType: TradeType): Trade => {
+const uncheckedTradeMultiRoute = (inToken: Token, outToken: Token, pools0: Pool[], pools1: Pool[], in0: u16, out0: u16, in1: u16, out1: u16, tradeType: TradeType): Trade => {
   return createUncheckedTradeWithMultipleRoutes({
     swaps: [
-      getSwap([pool_0_1, pool_1_2], token0, token2, in0, out0),
-      getSwap([pool_0_2], token0, token2, in1, out1)
+      getSwap(pools0, inToken, outToken, in0, out0),
+      getSwap(pools1, inToken, outToken, in1, out1)
     ],
     tradeType
   });
 };
 
-const tradeFromRoute = (amount: u16, tradeType: TradeType): Trade => {
+const tradeFromRoute = (inToken: Token, outToken: Token, pools: Pool[], amount: u16, tradeType: TradeType): Trade => {
   return createTradeFromRoute({
     tradeRoute: {
       route: createRoute({
-        pools: [pool_0_1, pool_1_2],
-        inToken: token0,
-        outToken: token2,
+        pools: pools,
+        inToken: inToken,
+        outToken: outToken,
       }),
       amount: {
-        token: tradeType == TradeType.EXACT_INPUT ? token0 : token2,
+        token: tradeType == TradeType.EXACT_INPUT ? inToken : outToken,
         amount: BigInt.fromUInt16(amount),
       }
     },
@@ -166,16 +166,16 @@ const tradeFromRoute = (amount: u16, tradeType: TradeType): Trade => {
   });
 };
 
-const exactIn: Trade = uncheckedTrade(100, 69, TradeType.EXACT_INPUT);
-const exactInMultiRoute0: Trade = uncheckedTradeMultiRoute(50, 35, 50, 34, TradeType.EXACT_INPUT);
-const exactInMultiRoute1: Trade = uncheckedTradeMultiRoute(90, 62, 10, 7, TradeType.EXACT_INPUT);
-const exactOut: Trade = uncheckedTrade(156, 100, TradeType.EXACT_OUTPUT);
-const exactOutMultiRoute0: Trade = uncheckedTradeMultiRoute(78, 50, 78, 50, TradeType.EXACT_OUTPUT);
-const exactOutMultiRoute1: Trade = uncheckedTradeMultiRoute(140, 90, 16, 10, TradeType.EXACT_OUTPUT);
-const exactInFromRoute0: Trade = tradeFromRoute(100, TradeType.EXACT_INPUT);
-const exactInFromRoute1: Trade = tradeFromRoute(10000, TradeType.EXACT_INPUT);
-const exactOutFromRoute0: Trade = tradeFromRoute(10000, TradeType.EXACT_OUTPUT);
-const exactOutFromRoute1: Trade = tradeFromRoute(100, TradeType.EXACT_OUTPUT);
+const exactIn: Trade = uncheckedTrade(token0, token2, [pool_0_1, pool_1_2],100, 69, TradeType.EXACT_INPUT);
+const exactInMultiRoute0: Trade = uncheckedTradeMultiRoute(token0, token2, [pool_0_1, pool_1_2], [pool_0_2], 50, 35, 50, 34, TradeType.EXACT_INPUT);
+const exactInMultiRoute1: Trade = uncheckedTradeMultiRoute(token0, token2, [pool_0_1, pool_1_2], [pool_0_2], 90, 62, 10, 7, TradeType.EXACT_INPUT);
+const exactOut: Trade = uncheckedTrade(token0, token2, [pool_0_1, pool_1_2], 156, 100, TradeType.EXACT_OUTPUT);
+const exactOutMultiRoute0: Trade = uncheckedTradeMultiRoute(token0, token2, [pool_0_1, pool_1_2], [pool_0_2], 78, 50, 78, 50, TradeType.EXACT_OUTPUT);
+const exactOutMultiRoute1: Trade = uncheckedTradeMultiRoute(token0, token2, [pool_0_1, pool_1_2], [pool_0_2], 140, 90, 16, 10, TradeType.EXACT_OUTPUT);
+const exactInFromRoute0: Trade = tradeFromRoute(token0, token2, [pool_0_1, pool_1_2], 100, TradeType.EXACT_INPUT);
+const exactInFromRoute1: Trade = tradeFromRoute(token0, token2, [pool_0_1, pool_1_2], 10000, TradeType.EXACT_INPUT);
+const exactOutFromRoute0: Trade = tradeFromRoute(token0, token2, [pool_0_1, pool_1_2], 10000, TradeType.EXACT_OUTPUT);
+const exactOutFromRoute1: Trade = tradeFromRoute(token0, token2, [pool_0_1, pool_1_2], 100, TradeType.EXACT_OUTPUT);
 
 describe('Trade', () => {
 
@@ -235,7 +235,7 @@ describe('Trade', () => {
       });
       expect(trade.inputAmount.token).toStrictEqual(token0);
       expect(trade.outputAmount.token).toStrictEqual(eth);
-    })
+    });
 
     it('can be constructed with ETHER as output for exact input', () => {
       const trade: Trade = createTradeFromRoute({

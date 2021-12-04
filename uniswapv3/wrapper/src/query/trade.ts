@@ -28,7 +28,6 @@ import {
 import { tokenEquals } from "./token";
 import { copyTokenAmount, wrapAmount, wrapToken } from "../utils/tokenUtils";
 import {
-  getPoolAddress,
   getPoolInputAmount,
   getPoolOutputAmount,
   poolInvolvesToken,
@@ -73,12 +72,15 @@ function createTrade(swaps: TradeSwap[], tradeType: TradeType): Trade {
     const route: Route = swaps[i].route;
     for (let j = 0; j < route.pools.length; j++) {
       const pool: Pool = route.pools[j];
-      const address: string = getPoolAddress({
-        tokenA: pool.token0,
-        tokenB: pool.token1,
-        fee: pool.fee,
-        initCodeHashManualOverride: null,
-      });
+      // TODO: can't run unit tests with getPoolAddress because it relies on sha3 plugin; is this really necessary?
+      // const address: string = getPoolAddress({
+      //   tokenA: pool.token0,
+      //   tokenB: pool.token1,
+      //   fee: pool.fee,
+      //   initCodeHashManualOverride: null,
+      // });
+      const address: string =
+        pool.token0.address + pool.token1.address + pool.fee.toString();
       poolAddressSet.add(address);
     }
   }
