@@ -393,16 +393,16 @@ describe('Pool', () => {
         expect(outputAmount.amount.toInt32()).toStrictEqual(98);
       });
 
-      // it('DAI -> USDC', () => {
-      //   const inputAmount: TokenAmount = {
-      //     token: DAI,
-      //     amount: BigInt.fromUInt16(100),
-      //   };
-      //   const poolChangeResult: PoolChangeResult = getPoolOutputAmount({ inputAmount, sqrtPriceLimitX96: null, pool: swapPool });
-      //   const outputAmount: TokenAmount = poolChangeResult.tokenAmount;
-      //   expect(tokenEquals({ tokenA: outputAmount.token, tokenB: USDC })).toStrictEqual(true);
-      //   expect(outputAmount.amount.toInt32()).toStrictEqual(98);
-      // });
+      it('DAI -> USDC', () => {
+        const inputAmount: TokenAmount = {
+          token: DAI,
+          amount: BigInt.fromUInt16(100),
+        };
+        const poolChangeResult: PoolChangeResult = getPoolOutputAmount({ inputAmount, sqrtPriceLimitX96: null, pool: swapPool });
+        const outputAmount: TokenAmount = poolChangeResult.tokenAmount;
+        expect(tokenEquals({ tokenA: outputAmount.token, tokenB: USDC })).toStrictEqual(true);
+        expect(outputAmount.amount.toInt32()).toStrictEqual(98);
+      });
     });
 
     describe('getInputAmount', () => {
@@ -418,16 +418,16 @@ describe('Pool', () => {
         expect(inputAmount.amount.toInt32()).toStrictEqual(100);
       });
 
-      // it('DAI -> USDC', () => {
-      //   const outputAmount: TokenAmount = {
-      //     token: USDC,
-      //     amount: BigInt.fromUInt16(98),
-      //   };
-      //   const poolChangeResult: PoolChangeResult = getPoolInputAmount({ outputAmount, sqrtPriceLimitX96: null, pool: swapPool });
-      //   const inputAmount: TokenAmount = poolChangeResult.tokenAmount;
-      //   expect(tokenEquals({ tokenA: inputAmount.token, tokenB: DAI })).toStrictEqual(true);
-      //   expect(inputAmount.amount.toInt32()).toStrictEqual(100);
-      // });
+      it('DAI -> USDC', () => {
+        const outputAmount: TokenAmount = {
+          token: USDC,
+          amount: BigInt.fromUInt16(98),
+        };
+        const poolChangeResult: PoolChangeResult = getPoolInputAmount({ outputAmount, sqrtPriceLimitX96: null, pool: swapPool });
+        const inputAmount: TokenAmount = poolChangeResult.tokenAmount;
+        expect(tokenEquals({ tokenA: inputAmount.token, tokenB: DAI })).toStrictEqual(true);
+        expect(inputAmount.amount.toInt32()).toStrictEqual(100);
+      });
     });
   });
 });

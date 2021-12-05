@@ -1,8 +1,10 @@
-import { Input_nextInitializedTick, Input_validateTickList, Tick } from "../../../query/w3";
+import { FeeAmount, Input_nextInitializedTick, Input_validateTickList, Tick } from "../../../query/w3";
 import { BigInt } from "@web3api/wasm-as";
 import { MAX_TICK, MIN_TICK } from "../../../utils/constants";
 import * as TickList from "../../../query/tickList";
 import * as TickListUtils from "../../../query/tickListUtils";
+import { nearestUsableTick } from "../../../query";
+import { getTickSpacings } from "../../../utils/utils";
 
 let highTick: Tick;
 let lowTick: Tick;
@@ -339,6 +341,32 @@ describe('TickList', () => {
         },
       })).toStrictEqual({
         index: 511,
+        found: false,
+      });
+    });
+
+    it('pool getInputAmount and getOutputAmount failed test params', () => {
+      const ONE_ETHER: BigInt = BigInt.pow(BigInt.fromUInt16(10), 18);
+      ticks = [
+        {
+          index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: getTickSpacings(FeeAmount.LOW) }),
+          liquidityNet: ONE_ETHER,
+          liquidityGross: ONE_ETHER
+        },
+        {
+          index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: getTickSpacings(FeeAmount.LOW) }),
+          liquidityNet: ONE_ETHER.opposite(),
+          liquidityGross: ONE_ETHER
+        }];
+      expect(TickList.nextInitializedTickWithinOneWord({
+        tick: -1,
+        lte: true,
+        tickSpacing: 10,
+        tickDataProvider: {
+          ticks: ticks,
+        },
+      })).toStrictEqual({
+        index: -2560,
         found: false,
       });
     });
