@@ -388,7 +388,7 @@ describe('Pool', () => {
           amount: BigInt.fromUInt16(100),
         };
         const poolChangeResult: PoolChangeResult = getPoolOutputAmount({ inputAmount, sqrtPriceLimitX96: null, pool: swapPool });
-        const outputAmount: TokenAmount = poolChangeResult.tokenAmount;
+        const outputAmount: TokenAmount = poolChangeResult.amount;
         expect(tokenEquals({ tokenA: outputAmount.token, tokenB: DAI })).toStrictEqual(true);
         expect(outputAmount.amount.toInt32()).toStrictEqual(98);
       });
@@ -399,7 +399,7 @@ describe('Pool', () => {
           amount: BigInt.fromUInt16(100),
         };
         const poolChangeResult: PoolChangeResult = getPoolOutputAmount({ inputAmount, sqrtPriceLimitX96: null, pool: swapPool });
-        const outputAmount: TokenAmount = poolChangeResult.tokenAmount;
+        const outputAmount: TokenAmount = poolChangeResult.amount;
         expect(tokenEquals({ tokenA: outputAmount.token, tokenB: USDC })).toStrictEqual(true);
         expect(outputAmount.amount.toInt32()).toStrictEqual(98);
       });
@@ -413,7 +413,7 @@ describe('Pool', () => {
           amount: BigInt.fromUInt16(98),
         };
         const poolChangeResult: PoolChangeResult = getPoolInputAmount({ outputAmount, sqrtPriceLimitX96: null, pool: swapPool });
-        const inputAmount: TokenAmount = poolChangeResult.tokenAmount;
+        const inputAmount: TokenAmount = poolChangeResult.amount;
         expect(tokenEquals({ tokenA: inputAmount.token, tokenB: USDC })).toStrictEqual(true);
         expect(inputAmount.amount.toInt32()).toStrictEqual(100);
       });
@@ -424,7 +424,7 @@ describe('Pool', () => {
           amount: BigInt.fromUInt16(98),
         };
         const poolChangeResult: PoolChangeResult = getPoolInputAmount({ outputAmount, sqrtPriceLimitX96: null, pool: swapPool });
-        const inputAmount: TokenAmount = poolChangeResult.tokenAmount;
+        const inputAmount: TokenAmount = poolChangeResult.amount;
         expect(tokenEquals({ tokenA: inputAmount.token, tokenB: DAI })).toStrictEqual(true);
         expect(inputAmount.amount.toInt32()).toStrictEqual(100);
       });

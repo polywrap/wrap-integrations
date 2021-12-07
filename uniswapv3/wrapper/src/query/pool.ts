@@ -190,11 +190,11 @@ export function getPoolOutputAmount(
 
   const outputToken: Token = zeroForOne ? pool.token1 : pool.token0;
   return {
-    tokenAmount: {
+    amount: {
       token: outputToken,
       amount: outputAmount.opposite(),
     },
-    pool: {
+    nextPool: {
       token0: pool.token0,
       token1: pool.token1,
       fee: pool.fee,
@@ -241,11 +241,11 @@ export function getPoolInputAmount(
 
   const inputToken = zeroForOne ? pool.token0 : pool.token1;
   return {
-    tokenAmount: {
+    amount: {
       token: inputToken,
       amount: inputAmount,
     },
-    pool: {
+    nextPool: {
       token0: pool.token0,
       token1: pool.token1,
       fee: pool.fee,

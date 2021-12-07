@@ -16,6 +16,7 @@ import {
   Input_tradePriceImpact,
   Input_tradeWorstExecutionPrice,
   Pool,
+  PoolChangeResult,
   Price as PriceType,
   Route,
   Token,
@@ -25,7 +26,7 @@ import {
   TradeSwap,
   TradeType,
 } from "./w3";
-import { tokenEquals } from "./token";
+import { tokenAmountEquals, tokenEquals } from "./token";
 import { copyTokenAmount, wrapAmount, wrapToken } from "../utils/tokenUtils";
 import {
   getPoolInputAmount,
@@ -47,7 +48,7 @@ import { BigInt, Nullable } from "@web3api/wasm-as";
 function createTrade(swaps: TradeSwap[], tradeType: TradeType): Trade {
   for (let i = 0; i < swaps.length; i++) {
     const tokenA: Token = wrapToken(swaps[0].inputAmount.token);
-    const tokenB: Token = wrapToken(swaps[i].inputAmount.token);
+    const tokenB: Token = wrapToken(swaps[i].route.input);
     if (!tokenEquals({ tokenA, tokenB })) {
       throw new Error(
         "INPUT_CURRENCY_MATCH: the input token of the trade and all its routes must match"
@@ -56,7 +57,7 @@ function createTrade(swaps: TradeSwap[], tradeType: TradeType): Trade {
   }
   for (let i = 0; i < swaps.length; i++) {
     const tokenA: Token = wrapToken(swaps[0].outputAmount.token);
-    const tokenB: Token = wrapToken(swaps[i].outputAmount.token);
+    const tokenB: Token = wrapToken(swaps[i].route.output);
     if (!tokenEquals({ tokenA, tokenB })) {
       throw new Error(
         "OUTPUT_CURRENCY_MATCH: the output token of the trade and all its routes must match"
@@ -136,7 +137,7 @@ function createTradeSwap(
         pool: route.pools[i],
         inputAmount: amounts[i],
         sqrtPriceLimitX96: null,
-      }).tokenAmount;
+      }).amount;
     }
     inputAmount = {
       token: route.input,
@@ -158,7 +159,7 @@ function createTradeSwap(
         pool: route.pools[i - 1],
         outputAmount: amounts[i],
         sqrtPriceLimitX96: null,
-      }).tokenAmount;
+      }).amount;
     }
     inputAmount = {
       token: route.input,
@@ -308,27 +309,20 @@ export function tradePriceImpact(input: Input_tradePriceImpact): string {
   const swaps: TradeSwap[] = input.swaps;
   const outputAmount: TokenAmount = input.outputAmount;
 
-  let spotOutputAmount: TokenAmount = {
-    token: outputAmount.token,
-    amount: BigInt.ZERO,
-  };
+  let spotOutputAmount: Fraction = new Fraction(BigInt.ZERO);
 
   for (let i = 0; i < swaps.length; i++) {
     const route: Route = swaps[i].route;
     const inputAmount: TokenAmount = swaps[i].inputAmount;
     const midPrice: Price = Price.from(routeMidPrice({ route }));
-    const quote: TokenAmount = midPrice.quote(inputAmount);
-    spotOutputAmount = {
-      token: spotOutputAmount.token,
-      amount: spotOutputAmount.amount.add(quote.amount),
-    };
+    const quote: Fraction = midPrice.quote(inputAmount);
+    spotOutputAmount = spotOutputAmount.add(quote);
   }
 
-  const spotOutputFraction: Fraction = new Fraction(spotOutputAmount.amount);
   const tradeOutputFraction: Fraction = new Fraction(outputAmount.amount);
-  const priceImpact: Fraction = spotOutputFraction
+  const priceImpact: Fraction = spotOutputAmount
     .sub(tradeOutputFraction)
-    .div(spotOutputFraction);
+    .div(spotOutputAmount);
 
   return priceImpact.toFixed(18);
 }
@@ -351,11 +345,7 @@ export function tradeMinimumAmountOut(
       "SLIPPAGE_TOLERANCE: slippage tolerance cannot be less than zero"
     );
   }
-  if (tolerance.gt(new Fraction(BigInt.ONE))) {
-    throw new RangeError(
-      "SLIPPAGE_TOLERANCE: slippage tolerance cannot be greater than one"
-    );
-  }
+
   if (tradeType == TradeType.EXACT_OUTPUT) {
     return amountOut;
   } else {
@@ -388,11 +378,6 @@ export function tradeMaximumAmountIn(
   if (tolerance.lt(new Fraction(BigInt.ZERO))) {
     throw new RangeError(
       "SLIPPAGE_TOLERANCE: slippage tolerance cannot be less than zero"
-    );
-  }
-  if (tolerance.gt(new Fraction(BigInt.ONE))) {
-    throw new RangeError(
-      "SLIPPAGE_TOLERANCE: slippage tolerance cannot be greater than one"
     );
   }
 
@@ -474,7 +459,14 @@ function _bestTradeExactIn(
   nextAmountIn: TokenAmount = copyTokenAmount(currencyAmountIn),
   bestTrades: PriorityQueue<Trade> = new PriorityQueue<Trade>(tradeComparator)
 ): PriorityQueue<Trade> {
-  if (!(currencyAmountIn == nextAmountIn || currentPools.length > 0)) {
+  if (
+    !(
+      tokenAmountEquals({
+        tokenAmountA: currencyAmountIn,
+        tokenAmountB: nextAmountIn,
+      }) || currentPools.length > 0
+    )
+  ) {
     throw new Error("INVALID_RECURSION");
   }
 
@@ -489,8 +481,8 @@ function _bestTradeExactIn(
       pool,
       inputAmount: amountIn,
       sqrtPriceLimitX96: null,
-    }).tokenAmount;
-    // TODO: how can i replicate this? I can't find where this error is thrown
+    }).amount;
+    // TODO: how should i replicate this? This exception is not thrown in the JS sdk
     // try {
     //   ;[amountOut] = await pool.getOutputAmount(amountIn)
     // } catch (error) {
@@ -578,7 +570,14 @@ function _bestTradeExactOut(
   nextAmountOut: TokenAmount = copyTokenAmount(currencyAmountOut),
   bestTrades: PriorityQueue<Trade> = new PriorityQueue<Trade>(tradeComparator)
 ): PriorityQueue<Trade> {
-  if (!(currencyAmountOut == nextAmountOut || currentPools.length > 0)) {
+  if (
+    !(
+      tokenAmountEquals({
+        tokenAmountA: currencyAmountOut,
+        tokenAmountB: nextAmountOut,
+      }) || currentPools.length > 0
+    )
+  ) {
     throw new Error("INVALID_RECURSION");
   }
 
@@ -589,12 +588,7 @@ function _bestTradeExactOut(
     // pool irrelevant
     if (!poolInvolvesToken({ pool, token: amountOut.token })) continue;
 
-    const amountIn: TokenAmount = getPoolInputAmount({
-      pool,
-      outputAmount: amountOut,
-      sqrtPriceLimitX96: null,
-    }).tokenAmount;
-    // TODO: how can i replicate this? I can't find where this error is thrown
+    // TODO: how should i replicate this? This exception is not actually thrown in the JS sdk
     // try {
     //   ;[amountIn] = await pool.getInputAmount(amountOut)
     // } catch (error) {
@@ -605,12 +599,25 @@ function _bestTradeExactOut(
     //   throw error
     // }
 
+    const poolChangeResult: PoolChangeResult = getPoolInputAmount({
+      pool,
+      outputAmount: amountOut,
+      sqrtPriceLimitX96: null,
+    });
+    const amountIn: TokenAmount = poolChangeResult.amount;
+    const nextPoolState: Pool = poolChangeResult.nextPool;
+    // TODO: is this a valid test for insufficient liquidity?
+    // insufficient liquidity
+    if (nextPoolState.liquidity.isZero()) {
+      continue;
+    }
+
     // we have arrived at the input token, so this is the first trade of one of the paths
     if (tokenEquals({ tokenA: amountIn.token, tokenB: tokenIn })) {
       const newTrade = createTradeFromRoute({
         tradeRoute: {
           route: createRoute({
-            pools: currentPools.concat([pool]),
+            pools: [pool].concat(currentPools),
             inToken: currencyIn,
             outToken: currencyAmountOut.token,
           }),
@@ -633,7 +640,7 @@ function _bestTradeExactOut(
           maxNumResults: options.maxNumResults,
           maxHops: Nullable.fromValue<u32>(options.maxHops.value - 1),
         },
-        currentPools.concat([pool]),
+        [pool].concat(currentPools),
         amountIn,
         bestTrades
       );
@@ -670,20 +677,20 @@ function tradeComparator(a: Trade, b: Trade): i32 {
       // consider the number of hops since each hop costs gas
       const aHops = a.swaps.reduce((x, cur) => x + cur.route.path.length, 0);
       const bHops = b.swaps.reduce((x, cur) => x + cur.route.path.length, 0);
-      return aHops - bHops;
+      return bHops - aHops;
     }
     // trade A requires less input than trade B, so A should come first
     if (aInputBI.lt(bInputBI)) {
-      return -1;
-    } else {
       return 1;
+    } else {
+      return -1;
     }
   } else {
     // tradeA has less output than trade B, so should come second
     if (aOutputBI.lt(bOutputBI)) {
-      return 1;
-    } else {
       return -1;
+    } else {
+      return 1;
     }
   }
 }

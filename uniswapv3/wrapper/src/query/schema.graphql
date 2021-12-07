@@ -17,10 +17,10 @@ type NextTickResult {
   found: Boolean!
 }
 
-# Return value of getPoolInputAmount(...) and getPoolOutputAmount(...)
+# Input or output amount and next pool state; return value of getPoolInputAmount(...) and getPoolOutputAmount(...)
 type PoolChangeResult {
-  tokenAmount: TokenAmount!
-  pool: Pool!
+  amount: TokenAmount!
+  nextPool: Pool!
 }
 
 # Input used to create a trade

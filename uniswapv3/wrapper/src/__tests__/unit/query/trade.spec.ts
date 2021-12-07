@@ -23,13 +23,14 @@ import {
   getTickAtSqrtRatio,
   nearestUsableTick,
   tradeMaximumAmountIn,
-  tradeMinimumAmountOut,
+  tradeMinimumAmountOut, tradePriceImpact,
   tradeWorstExecutionPrice
 } from "../../../query";
 import { BigInt, Nullable } from "@web3api/wasm-as";
 import { getTickSpacings } from "../../../utils/utils";
 import { MAX_TICK, MIN_TICK } from "../../../utils/constants";
 import Price from "../../../utils/Price";
+import { BigFloat } from "as-bigfloat";
 
 
 const getTestToken = (i: i32): Token => {
@@ -672,7 +673,7 @@ describe('Trade', () => {
         const error = (): void => {
           tradeWorstExecutionPrice({
             trade: exactIn,
-            slippageTolerance: "-0.0001",
+            slippageTolerance: "-0.01",
           });
         };
         expect(error).toThrow("SLIPPAGE_TOLERANCE: slippage tolerance cannot be less than zero");
@@ -696,13 +697,13 @@ describe('Trade', () => {
         const expected0005: string = new Price(token0, token2, BigInt.fromUInt16(100), BigInt.fromUInt16(65)).toFixed(18);
         expect(tradeWorstExecutionPrice({
           trade: exactIn,
-          slippageTolerance: "0.0005",
+          slippageTolerance: "0.05",
         }).price).toStrictEqual(expected0005);
 
         const expected002: string = new Price(token0, token2, BigInt.fromUInt16(100), BigInt.fromUInt16(23)).toFixed(18);
         expect(tradeWorstExecutionPrice({
           trade: exactIn,
-          slippageTolerance: "0.02",
+          slippageTolerance: "2",
         }).price).toStrictEqual(expected002);
       });
 
@@ -716,13 +717,13 @@ describe('Trade', () => {
         const expected0005: string = new Price(token0, token2, BigInt.fromUInt16(100), BigInt.fromUInt16(65)).toFixed(18);
         expect(tradeWorstExecutionPrice({
           trade: exactInMultiRoute0,
-          slippageTolerance: "0.0005",
+          slippageTolerance: "0.05",
         }).price).toStrictEqual(expected0005);
 
         const expected002: string = new Price(token0, token2, BigInt.fromUInt16(100), BigInt.fromUInt16(23)).toFixed(18);
         expect(tradeWorstExecutionPrice({
           trade: exactInMultiRoute0,
-          slippageTolerance: "0.02",
+          slippageTolerance: "2",
         }).price).toStrictEqual(expected002);
       });
     });
@@ -732,7 +733,7 @@ describe('Trade', () => {
         const error = (): void => {
           tradeWorstExecutionPrice({
             trade: exactOut,
-            slippageTolerance: "-0.0001",
+            slippageTolerance: "-0.01",
           });
         };
         expect(error).toThrow("SLIPPAGE_TOLERANCE: slippage tolerance cannot be less than zero");
@@ -756,13 +757,13 @@ describe('Trade', () => {
         const expected0005: string = new Price(token0, token2, BigInt.fromUInt16(163), BigInt.fromUInt16(100)).toFixed(18);
         expect(tradeWorstExecutionPrice({
           trade: exactOut,
-          slippageTolerance: "0.0005",
+          slippageTolerance: "0.05",
         }).price).toStrictEqual(expected0005);
 
         const expected002: string = new Price(token0, token2, BigInt.fromUInt16(468), BigInt.fromUInt16(100)).toFixed(18);
         expect(tradeWorstExecutionPrice({
           trade: exactOut,
-          slippageTolerance: "0.02",
+          slippageTolerance: "2",
         }).price).toStrictEqual(expected002);
       });
 
@@ -776,13 +777,13 @@ describe('Trade', () => {
         const expected0005: string = new Price(token0, token2, BigInt.fromUInt16(163), BigInt.fromUInt16(100)).toFixed(18);
         expect(tradeWorstExecutionPrice({
           trade: exactOutMultiRoute0,
-          slippageTolerance: "0.0005",
+          slippageTolerance: "0.05",
         }).price).toStrictEqual(expected0005);
 
         const expected002: string = new Price(token0, token2, BigInt.fromUInt16(468), BigInt.fromUInt16(100)).toFixed(18);
         expect(tradeWorstExecutionPrice({
           trade: exactOutMultiRoute0,
-          slippageTolerance: "0.02",
+          slippageTolerance: "2",
         }).price).toStrictEqual(expected002);
       });
     });
@@ -791,21 +792,25 @@ describe('Trade', () => {
   describe('tradePriceImpact', () => {
     describe('tradeType = EXACT_INPUT', () => {
       it('is correct', () => {
-        expect(exactIn.priceImpact.substring(0, 5)).toStrictEqual('0.172')
+        const result: string = BigFloat.fromString(exactIn.priceImpact).toSignificant(3);
+        expect(result).toStrictEqual('0.172')
       });
 
       it('is correct with multiple routes', () => {
-        expect(exactInMultiRoute1.priceImpact.substring(0, 5)).toStrictEqual('0.198')
+        const result: string = BigFloat.fromString(exactInMultiRoute1.priceImpact).toSignificant(3);
+        expect(result).toStrictEqual('0.198')
       });
     });
 
     describe('tradeType = EXACT_OUTPUT', () => {
       it('is correct', () => {
-        expect(exactOut.priceImpact.substring(0, 5)).toStrictEqual('0.231')
+        const result: string = BigFloat.fromString(exactOut.priceImpact).toSignificant(3);
+        expect(result).toStrictEqual('0.231')
       });
 
       it('is correct with multiple routes', () => {
-        expect(exactOutMultiRoute1.priceImpact.substring(0, 5)).toStrictEqual('0.255')
+        const result: string = BigFloat.fromString(exactOutMultiRoute1.priceImpact).toSignificant(3);
+        expect(result).toStrictEqual('0.255')
       });
     });
   });
@@ -854,6 +859,7 @@ describe('Trade', () => {
         tokenOut: token2,
         options: null,
       });
+
       expect(result).toHaveLength(2);
       expect(result[0].swaps[0].route.pools).toHaveLength(1); // 0 -> 2 at 10:11
       expect(result[0].swaps[0].route.path).toStrictEqual([token0, token2]);
@@ -973,7 +979,7 @@ describe('Trade', () => {
       it('throws if less than 0', () => {
         const error = (): void => {
           tradeMaximumAmountIn({
-            slippageTolerance: "-0.0001",
+            slippageTolerance: "-0.01",
             amountIn: exactInFromRoute0.inputAmount,
             tradeType: exactInFromRoute0.tradeType,
           });
@@ -999,14 +1005,14 @@ describe('Trade', () => {
         expect(amount0).toStrictEqual({ token: token0, amount: BigInt.fromUInt16(100) });
 
         const amount0005: TokenAmount = tradeMaximumAmountIn({
-          slippageTolerance: "0.0005",
+          slippageTolerance: "0.05",
           amountIn: exactInFromRoute0.inputAmount,
           tradeType: exactInFromRoute0.tradeType
         });
         expect(amount0005).toStrictEqual({ token: token0, amount: BigInt.fromUInt16(100) });
 
         const amount02: TokenAmount = tradeMaximumAmountIn({
-          slippageTolerance: "0.02",
+          slippageTolerance: "2",
           amountIn: exactInFromRoute0.inputAmount,
           tradeType: exactInFromRoute0.tradeType
         });
@@ -1019,7 +1025,7 @@ describe('Trade', () => {
       it('throws if less than 0', () => {
         const error = (): void => {
           tradeMaximumAmountIn({
-            slippageTolerance: "-0.0001",
+            slippageTolerance: "-0.01",
             amountIn: exactOutFromRoute0.inputAmount,
             tradeType: exactOutFromRoute0.tradeType,
           });
@@ -1045,14 +1051,14 @@ describe('Trade', () => {
         expect(amount0).toStrictEqual({ token: token0, amount: BigInt.fromUInt16(15488) });
 
         const amount0005: TokenAmount = tradeMaximumAmountIn({
-          slippageTolerance: "0.0005",
+          slippageTolerance: "0.05",
           amountIn: exactOutFromRoute0.inputAmount,
           tradeType: exactOutFromRoute0.tradeType
         });
         expect(amount0005).toStrictEqual({ token: token0, amount: BigInt.fromUInt16(16262) });
 
         const amount02: TokenAmount = tradeMaximumAmountIn({
-          slippageTolerance: "0.02",
+          slippageTolerance: "2",
           amountIn: exactOutFromRoute0.inputAmount,
           tradeType: exactOutFromRoute0.tradeType
         });
@@ -1067,7 +1073,7 @@ describe('Trade', () => {
       it('throws if less than 0', () => {
         const error = (): void => {
           tradeMinimumAmountOut({
-            slippageTolerance: "-0.0001",
+            slippageTolerance: "-0.01",
             amountOut: exactInFromRoute1.outputAmount,
             tradeType: exactInFromRoute1.tradeType,
           });
@@ -1093,14 +1099,14 @@ describe('Trade', () => {
         expect(amount0).toStrictEqual({ token: token2, amount: BigInt.fromUInt16(7004) });
 
         const amount0005: TokenAmount = tradeMinimumAmountOut({
-          slippageTolerance: "0.0005",
+          slippageTolerance: "0.05",
           amountOut: exactInFromRoute1.outputAmount,
           tradeType: exactInFromRoute1.tradeType,
         });
         expect(amount0005).toStrictEqual({ token: token2, amount: BigInt.fromUInt16(6670) });
 
         const amount02: TokenAmount = tradeMinimumAmountOut({
-          slippageTolerance: "0.02",
+          slippageTolerance: "2",
           amountOut: exactInFromRoute1.outputAmount,
           tradeType: exactInFromRoute1.tradeType,
         });
@@ -1113,7 +1119,7 @@ describe('Trade', () => {
       it('throws if less than 0', () => {
         const error = (): void => {
           tradeMinimumAmountOut({
-            slippageTolerance: "-0.0001",
+            slippageTolerance: "-0.01",
             amountOut: exactOutFromRoute1.outputAmount,
             tradeType: exactOutFromRoute1.tradeType,
           });
@@ -1139,14 +1145,14 @@ describe('Trade', () => {
         expect(amount0).toStrictEqual({ token: token2, amount: BigInt.fromUInt16(100) });
 
         const amount0005: TokenAmount = tradeMinimumAmountOut({
-          slippageTolerance: "0.0005",
+          slippageTolerance: "0.05",
           amountOut: exactOutFromRoute1.outputAmount,
           tradeType: exactOutFromRoute1.tradeType,
         });
-        expect(amount0005).toStrictEqual({ token: token2, amount: BigInt.fromUInt16(1000) });
+        expect(amount0005).toStrictEqual({ token: token2, amount: BigInt.fromUInt16(100) });
 
         const amount02: TokenAmount = tradeMinimumAmountOut({
-          slippageTolerance: "0.02",
+          slippageTolerance: "2",
           amountOut: exactOutFromRoute1.outputAmount,
           tradeType: exactOutFromRoute1.tradeType,
         });
@@ -1229,26 +1235,28 @@ describe('Trade', () => {
       expect(result[0].swaps[0].route.path).toStrictEqual([token0, token2]);
     });
 
+    // this test is skipped in the v3 js sdk repo
     it('insufficient liquidity', () => {
       const result: Trade[] = bestTradeExactOut({
         pools: [pool_0_1, pool_0_2, pool_1_2],
         tokenIn: token0,
         amountOut: {
           token: token2,
-          amount: BigInt.fromUInt16(1200),
+          amount: BigInt.fromUInt32(120000),
         },
         options: null
       });
       expect(result).toHaveLength(0);
     });
 
+    // this test is skipped in the v3 js sdk repo
     it('insufficient liquidity in one pool but not the other', () => {
       const result: Trade[] = bestTradeExactOut({
         pools: [pool_0_1, pool_0_2, pool_1_2],
         tokenIn: token0,
         amountOut: {
           token: token2,
-          amount: BigInt.fromUInt16(1050),
+          amount: BigInt.fromUInt32(105000),
         },
         options: null
       });
