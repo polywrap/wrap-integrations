@@ -3,14 +3,14 @@
 #import {Tick} from "../common/schema.graphql"
 
 type Mutation {
-  # swap (
-  #   tokenIn: Token!
-  #   tokenOut: Token!
-  #   amount: BigInt!
-  #   tradeType: TradeType!
-  #   tradeOptions: TradeOptions!
-  #   txOverrides: TxOverrides
-  # ): Ethereum_TxResponse!
+  swap (
+    tokenIn: Token!
+    tokenOut: Token!
+    amount: BigInt!
+    tradeType: TradeType!
+    swapOptions: SwapOptions!
+      gasOptions: GasOptions!
+  ): Ethereum_TxResponse!
  
   exec(
       trade: Trade!
