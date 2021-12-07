@@ -90,7 +90,7 @@ export function copyTokenAmount(tokenAmount: TokenAmount): TokenAmount {
 }
 
 export function getFeeAmount(feeAmount: FeeAmount): u32 {
-  switch(feeAmount) {
+  switch (feeAmount) {
     case FeeAmount.LOWEST:
       return 100;
     case FeeAmount.LOW:
