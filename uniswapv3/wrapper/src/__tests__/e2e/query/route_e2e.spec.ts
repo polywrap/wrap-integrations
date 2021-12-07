@@ -90,47 +90,6 @@ describe("Pool", () => {
     const price: Price = routeMidPrice.data!;
     const uniPrice: uniCore.Price<uniCore.Token, uniCore.Token> = uniRoute.midPrice;
     expect(price.price).toEqual(uniPrice.toFixed(18));
-
-    // const createRoute = await client.query<{
-    //   createRoute: Route;
-    // }>({
-    //   uri: ensUri,
-    //   query: `
-    //     query {
-    //       createRoute(
-    //         pools: $pools
-    //         inToken: $inToken
-    //         outToken: $outToken
-    //       )
-    //     }
-    //   `,
-    //   variables: {
-    //     pools: poolPath,
-    //     inToken: DAI,
-    //     outToken: USDT,
-    //   },
-    // });
-    // expect(createRoute.errors).toBeFalsy();
-    // expect(createRoute.data).toBeTruthy();
-    // const route: Route = createRoute.data!.createRoute;
-
-    // const routeMidPrice = await client.query<{
-    //   routeMidPrice: Price;
-    // }>({
-    //   uri: ensUri,
-    //   query: `
-    //     query {
-    //       routeMidPrice(
-    //         route: $route
-    //       )
-    //     }
-    //   `,
-    //   variables: {
-    //     route: route
-    //   },
-    // });
-    // expect(createRoute.errors).toBeFalsy();
-    // expect(createRoute.data).toBeTruthy();
   });
 
 });
