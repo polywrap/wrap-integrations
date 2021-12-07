@@ -5,12 +5,7 @@ import { SwapParameters } from "../__tests__/e2e/types";
 import {
   Ethereum_TxResponse,
   Input_swap,
-  Input_createPool,
-  Input_execSwap,
   Input_execCall,
-  PoolArgs,
-  Pool,
-  Input_withdraw,
   MethodParameters,
   ChainId,
   GasOptions,
@@ -26,9 +21,11 @@ import {
 
 import { BigInt } from "@web3api/wasm-as";
 
+//  ?
 const MAX_UINT_256 =
   "115792089237316195423570985008687907853269984665640564039457584007913129639935";
   
+  // we need the router query to finish this
 // export function exec(input: Input_exec): Ethereum_TxResponse {
 //   // we need the router query to finish this
 //   const methodParameters: MethodParameters = swapCallParameters({
@@ -48,24 +45,25 @@ const MAX_UINT_256 =
 // export function execCall(input: Input_execCall): Ethereum_TxResponse {
 //   const methodParameters: MethodParameters = input.parameters;
 //   const chainId: ChainId = input.chainId;
-//   const txOverrides: TxOverrides =
-//     input.txOverrides === null
+//   const gasOptions: GasOptions =
+//     input.gasOptions === null
 //       ? { gasLimit: null, gasPrice: null }
 //       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-//       : input.txOverrides!;
+//       : input.gasOptions!;
 
 //   const txResponse: Ethereum_TxResponse = Ethereum_Mutation.callContractMethod({
 //     address: UNISWAP_ROUTER_CONTRACT,
-//     method: getSwapMethodAbi(swapParameters.methodName),
-//     args: swapParameters.args,
+//     // use Router contract
+//     method: (methodParameters.calldata),
+//     args:  methodParameters,
 //     connection: {
 //       node: null,
 //       networkNameOrChainId: getChainIdKey(chainId),
 //     },
 //     txOverrides: {
-//       value: BigInt.fromString(swapParameters.value.substring(2), 16),
-//       gasPrice: txOverrides.gasPrice,
-//       gasLimit: txOverrides.gasLimit,
+//       value: BigInt.fromString(methodParameters.value.substring(2), 16),
+//       gasPrice: gasOptions.gasPrice,
+//       gasLimit: gasOptions.gasLimit,
 //     },
 //   });
   
