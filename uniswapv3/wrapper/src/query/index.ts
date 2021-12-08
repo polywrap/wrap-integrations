@@ -7,3 +7,4 @@ export * from "./poolUtils";
 export * from "./mathUtils";
 export * from "./fetch";
 export * from "./route";
+export * from "./trade";

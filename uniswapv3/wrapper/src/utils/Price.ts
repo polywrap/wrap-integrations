@@ -94,16 +94,12 @@ export default class Price extends Fraction {
     );
   }
 
-  public quote(tokenAmount: TokenAmount): TokenAmount {
+  public quote(tokenAmount: TokenAmount): Fraction {
     if (!tokenEquals({ tokenA: tokenAmount.token, tokenB: this.baseToken })) {
       throw new Error("Token of tokenAmount must be the same as baseToken");
     }
     const biAmount = tokenAmount.amount;
-    const res = super.mul(new Fraction(biAmount)).quotient();
-    return {
-      token: this.quoteToken,
-      amount: res,
-    };
+    return super.mul(new Fraction(biAmount));
   }
 
   public toSignificant(

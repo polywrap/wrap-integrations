@@ -1,8 +1,8 @@
-import { ETHER, getWETH9 } from "../../../utils/tokenUtils";
+import { ETHER, getWETH } from "../../../utils/tokenUtils";
 import { ChainId, FeeAmount, Pool, Price, Route, Token } from "../../../query/w3";
 import { createPool, encodeSqrtRatioX96, getTickAtSqrtRatio } from "../../../query";
 import { BigInt } from "@web3api/wasm-as";
-import { createRoute, routeChainId, routeMidPrice } from "../../../query/route";
+import { createRoute, routeChainId, routeMidPrice } from "../../../query";
 import { BigFloat } from "as-bigfloat";
 
 const getTestToken = (i: i32): Token => {
@@ -35,7 +35,7 @@ const eth: Token = {
   address: "",
   currency: ETHER,
 };
-const weth: Token = getWETH9(ChainId.MAINNET);
+const weth: Token = getWETH(ChainId.MAINNET);
 const token0: Token = getTestToken(0);
 const token1: Token = getTestToken(1);
 const token2: Token = getTestToken(2);

@@ -6,6 +6,7 @@ import { getFeeAmount, getPlugins, getPools, getTokens, getUniPools } from "../t
 import * as uni from "@uniswap/v3-sdk";
 import poolList from "../testData/poolList.json";
 import * as ethers from "ethers";
+import { getUniswapPool } from "../uniswapCreatePool";
 
 jest.setTimeout(90000);
 
@@ -37,6 +38,7 @@ describe("Fetch", () => {
   });
 
   it("fetchTickList", async () => {
+    const uniPool: uni.Pool = await getUniswapPool(poolAddresses[0], ethersProvider, true);
     const tickListQuery = await client.query<{
       fetchTickList: Tick[];
     }>({
@@ -50,7 +52,7 @@ describe("Fetch", () => {
       }
     `,
       variables: {
-        chainId: ChainIdEnum.MAINNET,
+        chainId: ChainIdEnum[ChainIdEnum.MAINNET],
         address: poolAddresses[0],
       },
     });
@@ -61,31 +63,31 @@ describe("Fetch", () => {
     for (let i = 0; i < tickList.length; i++) {
       const tick: Tick = tickList[i];
       // @ts-ignore
-      const uniTick: uni.Tick = await uniPools[0].tickDataProvider.getTick(tick.index);
+      const uniTick: uni.Tick = await uniPool.tickDataProvider.getTick(tick.index);
       expect(tick.index).toEqual(uniTick.index);
       expect(tick.liquidityNet.toString()).toEqual(uniTick.liquidityNet.toString());
       expect(tick.liquidityGross.toString()).toEqual(uniTick.liquidityGross.toString());
     }
   });
 
-  it("fetchPoolFromAddress", async () => {
-    for (let i = 0; i < poolAddresses.length; i++) {
+  it.only("fetchPoolFromAddress", async () => {
+    for (let i = 0; i < 3; i++) {
       // fetch pool
       const poolData = await client.query<{
         fetchPoolFromAddress: Pool;
       }>({
         uri: ensUri,
         query: `
-        query {
-          fetchPoolFromAddress(
-            chainId: $chainId
-            address: $address
-            fetchTicks: $fetchTicks
-          )
-        }
-      `,
+          query {
+            fetchPoolFromAddress(
+              chainId: $chainId
+              address: $address
+              fetchTicks: $fetchTicks
+            )
+          }
+        `,
         variables: {
-          chainId: ChainIdEnum.MAINNET,
+          chainId: ChainIdEnum[ChainIdEnum.MAINNET],
           address: poolAddresses[i],
           fetchTicks: false,
         },
@@ -106,7 +108,7 @@ describe("Fetch", () => {
   });
 
   it("fetchToken", async () => {
-    const pools: Pool[] = await getPools(client, ensUri, false, 0, 3);
+    const pools: Pool[] = await getPools(client, ensUri, false, 3, 6);
     const tokens: Token[] = getTokens(pools);
     for (let i = 0; i < tokens.length; i++) {
       // fetch token
@@ -123,7 +125,7 @@ describe("Fetch", () => {
           }
         `,
         variables: {
-          chainId: tokens[i].chainId,
+          chainId: ChainIdEnum[tokens[i].chainId],
           address: tokens[i].address,
         },
       });
@@ -137,7 +139,7 @@ describe("Fetch", () => {
   });
   
   it("fetchPoolFromTokens", async () => {
-    const pools: Pool[] = await getPools(client, ensUri, true, 3, 6);
+    const pools: Pool[] = await getPools(client, ensUri, false, 6, 9);
     for (let i = 0; i < pools.length; i++) {
       // fetch pool
       const poolData = await client.query<{
@@ -158,14 +160,14 @@ describe("Fetch", () => {
           tokenA: pools[i].token0,
           tokenB: pools[i].token1,
           fee: pools[i].fee,
-          fetchTicks: true,
+          fetchTicks: false,
         },
       });
       expect(poolData.errors).toBeFalsy();
       expect(poolData.data).toBeTruthy();
 
       const pool: Pool = poolData.data?.fetchPoolFromTokens!;
-      const expectedPool: Pool = pools[i];
+      const expectedPool: Pool = pools[i+6];
       expect(pool).toStrictEqual(expectedPool);
       // expect(pool.token0.address).toEqual(expectedPool.token0.address);
       // expect(pool.token1.address).toEqual(expectedPool.token1.address);

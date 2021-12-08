@@ -50,7 +50,7 @@ export function fetchPoolImmutables(
   chainId: ChainId
 ): PoolImmutables {
   const queries: string[] = [];
-  for (let i = 1; i < 4; i++) {
+  for (let i = 0; i < 3; i++) {
     const query: string = Ethereum_Query.callContractView({
       address: address,
       method: poolImmutablesAbi[i],
@@ -64,9 +64,9 @@ export function fetchPoolImmutables(
   }
   return {
     // factory: queries[0],
-    token0: queries[1],
-    token1: queries[2],
-    fee: getFeeAmountEnum(U32.parseInt(queries[3])),
+    token0: queries[0],
+    token1: queries[1],
+    fee: getFeeAmountEnum(U32.parseInt(queries[2])),
     // tickSpacing: I32.parseInt(queries[4]),
     // maxLiquidityPerTick: BigInt.fromString(queries[5]),
   };

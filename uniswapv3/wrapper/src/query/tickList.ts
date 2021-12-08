@@ -42,7 +42,7 @@ export function nextInitializedTickWithinOneWord(
   const tickSpacing: i32 = input.tickSpacing;
   const ticks: Tick[] = input.tickDataProvider.ticks;
 
-  const compressed: i32 = tick / tickSpacing;
+  const compressed: i32 = <i32>Math.floor(<f64>tick / tickSpacing);
 
   if (lte) {
     const wordPos: i32 = compressed >> 8;

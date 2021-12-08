@@ -84,9 +84,9 @@ type BestTradeOptions {
 }
 
 type TradeSwap {
-  route: Route!
-  inputAmount: TokenAmount!
-  outputAmount: TokenAmount!
+  route: Route! # The route of the trade
+  inputAmount: TokenAmount! # The amount being passed in
+  outputAmount: TokenAmount! # The amount returned by the trade when executed
 }
 
 type Trade {
@@ -94,6 +94,8 @@ type Trade {
   tradeType: TradeType!
   inputAmount: TokenAmount!
   outputAmount: TokenAmount!
+  executionPrice: Price!
+  priceImpact: String!
 }
 
 type MintAmounts {

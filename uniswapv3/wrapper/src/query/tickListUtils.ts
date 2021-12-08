@@ -80,7 +80,7 @@ function binarySearch(ticks: Tick[], tick: i32): i32 {
   let r: i32 = ticks.length - 1;
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    const i: i32 = (l + r) / 2;
+    const i: i32 = <i32>Math.floor((<f64>l + r) / 2);
 
     if (
       ticks[i].index <= tick &&

@@ -95,7 +95,7 @@ describe("Pool", () => {
     expect(query.errors).toBeFalsy();
     expect(query.data).toBeTruthy();
 
-    const { tokenAmount, pool }: PoolChangeResult = query.data?.getPoolOutputAmount;
+    const { tokenAmount, pool }: PoolChangeResult = query.data!.getPoolOutputAmount;
     const uniInputAmount = uniCore.CurrencyAmount.fromRawAmount<uniCore.Token>(uniPools[0].token0, inputAmount.amount);
     const [uniCurrencyAmount, uniPool] = await uniPools[0].getOutputAmount(uniInputAmount);
 
@@ -135,7 +135,7 @@ describe("Pool", () => {
     expect(query.errors).toBeFalsy();
     expect(query.data).toBeTruthy();
 
-    const { tokenAmount, pool }: PoolChangeResult = query.data?.getPoolInputAmount;
+    const { tokenAmount, pool }: PoolChangeResult = query.data!.getPoolInputAmount;
     const unitOutputAmount = uniCore.CurrencyAmount.fromRawAmount<uniCore.Token>(uniPools[0].token0, outputAmount.amount);
     const [uniCurrencyAmount, uniPool] = await uniPools[0].getInputAmount(unitOutputAmount);
 
