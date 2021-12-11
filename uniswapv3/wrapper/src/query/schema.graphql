@@ -434,18 +434,6 @@ type Query {
     options: SwapOptions! # options for the call parameters
   ): MethodParameters!
 
-#  estimateGas(
-#    parameters: MethodParameters!
-#    chainId: ChainId
-#  ): BigInt!
-#
-#  # TODO: why did i drop this function before?
-#  execCallStatic(
-#    parameters: MethodParameters!
-#    chainId: ChainId!
-#    gasOptions: GasOptions!
-#  ): Ethereum_StaticTxResult!
-
    ## Router Utils: Encode route, SelfPermit, Payments, MultiCall
 
   # Converts a route to a hex encoded path

@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import {
+  Ethereum_Query,
   FeeAmount,
   Input_computePoolAddress,
   NextTickResult,
   Pool,
   SHA3_Query,
+  Token,
 } from "./w3";
 import { tokenSortsBefore } from "./token";
 import { concat, getChecksumAddress } from "../utils/addressUtils";
@@ -69,30 +71,23 @@ class SwapStepResult {
  */
 export function computePoolAddress(input: Input_computePoolAddress): string {
   const factoryAddress: string = input.factoryAddress;
-  const tokens: string[] = tokenSortsBefore({
+  const tokens: Token[] = tokenSortsBefore({
     tokenA: input.tokenA,
     tokenB: input.tokenB,
   })
-    ? [input.tokenA.address, input.tokenB.address]
-    : [input.tokenB.address, input.tokenA.address];
-  const feeHex: string = getFeeAmountHex(input.fee);
+    ? [input.tokenA, input.tokenB]
+    : [input.tokenB, input.tokenA];
+  const fee: u32 = getFeeAmount(input.fee);
   const initCodeHash: string =
     input.initCodeHashManualOverride == null
       ? POOL_INIT_CODE_HASH
       : input.initCodeHashManualOverride!;
 
-  // let token0: string;
-  // let token1: string;
-  // if (tokenSortsBefore({ tokenA: input.tokenA, tokenB: input.tokenB })) {
-  //   token0 = input.tokenA.address;
-  //   token1 = input.tokenB.address;
-  // } else {
-  //   token0 = input.tokenB.address;
-  //   token1 = input.tokenA.address;
-  // }
-
   const salt: string = SHA3_Query.hex_keccak_256({
-    message: tokens[0].substring(2) + tokens[1].substring(2) + feeHex,
+    message: Ethereum_Query.encodeParams({
+      types: ["address", "address", "uint24"],
+      values: [tokens[0].address, tokens[1].address, fee.toString()],
+    }),
   });
   const concatenatedItems: Uint8Array = concat([
     "0xff",
@@ -411,17 +406,17 @@ function computeSwapStep(
   };
 }
 
-function getFeeAmountHex(feeAmount: FeeAmount): string {
-  switch (feeAmount) {
-    case FeeAmount.LOWEST:
-      return "000064";
-    case FeeAmount.LOW:
-      return "0001f4";
-    case FeeAmount.MEDIUM:
-      return "000bb8";
-    case FeeAmount.HIGH:
-      return "002710";
-    default:
-      throw new Error("Unknown FeeAmount");
-  }
-}
+// function getFeeAmountHex(feeAmount: FeeAmount): string {
+//   switch (feeAmount) {
+//     case FeeAmount.LOWEST:
+//       return "000064";
+//     case FeeAmount.LOW:
+//       return "0001f4";
+//     case FeeAmount.MEDIUM:
+//       return "000bb8";
+//     case FeeAmount.HIGH:
+//       return "002710";
+//     default:
+//       throw new Error("Unknown FeeAmount");
+//   }
+// }

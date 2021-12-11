@@ -15,7 +15,6 @@ describe("Pool", () => {
   let client: Web3ApiClient;
   let ensUri: string;
   let pools: Pool[];
-  let uniPools: uni.Pool[];
   let ethersProvider: ethers.providers.BaseProvider;
 
   beforeAll(async () => {
@@ -31,8 +30,6 @@ describe("Pool", () => {
     pools = await getPools(client, ensUri);
     // set up ethers provider
     ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546");
-    // get uni pools
-    uniPools = await getUniPools(ethersProvider);
   });
 
   afterAll(async () => {
@@ -41,7 +38,6 @@ describe("Pool", () => {
 
   it("Gets pool address", async () => {
     const addresses: string[] = poolList;
-
     for (let i = 0; i < pools.length; i++) {
       const query = await client.query<{
         getPoolAddress: string;
@@ -64,13 +60,15 @@ describe("Pool", () => {
       });
       expect(query.errors).toBeFalsy();
       expect(query.data).toBeTruthy();
-      expect(query.data?.getPoolAddress).toEqual(addresses[i]);
+      expect(query.data?.getPoolAddress.toLowerCase()).toEqual(addresses[i].toLowerCase());
     }
   });
 
   it("getPoolOutputAmount", async () => {
+    const pool0: Pool = await getPools(client, ensUri, true, 0, 1)[0];
+    const uniPool0: uni.Pool = await getUniPools(ethersProvider, true, 0, 1)[0];
     const inputAmount: TokenAmount = {
-      token: pools[0].token0,
+      token: pool0.token0,
       amount: "1000000000000000000",
     }
     const query = await client.query<{
@@ -87,7 +85,7 @@ describe("Pool", () => {
         }
       `,
       variables: {
-        pool: pools[0],
+        pool: pool0,
         inputAmount: inputAmount,
         sqrtPriceLimitX96: null,
       },
@@ -96,8 +94,8 @@ describe("Pool", () => {
     expect(query.data).toBeTruthy();
 
     const { tokenAmount, pool }: PoolChangeResult = query.data!.getPoolOutputAmount;
-    const uniInputAmount = uniCore.CurrencyAmount.fromRawAmount<uniCore.Token>(uniPools[0].token0, inputAmount.amount);
-    const [uniCurrencyAmount, uniPool] = await uniPools[0].getOutputAmount(uniInputAmount);
+    const uniInputAmount = uniCore.CurrencyAmount.fromRawAmount<uniCore.Token>(uniPool0.token0, inputAmount.amount);
+    const [uniCurrencyAmount, uniPool] = await uniPool0.getOutputAmount(uniInputAmount);
 
     // output amount
     expect(tokenAmount.token.address).toEqual(uniCurrencyAmount.currency.address);
@@ -109,8 +107,10 @@ describe("Pool", () => {
   });
 
   it("getPoolInputAmount", async () => {
+    const pool0: Pool = await getPools(client, ensUri, true, 0, 1)[0];
+    const uniPool0: uni.Pool = await getUniPools(ethersProvider, true, 0, 1)[0];
     const outputAmount: TokenAmount = {
-      token: pools[0].token0,
+      token: pool0.token0,
       amount: "1000000000000000000",
     }
     const query = await client.query<{
@@ -127,7 +127,7 @@ describe("Pool", () => {
         }
       `,
       variables: {
-        pool: pools[0],
+        pool: pool0,
         outputAmount: outputAmount,
         sqrtPriceLimitX96: null,
       },
@@ -136,8 +136,8 @@ describe("Pool", () => {
     expect(query.data).toBeTruthy();
 
     const { tokenAmount, pool }: PoolChangeResult = query.data!.getPoolInputAmount;
-    const unitOutputAmount = uniCore.CurrencyAmount.fromRawAmount<uniCore.Token>(uniPools[0].token0, outputAmount.amount);
-    const [uniCurrencyAmount, uniPool] = await uniPools[0].getInputAmount(unitOutputAmount);
+    const unitOutputAmount = uniCore.CurrencyAmount.fromRawAmount<uniCore.Token>(uniPool0.token0, outputAmount.amount);
+    const [uniCurrencyAmount, uniPool] = await uniPool0.getInputAmount(unitOutputAmount);
 
     // input amount
     expect(tokenAmount.token.address).toEqual(uniCurrencyAmount.currency.address);

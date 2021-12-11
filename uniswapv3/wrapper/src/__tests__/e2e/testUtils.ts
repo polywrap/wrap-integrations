@@ -127,49 +127,6 @@ export function toUniToken(token: Token): uniCore.Token {
   );
 }
 
-// export async function getPoolFromTokens(token0: Token, token1: Token, fee: FeeAmount, client: Web3ApiClient, ensUri: string): Promise<Pool | undefined> {
-//   const poolData = await client.query<{
-//     fetchPoolFromTokens: Pool;
-//   }>({
-//     uri: ensUri,
-//     query: `
-//         query {
-//           fetchPoolFromTokens(
-//             token0: $token0
-//             token1: $token1
-//             fee: $fee
-//           )
-//         }
-//       `,
-//     variables: {
-//       token0: token0,
-//       token1: token1,
-//       fee: fee
-//     },
-//   });
-//   if (poolData.errors) {
-//     throw poolData.errors;
-//   }
-//   return poolData.data?.fetchPoolFromTokens;
-// }
-
-// export function mapToPolywrapChainId(input: number): ChainId {
-//   switch (input) {
-//     case 1:
-//       return ChainId.MAINNET;
-//     case 3:
-//       return ChainId.ROPSTEN;
-//     case 4:
-//       return ChainId.RINKEBY;
-//     case 5:
-//       return ChainId.GOERLI;
-//     case 42:
-//       return ChainId.KOVAN;
-//     default:
-//       throw new Error('Unknown chain ID. This should never happen.');
-//   }
-// }
-
 export function toUniChainId(input: ChainId): number {
   switch (input) {
     case ChainIdEnum.MAINNET:
