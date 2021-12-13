@@ -94,6 +94,7 @@ export default class Price extends Fraction {
     );
   }
 
+  // quote function does not work the same as in JS sdk
   public quote(tokenAmount: TokenAmount): Fraction {
     if (!tokenEquals({ tokenA: tokenAmount.token, tokenB: this.baseToken })) {
       throw new Error("Token of tokenAmount must be the same as baseToken");

@@ -4,6 +4,8 @@ export * from "./tickListUtils";
 export * from "./tickUtils";
 export * from "./pool";
 export * from "./poolUtils";
+export * from "./position";
+export * from "./positionUtils";
 export * from "./mathUtils";
 export * from "./fetch";
 export * from "./route";

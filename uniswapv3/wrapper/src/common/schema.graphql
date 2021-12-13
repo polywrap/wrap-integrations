@@ -105,8 +105,8 @@ type MintAmounts {
 
 type Position {
   pool: Pool!
-  tickLower: UInt32!
-  tickUpper: UInt32!
+  tickLower: Int32!
+  tickUpper: Int32!
   liquidity: BigInt!
 }
 
@@ -157,7 +157,6 @@ type MethodParameters {
   value: String! # The amount of ether (wei) to send in hex.
 }
 
-# TODO: does this need to change to account for the new Ethereum gas price structure?
 type GasOptions {
   gasPrice: BigInt
   gasLimit: BigInt

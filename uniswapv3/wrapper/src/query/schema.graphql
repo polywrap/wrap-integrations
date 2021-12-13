@@ -353,78 +353,77 @@ type Query {
 
    ## Position
 
-#  # Constructs and validates a Position for a given Pool with the given liquidity
-#  createPosition(
-#    pool: Pool!
-#    tickLower: Int32!
-#    tickUpper: Int32!
-#    liquidity: BigInt!
-#  ): Position!
-#
-#  # Computes the maximum amount of liquidity received for a given amount of token0, token1, and the prices at the tick boundaries.
-#  createPositionFromAmounts(
-#    pool: Pool! # The pool for which the position should be created
-#    tickLower: Int32! # The lower tick of the position
-#    tickUpper: Int32! # The upper tick of the position
-#    amount0: BigInt! # token0 amount
-#    amount1: BigInt! # token1 amount
-#    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
-#  ): Position!
-#
-#  # Computes a position with the maximum amount of liquidity received for a given amount of token0, assuming an unlimited amount of token1
-#  createPositionFromAmount0(
-#    pool: Pool! # The pool for which the position should be created
-#    tickLower: Int32! # The lower tick of the position
-#    tickUpper: Int32! # The upper tick of the position
-#    amount0: BigInt! # The desired amount of token0
-#    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
-#  ): Position!
-#
-#  # Computes a position with the maximum amount of liquidity received for a given amount of token1, assuming an unlimited amount of token0
-#  createPositionFromAmount1(
-#    pool: Pool! # The pool for which the position should be created
-#    tickLower: Int32! # The lower tick of the position
-#    tickUpper: Int32! # The upper tick of the position
-#    amount1: BigInt! # The desired amount of token1
-#    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
-#  ): Position!
-#
-#  # Returns the price of token0 at the lower tick
-#  positionToken0PriceLower(
-#    position: Position!
-#  ): String!
-#
-#  # Returns the price of token0 at the upper tick
-#  positionToken0PriceUpper(
-#    position: Position!
-#  ): String!
-#
-#  # Returns the amount of token0 that this position's liquidity could be burned for at the current pool price
-#  positionAmount0(
-#    position: Position!
-#  ): TokenAmount!
-#
-#  # Returns the amount of token1 that this position's liquidity could be burned for at the current pool price
-#  positionAmount1(
-#    position: Position!
-#  ): TokenAmount!
-#
-#  # Returns the minimum amounts that must be sent in order to safely mint the amount of liquidity held by the position with the given slippage tolerance
-#  mintAmountsWithSlippage(
-#    slippageTolerance: String! # Tolerance of unfavorable slippage from the current price
-#    position: Position!
-#  ): MintAmounts!
-#
-#  # Returns the minimum amounts that should be requested in order to safely burn the amount of liquidity held by the position with the given slippage tolerance
-#  burnAmountsWithSlippage(
-#    slippageTolerance: String! # Tolerance of unfavorable slippage from the current price
-#    position: Position!
-#  ): MintAmounts!
-#
-#  # Returns the minimum amounts that must be sent in order to mint the amount of liquidity held by the position at the current price for the pool
-#  mintAmounts(
-#    position: Position!
-#  ): MintAmounts!
+  # Constructs and validates a Position for a given Pool with the given liquidity
+  createPosition(
+    pool: Pool! # For which pool the liquidity is assigned
+    tickLower: Int32! # The lower tick of the position
+    tickUpper: Int32! # The upper tick of the position
+    liquidity: BigInt! # The amount of liquidity that is in the position
+  ): Position!
+
+  # Computes the maximum amount of liquidity received for a given amount of token0, token1, and the prices at the tick boundaries
+  createPositionFromAmounts(
+    pool: Pool! # The pool for which the position should be created
+    tickLower: Int32! # The lower tick of the position
+    tickUpper: Int32! # The upper tick of the position
+    amount0: BigInt! # token0 amount
+    amount1: BigInt! # token1 amount
+    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
+  ): Position!
+
+  # Computes a position with the maximum amount of liquidity received for a given amount of token0, assuming an unlimited amount of token1
+  createPositionFromAmount0(
+    pool: Pool! # The pool for which the position should be created
+    tickLower: Int32! # The lower tick of the position
+    tickUpper: Int32! # The upper tick of the position
+    amount0: BigInt! # The desired amount of token0
+    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
+  ): Position!
+
+  # Computes a position with the maximum amount of liquidity received for a given amount of token1, assuming an unlimited amount of token0. Always uses full precision.
+  createPositionFromAmount1(
+    pool: Pool! # The pool for which the position should be created
+    tickLower: Int32! # The lower tick of the position
+    tickUpper: Int32! # The upper tick of the position
+    amount1: BigInt! # The desired amount of token1
+  ): Position!
+
+  # Returns the price of token0 at the lower tick
+  positionToken0PriceLower(
+    position: Position!
+  ): Price!
+
+  # Returns the price of token0 at the upper tick
+  positionToken0PriceUpper(
+    position: Position!
+  ): Price!
+
+  # Returns the amount of token0 that this position's liquidity could be burned for at the current pool price
+  positionAmount0(
+    position: Position!
+  ): TokenAmount!
+
+  # Returns the amount of token1 that this position's liquidity could be burned for at the current pool price
+  positionAmount1(
+    position: Position!
+  ): TokenAmount!
+
+  # Returns the minimum amounts that must be sent in order to mint the amount of liquidity held by the position at the current price for the pool
+  mintAmounts(
+    position: Position!
+  ): MintAmounts!
+
+  # Returns the minimum amounts that must be sent in order to safely mint the amount of liquidity held by the position with the given slippage tolerance
+  mintAmountsWithSlippage(
+    position: Position!
+    slippageTolerance: String! # Tolerance of unfavorable slippage from the current price
+  ): MintAmounts!
+
+  # Returns the minimum amounts that should be requested in order to safely burn the amount of liquidity held by the position with the given slippage tolerance
+  burnAmountsWithSlippage(
+    position: Position!
+    slippageTolerance: String! # Tolerance of unfavorable slippage from the current price
+  ): MintAmounts!
 
    ## Router
 
@@ -552,14 +551,14 @@ type Query {
   ): BigInt!
 
   # Computes the maximum amount of liquidity received for a given amount of token0, token1, and the prices at the tick boundaries.
-#  maxLiquidityForAmounts(
-#    sqrtRatioCurrentX96: BigInt! # the current price
-#    sqrtRatioAX96: BigInt! # price at lower boundary
-#    sqrtRatioBX96: BigInt! # price at upper boundary
-#    amount0: BigInt! # token0 amount
-#    amount1: BigInt! # token1 amount
-#    useFullPrecision: Boolean! # if false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
-#  ): BigInt!
+  maxLiquidityForAmounts(
+    sqrtRatioCurrentX96: BigInt! # the current price
+    sqrtRatioAX96: BigInt! # price at lower boundary
+    sqrtRatioBX96: BigInt! # price at upper boundary
+    amount0: BigInt! # token0 amount
+    amount1: BigInt! # token1 amount
+    useFullPrecision: Boolean! # if false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
+  ): BigInt!
 
   # Returns the most significant bit of a positive integer, starting with first bit = 0
   mostSignificantBit(
