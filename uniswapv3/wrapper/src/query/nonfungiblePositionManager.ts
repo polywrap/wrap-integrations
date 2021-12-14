@@ -434,17 +434,19 @@ function encodeCollect(options: CollectOptions): string[] {
 
 function nfpmAbi(methodName: string): string {
   if (methodName == "createAndInitializePoolIfNecessary") {
-    return "";
+    return "function createAndInitializePoolIfNecessary(address token0, address token1, uint24 fee, uint160 sqrtPriceX96) external payable returns (address pool)";
+  } else if (methodName == "collect") {
+    return "function collect(CollectParams calldata params) external payable returns (uint256 amount0, uint256 amount1)";
   } else if (methodName == "mint") {
-    return "";
+    return "function mint(MintParams calldata params) external payable returns (uint256 tokenId, uint128 liquidity, uint256 amount0, uint256 amount1)";
   } else if (methodName == "increaseLiquidity") {
-    return "";
+    return "function increaseLiquidity(IncreaseLiquidityParams calldata params) external payable returns (uint128 liquidity, uint256 amount0, uint256 amount1)";
   } else if (methodName == "permit") {
-    return "";
+    return "function permit(address spender, uint256  deadline, bytes32 r, bytes32 s) external payable";
   } else if (methodName == "decreaseLiquidity") {
-    return "";
+    return "function decreaseLiquidity(DecreaseLiquidityParams calldata params) external payable returns (uint256 amount0, uint256 amount1)";
   } else if (methodName == "burn") {
-    return "";
+    return "function burn(uint256 tokenId) external payable";
   } else if (methodName == "safeTransferFrom") {
     return "safeTransferFrom(address,address,uint256,bytes)";
   } else if (methodName == "_safeTransferFrom") {
