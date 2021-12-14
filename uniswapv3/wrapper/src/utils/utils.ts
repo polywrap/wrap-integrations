@@ -1,4 +1,4 @@
-import { FeeAmount } from "../query/w3";
+import { FeeAmount, PermitV } from "../query/w3";
 
 export function getFeeAmount(feeAmount: FeeAmount): u32 {
   switch (feeAmount) {
@@ -42,5 +42,20 @@ export function getTickSpacings(feeAmount: FeeAmount): i32 {
       return 200;
     default:
       throw new Error("Unknown FeeAmount");
+  }
+}
+
+export function getPermitV(permitV: PermitV): i32 {
+  switch (permitV) {
+    case PermitV.v_0:
+      return 0;
+    case PermitV.v_1:
+      return 1;
+    case PermitV.v_27:
+      return 27;
+    case PermitV.v_28:
+      return 28;
+    default:
+      throw new Error("Unknown value of 'v' in PermitOptions");
   }
 }

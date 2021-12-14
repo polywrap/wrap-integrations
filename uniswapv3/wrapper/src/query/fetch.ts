@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   ChainId,
-  Ethereum_Query,
   getChainIdKey,
   Input_fetchPoolFromAddress,
   Input_fetchToken,
@@ -16,9 +15,11 @@ import {
 } from "./w3";
 import { createPool, getPoolAddress } from "./pool";
 import {
+  ethCallView,
   fetchPoolImmutables,
   fetchPoolState,
   fetchPoolTicks,
+  poolAbi,
   PoolImmutables,
   PoolState,
 } from "../utils/fetchUtils";
@@ -140,15 +141,6 @@ export function fetchPoolFromAddress(input: Input_fetchPoolFromAddress): Pool {
 export function fetchTickList(input: Input_fetchTickList): Tick[] {
   const chainId: ChainId = input.chainId;
   const address: string = input.address;
-
-  const tickSpacing: string = Ethereum_Query.callContractView({
-    address: address,
-    method: "function tickSpacing() external view returns (int24)",
-    args: [],
-    connection: {
-      node: null,
-      networkNameOrChainId: getChainIdKey(chainId),
-    },
-  });
-  return fetchPoolTicks(address, chainId, I32.parseInt(tickSpacing));
+  const spacing: string = ethCallView(address, chainId, poolAbi("tickSpacing"));
+  return fetchPoolTicks(address, chainId, I32.parseInt(spacing));
 }

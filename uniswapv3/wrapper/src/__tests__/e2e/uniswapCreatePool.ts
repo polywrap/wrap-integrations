@@ -10,43 +10,43 @@ const ERC20ABI = [
 ];
 
 interface Immutables {
-  factory: string;
+  // factory: string;
   token0: string;
   token1: string;
   fee: number;
   tickSpacing: number;
-  maxLiquidityPerTick: ethers.BigNumber;
+  // maxLiquidityPerTick: ethers.BigNumber;
 }
 
 interface State {
   liquidity: ethers.BigNumber;
   sqrtPriceX96: ethers.BigNumber;
   tick: number;
-  observationIndex: number;
-  observationCardinality: number;
-  observationCardinalityNext: number;
-  feeProtocol: number;
-  unlocked: boolean;
+  // observationIndex: number;
+  // observationCardinality: number;
+  // observationCardinalityNext: number;
+  // feeProtocol: number;
+  // unlocked: boolean;
 }
 
 async function getPoolImmutables(poolContract: ethers.Contract): Promise<Immutables> {
-  const [factory, token0, token1, fee, tickSpacing, maxLiquidityPerTick] =
+  const [token0, token1, fee, tickSpacing] =
     await Promise.all([
-      poolContract.factory(),
+      // poolContract.factory(),
       poolContract.token0(),
       poolContract.token1(),
       poolContract.fee(),
       poolContract.tickSpacing(),
-      poolContract.maxLiquidityPerTick(),
+      // poolContract.maxLiquidityPerTick(),
     ]);
 
   return {
-    factory,
+    // factory,
     token0,
     token1,
     fee,
     tickSpacing,
-    maxLiquidityPerTick,
+    // maxLiquidityPerTick,
   };
 }
 
@@ -55,16 +55,15 @@ async function getPoolState(poolContract: ethers.Contract): Promise<State> {
     poolContract.liquidity(),
     poolContract.slot0(),
   ]);
-
   return {
     liquidity,
     sqrtPriceX96: slot[0],
     tick: slot[1],
-    observationIndex: slot[2],
-    observationCardinality: slot[3],
-    observationCardinalityNext: slot[4],
-    feeProtocol: slot[5],
-    unlocked: slot[6],
+    // observationIndex: slot[2],
+    // observationCardinality: slot[3],
+    // observationCardinalityNext: slot[4],
+    // feeProtocol: slot[5],
+    // unlocked: slot[6],
   };
 }
 
@@ -105,7 +104,6 @@ export async function getUniswapPool(poolAddress: string, provider: ethers.provi
     IUniswapV3PoolABI,
     provider
   );
-
   const immutables: Immutables = await getPoolImmutables(poolContract);
 
   const tokenContractA: ethers.Contract = new ethers.Contract(immutables.token0, ERC20ABI, provider);

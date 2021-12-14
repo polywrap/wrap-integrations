@@ -70,5 +70,5 @@ module.exports = {
    * To create your own custom reporter, please check out the Core API.
    */
   // reporter: new CustomReporter(),
-  // coverage: ['src/mutation/**/*.ts', 'src/query/**/*.ts'],
+  coverage: ['src/mutation/*.ts', 'src/query/*.ts', 'src/utils/*.ts'],
 };

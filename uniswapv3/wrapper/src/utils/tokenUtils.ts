@@ -87,12 +87,16 @@ export function getWETH(chainId: ChainId): Token {
   }
 }
 
-// check if need to wrap ether
-export function wrapToken(token: Token): Token {
-  if (
+export function isEther(token: Token): boolean {
+  return (
     currencyEquals({ currencyA: token.currency, currencyB: ETHER }) &&
     token.address == ""
-  ) {
+  );
+}
+
+// check if need to wrap ether
+export function wrapToken(token: Token): Token {
+  if (isEther(token)) {
     return getWETH(token.chainId);
   }
   return token;

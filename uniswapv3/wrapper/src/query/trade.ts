@@ -46,19 +46,21 @@ import { BigInt, Nullable } from "@web3api/wasm-as";
  * @param tradeType the type of the trade, either exact in or exact out
  */
 function createTrade(swaps: TradeSwap[], tradeType: TradeType): Trade {
+  // All routes should have the same starting token.
+  const tokenIn: Token = wrapToken(swaps[0].inputAmount.token);
   for (let i = 0; i < swaps.length; i++) {
-    const tokenA: Token = wrapToken(swaps[0].inputAmount.token);
-    const tokenB: Token = wrapToken(swaps[i].route.input);
-    if (!tokenEquals({ tokenA, tokenB })) {
+    const tokenA: Token = wrapToken(swaps[i].route.input);
+    if (!tokenEquals({ tokenA, tokenB: tokenIn })) {
       throw new Error(
         "INPUT_CURRENCY_MATCH: the input token of the trade and all its routes must match"
       );
     }
   }
+  // All routes should have the same ending token.
+  const tokenOut: Token = wrapToken(swaps[0].outputAmount.token);
   for (let i = 0; i < swaps.length; i++) {
-    const tokenA: Token = wrapToken(swaps[0].outputAmount.token);
-    const tokenB: Token = wrapToken(swaps[i].route.output);
-    if (!tokenEquals({ tokenA, tokenB })) {
+    const tokenA: Token = wrapToken(swaps[i].route.output);
+    if (!tokenEquals({ tokenA, tokenB: tokenOut })) {
       throw new Error(
         "OUTPUT_CURRENCY_MATCH: the output token of the trade and all its routes must match"
       );
@@ -329,7 +331,7 @@ export function tradePriceImpact(input: Input_tradePriceImpact): string {
 
 /**
  * Get the minimum amount that must be received from this trade for the given slippage tolerance
- * @param input.slippageTolerance slippageTolerance: String! # The tolerance of unfavorable slippage from the execution price of this trade; a decimal number between 0 and 1 (e.g. "0.03") that represents a percentage
+ * @param input.slippageTolerance The tolerance of unfavorable slippage from the execution price of this trade; a decimal number between 0 and 1 (e.g. "0.03") that represents a percentage
  * @param input.amountOut The output amount of the trade, before slippage, e.g. from Trade object or tradeOutputAmount(...)
  * @param input.tradeType The type of the trade, either exact in or exact out
  */
@@ -364,7 +366,7 @@ export function tradeMinimumAmountOut(
 
 /**
  * Get the maximum amount in that can be spent via this trade for the given slippage tolerance
- * @param input.slippageTolerance slippageTolerance: String! # The tolerance of unfavorable slippage from the execution price of this trade; a decimal number between 0 and 1 (e.g. "0.03") that represents a percentage
+ * @param input.slippageTolerance The tolerance of unfavorable slippage from the execution price of this trade; a decimal number between 0 and 1 (e.g. "0.03") that represents a percentage
  * @param input.amountIn The input amount of the trade, before slippage, e.g. from Trade object or tradeInputAmount(...)
  * @param input.tradeType The type of the trade, either exact in or exact out
  */

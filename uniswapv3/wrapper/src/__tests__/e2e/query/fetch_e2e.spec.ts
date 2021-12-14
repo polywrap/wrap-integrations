@@ -37,7 +37,7 @@ describe("Fetch", () => {
     await stopTestEnvironment();
   });
 
-  it("fetchTickList", async () => {
+  it.only("fetchTickList", async () => {
     const uniPool: uni.Pool = await getUniswapPool(poolAddresses[0], ethersProvider, true);
     const tickListQuery = await client.query<{
       fetchTickList: Tick[];
@@ -70,7 +70,7 @@ describe("Fetch", () => {
     }
   });
 
-  it.only("fetchPoolFromAddress", async () => {
+  it("fetchPoolFromAddress", async () => {
     for (let i = 0; i < 3; i++) {
       // fetch pool
       const poolData = await client.query<{
@@ -101,8 +101,8 @@ describe("Fetch", () => {
       expect(pool.token0.address).toEqual(uniPool.token0.address);
       expect(pool.token1.address).toEqual(uniPool.token1.address);
       expect(getFeeAmount(pool.fee)).toEqual(uniPool.fee.valueOf());
-      expect(pool.sqrtRatioX96).toEqual(uniPool.sqrtRatioX96);
-      expect(pool.liquidity.toString()).toEqual(uniPool.liquidity.toString());
+      expect(pool.sqrtRatioX96).toEqual(uniPool.sqrtRatioX96.toString());
+      expect(pool.liquidity).toEqual(uniPool.liquidity.toString());
       expect(pool.tickCurrent).toEqual(uniPool.tickCurrent);
     }
   });
@@ -167,14 +167,8 @@ describe("Fetch", () => {
       expect(poolData.data).toBeTruthy();
 
       const pool: Pool = poolData.data?.fetchPoolFromTokens!;
-      const expectedPool: Pool = pools[i+6];
+      const expectedPool: Pool = pools[i];
       expect(pool).toStrictEqual(expectedPool);
-      // expect(pool.token0.address).toEqual(expectedPool.token0.address);
-      // expect(pool.token1.address).toEqual(expectedPool.token1.address);
-      // expect(getFeeAmount(pool.fee)).toEqual(getFeeAmount(expectedPool.fee));
-      // expect(pool.sqrtRatioX96).toEqual(expectedPool.sqrtRatioX96);
-      // expect(pool.liquidity.toString()).toEqual(expectedPool.liquidity.toString());
-      // expect(pool.tickCurrent).toEqual(expectedPool.tickCurrent);
     }
   });
   

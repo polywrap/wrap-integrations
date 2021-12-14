@@ -428,53 +428,43 @@ type Query {
 
    ## Router
 
-#  # Produces the on-chain method name to call and the hex encoded parameters to pass as arguments for a given trade.
-#  swapCallParameters(
-#    trades: [Trade!]! # trade to produce call parameters for
-#    options: SwapOptions! # options for the call parameters
-#  ): MethodParameters!
-#
-#  estimateGas(
-#    parameters: MethodParameters!
-#    chainId: ChainId
-#  ): BigInt!
-#
-#  # TODO: why did i drop this function before?
-#  execCallStatic(
-#    parameters: MethodParameters!
-#    chainId: ChainId!
-#    gasOptions: GasOptions!
-#  ): Ethereum_StaticTxResult!
+  # Produces the on-chain method name to call and the hex encoded parameters to pass as arguments for a given trade
+  swapCallParameters(
+    trades: [Trade!]! # trades to produce call parameters for
+    options: SwapOptions! # options for the call parameters
+  ): MethodParameters!
 
-   ## MultiCall
+   ## Router Utils: Encode route, SelfPermit, Payments, MultiCall
 
-#  encodeMulticall(
-#    calldatas: [String!]!
-#  ): String!
+  # Converts a route to a hex encoded path
+  encodeRouteToPath(
+    route: Route! # the v3 path to convert to an encoded path
+    exactOutput: Boolean! # whether the route should be encoded in reverse, for making exact output swaps
+  ): String!
 
-   ## SelfPermit
+  encodePermit(
+    token: Token!
+    options: PermitOptions!
+  ): String!
 
-#  encodePermit(
-#    token: Token!
-#    options: PermitOptions!
-#  ): String!
+  encodeUnwrapWETH9(
+    amountMinimum: BigInt!
+    recipient: String!
+    feeOptions: FeeOptions
+  ): String!
 
-   ## Payments
+  encodeSweepToken(
+    token: Token!
+    amountMinimum: BigInt!
+    recipient: String!
+    feeOptions: FeeOptions
+  ): String!
 
-#  encodeUnwrapWETH9(
-#    amountMinimum: BigInt!
-#    recipient: String!
-#    feeOptions: FeeOptions
-#  ): String!
-#
-#  encodeSweepToken(
-#    token: Token!
-#    amountMinimum: BigInt!
-#    recipient: String!
-#    feeOptions: FeeOptions
-#  ): String!
-#
-#  encodeRefundETH: String!
+  encodeRefundETH: String!
+
+  encodeMulticall(
+    calldatas: [String!]!
+  ): String!
 
    ## Staker
 
@@ -529,9 +519,9 @@ type Query {
   ## Utils
 
   # Converts a big int to a hex string
-#  toHex(
-#    bigint: BigInt!
-#  ): String!
+  toHex(
+    value: BigInt!
+  ): String!
 
   # Computes a pool address
   computePoolAddress(
@@ -541,12 +531,6 @@ type Query {
     fee: FeeAmount! # The fee tier of the pool
     initCodeHashManualOverride: String # Override the init code hash used to compute the pool address if necessary
   ): String!
-
-  # Converts a route to a hex encoded path
-#  encodeRouteToPath(
-#    route: Route! # the v3 path to convert to an encoded path
-#    exactOutput: Boolean! # whether the route should be encoded in reverse, for making exact output swaps
-#  ): String!
 
   # Returns the sqrt ratio as a Q64.96 corresponding to a given ratio of amount1 and amount0
   encodeSqrtRatioX96(
