@@ -15,7 +15,7 @@ import { tokenEquals } from "./token";
 import { tradeMaximumAmountIn, tradeMinimumAmountOut } from "./trade";
 import { getChecksumAddress } from "../utils/addressUtils";
 import { getFeeAmount } from "../utils/utils";
-import { ADDRESS_ZERO } from "../utils/constants";
+import { ADDRESS_ZERO, ZERO_HEX } from "../utils/constants";
 import {
   encodePermit,
   encodeRouteToPath,
@@ -27,8 +27,6 @@ import {
 } from "./routerUtils";
 
 import { BigInt } from "@web3api/wasm-as";
-
-const ZERO_HEX: string = "0x0";
 
 class ExactInputSingleParams {
   tokenIn: string;
