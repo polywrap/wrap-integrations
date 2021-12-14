@@ -26,7 +26,7 @@ import {
   encodeUnwrapWETH9,
   toHex,
 } from "./routerUtils";
-import { getFeeAmount, getPermitV } from "../utils/utils";
+import { getFeeAmount, getPermitV } from "../utils/enumUtils";
 import { ADDRESS_ZERO, ZERO_HEX } from "../utils/constants";
 import {
   burnAmountsWithSlippage,

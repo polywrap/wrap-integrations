@@ -13,7 +13,7 @@ import {
   poolToken1Price, tokenEquals
 } from "../../../query";
 import { MAX_TICK, MIN_TICK } from "../../../utils/constants";
-import { getTickSpacings } from "../../../utils/utils";
+import { getTickSpacings } from "../../../utils/enumUtils";
 import { BigFloat } from "as-bigfloat";
 
 

@@ -19,7 +19,7 @@ import {
   MIN_TICK,
   POOL_INIT_CODE_HASH,
 } from "../utils/constants";
-import { getFeeAmount } from "../utils/utils";
+import { getFeeAmount } from "../utils/enumUtils";
 import * as MathUtils from "./mathUtils";
 import { getTick, nextInitializedTickWithinOneWord } from "./tickList";
 import * as TickUtils from "./tickUtils";
@@ -405,18 +405,3 @@ function computeSwapStep(
     feeAmount: returnValues.feeAmount,
   };
 }
-
-// function getFeeAmountHex(feeAmount: FeeAmount): string {
-//   switch (feeAmount) {
-//     case FeeAmount.LOWEST:
-//       return "000064";
-//     case FeeAmount.LOW:
-//       return "0001f4";
-//     case FeeAmount.MEDIUM:
-//       return "000bb8";
-//     case FeeAmount.HIGH:
-//       return "002710";
-//     default:
-//       throw new Error("Unknown FeeAmount");
-//   }
-// }

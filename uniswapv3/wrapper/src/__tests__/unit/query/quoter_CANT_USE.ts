@@ -11,7 +11,7 @@ import {
 import { BigInt } from "@web3api/wasm-as";
 import { getWETH } from "../../../utils/tokenUtils";
 import { MAX_TICK, MIN_TICK } from "../../../utils/constants";
-import { getTickSpacings } from "../../../utils/utils";
+import { getTickSpacings } from "../../../utils/enumUtils";
 
 const token0: Token = {
   chainId: ChainId.MAINNET,

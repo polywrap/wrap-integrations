@@ -14,7 +14,7 @@ import { isEther, wrapToken } from "../utils/tokenUtils";
 import { tokenEquals } from "./token";
 import { tradeMaximumAmountIn, tradeMinimumAmountOut } from "./trade";
 import { getChecksumAddress } from "../utils/addressUtils";
-import { getFeeAmount } from "../utils/utils";
+import { getFeeAmount } from "../utils/enumUtils";
 import { ADDRESS_ZERO, ZERO_HEX } from "../utils/constants";
 import {
   encodePermit,

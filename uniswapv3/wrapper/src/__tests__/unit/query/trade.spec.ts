@@ -27,7 +27,7 @@ import {
   tradeWorstExecutionPrice
 } from "../../../query";
 import { BigInt, Nullable } from "@web3api/wasm-as";
-import { getTickSpacings } from "../../../utils/utils";
+import { getTickSpacings } from "../../../utils/enumUtils";
 import { MAX_TICK, MIN_TICK } from "../../../utils/constants";
 import Price from "../../../utils/Price";
 import { BigFloat } from "as-bigfloat";

@@ -15,7 +15,7 @@ import {
 } from "./w3";
 import { wrapToken } from "../utils/tokenUtils";
 import { tokenEquals } from "./token";
-import { getFeeAmount, getPermitV } from "../utils/utils";
+import { getFeeAmount, getPermitV } from "../utils/enumUtils";
 import Fraction from "../utils/Fraction";
 import { getChecksumAddress } from "../utils/addressUtils";
 

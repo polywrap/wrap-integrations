@@ -10,7 +10,7 @@ import {
   TradeType,
 } from "./w3";
 import { encodeRouteToPath, toHex } from "./routerUtils";
-import { getFeeAmount } from "../utils/utils";
+import { getFeeAmount } from "../utils/enumUtils";
 import { ZERO_HEX } from "../utils/constants";
 
 /**

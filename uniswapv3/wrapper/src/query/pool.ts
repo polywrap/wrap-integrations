@@ -29,7 +29,7 @@ import { FACTORY_ADDRESS, Q192 } from "../utils/constants";
 import * as TickUtils from "./tickUtils";
 import { tokenEquals, tokenSortsBefore } from "./token";
 import Price from "../utils/Price";
-import { getTickSpacings } from "../utils/utils";
+import { getTickSpacings } from "../utils/enumUtils";
 
 import { BigInt } from "@web3api/wasm-as";
 

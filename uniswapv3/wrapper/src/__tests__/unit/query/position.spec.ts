@@ -5,7 +5,7 @@ import { createPool, encodeSqrtRatioX96, getTickAtSqrtRatio, nearestUsableTick, 
   positionAmount0,
   positionAmount1 } from "../../../query";
 import { BigInt } from "@web3api/wasm-as";
-import { getTickSpacings } from "../../../utils/utils";
+import { getTickSpacings } from "../../../utils/enumUtils";
 import { MAX_SQRT_RATIO, MAX_TICK, MIN_SQRT_RATIO, MIN_TICK } from "../../../utils/constants";
 
 const USDC: Token = {

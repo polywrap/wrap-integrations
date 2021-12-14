@@ -4,7 +4,7 @@ import { MAX_TICK, MIN_TICK } from "../../../utils/constants";
 import * as TickList from "../../../query/tickList";
 import * as TickListUtils from "../../../query/tickListUtils";
 import { nearestUsableTick } from "../../../query";
-import { getTickSpacings } from "../../../utils/utils";
+import { getTickSpacings } from "../../../utils/enumUtils";
 
 let highTick: Tick;
 let lowTick: Tick;

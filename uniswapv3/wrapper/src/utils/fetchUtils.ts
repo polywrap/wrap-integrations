@@ -5,7 +5,7 @@ import {
   getChainIdKey,
   Tick,
 } from "../query/w3";
-import { getFeeAmountEnum } from "./utils";
+import { getFeeAmountEnum } from "./enumUtils";
 import { MAX_TICK, MIN_TICK } from "./constants";
 
 import { BigInt } from "@web3api/wasm-as";
