@@ -704,7 +704,7 @@
     elliptic "6.5.4"
     hash.js "1.1.7"
 
-"@ethersproject/solidity@^5.0.0", "@ethersproject/solidity@^5.0.9":
+"@ethersproject/solidity@5.5.0", "@ethersproject/solidity@^5.0.0", "@ethersproject/solidity@^5.0.9":
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/@ethersproject/solidity/-/solidity-5.5.0.tgz#2662eb3e5da471b85a20531e420054278362f93f"
   integrity sha512-9NgZs9LhGMj6aCtHXhtmFQ4AN4sth5HuFXVvAQtzmm0jpSCNOTGtrHZJAeYTh7MBjRR8brylWZxBZR9zDStXbw==
@@ -3224,6 +3224,14 @@ esutils@^2.0.2:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/esutils/-/esutils-2.0.3.tgz#74d2eb4de0b8da1293711910d50775b9b710ef64"
   integrity sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==
+
+ethers-solidity-plugin-js@0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/ethers-solidity-plugin-js/-/ethers-solidity-plugin-js-0.0.2.tgz#95a5f6e38600830eb3b3f7ef6c6cb16daef2a29c"
+  integrity sha512-gTbE6YFy1ft2TIEHthVVQ3hca9CUy32snnOKUY+ACHiJvhuBmA1qTquVJllPdUTt3hIxpcyckrIXxvsJf//PMw==
+  dependencies:
+    "@ethersproject/solidity" "5.5.0"
+    "@web3api/core-js" "0.0.1-prealpha.57"
 
 ethers@5.0.7:
   version "5.0.7"

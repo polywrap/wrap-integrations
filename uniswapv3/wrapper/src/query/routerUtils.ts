@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   Ethereum_Query,
+  EthersSolidity_Query,
   FeeOptions,
   Input_encodeMulticall,
   Input_encodePermit,
@@ -76,7 +77,7 @@ export function encodeRouteToPath(input: Input_encodeRouteToPath): string {
     finalStep.path.reverse();
   }
 
-  return Ethereum_Query.encodeParams({
+  return EthersSolidity_Query.pack({
     types: finalStep.types,
     values: finalStep.path,
   });

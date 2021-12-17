@@ -9,6 +9,7 @@ import { getUniswapPool } from "./uniswapCreatePool";
 import { ethers } from "ethers";
 import { Pool as UniPool } from "@uniswap/v3-sdk";
 import * as uniCore from "@uniswap/sdk-core";
+import { ethersSolidity } from "ethers-solidity-plugin-js";
 
 export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): ClientConfig {
  return {
@@ -36,6 +37,10 @@ export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): 
         defaultNetwork: "testnet"
       }),
     },
+     {
+      uri: "w3://ens/ethers-solidity.polywrap.eth",
+      plugin: ethersSolidity({}),
+     },
     ],
     interfaces: [
     {

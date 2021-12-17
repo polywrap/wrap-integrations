@@ -30,6 +30,7 @@
     "@web3api/cli": "0.0.1-prealpha.57",
     "@web3api/client-js": "0.0.1-prealpha.57",
     "@web3api/ethereum-plugin-js": "0.0.1-prealpha.57",
+    "ethers-solidity-plugin-js": "0.0.2",
     "@web3api/test-env-js": "0.0.1-prealpha.57",
     "@web3api/wasm-as":  "0.0.1-prealpha.57",
     "assemblyscript": "0.19.20",
