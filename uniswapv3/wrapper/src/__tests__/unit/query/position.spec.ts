@@ -5,7 +5,7 @@ import { createPool, encodeSqrtRatioX96, getTickAtSqrtRatio, nearestUsableTick, 
   positionAmount0,
   positionAmount1 } from "../../../query";
 import { BigInt } from "@web3api/wasm-as";
-import { getTickSpacings } from "../../../utils/enumUtils";
+import { _feeAmountToTickSpacing } from "../../../utils/enumUtils";
 import { MAX_SQRT_RATIO, MAX_TICK, MIN_SQRT_RATIO, MIN_TICK } from "../../../utils/constants";
 
 const USDC: Token = {
@@ -36,7 +36,7 @@ const POOL_SQRT_RATIO_START: BigInt = encodeSqrtRatioX96({
   amount0: bi100e18
 });
 const POOL_TICK_CURRENT: i32 = getTickAtSqrtRatio({ sqrtRatioX96: POOL_SQRT_RATIO_START });
-const TICK_SPACING: i32 = getTickSpacings(FeeAmount.LOW);
+const TICK_SPACING: i32 = _feeAmountToTickSpacing(FeeAmount.LOW);
 const DAI_USDC_POOL: Pool = createPool({
   tokenA: DAI,
   tokenB: USDC,

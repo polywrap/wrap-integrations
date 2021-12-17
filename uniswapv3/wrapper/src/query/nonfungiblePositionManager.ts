@@ -26,7 +26,7 @@ import {
   encodeUnwrapWETH9,
   toHex,
 } from "./routerUtils";
-import { getFeeAmount, getPermitV } from "../utils/enumUtils";
+import { _getFeeAmount, _getPermitV } from "../utils/enumUtils";
 import { ADDRESS_ZERO, ZERO_HEX } from "../utils/constants";
 import {
   burnAmountsWithSlippage,
@@ -35,7 +35,7 @@ import {
   mintAmountsWithSlippage,
 } from "./position";
 import { getChecksumAddress } from "../utils/addressUtils";
-import { isEther, wrapToken } from "../utils/tokenUtils";
+import { _isEther, _wrapToken } from "../utils/tokenUtils";
 import { tokenEquals } from "./token";
 import Fraction from "../utils/Fraction";
 
@@ -145,7 +145,7 @@ export function addCallParametersNFPM(
     const args: MintArgs = {
       token0: position.pool.token0.address,
       token1: position.pool.token1.address,
-      fee: getFeeAmount(position.pool.fee),
+      fee: _getFeeAmount(position.pool.fee),
       tickLower: position.tickLower,
       tickUpper: position.tickUpper,
       amount0Desired: toHex({ value: amount0Desired }),
@@ -181,7 +181,7 @@ export function addCallParametersNFPM(
 
   let value: string = ZERO_HEX;
   if (options.useNative !== null) {
-    const wrapped: Token = wrapToken(options.useNative!);
+    const wrapped: Token = _wrapToken(options.useNative!);
     const isToken0: boolean = tokenEquals({
       tokenA: position.pool.token0,
       tokenB: wrapped,
@@ -266,7 +266,7 @@ export function removeCallParametersNFPM(
           getChecksumAddress(options.permit!.spender),
           tokenId,
           toHex({ value: options.permit!.deadline }),
-          getPermitV(options.permit!.v).toString(),
+          _getPermitV(options.permit!.v).toString(),
           options.permit!.r,
           options.permit!.s,
         ],
@@ -372,7 +372,7 @@ function encodeCreate(pool: Pool): string {
     args: [
       pool.token0.address,
       pool.token1.address,
-      getFeeAmount(pool.fee).toString(),
+      _getFeeAmount(pool.fee).toString(),
       toHex({ value: pool.sqrtRatioX96 }),
     ],
   });
@@ -384,8 +384,8 @@ function encodeCollect(options: CollectOptions): string[] {
   const tokenId: string = toHex({ value: options.tokenId });
   const recipient: string = getChecksumAddress(options.recipient);
   const involvesETH: boolean =
-    isEther(options.expectedCurrencyOwed0.token) ||
-    isEther(options.expectedCurrencyOwed1.token);
+    _isEther(options.expectedCurrencyOwed0.token) ||
+    _isEther(options.expectedCurrencyOwed1.token);
 
   // collect
   const collectArgs: CollectArgs = {
@@ -402,13 +402,13 @@ function encodeCollect(options: CollectOptions): string[] {
   );
 
   if (involvesETH) {
-    const ethAmount: BigInt = isEther(options.expectedCurrencyOwed0.token)
+    const ethAmount: BigInt = _isEther(options.expectedCurrencyOwed0.token)
       ? options.expectedCurrencyOwed0.amount
       : options.expectedCurrencyOwed1.amount;
-    const token: Token = isEther(options.expectedCurrencyOwed0.token)
+    const token: Token = _isEther(options.expectedCurrencyOwed0.token)
       ? options.expectedCurrencyOwed1.token
       : options.expectedCurrencyOwed0.token;
-    const tokenAmount: BigInt = isEther(options.expectedCurrencyOwed0.token)
+    const tokenAmount: BigInt = _isEther(options.expectedCurrencyOwed0.token)
       ? options.expectedCurrencyOwed1.amount
       : options.expectedCurrencyOwed0.amount;
 

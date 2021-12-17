@@ -19,7 +19,7 @@ import {
   MIN_TICK,
   POOL_INIT_CODE_HASH,
 } from "../utils/constants";
-import { getFeeAmount } from "../utils/enumUtils";
+import { _getFeeAmount } from "../utils/enumUtils";
 import * as MathUtils from "./mathUtils";
 import { getTick, nextInitializedTickWithinOneWord } from "./tickList";
 import * as TickUtils from "./tickUtils";
@@ -77,7 +77,7 @@ export function computePoolAddress(input: Input_computePoolAddress): string {
   })
     ? [input.tokenA, input.tokenB]
     : [input.tokenB, input.tokenA];
-  const fee: u32 = getFeeAmount(input.fee);
+  const fee: u32 = _getFeeAmount(input.fee);
   const initCodeHash: string =
     input.initCodeHashManualOverride == null
       ? POOL_INIT_CODE_HASH
@@ -270,7 +270,7 @@ function computeSwapStep(
   amountRemaining: BigInt,
   feePips: FeeAmount
 ): SwapStepResult {
-  const _feePips: u32 = getFeeAmount(feePips);
+  const _feePips: u32 = _getFeeAmount(feePips);
 
   const returnValues: SwapStepResult = {
     sqrtRatioNextX96: BigInt.ZERO,

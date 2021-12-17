@@ -2,7 +2,7 @@ import { ChainId, FeeAmount, Pool, Token } from "../../../query/w3";
 import { createPool, encodeSqrtRatioX96, nearestUsableTick, simulateSwap } from "../../../query";
 import { BigInt } from "@web3api/wasm-as";
 import { MAX_SQRT_RATIO, MAX_TICK, MIN_SQRT_RATIO, MIN_TICK } from "../../../utils/constants";
-import { getTickSpacings } from "../../../utils/enumUtils";
+import { _feeAmountToTickSpacing } from "../../../utils/enumUtils";
 
 const USDC: Token = {
   chainId: ChainId.MAINNET,
@@ -33,12 +33,12 @@ const pool: Pool = createPool({
   tickCurrent: 0,
   ticks: { ticks: [
       {
-        index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: getTickSpacings(FeeAmount.LOW) }),
+        index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
         liquidityNet: ONE_ETHER,
         liquidityGross: ONE_ETHER
       },
       {
-        index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: getTickSpacings(FeeAmount.LOW) }),
+        index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
         liquidityNet: ONE_ETHER.opposite(),
         liquidityGross: ONE_ETHER
       }]

@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import { Pool, Tick, TickMath } from "@uniswap/v3-sdk";
 import { Token } from "@uniswap/sdk-core";
 import { abi as IUniswapV3PoolABI } from "@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json";
+import { isDefined } from "./testUtils";
 
 const ERC20ABI = [
   "function decimals() external pure returns (uint8)",
@@ -10,43 +11,32 @@ const ERC20ABI = [
 ];
 
 interface Immutables {
-  // factory: string;
   token0: string;
   token1: string;
   fee: number;
   tickSpacing: number;
-  // maxLiquidityPerTick: ethers.BigNumber;
 }
 
 interface State {
   liquidity: ethers.BigNumber;
   sqrtPriceX96: ethers.BigNumber;
   tick: number;
-  // observationIndex: number;
-  // observationCardinality: number;
-  // observationCardinalityNext: number;
-  // feeProtocol: number;
-  // unlocked: boolean;
 }
 
 async function getPoolImmutables(poolContract: ethers.Contract): Promise<Immutables> {
   const [token0, token1, fee, tickSpacing] =
     await Promise.all([
-      // poolContract.factory(),
       poolContract.token0(),
       poolContract.token1(),
       poolContract.fee(),
       poolContract.tickSpacing(),
-      // poolContract.maxLiquidityPerTick(),
     ]);
 
   return {
-    // factory,
     token0,
     token1,
     fee,
     tickSpacing,
-    // maxLiquidityPerTick,
   };
 }
 
@@ -59,25 +49,24 @@ async function getPoolState(poolContract: ethers.Contract): Promise<State> {
     liquidity,
     sqrtPriceX96: slot[0],
     tick: slot[1],
-    // observationIndex: slot[2],
-    // observationCardinality: slot[3],
-    // observationCardinalityNext: slot[4],
-    // feeProtocol: slot[5],
-    // unlocked: slot[6],
   };
 }
 
-async function getTickAtIndex(poolContract: ethers.Contract, index: number): Promise<Tick> {
-  const tickInfo = await poolContract.ticks(index);
-  return new Tick({
-    index: index,
-    liquidityGross: tickInfo[0],
-    liquidityNet: tickInfo[1],
-  });
+async function getTickAtIndex(poolContract: ethers.Contract, index: number): Promise<Tick | undefined> {
+  try {
+    const tickInfo = await poolContract.ticks(index);
+    return new Tick({
+      index: index,
+      liquidityGross: tickInfo[0],
+      liquidityNet: tickInfo[1],
+    });
+  } catch (e) {
+    return undefined;
+  }
 }
 
 async function getPoolTicks(poolContract: ethers.Contract, tickSpacing: number): Promise<Tick[]> {
-  const ticks: Promise<Tick>[] = [];
+  const ticks: Promise<Tick | undefined>[] = [];
   for (let i = 0; i >= TickMath.MIN_TICK; i -= tickSpacing) {
     ticks.push(getTickAtIndex(poolContract, i));
   }
@@ -85,7 +74,8 @@ async function getPoolTicks(poolContract: ethers.Contract, tickSpacing: number):
   for (let i = tickSpacing; i <= TickMath.MAX_TICK; i += tickSpacing) {
     ticks.push(getTickAtIndex(poolContract, i));
   }
-  return Promise.all(ticks);
+  const result: (Tick | undefined)[] = await Promise.all(ticks);
+  return result.filter(isDefined);
 }
 
 async function getToken(tokenContract: ethers.Contract): Promise<Token> {
@@ -97,32 +87,44 @@ async function getToken(tokenContract: ethers.Contract): Promise<Token> {
   return new Token(1, tokenContract.address, decimals, symbol, name);
 }
 
-export async function getUniswapPool(poolAddress: string, provider: ethers.providers.Provider, fetchTicks?: boolean): Promise<Pool> {
+export async function getUniswapPool(poolAddress: string, provider: ethers.providers.Provider, fetchTicks?: boolean): Promise<Pool | undefined> {
 
   const poolContract: ethers.Contract = new ethers.Contract(
     poolAddress,
     IUniswapV3PoolABI,
     provider
   );
+
   const immutables: Immutables = await getPoolImmutables(poolContract);
 
   const tokenContractA: ethers.Contract = new ethers.Contract(immutables.token0, ERC20ABI, provider);
   const tokenContractB: ethers.Contract = new ethers.Contract(immutables.token1, ERC20ABI, provider);
 
-  const [state, tokenA, tokenB, ticks] = await Promise.all([
+  const [state, tokenA, tokenB] = await Promise.all([
     getPoolState(poolContract),
     getToken(tokenContractA),
     getToken(tokenContractB),
-    fetchTicks ? getPoolTicks(poolContract, immutables.tickSpacing) : undefined
   ]);
 
-  return new Pool(
-    tokenA,
-    tokenB,
-    immutables.fee,
-    state.sqrtPriceX96.toString(),
-    state.liquidity.toString(),
-    state.tick,
-    ticks
-  );
+  let ticks: Tick[] | undefined = undefined;
+  if (fetchTicks) {
+    ticks = await getPoolTicks(poolContract, immutables.tickSpacing);
+  }
+
+  let pool: Pool | undefined;
+  try {
+    pool = new Pool(
+      tokenA,
+      tokenB,
+      immutables.fee,
+      state.sqrtPriceX96.toString(),
+      state.liquidity.toString(),
+      state.tick,
+      ticks
+    );
+  } catch (e) {
+    console.log("getUniswapPool: " + e.message);
+    pool = undefined;
+  }
+  return pool;
 }

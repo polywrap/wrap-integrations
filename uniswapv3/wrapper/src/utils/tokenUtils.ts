@@ -13,44 +13,44 @@ export const wethCurrency: Currency = {
   name: "Wrapped Ether",
 };
 
-// export function getEther(chainId: ChainId): Token {
-//   switch (chainId) {
-//     case ChainId.MAINNET:
-//       return {
-//         chainId: ChainId.MAINNET,
-//         address: "",
-//         currency: copyCurrency(ETHER),
-//       };
-//     case ChainId.ROPSTEN:
-//       return {
-//         chainId: ChainId.ROPSTEN,
-//         address: "",
-//         currency: copyCurrency(ETHER),
-//       };
-//     case ChainId.RINKEBY:
-//       return {
-//         chainId: ChainId.RINKEBY,
-//         address: "",
-//         currency: copyCurrency(ETHER),
-//       };
-//     case ChainId.GOERLI:
-//       return {
-//         chainId: ChainId.GOERLI,
-//         address: "",
-//         currency: copyCurrency(ETHER),
-//       };
-//     case ChainId.KOVAN:
-//       return {
-//         chainId: ChainId.KOVAN,
-//         address: "",
-//         currency: copyCurrency(ETHER),
-//       };
-//     default:
-//       throw new Error("Unknown chain ID. This should never happen.");
-//   }
-// }
+export function _getEther(chainId: ChainId): Token {
+  switch (chainId) {
+    case ChainId.MAINNET:
+      return {
+        chainId: ChainId.MAINNET,
+        address: "",
+        currency: copyCurrency(ETHER),
+      };
+    case ChainId.ROPSTEN:
+      return {
+        chainId: ChainId.ROPSTEN,
+        address: "",
+        currency: copyCurrency(ETHER),
+      };
+    case ChainId.RINKEBY:
+      return {
+        chainId: ChainId.RINKEBY,
+        address: "",
+        currency: copyCurrency(ETHER),
+      };
+    case ChainId.GOERLI:
+      return {
+        chainId: ChainId.GOERLI,
+        address: "",
+        currency: copyCurrency(ETHER),
+      };
+    case ChainId.KOVAN:
+      return {
+        chainId: ChainId.KOVAN,
+        address: "",
+        currency: copyCurrency(ETHER),
+      };
+    default:
+      throw new Error("Unknown chain ID. This should never happen.");
+  }
+}
 
-export function getWETH(chainId: ChainId): Token {
+export function _getWETH(chainId: ChainId): Token {
   switch (chainId) {
     case ChainId.MAINNET:
       return {
@@ -87,7 +87,7 @@ export function getWETH(chainId: ChainId): Token {
   }
 }
 
-export function isEther(token: Token): boolean {
+export function _isEther(token: Token): boolean {
   return (
     currencyEquals({ currencyA: token.currency, currencyB: ETHER }) &&
     token.address == ""
@@ -95,17 +95,17 @@ export function isEther(token: Token): boolean {
 }
 
 // check if need to wrap ether
-export function wrapToken(token: Token): Token {
-  if (isEther(token)) {
-    return getWETH(token.chainId);
+export function _wrapToken(token: Token): Token {
+  if (_isEther(token)) {
+    return _getWETH(token.chainId);
   }
   return token;
 }
 
 // check if need to wrap ether
-export function wrapAmount(tokenAmount: TokenAmount): TokenAmount {
+export function _wrapAmount(tokenAmount: TokenAmount): TokenAmount {
   return {
-    token: wrapToken(tokenAmount.token),
+    token: _wrapToken(tokenAmount.token),
     amount: tokenAmount.amount,
   };
 }

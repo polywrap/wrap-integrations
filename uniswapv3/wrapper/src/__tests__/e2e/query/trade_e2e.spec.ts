@@ -8,7 +8,7 @@ import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
 import { ChainId } from "../../../../../../uniswapv2/wrapper/src/__tests__/e2e/types";
 
-jest.setTimeout(90000);
+jest.setTimeout(180000);
 
 describe("Pool", () => {
 
@@ -71,7 +71,8 @@ describe("Pool", () => {
             amountIn: amountIn,
             tokenOut: tokenOut,
             options: null,
-          }
+          },
+          decode: true,
         });
         expect(query.error).toBeUndefined();
         expect(query.data).toBeDefined();
@@ -136,7 +137,8 @@ describe("Pool", () => {
             tokenIn: tokenIn,
             amountOut: amountOut,
             options: null,
-          }
+          },
+          decode: true,
         });
         expect(query.error).toBeUndefined();
         expect(query.data).toBeDefined();

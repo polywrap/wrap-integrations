@@ -138,6 +138,28 @@ type Query {
     tokenB: Token!
   ): Boolean!
 
+  ## Token Utils
+
+  getEther(
+    chainId: ChainId!
+  ): Token!
+
+  getWETH(
+    chainId: ChainId!
+  ): Token!
+
+  isEther(
+    token: Token!
+  ): Boolean!
+
+  wrapToken(
+    token: Token!
+  ): Token!
+
+  wrapAmount(
+    amount: TokenAmount!
+  ): TokenAmount!
+
   ## TickDataProvider
 
   # constructs and validates a TickListDataProvider
@@ -689,6 +711,20 @@ type Query {
     chainId: ChainId! # the id of the chain to be queried
   ): [Tick!]!
 
+  ##  Enum Utils
+
+  feeAmountToTickSpacing(
+    feeAmount: FeeAmount!
+  ): Int32!
+
+  getFeeAmount(
+    feeAmount: FeeAmount!
+  ): UInt32!
+
+  getPermitV(
+    permitV: PermitV!
+  ): Int32!
+
   ##  constants
 
   FACTORY_ADDRESS: String!
@@ -699,4 +735,14 @@ type Query {
 
   # historical artifact due to small compiler mismatch
   POOL_INIT_CODE_HASH_OPTIMISM_KOVAN: String!
+
+  MIN_TICK: Int32!
+
+  MAX_TICK: Int32!
+
+  MIN_SQRT_RATIO: BigInt!
+
+  MAX_SQRT_RATIO: BigInt!
+
+
 }

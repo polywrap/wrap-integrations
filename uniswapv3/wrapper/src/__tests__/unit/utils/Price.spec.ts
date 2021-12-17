@@ -1,7 +1,7 @@
 import { ChainId, Token } from "../../../query/w3";
 import Price from "../../../utils/Price";
 import { BigInt } from "@web3api/wasm-as";
-import { getWETH } from "../../../utils/tokenUtils";
+import { _getWETH } from "../../../utils/tokenUtils";
 
 const USDC: Token = {
   chainId: ChainId.MAINNET,
@@ -37,7 +37,7 @@ describe('Price', () => {
     const throws = (): void => {
       const price: Price = new Price(USDC, DAI, BigInt.fromUInt16(100), BigInt.fromUInt16(50));
       price.quote({
-        token: getWETH(ChainId.MAINNET),
+        token: _getWETH(ChainId.MAINNET),
         amount: BigInt.fromUInt16(100),
       });
     }

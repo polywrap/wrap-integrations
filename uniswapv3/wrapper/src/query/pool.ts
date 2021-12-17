@@ -29,7 +29,7 @@ import { FACTORY_ADDRESS, Q192 } from "../utils/constants";
 import * as TickUtils from "./tickUtils";
 import { tokenEquals, tokenSortsBefore } from "./token";
 import Price from "../utils/Price";
-import { getTickSpacings } from "../utils/enumUtils";
+import { _feeAmountToTickSpacing } from "../utils/enumUtils";
 
 import { BigInt } from "@web3api/wasm-as";
 
@@ -261,5 +261,5 @@ export function getPoolInputAmount(
  * Returns the tick spacing of ticks in the pool
  */
 export function getPoolTickSpacing(input: Input_getPoolTickSpacing): i32 {
-  return getTickSpacings(input.pool.fee);
+  return _feeAmountToTickSpacing(input.pool.fee);
 }

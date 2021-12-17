@@ -4,7 +4,7 @@ import { MAX_TICK, MIN_TICK } from "../../../utils/constants";
 import * as TickList from "../../../query/tickList";
 import * as TickListUtils from "../../../query/tickListUtils";
 import { nearestUsableTick } from "../../../query";
-import { getTickSpacings } from "../../../utils/enumUtils";
+import { _feeAmountToTickSpacing } from "../../../utils/enumUtils";
 
 let highTick: Tick;
 let lowTick: Tick;
@@ -349,12 +349,12 @@ describe('TickList', () => {
       const ONE_ETHER: BigInt = BigInt.pow(BigInt.fromUInt16(10), 18);
       ticks = [
         {
-          index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: getTickSpacings(FeeAmount.LOW) }),
+          index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
           liquidityNet: ONE_ETHER,
           liquidityGross: ONE_ETHER
         },
         {
-          index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: getTickSpacings(FeeAmount.LOW) }),
+          index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
           liquidityNet: ONE_ETHER.opposite(),
           liquidityGross: ONE_ETHER
         }];

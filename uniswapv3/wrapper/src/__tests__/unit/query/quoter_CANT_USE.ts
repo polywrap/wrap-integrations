@@ -9,9 +9,9 @@ import {
   quoteCallParameters
 } from "../../../query";
 import { BigInt } from "@web3api/wasm-as";
-import { getWETH } from "../../../utils/tokenUtils";
+import { _getWETH } from "../../../utils/tokenUtils";
 import { MAX_TICK, MIN_TICK } from "../../../utils/constants";
-import { getTickSpacings } from "../../../utils/enumUtils";
+import { _feeAmountToTickSpacing } from "../../../utils/enumUtils";
 
 const token0: Token = {
   chainId: ChainId.MAINNET,
@@ -34,7 +34,7 @@ const token1: Token = {
 const feeAmount: FeeAmount = FeeAmount.MEDIUM;
 const sqrtRatioX96: BigInt = encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE });
 const liquidity: BigInt = BigInt.fromUInt32(1_000_000);
-const WETH: Token = getWETH(ChainId.MAINNET);
+const WETH: Token = _getWETH(ChainId.MAINNET);
 
 const makePool = (token0: Token, token1: Token): Pool => {
   return createPool({
@@ -47,12 +47,12 @@ const makePool = (token0: Token, token1: Token): Pool => {
     ticks: {
       ticks: [
         {
-          index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: getTickSpacings(feeAmount) }),
+          index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: _feeAmountToTickSpacing(feeAmount) }),
           liquidityNet: liquidity,
           liquidityGross: liquidity,
         },
         {
-          index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: getTickSpacings(feeAmount) }),
+          index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: _feeAmountToTickSpacing(feeAmount) }),
           liquidityNet: liquidity.opposite(),
           liquidityGross: liquidity,
         }

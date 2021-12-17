@@ -1,6 +1,7 @@
 import {
   ChainId,
   Ethereum_Query,
+  Ethereum_StaticTxResult,
   FeeAmount,
   getChainIdKey,
   Tick,
@@ -90,16 +91,35 @@ export function fetchPoolTicks(
 ): Tick[] {
   const ticks: Tick[] = [];
   for (let i = 0; i >= MIN_TICK; i -= tickSpacing) {
-    ticks.push(fetchTick(address, chainId, i));
+    const tick: Tick | null = fetchTick(address, chainId, i);
+    if (tick !== null) {
+      ticks.push(tick);
+    }
   }
   ticks.reverse();
   for (let i = tickSpacing; i <= MAX_TICK; i += tickSpacing) {
-    ticks.push(fetchTick(address, chainId, i));
+    const tick: Tick | null = fetchTick(address, chainId, i);
+    if (tick !== null) {
+      ticks.push(tick);
+    }
   }
   return ticks;
 }
 
-function fetchTick(address: string, chainId: ChainId, index: i32): Tick {
+function fetchTick(address: string, chainId: ChainId, index: i32): Tick | null {
+  const staticTx: Ethereum_StaticTxResult = Ethereum_Query.callContractStatic({
+    address: address,
+    method: poolAbi("ticks"),
+    args: [index.toString()],
+    connection: {
+      node: null,
+      networkNameOrChainId: getChainIdKey(chainId),
+    },
+    txOverrides: null,
+  });
+  if (staticTx.error) {
+    return null;
+  }
   const tickStr: string = Ethereum_Query.callContractView({
     address: address,
     method: poolAbi("ticks"),

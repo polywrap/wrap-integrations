@@ -81,14 +81,17 @@ export function getTokens(pools: Pool[]): Token[] {
 
 export async function getPools(client: Web3ApiClient, ensUri: string, fetchTicks?: boolean, sliceStart?: number, sliceEnd?: number): Promise<Pool[]> {
   const pools: Promise<Pool>[] = poolList.slice(sliceStart, sliceEnd).map(
-    async (address: string): Promise<Pool> => {
-      return await getPoolFromAddress(address, fetchTicks ?? false, client, ensUri);
-    });
+    (address: string): Promise<Pool> => getPoolFromAddress(address, fetchTicks ?? false, client, ensUri));
   return Promise.all(pools);
 }
 
 export async function getUniPools(provider: ethers.providers.BaseProvider, fetchTicks?: boolean, sliceStart?: number, sliceEnd?: number): Promise<UniPool[]> {
-  return Promise.all(poolList.slice(sliceStart, sliceEnd).map((address: string)  => getUniswapPool(address, provider, fetchTicks)));
+  const pools: (UniPool | undefined)[] = await Promise.all(
+    poolList
+      .slice(sliceStart, sliceEnd)
+      .map((address: string)  => getUniswapPool(address, provider, fetchTicks))
+  );
+  return pools.filter(isDefined);
 }
 
 export async function getPoolFromAddress(address: string, fetchTicks: boolean, client: Web3ApiClient, ensUri: string): Promise<Pool> {
@@ -114,6 +117,7 @@ export async function getPoolFromAddress(address: string, fetchTicks: boolean, c
   if (poolData.errors) {
     throw poolData.errors;
   }
+  //console.log(address + ": " + (poolData.data!.fetchPoolFromAddress.token0.currency.symbol ?? "NA") + " " + (poolData.data!.fetchPoolFromAddress.token1.currency.symbol ?? "NA"));
   return poolData.data!.fetchPoolFromAddress;
 }
 
@@ -167,3 +171,19 @@ export function getFeeAmount(feeAmount: FeeAmount): number {
       throw new Error("Unknown FeeAmount");
   }
 }
+
+export function isDefined<T>(t: T | undefined): t is T {
+  return !!t;
+}
+
+export const getFakeTestToken = (i: number): Token => {
+  return {
+    chainId: ChainIdEnum.MAINNET,
+    address: "0x000000000000000000000000000000000000000" + (i + 1).toString(),
+    currency: {
+      decimals: 18,
+      symbol: "t" + i.toString(),
+      name: "token" + i.toString(),
+    }
+  };
+};

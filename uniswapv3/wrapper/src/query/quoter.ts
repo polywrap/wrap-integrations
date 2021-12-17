@@ -10,7 +10,7 @@ import {
   TradeType,
 } from "./w3";
 import { encodeRouteToPath, toHex } from "./routerUtils";
-import { getFeeAmount } from "../utils/enumUtils";
+import { _getFeeAmount } from "../utils/enumUtils";
 import { ZERO_HEX } from "../utils/constants";
 
 /**
@@ -38,7 +38,7 @@ export function quoteCallParameters(
         args: [
           route.path[0].address,
           route.path[1].address,
-          getFeeAmount(route.pools[0].fee).toString(),
+          _getFeeAmount(route.pools[0].fee).toString(),
           quoteAmount,
           options !== null && options.sqrtPriceLimitX96 !== null
             ? toHex({ value: options.sqrtPriceLimitX96! })
@@ -51,7 +51,7 @@ export function quoteCallParameters(
         args: [
           route.path[0].address,
           route.path[1].address,
-          getFeeAmount(route.pools[0].fee).toString(),
+          _getFeeAmount(route.pools[0].fee).toString(),
           quoteAmount,
           options !== null && options.sqrtPriceLimitX96 !== null
             ? toHex({ value: options.sqrtPriceLimitX96! })

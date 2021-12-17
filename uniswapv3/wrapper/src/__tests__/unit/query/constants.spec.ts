@@ -1,10 +1,9 @@
 import {
-  FACTORY_ADDRESS,
+  FACTORY_ADDRESS, MAX_SQRT_RATIO, MAX_TICK, MIN_SQRT_RATIO, MIN_TICK,
   POOL_INIT_CODE_HASH,
   POOL_INIT_CODE_HASH_OPTIMISM,
   POOL_INIT_CODE_HASH_OPTIMISM_KOVAN
 } from "../../../query";
-
 
 describe('Queryable constants', () => {
   it('FACTORY_ADDRESS', () => {
@@ -21,5 +20,21 @@ describe('Queryable constants', () => {
 
   it('POOL_INIT_CODE_HASH_OPTIMISM_KOVAN', () => {
     expect(POOL_INIT_CODE_HASH_OPTIMISM_KOVAN()).toStrictEqual("0x1fc830513acbdb1608b8c18fd3cf4a4bee3329c69bb41d56400401c40fe02fd0");
+  });
+
+  it('MIN_TICK', () => {
+    expect(MIN_TICK()).toStrictEqual(-887272);
+  });
+
+  it('MAX_TICK', () => {
+    expect(MAX_TICK()).toStrictEqual(887272);
+  });
+
+  it('MIN_SQRT_RATIO', () => {
+    expect(MIN_SQRT_RATIO().toString()).toStrictEqual("4295128739");
+  });
+
+  it('MAX_SQRT_RATIO', () => {
+    expect(MAX_SQRT_RATIO().toString()).toStrictEqual("1461446703485210103287273052203988822378723970342");
   });
 });

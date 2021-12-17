@@ -1,12 +1,13 @@
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
-import { ChainIdEnum, Pool, Tick, Token } from "../types";
+import { ChainIdEnum, Pool, Token } from "../types";
 import path from "path";
 import { getFeeAmount, getPlugins, getPools, getTokens, getUniPools } from "../testUtils";
 import * as uni from "@uniswap/v3-sdk";
 import poolList from "../testData/poolList.json";
 import * as ethers from "ethers";
 import { getUniswapPool } from "../uniswapCreatePool";
+import { Tick } from "../../../query/w3";
 
 jest.setTimeout(90000);
 
@@ -37,8 +38,11 @@ describe("Fetch", () => {
     await stopTestEnvironment();
   });
 
-  it.only("fetchTickList", async () => {
-    const uniPool: uni.Pool = await getUniswapPool(poolAddresses[0], ethersProvider, true);
+  it.skip("fetchTickList", async () => {
+    const uniPool: uni.Pool | undefined = await getUniswapPool(poolAddresses[0], ethersProvider, true);
+    expect(uniPool).toBeTruthy();
+    if (uniPool === undefined) { return; }
+    
     const tickListQuery = await client.query<{
       fetchTickList: Tick[];
     }>({
@@ -171,5 +175,4 @@ describe("Fetch", () => {
       expect(pool).toStrictEqual(expectedPool);
     }
   });
-  
 });
