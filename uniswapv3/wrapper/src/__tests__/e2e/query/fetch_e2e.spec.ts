@@ -9,9 +9,9 @@ import * as ethers from "ethers";
 import { getUniswapPool } from "../uniswapCreatePool";
 import { Tick } from "../../../query/w3";
 
-jest.setTimeout(90000);
+jest.setTimeout(120000);
 
-describe("Fetch", () => {
+describe("Fetch (mainnet fork)", () => {
 
   let client: Web3ApiClient;
   let ensUri: string;

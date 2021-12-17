@@ -1,15 +1,16 @@
-import { _getFeeAmount, getFeeAmountEnum, _getPermitV, _feeAmountToTickSpacing } from "../../../utils/enumUtils";
+import { getFeeAmountEnum } from "../../../utils/enumUtils";
 import { FeeAmount, PermitV } from "../../../query/w3";
+import { feeAmountToTickSpacing, getFeeAmount, getPermitV } from "../../../query";
 
 describe('Enum utils', () => {
 
   it('getFeeAmount', () => {
-    expect(_getFeeAmount(FeeAmount.LOWEST)).toStrictEqual(100);
-    expect(_getFeeAmount(FeeAmount.LOW)).toStrictEqual(500);
-    expect(_getFeeAmount(FeeAmount.MEDIUM)).toStrictEqual(3000);
-    expect(_getFeeAmount(FeeAmount.HIGH)).toStrictEqual(10000);
+    expect(getFeeAmount({ feeAmount: FeeAmount.LOWEST })).toStrictEqual(100);
+    expect(getFeeAmount({ feeAmount: FeeAmount.LOW })).toStrictEqual(500);
+    expect(getFeeAmount({ feeAmount: FeeAmount.MEDIUM })).toStrictEqual(3000);
+    expect(getFeeAmount({ feeAmount: FeeAmount.HIGH })).toStrictEqual(10000);
 
-    const error = (): void => { _getFeeAmount(7) };
+    const error = (): void => { getFeeAmount({ feeAmount: 7 }) };
     expect(error).toThrow();
   });
 
@@ -23,22 +24,22 @@ describe('Enum utils', () => {
   });
 
   it('getTickSpacings', () => {
-    expect(_feeAmountToTickSpacing(FeeAmount.LOWEST)).toStrictEqual(1);
-    expect(_feeAmountToTickSpacing(FeeAmount.LOW)).toStrictEqual(10);
-    expect(_feeAmountToTickSpacing(FeeAmount.MEDIUM)).toStrictEqual(60);
-    expect(_feeAmountToTickSpacing(FeeAmount.HIGH)).toStrictEqual(200);
+    expect(feeAmountToTickSpacing({ feeAmount: FeeAmount.LOWEST})).toStrictEqual(1);
+    expect(feeAmountToTickSpacing({ feeAmount: FeeAmount.LOW})).toStrictEqual(10);
+    expect(feeAmountToTickSpacing({ feeAmount: FeeAmount.MEDIUM})).toStrictEqual(60);
+    expect(feeAmountToTickSpacing({ feeAmount: FeeAmount.HIGH})).toStrictEqual(200);
 
-    const error = (): void => { _feeAmountToTickSpacing(7) };
+    const error = (): void => { feeAmountToTickSpacing({ feeAmount: 7 }) };
     expect(error).toThrow();
   });
 
   it('getPermitV', () => {
-    expect(_getPermitV(PermitV.v_0)).toStrictEqual(0);
-    expect(_getPermitV(PermitV.v_1)).toStrictEqual(1);
-    expect(_getPermitV(PermitV.v_27)).toStrictEqual(27);
-    expect(_getPermitV(PermitV.v_28)).toStrictEqual(28);
+    expect(getPermitV({ permitV: PermitV.v_0 })).toStrictEqual(0);
+    expect(getPermitV({ permitV: PermitV.v_1 })).toStrictEqual(1);
+    expect(getPermitV({ permitV: PermitV.v_27 })).toStrictEqual(27);
+    expect(getPermitV({ permitV: PermitV.v_28 })).toStrictEqual(28);
 
-    const error = (): void => { _getPermitV(7) };
+    const error = (): void => { getPermitV({ permitV: 7 }) };
     expect(error).toThrow();
   });
 });

@@ -8,9 +8,9 @@ import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
 import { ChainId } from "../../../../../../uniswapv2/wrapper/src/__tests__/e2e/types";
 
-jest.setTimeout(180000);
+jest.setTimeout(120000);
 
-describe("Pool", () => {
+describe("Trade (mainnet fork)", () => {
 
   let client: Web3ApiClient;
   let ensUri: string;

@@ -81,8 +81,8 @@ export function swapCallParameters(
 
   // All trades should have the same starting token.
   const tokenIn: Token = _wrapToken(sampleTrade.inputAmount.token);
-  for (let i = 0; i < trades.length; i++) {
-    const tokenA: Token = _wrapToken(trades[0].inputAmount.token);
+  for (let i = 1; i < trades.length; i++) {
+    const tokenA: Token = _wrapToken(trades[i].inputAmount.token);
     if (!tokenEquals({ tokenA, tokenB: tokenIn })) {
       throw new Error(
         "TOKEN_IN_DIFF: the input token of the trades must match"
@@ -91,8 +91,8 @@ export function swapCallParameters(
   }
   // All trades should have the same ending token.
   const tokenOut: Token = _wrapToken(sampleTrade.outputAmount.token);
-  for (let i = 0; i < trades.length; i++) {
-    const tokenA: Token = _wrapToken(trades[0].outputAmount.token);
+  for (let i = 1; i < trades.length; i++) {
+    const tokenA: Token = _wrapToken(trades[i].outputAmount.token);
     if (!tokenEquals({ tokenA, tokenB: tokenOut })) {
       throw new Error(
         "TOKEN_OUT_DIFF: the output token of the trades must match"
@@ -203,7 +203,7 @@ export function swapCallParameters(
           calldatas.push(
             Ethereum_Query.encodeFunction({
               method: routerAbi("exactInputSingle"),
-              args: [stringifyParams(exactInputSingleParams)],
+              args: [paramsToJsonString(exactInputSingleParams)],
             })
           );
         } else {
@@ -224,7 +224,7 @@ export function swapCallParameters(
           calldatas.push(
             Ethereum_Query.encodeFunction({
               method: routerAbi("exactOutputSingle"),
-              args: [stringifyParams(exactOutputSingleParams)],
+              args: [paramsToJsonString(exactOutputSingleParams)],
             })
           );
         }
@@ -252,7 +252,7 @@ export function swapCallParameters(
           calldatas.push(
             Ethereum_Query.encodeFunction({
               method: routerAbi("exactInput"),
-              args: [stringifyParams(exactInputParams)],
+              args: [paramsToJsonString(exactInputParams)],
             })
           );
         } else {
@@ -264,10 +264,15 @@ export function swapCallParameters(
             amountInMaximum: amountIn,
           };
 
+          // throw new Error(Ethereum_Query.encodeFunction({
+          //   method: routerAbi("exactOutput"),
+          //   args: arrayifyParams(exactOutputParams),
+          // }));
+
           calldatas.push(
             Ethereum_Query.encodeFunction({
               method: routerAbi("exactOutput"),
-              args: [stringifyParams(exactOutputParams)],
+              args: [paramsToJsonString(exactOutputParams)],
             })
           );
         }
@@ -320,56 +325,56 @@ export function swapCallParameters(
 
 function routerAbi(methodName: string): string {
   if (methodName == "exactInputSingle") {
-    return "function exactInputSingle(address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 deadline, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96) external payable returns (uint256 amountOut)";
+    return "function exactInputSingle(tuple(address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 deadline, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96) calldata params) external payable returns (uint256 amountOut)";
   } else if (methodName == "exactOutputSingle") {
-    return "function exactOutputSingle(address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 deadline, uint256 amountOut, uint256 amountInMaximum, uint160 sqrtPriceLimitX96) external payable returns (uint256 amountIn)";
+    return "function exactOutputSingle(tuple(address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 deadline, uint256 amountOut, uint256 amountInMaximum, uint160 sqrtPriceLimitX96) calldata params) external payable returns (uint256 amountIn)";
   } else if (methodName == "exactInput") {
-    return "function exactInput(bytes path, address recipient, uint256 deadline, uint256 amountIn, uint256 amountOutMinimum) external payable returns (uint256 amountOut)";
+    return "function exactInput(tuple(bytes path, address recipient, uint256 deadline, uint256 amountIn, uint256 amountOutMinimum) calldata params) external payable returns (uint256 amountOut)";
   } else if (methodName == "exactOutput") {
-    return "function exactOutput(bytes path, address recipient, uint256 deadline, uint256 amountOut, uint256 amountInMaximum) external payable returns (uint256 amountIn)";
+    return "function exactOutput(tuple(bytes path, address recipient, uint256 deadline, uint256 amountOut, uint256 amountInMaximum) calldata params) external payable returns (uint256 amountIn)";
   } else {
     throw new Error("Invalid method name: " + methodName);
   }
 }
 
-function stringifyParams<T>(params: T): string {
+function paramsToJsonString<T>(params: T): string {
   if (params instanceof ExactInputSingleParams) {
     return `{
-      tokenIn: ${params.tokenIn},
-      tokenOut: ${params.tokenOut},
-      fee: ${params.fee},
-      recipient: ${params.recipient},
-      deadline: ${params.deadline},
-      amountIn: ${params.amountIn},
-      amountOutMinimum: ${params.amountOutMinimum},
-      sqrtPriceLimitX96: ${params.sqrtPriceLimitX96}
+      "tokenIn": "${params.tokenIn}",
+      "tokenOut": "${params.tokenOut}",
+      "fee": ${params.fee},
+      "recipient": "${params.recipient}",
+      "deadline": "${params.deadline}",
+      "amountIn": "${params.amountIn}",
+      "amountOutMinimum": "${params.amountOutMinimum}",
+      "sqrtPriceLimitX96": "${params.sqrtPriceLimitX96}"
     }`;
   } else if (params instanceof ExactOutputSingleParams) {
     return `{
-      tokenIn: ${params.tokenIn},
-      tokenOut: ${params.tokenOut},
-      fee: ${params.fee},
-      recipient: ${params.recipient},
-      deadline: ${params.deadline},
-      amountOut: ${params.amountOut},
-      amountInMaximum: ${params.amountInMaximum},
-      sqrtPriceLimitX96: ${params.sqrtPriceLimitX96}
+      "tokenIn": "${params.tokenIn}",
+      "tokenOut": "${params.tokenOut}",
+      "fee": ${params.fee},
+      "recipient": "${params.recipient}",
+      "deadline": "${params.deadline}",
+      "amountOut": "${params.amountOut}",
+      "amountInMaximum": "${params.amountInMaximum}",
+      "sqrtPriceLimitX96": "${params.sqrtPriceLimitX96}"
     }`;
   } else if (params instanceof ExactInputParams) {
     return `{
-      path: ${params.path},
-      recipient: ${params.recipient},
-      deadline: ${params.deadline},
-      amountIn: ${params.amountIn},
-      amountOutMinimum: ${params.amountOutMinimum},
+      "path": "${params.path}",
+      "recipient": "${params.recipient}",
+      "deadline": "${params.deadline}",
+      "amountIn": "${params.amountIn}",
+      "amountOutMinimum": "${params.amountOutMinimum}"
     }`;
   } else if (params instanceof ExactOutputParams) {
     return `{
-      path: ${params.path},
-      recipient: ${params.recipient},
-      deadline: ${params.deadline},
-      amountOut: ${params.amountOut},
-      amountInMaximum: ${params.amountInMaximum},
+      "path": "${params.path}",
+      "recipient": "${params.recipient}",
+      "deadline": "${params.deadline}",
+      "amountOut": "${params.amountOut}",
+      "amountInMaximum": "${params.amountInMaximum}"
     }`;
   } else {
     throw new Error("unknown router parameters type");

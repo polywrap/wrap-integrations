@@ -8,9 +8,9 @@ import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
 import poolList from "../testData/poolList.json";
 
-jest.setTimeout(90000);
+jest.setTimeout(120000);
 
-describe("Pool", () => {
+describe("Pool (mainnet fork)", () => {
 
   let client: Web3ApiClient;
   let ensUri: string;

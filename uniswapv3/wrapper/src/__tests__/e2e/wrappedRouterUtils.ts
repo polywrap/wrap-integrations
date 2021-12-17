@@ -109,7 +109,7 @@ export async function encodeUnwrapWETH9(client: Web3ApiClient, ensUri: string, a
     module: "query",
     method: "encodeUnwrapWETH9",
     input: {
-      amountMinimum,
+      amountMinimum: amountMinimum.toString(),
       recipient,
       feeOptions: feeOptions ?? null,
     },
@@ -128,7 +128,7 @@ export async function encodeSweepToken(client: Web3ApiClient, ensUri: string, to
     method: "encodeSweepToken",
     input: {
       token,
-      amountMinimum,
+      amountMinimum: amountMinimum.toString(),
       recipient,
       feeOptions: feeOptions ?? null,
     },

@@ -33,7 +33,11 @@ class EncodeRouteStep {
  * @param input.bigint
  */
 export function toHex(input: Input_toHex): string {
-  return "0x" + input.value.toString(16);
+  const hex: string = input.value.toString(16);
+  if (hex.length % 2 != 0) {
+    return "0x0" + hex;
+  }
+  return "0x" + hex;
 }
 
 /**

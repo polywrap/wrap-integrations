@@ -9,9 +9,9 @@ import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
 
-jest.setTimeout(90000);
+jest.setTimeout(120000);
 
-describe('Payments', () => {
+describe('Payments (SDK test replication)', () => {
 
   const recipient = '0x0000000000000000000000000000000000000003';
   const amount = 123;
@@ -43,7 +43,7 @@ describe('Payments', () => {
   });
 
 
-  describe('#encodeUnwrapWETH9', async () => {
+  describe('encodeUnwrapWETH9', () => {
     it('works without feeOptions', async () => {
       const calldata: string = await encodeUnwrapWETH9(client, ensUri, amount, recipient);
       expect(calldata).toBe(
@@ -59,7 +59,7 @@ describe('Payments', () => {
     })
   })
 
-  describe('#encodeSweepToken', async () => {
+  describe('encodeSweepToken', () => {
     it('works without feeOptions', async () => {
       const calldata: string = await encodeSweepToken(client, ensUri, token, amount, recipient)
       expect(calldata).toBe(
@@ -75,7 +75,7 @@ describe('Payments', () => {
     })
   })
 
-  it('#encodeRefundETH', async () => {
+  it('encodeRefundETH', async () => {
     const calldata: string = await encodeRefundETH(client, ensUri);
     expect(calldata).toBe('0x12210e8a')
   })

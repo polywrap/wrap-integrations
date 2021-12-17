@@ -51,4 +51,4 @@ export const MAX_UINT_160: BigInt = BigInt.fromString(
 
 // ROUTER AND QUOTER CONSTANTS
 
-export const ZERO_HEX: string = "0x0";
+export const ZERO_HEX: string = "0x00";

@@ -5,9 +5,9 @@ import { getFakeTestToken, getPlugins } from "../testUtils";
 import path from "path";
 import { createPool, encodeSqrtRatioX96, createRoute, encodeRouteToPath } from "../wrappedRouterUtils";
 
-jest.setTimeout(90000);
+jest.setTimeout(120000);
 
-describe('encodeRouteToPath', () => {
+describe('encodeRouteToPath (SDK test replication)', () => {
 
   const ETHER: Token = {
     chainId: ChainIdEnum.MAINNET,

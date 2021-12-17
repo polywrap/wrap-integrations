@@ -46,7 +46,7 @@ export function _getEther(chainId: ChainId): Token {
         currency: copyCurrency(ETHER),
       };
     default:
-      throw new Error("Unknown chain ID. This should never happen.");
+      throw new Error("Unknown chain ID");
   }
 }
 
@@ -83,7 +83,7 @@ export function _getWETH(chainId: ChainId): Token {
         currency: copyCurrency(wethCurrency),
       };
     default:
-      throw new Error("Unknown chain ID. This should never happen.");
+      throw new Error("Unknown chain ID");
   }
 }
 

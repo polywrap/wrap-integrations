@@ -4,9 +4,9 @@ import { getPlugins } from "../testUtils";
 import path from "path";
 import { encodeMulticall } from "../wrappedRouterUtils";
 
-jest.setTimeout(90000);
+jest.setTimeout(120000);
 
-describe('Multicall', () => {
+describe('Multicall (SDK test replication)', () => {
 
   let client: Web3ApiClient;
   let ensUri: string;

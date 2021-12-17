@@ -8,9 +8,9 @@ import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
 import { getUniswapPool } from "../uniswapCreatePool";
 
-jest.setTimeout(180000);
+jest.setTimeout(120000);
 
-describe("Route", () => {
+describe("Route (mainnet fork)", () => {
 
   const DAI_WETH_address = "0xc2e9f25be6257c210d7adf0d4cd6e3e881ba25f8";
   //const DAI_WETH_address = "0x60594a405d53811d3bc4766596efd80fd545a270";
