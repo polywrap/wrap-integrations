@@ -180,12 +180,8 @@ export function encodeMulticall(input: Input_encodeMulticall): string {
     : Ethereum_Query.encodeFunction({
         method:
           "function multicall(bytes[] calldata data) external payable returns (bytes[] memory results)",
-        args: [arrayToJsonString(calldatas)],
+        args: ['["' + calldatas.join('", "') + '"]'],
       });
-}
-
-function arrayToJsonString<T>(a: T[]): string {
-  return '["' + a.join('", "') + '"]';
 }
 
 function selfPermitAbi(methodName: string): string {

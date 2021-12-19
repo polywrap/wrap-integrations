@@ -4,11 +4,11 @@ import {
   AddLiquidityOptions,
   CollectOptions,
   Ethereum_Query,
-  Input_addCallParametersNFPM,
-  Input_collectCallParametersNFPM,
-  Input_createCallParametersNFPM,
-  Input_removeCallParametersNFPM,
-  Input_safeTransferFromParametersNFPM,
+  Input_addCallParameters,
+  Input_collectCallParameters,
+  Input_createCallParameters,
+  Input_removeCallParameters,
+  Input_safeTransferFromParameters,
   MethodParameters,
   MintAmounts,
   Pool,
@@ -81,8 +81,8 @@ class DecreaseLiquidityArgs {
   deadline: string;
 }
 
-export function createCallParametersNFPM(
-  input: Input_createCallParametersNFPM
+export function createCallParameters(
+  input: Input_createCallParameters
 ): MethodParameters {
   return {
     calldata: encodeCreate(input.pool),
@@ -90,8 +90,8 @@ export function createCallParametersNFPM(
   };
 }
 
-export function addCallParametersNFPM(
-  input: Input_addCallParametersNFPM
+export function addCallParameters(
+  input: Input_addCallParameters
 ): MethodParameters {
   const position: Position = input.position;
   const options: AddLiquidityOptions = input.options;
@@ -158,7 +158,7 @@ export function addCallParametersNFPM(
     calldatas.push(
       Ethereum_Query.encodeFunction({
         method: nfpmAbi("mint"),
-        args: [stringifyParams(args)],
+        args: [paramsToJsonString(args)],
       })
     );
   } else {
@@ -174,7 +174,7 @@ export function addCallParametersNFPM(
     calldatas.push(
       Ethereum_Query.encodeFunction({
         method: nfpmAbi("increaseLiquidity"),
-        args: [stringifyParams(args)],
+        args: [paramsToJsonString(args)],
       })
     );
   }
@@ -212,8 +212,8 @@ export function addCallParametersNFPM(
   };
 }
 
-export function collectCallParametersNFPM(
-  input: Input_collectCallParametersNFPM
+export function collectCallParameters(
+  input: Input_collectCallParameters
 ): MethodParameters {
   const calldatas: string[] = encodeCollect(input.options);
   return {
@@ -227,8 +227,8 @@ export function collectCallParametersNFPM(
  * @param input.position The position to exit
  * @param input.options Additional information necessary for generating the calldata
  */
-export function removeCallParametersNFPM(
-  input: Input_removeCallParametersNFPM
+export function removeCallParameters(
+  input: Input_removeCallParameters
 ): MethodParameters {
   const position: Position = input.position;
   const options: RemoveLiquidityOptions = input.options;
@@ -261,7 +261,7 @@ export function removeCallParametersNFPM(
   if (options.permit !== null) {
     calldatas.push(
       Ethereum_Query.encodeFunction({
-        method: "permit",
+        method: nfpmAbi("permit"),
         args: [
           getChecksumAddress(options.permit!.spender),
           tokenId,
@@ -284,8 +284,8 @@ export function removeCallParametersNFPM(
   };
   calldatas.push(
     Ethereum_Query.encodeFunction({
-      method: "decreaseLiquidity",
-      args: [stringifyParams(decreaseLiqArgs)],
+      method: nfpmAbi("decreaseLiquidity"),
+      args: [paramsToJsonString(decreaseLiqArgs)],
     })
   );
 
@@ -293,33 +293,35 @@ export function removeCallParametersNFPM(
     options.collectOptions.expectedCurrencyOwed0;
   const expectedCurrencyOwed1: TokenAmount =
     options.collectOptions.expectedCurrencyOwed1;
-  calldatas.concat(
-    encodeCollect({
-      tokenId: options.tokenId,
-      // add the underlying value to the expected currency already owed
-      expectedCurrencyOwed0: {
-        token: expectedCurrencyOwed0.token,
-        amount: expectedCurrencyOwed0.amount.add(amount0Min),
-      },
-      expectedCurrencyOwed1: {
-        token: expectedCurrencyOwed1.token,
-        amount: expectedCurrencyOwed1.amount.add(amount1Min),
-      },
-      recipient: options.collectOptions.recipient,
-    })
-  );
+  const collectCalldatas: string[] = encodeCollect({
+    tokenId: options.tokenId,
+    // add the underlying value to the expected currency already owed
+    expectedCurrencyOwed0: {
+      token: expectedCurrencyOwed0.token,
+      amount: expectedCurrencyOwed0.amount.add(amount0Min),
+    },
+    expectedCurrencyOwed1: {
+      token: expectedCurrencyOwed1.token,
+      amount: expectedCurrencyOwed1.amount.add(amount1Min),
+    },
+    recipient: options.collectOptions.recipient,
+  });
+  for (let i = 0; i < collectCalldatas.length; i++) {
+    calldatas.push(collectCalldatas[i]);
+  }
 
   if (liqPercent.eq(new Fraction(BigInt.ONE))) {
-    if (!options.burnToken.isNull && options.burnToken.value) {
+    if (options.burnToken.isNull == false && options.burnToken.value == true) {
       calldatas.push(
-        Ethereum_Query.encodeFunction({ method: "burn", args: [tokenId] })
+        Ethereum_Query.encodeFunction({
+          method: nfpmAbi("burn"),
+          args: [tokenId],
+        })
       );
     }
   } else {
-    if (!options.burnToken.isNull && options.burnToken.value) {
-      throw new Error(
-        "CANNOT_BURN: cannot burn tokens if liquidity percentage equals 100%"
-      );
+    if (options.burnToken.isNull == false && options.burnToken.value == true) {
+      throw new Error("CANNOT_BURN");
     }
   }
 
@@ -329,15 +331,14 @@ export function removeCallParametersNFPM(
   };
 }
 
-export function safeTransferFromParametersNFPM(
-  input: Input_safeTransferFromParametersNFPM
+export function safeTransferFromParameters(
+  input: Input_safeTransferFromParameters
 ): MethodParameters {
   const options: SafeTransferOptions = input.options;
 
   const recipient: string = getChecksumAddress(options.recipient);
   const sender: string = getChecksumAddress(options.sender);
 
-  // TODO: can i simplify safeTransferFrom calls by sending empty string with first function?
   let calldata: string;
   if (options.data !== null) {
     calldata = Ethereum_Query.encodeFunction({
@@ -368,7 +369,7 @@ function isMint(options: AddLiquidityOptions): boolean {
 
 function encodeCreate(pool: Pool): string {
   return Ethereum_Query.encodeFunction({
-    method: "createAndInitializePoolIfNecessary",
+    method: nfpmAbi("createAndInitializePoolIfNecessary"),
     args: [
       pool.token0.address,
       pool.token1.address,
@@ -396,8 +397,8 @@ function encodeCollect(options: CollectOptions): string[] {
   };
   calldatas.push(
     Ethereum_Query.encodeFunction({
-      method: "collect",
-      args: [stringifyParams(collectArgs)],
+      method: nfpmAbi("collect"),
+      args: [paramsToJsonString(collectArgs)],
     })
   );
 
@@ -436,64 +437,64 @@ function nfpmAbi(methodName: string): string {
   if (methodName == "createAndInitializePoolIfNecessary") {
     return "function createAndInitializePoolIfNecessary(address token0, address token1, uint24 fee, uint160 sqrtPriceX96) external payable returns (address pool)";
   } else if (methodName == "collect") {
-    return "function collect(CollectParams calldata params) external payable returns (uint256 amount0, uint256 amount1)";
+    return "function collect(tuple(uint256 tokenId, address recipient, uint128 amount0Max, uint128 amount1Max) calldata params) external payable returns (uint256 amount0, uint256 amount1)";
   } else if (methodName == "mint") {
-    return "function mint(MintParams calldata params) external payable returns (uint256 tokenId, uint128 liquidity, uint256 amount0, uint256 amount1)";
+    return "function mint(tuple(address token0, address token1, uint24 fee, int24 tickLower, int24 tickUpper, uint256 amount0Desired, uint256 amount1Desired, uint256 amount0Min, uint256 amount1Min, address recipient, uint256 deadline) calldata params) external payable returns (uint256 tokenId, uint128 liquidity, uint256 amount0, uint256 amount1)";
   } else if (methodName == "increaseLiquidity") {
-    return "function increaseLiquidity(IncreaseLiquidityParams calldata params) external payable returns (uint128 liquidity, uint256 amount0, uint256 amount1)";
+    return "function increaseLiquidity(tuple(uint256 tokenId, uint256 amount0Desired, uint256 amount1Desired, uint256 amount0Min, uint256 amount1Min, uint256 deadline) calldata params) external payable returns (uint128 liquidity, uint256 amount0, uint256 amount1)";
   } else if (methodName == "permit") {
     return "function permit(address spender, uint256  deadline, bytes32 r, bytes32 s) external payable";
   } else if (methodName == "decreaseLiquidity") {
-    return "function decreaseLiquidity(DecreaseLiquidityParams calldata params) external payable returns (uint256 amount0, uint256 amount1)";
+    return "function decreaseLiquidity(tuple(uint256 tokenId, uint128 liquidity, uint256 amount0Min, uint256 amount1Min, uint256 deadline) calldata params) external payable returns (uint256 amount0, uint256 amount1)";
   } else if (methodName == "burn") {
     return "function burn(uint256 tokenId) external payable";
   } else if (methodName == "safeTransferFrom") {
-    return "safeTransferFrom(address,address,uint256,bytes)";
+    return "function safeTransferFrom(address from, address to, uint256 tokenId, bytes _data)";
   } else if (methodName == "_safeTransferFrom") {
-    return "safeTransferFrom(address,address,uint256)";
+    return "function safeTransferFrom(address from, address to, uint256 tokenId)";
   } else {
     throw new Error("Invalid method name: " + methodName);
   }
 }
 
-function stringifyParams<T>(params: T): string {
-  if (params instanceof MintArgs) {
+function paramsToJsonString<T>(params: T): string {
+  if (params instanceof CollectArgs) {
     return `{
-      token0: ${params.token0},
-      token1: ${params.token1},
-      fee: ${params.fee},
-      tickLower: ${params.tickLower},
-      tickUpper: ${params.tickUpper},
-      amount0Desired: ${params.amount0Desired},
-      amount1Desired: ${params.amount1Desired},
-      amount0Min: ${params.amount0Min},
-      amount1Min: ${params.amount1Min},
-      recipient: ${params.recipient},
-      deadline: ${params.deadline},
+      "tokenId": "${params.tokenId}",
+      "recipient": "${params.recipient}",
+      "amount0Max": "${params.amount0Max}",
+      "amount1Max": "${params.amount1Max}"
+    }`;
+  } else if (params instanceof MintArgs) {
+    return `{
+      "token0": "${params.token0}",
+      "token1": "${params.token1}",
+      "fee": ${params.fee},
+      "tickLower": ${params.tickLower},
+      "tickUpper": ${params.tickUpper},
+      "amount0Desired": "${params.amount0Desired}",
+      "amount1Desired": "${params.amount1Desired}",
+      "amount0Min": "${params.amount0Min}",
+      "amount1Min": "${params.amount1Min}",
+      "recipient": "${params.recipient}",
+      "deadline": "${params.deadline}"
     }`;
   } else if (params instanceof IncreaseLiquidityArgs) {
     return `{
-      tokenId: ${params.tokenId},
-      amount0Desired: ${params.amount0Desired},
-      amount1Desired: ${params.amount1Desired},
-      amount0Min: ${params.amount0Min},
-      amount1Min: ${params.amount1Min},
-      deadline: ${params.deadline},
-    }`;
-  } else if (params instanceof CollectArgs) {
-    return `{
-      tokenId: ${params.tokenId},
-      recipient: ${params.recipient},
-      amount0Max: ${params.amount0Max},
-      amount1Max: ${params.amount1Max},
+      "tokenId": "${params.tokenId}",
+      "amount0Desired": "${params.amount0Desired}",
+      "amount1Desired": "${params.amount1Desired}",
+      "amount0Min": "${params.amount0Min}",
+      "amount1Min": "${params.amount1Min}",
+      "deadline": "${params.deadline}"
     }`;
   } else if (params instanceof DecreaseLiquidityArgs) {
     return `{
-      tokenId: ${params.tokenId},
-      liquidity: ${params.liquidity},
-      amount0Min: ${params.amount0Min},
-      amount1Min: ${params.amount1Min},
-      deadline: ${params.deadline},
+      "tokenId": "${params.tokenId}",
+      "liquidity": "${params.liquidity}",
+      "amount0Min": "${params.amount0Min}",
+      "amount1Min": "${params.amount1Min}",
+      "deadline": "${params.deadline}"
     }`;
   } else {
     throw new Error("unknown router parameters type");

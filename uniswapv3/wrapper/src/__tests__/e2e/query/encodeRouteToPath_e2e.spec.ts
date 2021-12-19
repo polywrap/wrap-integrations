@@ -3,7 +3,7 @@ import { ChainIdEnum, FeeAmountEnum, Pool, Route, Token } from "../types";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import { getFakeTestToken, getPlugins } from "../testUtils";
 import path from "path";
-import { createPool, encodeSqrtRatioX96, createRoute, encodeRouteToPath } from "../wrappedRouterUtils";
+import { createPool, encodeSqrtRatioX96, createRoute, encodeRouteToPath } from "../wrappedQueries";
 
 jest.setTimeout(120000);
 

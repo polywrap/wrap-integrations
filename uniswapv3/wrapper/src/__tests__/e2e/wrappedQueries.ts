@@ -1,16 +1,17 @@
 import { Web3ApiClient } from "@web3api/client-js";
 import {
-  BigInt,
+  AddLiquidityOptions,
+  BigInt, ClaimOptions, CollectOptions,
   FeeAmount,
   FeeAmountEnum,
-  FeeOptions,
+  FeeOptions, FullWithdrawOptions, IncentiveKey,
   Int32, MethodParameters,
-  Pool,
-  Route, SwapOptions,
+  Pool, Position, QuoteOptions, RemoveLiquidityOptions,
+  Route, SafeTransferOptions, SwapOptions,
   Tick,
-  Token, Trade,
+  Token, TokenAmount, Trade,
   TradeRoute,
-  TradeType
+  TradeType, TradeTypeEnum
 } from "./types";
 
 type BigIntish = BigInt | number;
@@ -261,6 +262,176 @@ export async function swapCallParameters(client: Web3ApiClient, ensUri: string, 
     input: {
       trades,
       options,
+    },
+    decode: true,
+  });
+  if (query.error) {
+    throw query.error;
+  }
+  return query.data!;
+}
+
+export async function quoteCallParameters(client: Web3ApiClient, ensUri: string, route: Route, amount: TokenAmount, tradeType: TradeType, options?: QuoteOptions): Promise<MethodParameters> {
+  const query = await client.invoke<MethodParameters>({
+    uri: ensUri,
+    module: "query",
+    method: "quoteCallParameters",
+    input: {
+      route,
+      amount,
+      tradeType: typeof tradeType === "string" ? tradeType : TradeTypeEnum[tradeType],
+      options: options ?? null,
+    },
+    decode: true,
+  });
+  if (query.error) {
+    throw query.error;
+  }
+  return query.data!;
+}
+
+export async function collectRewards(client: Web3ApiClient, ensUri: string, incentiveKeys: IncentiveKey[], options: ClaimOptions): Promise<MethodParameters> {
+  const query = await client.invoke<MethodParameters>({
+    uri: ensUri,
+    module: "query",
+    method: "collectRewards",
+    input: {
+      incentiveKeys,
+      options,
+    },
+    decode: true,
+  });
+  if (query.error) {
+    throw query.error;
+  }
+  return query.data!;
+}
+
+export async function withdrawToken(client: Web3ApiClient, ensUri: string, incentiveKeys: IncentiveKey[], options: FullWithdrawOptions): Promise<MethodParameters> {
+  const query = await client.invoke<MethodParameters>({
+    uri: ensUri,
+    module: "query",
+    method: "withdrawToken",
+    input: {
+      incentiveKeys,
+      options,
+    },
+    decode: true,
+  });
+  if (query.error) {
+    throw query.error;
+  }
+  return query.data!;
+}
+
+export async function encodeDeposit(client: Web3ApiClient, ensUri: string, incentiveKeys: IncentiveKey[]): Promise<string> {
+  const query = await client.invoke<string>({
+    uri: ensUri,
+    module: "query",
+    method: "encodeDeposit",
+    input: {
+      incentiveKeys,
+    },
+    decode: true,
+  });
+  if (query.error) {
+    throw query.error;
+  }
+  return query.data!;
+}
+
+export async function safeTransferFromParameters(client: Web3ApiClient, ensUri: string, options: SafeTransferOptions): Promise<MethodParameters> {
+  const query = await client.invoke<MethodParameters>({
+    uri: ensUri,
+    module: "query",
+    method: "safeTransferFromParameters",
+    input: {
+      options,
+    },
+    decode: true,
+  });
+  if (query.error) {
+    throw query.error;
+  }
+  return query.data!;
+}
+
+export async function createCallParameters(client: Web3ApiClient, ensUri: string, pool: Pool): Promise<MethodParameters> {
+  const query = await client.invoke<MethodParameters>({
+    uri: ensUri,
+    module: "query",
+    method: "createCallParameters",
+    input: {
+      pool
+    },
+    decode: true,
+  });
+  if (query.error) {
+    throw query.error;
+  }
+  return query.data!;
+}
+
+export async function addCallParameters(client: Web3ApiClient, ensUri: string, position: Position, options: AddLiquidityOptions): Promise<MethodParameters> {
+  const query = await client.invoke<MethodParameters>({
+    uri: ensUri,
+    module: "query",
+    method: "addCallParameters",
+    input: {
+      position,
+      options,
+    },
+    decode: true,
+  });
+  if (query.error) {
+    throw query.error;
+  }
+  return query.data!;
+}
+
+export async function collectCallParameters(client: Web3ApiClient, ensUri: string, options: CollectOptions): Promise<MethodParameters> {
+  const query = await client.invoke<MethodParameters>({
+    uri: ensUri,
+    module: "query",
+    method: "collectCallParameters",
+    input: {
+      options
+    },
+    decode: true,
+  });
+  if (query.error) {
+    throw query.error;
+  }
+  return query.data!;
+}
+
+export async function removeCallParameters(client: Web3ApiClient, ensUri: string, position: Position, options: RemoveLiquidityOptions): Promise<MethodParameters> {
+  const query = await client.invoke<MethodParameters>({
+    uri: ensUri,
+    module: "query",
+    method: "removeCallParameters",
+    input: {
+      position,
+      options,
+    },
+    decode: true,
+  });
+  if (query.error) {
+    throw query.error;
+  }
+  return query.data!;
+}
+
+export async function createPosition(client: Web3ApiClient, ensUri: string, pool: Pool, tickLower: number, tickUpper: number, liquidity: BigIntish): Promise<Position> {
+  const query = await client.invoke<Position>({
+    uri: ensUri,
+    module: "query",
+    method: "createPosition",
+    input: {
+      pool,
+      tickLower,
+      tickUpper,
+      liquidity: liquidity.toString(),
     },
     decode: true,
   });

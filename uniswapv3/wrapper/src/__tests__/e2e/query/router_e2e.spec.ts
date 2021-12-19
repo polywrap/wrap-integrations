@@ -10,7 +10,7 @@ import {
   nearestUsableTick,
   constant,
   feeAmountToTickSpacing, createTradeFromRoute, createTradeFromRoutes, createRoute, swapCallParameters
-} from "../wrappedRouterUtils";
+} from "../wrappedQueries";
 
 jest.setTimeout(120000);
 

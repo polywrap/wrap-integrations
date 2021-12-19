@@ -112,7 +112,7 @@ type RemoveLiquidityOptions {
   deadline: BigInt! # When the transaction expires, in epoch seconds.
   burnToken: Boolean # Whether the NFT should be burned if the entire position is being exited, by default false.
   permit: NFTPermitOptions # The optional permit of the token ID being exited, in case the exit transaction is being sent by an account that does not own the NFT
-  collectOptions: CollectOptions! # Parameters to be passed on to collect
+  collectOptions: CollectOptions! # Parameters to be passed on to collect; tokenId is ignored.
 }
 
 type Query {
@@ -520,26 +520,26 @@ type Query {
 
   ## NonfungiblePositionManager
 
-  createCallParametersNFPM(
+  createCallParameters(
     pool: Pool!
   ): MethodParameters!
 
-  addCallParametersNFPM(
+  addCallParameters(
     position: Position!
     options: AddLiquidityOptions!
   ): MethodParameters!
 
-  collectCallParametersNFPM(
+  collectCallParameters(
     options: CollectOptions!
   ): MethodParameters!
 
   # Produces the calldata for completely or partially exiting a position
-  removeCallParametersNFPM(
+  removeCallParameters(
     position: Position! # The position to exit
     options: RemoveLiquidityOptions! # Additional information necessary for generating the calldata
   ): MethodParameters!
 
-  safeTransferFromParametersNFPM(
+  safeTransferFromParameters(
     options: SafeTransferOptions!
   ): MethodParameters!
 

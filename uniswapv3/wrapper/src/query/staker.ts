@@ -105,7 +105,7 @@ export function encodeDeposit(input: Input_encodeDeposit): string {
     }
     data = Ethereum_Query.encodeParams({
       types: [`${stakerAbi("INCENTIVE_KEY_ABI")}[]`],
-      values: [keys.toString()],
+      values: ["[" + keys.join(", ") + "]"],
     });
   } else {
     data = Ethereum_Query.encodeParams({
@@ -159,30 +159,30 @@ function encodeClaim(
  */
 function encodeIncentiveKey(incentiveKey: IncentiveKey): string {
   return `{
-    rewardToken: ${incentiveKey.rewardToken.address},
-    pool: ${getPoolAddress({
+    "rewardToken": "${incentiveKey.rewardToken.address}",
+    "pool": "${getPoolAddress({
       tokenA: incentiveKey.pool.token0,
       tokenB: incentiveKey.pool.token1,
       fee: incentiveKey.pool.fee,
       initCodeHashManualOverride: null,
-    })},
-    startTime: ${toHex({ value: incentiveKey.startTime })},
-    endTime: ${toHex({ value: incentiveKey.endTime })},
-    refundee: ${getChecksumAddress(incentiveKey.refundee)},
+    })}",
+    "startTime": "${toHex({ value: incentiveKey.startTime })}",
+    "endTime": "${toHex({ value: incentiveKey.endTime })}",
+    "refundee": "${getChecksumAddress(incentiveKey.refundee)}"
   }`;
 }
 
 function stakerAbi(methodName: string): string {
-  if (methodName == "unstakeToken") {
-    return "function unstakeToken(IncentiveKey memory key, uint256 tokenId) external";
-  } else if (methodName == "claimReward") {
-    return "function claimReward(IERC20Minimal rewardToken, address to, uint256 amountRequested) external returns (uint256 reward)";
+  if (methodName == "INCENTIVE_KEY_ABI") {
+    return "tuple(address rewardToken, address pool, uint256 startTime, uint256 endTime, address refundee)";
+  } else if (methodName == "unstakeToken") {
+    return `function unstakeToken(${stakerAbi("INCENTIVE_KEY_ABI")} memory key, uint256 tokenId) external`; // eslint-disable-line
   } else if (methodName == "stakeToken") {
-    return "function stakeToken(IncentiveKey memory key, uint256 tokenId) external";
+    return `function stakeToken(${stakerAbi("INCENTIVE_KEY_ABI")} memory key, uint256 tokenId) external`; // eslint-disable-line
+  } else if (methodName == "claimReward") {
+    return "function claimReward(address rewardToken, address to, uint256 amountRequested) external returns (uint256 reward)";
   } else if (methodName == "withdrawToken") {
     return "function withdrawToken(uint256 tokenId, address to, bytes memory data) external";
-  } else if (methodName == "INCENTIVE_KEY_ABI") {
-    return "tuple(address rewardToken, address pool, uint256 startTime, uint256 endTime, address refundee)";
   } else {
     throw new Error("Invalid method name: " + methodName);
   }

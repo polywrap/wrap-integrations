@@ -4,7 +4,7 @@ import {
   encodeUnwrapWETH9,
   encodeSweepToken,
   encodeRefundETH,
-} from "../wrappedRouterUtils";
+} from "../wrappedQueries";
 import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";

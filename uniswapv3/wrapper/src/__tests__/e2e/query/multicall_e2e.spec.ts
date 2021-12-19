@@ -2,7 +2,7 @@ import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import { getPlugins } from "../testUtils";
 import path from "path";
-import { encodeMulticall } from "../wrappedRouterUtils";
+import { encodeMulticall } from "../wrappedQueries";
 
 jest.setTimeout(120000);
 
