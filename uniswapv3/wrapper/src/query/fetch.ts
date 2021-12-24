@@ -15,11 +15,9 @@ import {
 } from "./w3";
 import { createPool, getPoolAddress } from "./pool";
 import {
-  ethCallView,
   fetchPoolImmutables,
   fetchPoolState,
-  fetchPoolTicks,
-  poolAbi,
+  fetchPoolTicksSubgraph,
   PoolImmutables,
   PoolState,
 } from "../utils/fetchUtils";
@@ -139,8 +137,5 @@ export function fetchPoolFromAddress(input: Input_fetchPoolFromAddress): Pool {
  * @param input.chainId the id of the chain to be queried
  */
 export function fetchTickList(input: Input_fetchTickList): Tick[] {
-  const chainId: ChainId = input.chainId;
-  const address: string = input.address;
-  const spacing: string = ethCallView(address, chainId, poolAbi("tickSpacing"));
-  return fetchPoolTicks(address, chainId, I32.parseInt(spacing));
+  return fetchPoolTicksSubgraph(input.address, input.chainId);
 }

@@ -25,33 +25,15 @@ const USDC: Token = {
 describe('Token utils', () => {
 
   it('getEther', () => {
-    expect(getEther({ chainId: ChainId.MAINNET })).toStrictEqual({
-      chainId: ChainId.MAINNET,
-      address: "",
-      currency: Eth,
-    });
-    expect(getEther({ chainId: ChainId.ROPSTEN })).toStrictEqual({
-      chainId: ChainId.ROPSTEN,
-      address: "",
-      currency: Eth,
-    });
-    expect(getEther({ chainId: ChainId.RINKEBY })).toStrictEqual({
-      chainId: ChainId.RINKEBY,
-      address: "",
-      currency: Eth,
-    });
-    expect(getEther({ chainId: ChainId.GOERLI })).toStrictEqual({
-      chainId: ChainId.GOERLI,
-      address: "",
-      currency: Eth,
-    });
-    expect(getEther({ chainId: ChainId.KOVAN })).toStrictEqual({
-      chainId: ChainId.KOVAN,
-      address: "",
-      currency: Eth,
-    });
+    for (let i = ChainId.MAINNET; i <= ChainId.ARBITRUM_ONE_RINKEBY; i++) {
+      expect(getEther({ chainId: i as ChainId })).toStrictEqual({
+        chainId: i as ChainId,
+        address: "",
+        currency: Eth,
+      });
+    }
 
-    const error = (): void => { getEther({ chainId: 7 }) };
+    const error = (): void => { getEther({ chainId: 999 }) };
     expect(error).toThrow("Unknown chain ID");
   });
 
@@ -81,8 +63,28 @@ describe('Token utils', () => {
       address: "0xd0A1E359811322d97991E03f863a0C30C2cF029C",
       currency: WETH,
     });
+    expect(getWETH({ chainId: ChainId.OPTIMISM })).toStrictEqual({
+      chainId: ChainId.OPTIMISM,
+      address: "0x4200000000000000000000000000000000000006",
+      currency: WETH,
+    });
+    expect(getWETH({ chainId: ChainId.OPTIMISM_KOVAN })).toStrictEqual({
+      chainId: ChainId.OPTIMISM_KOVAN,
+      address: "0x4200000000000000000000000000000000000006",
+      currency: WETH,
+    });
+    expect(getWETH({ chainId: ChainId.ARBITRUM_ONE })).toStrictEqual({
+      chainId: ChainId.ARBITRUM_ONE,
+      address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+      currency: WETH,
+    });
+    expect(getWETH({ chainId: ChainId.ARBITRUM_ONE_RINKEBY })).toStrictEqual({
+      chainId: ChainId.ARBITRUM_ONE_RINKEBY,
+      address: "0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681",
+      currency: WETH,
+    });
 
-    const error = (): void => { getWETH({ chainId: 7 }) };
+    const error = (): void => { getWETH({ chainId: 999 }) };
     expect(error).toThrow("Unknown chain ID");
   });
 

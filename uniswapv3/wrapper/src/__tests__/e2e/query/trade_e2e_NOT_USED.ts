@@ -8,7 +8,7 @@ import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
 import { ChainId } from "../../../../../../uniswapv2/wrapper/src/__tests__/e2e/types";
 
-jest.setTimeout(120000);
+jest.setTimeout(300000);
 
 describe("Trade (mainnet fork)", () => {
 
@@ -29,7 +29,7 @@ describe("Trade (mainnet fork)", () => {
     const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
     ensUri = `ens/testnet/${api.ensDomain}`;
     // set up test case data
-    pools = await getPools(client, ensUri);
+    pools = await getPools(client, ensUri, true);
     tokens = getTokens(pools);
     tokens.push({
       chainId: ChainId.MAINNET,
@@ -43,7 +43,7 @@ describe("Trade (mainnet fork)", () => {
     // set up ethers provider
     ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546");
     // get uni pools
-    uniPools = await getUniPools(ethersProvider);
+    uniPools = await getUniPools(ethersProvider, true);
   });
 
   afterAll(async () => {
@@ -72,7 +72,6 @@ describe("Trade (mainnet fork)", () => {
             tokenOut: tokenOut,
             options: null,
           },
-          decode: true,
         });
         expect(query.error).toBeUndefined();
         expect(query.data).toBeDefined();
@@ -138,7 +137,6 @@ describe("Trade (mainnet fork)", () => {
             amountOut: amountOut,
             options: null,
           },
-          decode: true,
         });
         expect(query.error).toBeUndefined();
         expect(query.data).toBeDefined();

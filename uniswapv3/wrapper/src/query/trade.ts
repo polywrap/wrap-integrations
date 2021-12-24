@@ -484,16 +484,6 @@ function _bestTradeExactIn(
       inputAmount: amountIn,
       sqrtPriceLimitX96: null,
     }).amount;
-    // TODO: how should i replicate this? This exception is not thrown in the JS sdk
-    // try {
-    //   ;[amountOut] = await pool.getOutputAmount(amountIn)
-    // } catch (error) {
-    //   // input too low
-    //   if (error.isInsufficientInputAmountError) {
-    //     continue
-    //   }
-    //   throw error
-    // }
 
     // we have arrived at the output token, so this is the final trade of one of the paths
     if (tokenEquals({ tokenA: amountOut.token, tokenB: tokenOut })) {
@@ -589,17 +579,6 @@ function _bestTradeExactOut(
     const pool = pools[i];
     // pool irrelevant
     if (!poolInvolvesToken({ pool, token: amountOut.token })) continue;
-
-    // TODO: how should i replicate this? This exception is not actually thrown in the JS sdk
-    // try {
-    //   ;[amountIn] = await pool.getInputAmount(amountOut)
-    // } catch (error) {
-    //   // not enough liquidity in this pool
-    //   if (error.isInsufficientReservesError) {
-    //     continue
-    //   }
-    //   throw error
-    // }
 
     const poolChangeResult: PoolChangeResult = getPoolInputAmount({
       pool,

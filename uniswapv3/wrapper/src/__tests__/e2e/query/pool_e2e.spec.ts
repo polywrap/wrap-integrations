@@ -2,19 +2,22 @@ import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@we
 import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
 import { Pool, TokenAmount, PoolChangeResult } from "../types";
 import path from "path";
-import { getPlugins, getPools, getUniPools } from "../testUtils";
+import { getPlugins, getPoolFromAddress, getPools } from "../testUtils";
 import * as uni from "@uniswap/v3-sdk";
 import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
 import poolList from "../testData/poolList.json";
+import { getUniswapPool } from "../uniswapCreatePool";
 
-jest.setTimeout(120000);
+jest.setTimeout(300000);
 
 describe("Pool (mainnet fork)", () => {
 
   let client: Web3ApiClient;
   let ensUri: string;
   let pools: Pool[];
+  let pool0: Pool;
+  let uniPool0: uni.Pool;
   let ethersProvider: ethers.providers.BaseProvider;
 
   beforeAll(async () => {
@@ -28,6 +31,9 @@ describe("Pool (mainnet fork)", () => {
     ensUri = `ens/testnet/${api.ensDomain}`;
     // set up test case data
     pools = await getPools(client, ensUri);
+    pool0 = await getPoolFromAddress(client, ensUri, poolList[0], true);
+    uniPool0 = await getUniswapPool( ethersProvider, poolList[0], true);
+    console.log(JSON.stringify(pool0.tickDataProvider));
     // set up ethers provider
     ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546");
   });
@@ -64,9 +70,9 @@ describe("Pool (mainnet fork)", () => {
     }
   });
 
-  it.skip("getPoolOutputAmount", async () => {
-    const pool0: Pool = (await getPools(client, ensUri, true, 0, 1))[0];
-    const uniPool0: uni.Pool = (await getUniPools(ethersProvider, true, 0, 1))[0];
+  it("getPoolOutputAmount", async () => {
+    // const pool0 = (await getPools(client, ensUri, true, 0, 1))[0];
+    // const uniPool0 = (await getUniPools(ethersProvider, true, 0, 1))[0];
     const inputAmount: TokenAmount = {
       token: pool0.token0,
       amount: "1000000000000000000",
@@ -106,9 +112,9 @@ describe("Pool (mainnet fork)", () => {
     expect(pool.tickCurrent).toEqual(uniPool.tickCurrent);
   });
 
-  it.skip("getPoolInputAmount", async () => {
-    const pool0: Pool = (await getPools(client, ensUri, true, 0, 1))[0];
-    const uniPool0: uni.Pool = (await getUniPools(ethersProvider, true, 0, 1))[0];
+  it("getPoolInputAmount", async () => {
+    // const pool0 = (await getPools(client, ensUri, true, 0, 1))[0];
+    // const uniPool0 = (await getUniPools(ethersProvider, true, 0, 1))[0];
     const outputAmount: TokenAmount = {
       token: pool0.token0,
       amount: "1000000000000000000",

@@ -9,7 +9,7 @@ import * as ethers from "ethers";
 import { getUniswapPool } from "../uniswapCreatePool";
 import { Tick } from "../../../query/w3";
 
-jest.setTimeout(120000);
+jest.setTimeout(180000);
 
 describe("Fetch (mainnet fork)", () => {
 
@@ -38,11 +38,8 @@ describe("Fetch (mainnet fork)", () => {
     await stopTestEnvironment();
   });
 
-  it.skip("fetchTickList", async () => {
-    const uniPool: uni.Pool | undefined = await getUniswapPool(poolAddresses[0], ethersProvider, true);
-    expect(uniPool).toBeTruthy();
-    if (uniPool === undefined) { return; }
-    
+  it("fetchTickList", async () => {
+    const uniPool: uni.Pool = await getUniswapPool(ethersProvider, poolAddresses[0], true);
     const tickListQuery = await client.query<{
       fetchTickList: Tick[];
     }>({

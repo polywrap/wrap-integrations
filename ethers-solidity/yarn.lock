@@ -1323,28 +1323,28 @@
     "@typescript-eslint/types" "4.11.1"
     eslint-visitor-keys "^2.0.0"
 
-"@web3api/asyncify-js@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/asyncify-js/-/asyncify-js-0.0.1-prealpha.57.tgz#38edec3efbdd7f2ef666cf9be9e29e0147d59fe0"
-  integrity sha512-c8+Gh8wWFKGdAJRM5kHp6hDfFieKLy0e0ZROQefTvH2EzQ3QhlHKYtDkX9a4XZ8ddlxYatx0ksHt6/Du5D1y0w==
+"@web3api/asyncify-js@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/asyncify-js/-/asyncify-js-0.0.1-prealpha.58.tgz#d38cd2e34bf0e83473cb75c556367542f011a40c"
+  integrity sha512-WYiwqJd0+HSSQQR5/r0mNA7ExfJfKD69E/3HGTIu3nBOFbJUMiBkffpKRPcsjxSHZ/ayuDavFKes5+a8FdgyuQ==
 
-"@web3api/cli@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/cli/-/cli-0.0.1-prealpha.57.tgz#810ffa564a231d7b5902e4049a97ddaf8a12e985"
-  integrity sha512-TWqJnxkCn+KvCDh1C7figtrKw5IkNlE5iJYQgcaB1QzPnyVVcqKQVAOu1VgSv9AWDVERRjPf1rge20NfaGgtjA==
+"@web3api/cli@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/cli/-/cli-0.0.1-prealpha.58.tgz#e5c0aa0a75a3a970a79fa6991083c902a0948e9e"
+  integrity sha512-Y4QKiNXhCvDwaLB2O47RZekKMxhWNPapidYdobilEPirdzLknrocCIhJaGEK9mT1wxiIl6ocr6giJI5pgk2SEA==
   dependencies:
     "@formatjs/intl" "1.8.2"
-    "@web3api/asyncify-js" "0.0.1-prealpha.57"
-    "@web3api/client-js" "0.0.1-prealpha.57"
-    "@web3api/client-test-env" "0.0.1-prealpha.57"
-    "@web3api/core-js" "0.0.1-prealpha.57"
-    "@web3api/ens-plugin-js" "0.0.1-prealpha.57"
-    "@web3api/ethereum-plugin-js" "0.0.1-prealpha.57"
-    "@web3api/ipfs-plugin-js" "0.0.1-prealpha.57"
-    "@web3api/os-js" "0.0.1-prealpha.57"
-    "@web3api/schema-bind" "0.0.1-prealpha.57"
-    "@web3api/schema-compose" "0.0.1-prealpha.57"
-    "@web3api/schema-parse" "0.0.1-prealpha.57"
+    "@web3api/asyncify-js" "0.0.1-prealpha.58"
+    "@web3api/client-js" "0.0.1-prealpha.58"
+    "@web3api/client-test-env" "0.0.1-prealpha.58"
+    "@web3api/core-js" "0.0.1-prealpha.58"
+    "@web3api/ens-plugin-js" "0.0.1-prealpha.58"
+    "@web3api/ethereum-plugin-js" "0.0.1-prealpha.58"
+    "@web3api/ipfs-plugin-js" "0.0.1-prealpha.58"
+    "@web3api/os-js" "0.0.1-prealpha.58"
+    "@web3api/schema-bind" "0.0.1-prealpha.58"
+    "@web3api/schema-compose" "0.0.1-prealpha.58"
+    "@web3api/schema-parse" "0.0.1-prealpha.58"
     assemblyscript "0.19.1"
     axios "0.21.2"
     chalk "4.1.0"
@@ -1363,162 +1363,162 @@
     rimraf "3.0.2"
     ws "7.3.1"
 
-"@web3api/client-js@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/client-js/-/client-js-0.0.1-prealpha.57.tgz#83cd13345888a78060840bcf2ac1d5d2232964b4"
-  integrity sha512-yxlHB/grqyWDYbaXCjEWLXkyNrFIugVmjBLnSLTu3tTseevwRWCLXEdPiqNrY/AomE/ftrDA4OCn+Cz3tP65Xg==
+"@web3api/client-js@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/client-js/-/client-js-0.0.1-prealpha.58.tgz#6d1281c56b64173d83e0a78f9ae21baba18828d1"
+  integrity sha512-ty6Huz+F/z7g2jUV3PBXavl4bGpcB0F5wUn9kr9K0l1D2M4qek+lInGhotsIrTwjSud2TJ7dorBiuOsTznPa4Q==
   dependencies:
     "@msgpack/msgpack" "2.3.0"
-    "@web3api/asyncify-js" "0.0.1-prealpha.57"
-    "@web3api/core-js" "0.0.1-prealpha.57"
-    "@web3api/ens-plugin-js" "0.0.1-prealpha.57"
-    "@web3api/ethereum-plugin-js" "0.0.1-prealpha.57"
-    "@web3api/fs-plugin-js" "0.0.1-prealpha.57"
-    "@web3api/graph-node-plugin-js" "0.0.1-prealpha.57"
-    "@web3api/http-plugin-js" "0.0.1-prealpha.57"
-    "@web3api/ipfs-plugin-js" "0.0.1-prealpha.57"
-    "@web3api/logger-plugin-js" "0.0.1-prealpha.57"
-    "@web3api/schema-parse" "0.0.1-prealpha.57"
-    "@web3api/sha3-plugin-js" "0.0.1-prealpha.57"
-    "@web3api/tracing-js" "0.0.1-prealpha.57"
-    "@web3api/uts46-plugin-js" "0.0.1-prealpha.57"
+    "@web3api/asyncify-js" "0.0.1-prealpha.58"
+    "@web3api/core-js" "0.0.1-prealpha.58"
+    "@web3api/ens-plugin-js" "0.0.1-prealpha.58"
+    "@web3api/ethereum-plugin-js" "0.0.1-prealpha.58"
+    "@web3api/fs-plugin-js" "0.0.1-prealpha.58"
+    "@web3api/graph-node-plugin-js" "0.0.1-prealpha.58"
+    "@web3api/http-plugin-js" "0.0.1-prealpha.58"
+    "@web3api/ipfs-plugin-js" "0.0.1-prealpha.58"
+    "@web3api/logger-plugin-js" "0.0.1-prealpha.58"
+    "@web3api/schema-parse" "0.0.1-prealpha.58"
+    "@web3api/sha3-plugin-js" "0.0.1-prealpha.58"
+    "@web3api/tracing-js" "0.0.1-prealpha.58"
+    "@web3api/uts46-plugin-js" "0.0.1-prealpha.58"
     graphql "15.5.0"
     js-yaml "3.14.0"
     uuid "8.3.2"
 
-"@web3api/client-test-env@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/client-test-env/-/client-test-env-0.0.1-prealpha.57.tgz#47e72c6c623effb3f43a79d2c3c1c0e68c6265b1"
-  integrity sha512-R0K7AJ3xHBv0S/BNsRBaWo2WDMAQln3cV7XyBbEM4kgz3lZFR2Kjd3z03YiPJrLjo5Ath5D228+tHA/7kc9oJw==
+"@web3api/client-test-env@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/client-test-env/-/client-test-env-0.0.1-prealpha.58.tgz#f27595d651ade2c954a004c7732e30a275f759d1"
+  integrity sha512-PcwkLOcf6KXMecV5OHrBwehbZIPVg0URnPU+Gz3t2smRWH4iR0DNKc7vcY1og9OhcaHB3eRFN4K7kKX3ou/dPQ==
   dependencies:
     axios "0.21.2"
     dotenv "10.0.0"
 
-"@web3api/core-js@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/core-js/-/core-js-0.0.1-prealpha.57.tgz#59e2812aed0343c127dfe951980688637028e484"
-  integrity sha512-UvFtzlmWNkH01HToSderffDmG223fek43eTdI04NHoLFoJBRnA9p6FwkegN8kDVWQSVmUQzlaJ+NmLvZyyulrQ==
+"@web3api/core-js@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/core-js/-/core-js-0.0.1-prealpha.58.tgz#eabbcd8deef52b0d1c52c5b18c31f8b246e06326"
+  integrity sha512-eKtPPenJ4ZmSHBeuEnWG0HgcfJmyvDFLfpDUD+VoL8pJlA+a8jJPOWe/txDVyZ2KL7HJbcE661Apon7vA0NMHw==
   dependencies:
-    "@web3api/manifest-schemas" "0.0.1-prealpha.57"
-    "@web3api/tracing-js" "0.0.1-prealpha.57"
+    "@web3api/manifest-schemas" "0.0.1-prealpha.58"
+    "@web3api/tracing-js" "0.0.1-prealpha.58"
     graphql "15.5.0"
     graphql-tag "2.10.4"
     js-yaml "3.14.0"
     jsonschema "1.4.0"
     semver "7.3.5"
 
-"@web3api/ens-plugin-js@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/ens-plugin-js/-/ens-plugin-js-0.0.1-prealpha.57.tgz#377e5f2f266d5cfab709a2e443aa00ab3317d0ae"
-  integrity sha512-K4Safo8RU1f/D9nceQOQsEp7UM9dkrfg5kqzQQTSrzQzhMrSbD7JX+lwW8LV2z3UbsiKtx62GVyEj1CIFuE9Og==
+"@web3api/ens-plugin-js@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/ens-plugin-js/-/ens-plugin-js-0.0.1-prealpha.58.tgz#2372857f78925ad33d1c559e2c676174dfa9ccec"
+  integrity sha512-qVrjYPJzm/FeM3zrlyG/7ElZ6nJS5R37PXXIDWhgEI3Oo8gEhgxZITGcwdqjWusFJ9XpmW+1tgWrvG4V49lsbQ==
   dependencies:
     "@ethersproject/address" "5.0.7"
-    "@web3api/core-js" "0.0.1-prealpha.57"
+    "@web3api/core-js" "0.0.1-prealpha.58"
     ethers "5.0.7"
 
-"@web3api/ethereum-plugin-js@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/ethereum-plugin-js/-/ethereum-plugin-js-0.0.1-prealpha.57.tgz#d8750ee644880e67c7604711e85ad65f0bf93e16"
-  integrity sha512-GEsm0Ztmo3LY6tl+ohJ+EDX0X/Xf8OSzb2X4IfOjmxewpm0MtM17QXq6jGi+vUZ2sZsW1gCejIEfjcxPv9Lahg==
+"@web3api/ethereum-plugin-js@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/ethereum-plugin-js/-/ethereum-plugin-js-0.0.1-prealpha.58.tgz#80cf70f5aef2b91ed7c1a8579d04b2d8dbca7574"
+  integrity sha512-Ft0m4Do4jChsspcjTBfT+uoObzOc/0q/whY1lZOPEGczQFsg5194cJk2Wso6HmQ6jchOX8rVhNAuuIetcPFVcg==
   dependencies:
     "@ethersproject/address" "5.0.7"
     "@ethersproject/providers" "5.0.7"
-    "@web3api/core-js" "0.0.1-prealpha.57"
+    "@web3api/core-js" "0.0.1-prealpha.58"
     ethers "5.0.7"
 
-"@web3api/fs-plugin-js@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/fs-plugin-js/-/fs-plugin-js-0.0.1-prealpha.57.tgz#6993631156ed53cce7162e5c6407d9345101b220"
-  integrity sha512-55go0aNLkMROOMJin8m/H7azsDZ+YATF0SyW3amKL9LwR2hOMVfh+SDNoZGM6hkH9SGBUJQ/wHpOG6mhh4sNPA==
+"@web3api/fs-plugin-js@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/fs-plugin-js/-/fs-plugin-js-0.0.1-prealpha.58.tgz#4b950426cb7ce110ff8184d47126404e3184728b"
+  integrity sha512-QCUO3JICeDwB+okVbJEh3ReT66AIZihYph2nji7nKQdlbb/dr3/BvNTeFxPqSlVlOkAplTqxo+PlztyYq2ecDA==
   dependencies:
-    "@web3api/core-js" "0.0.1-prealpha.57"
+    "@web3api/core-js" "0.0.1-prealpha.58"
 
-"@web3api/graph-node-plugin-js@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/graph-node-plugin-js/-/graph-node-plugin-js-0.0.1-prealpha.57.tgz#ca52b4cd5cc147d887eefb1c9307fa277c733cb5"
-  integrity sha512-DyS8J7JfwlsfDH9mYMtjYYVz8tJclZc9bkA3MVCy1U96s4xnjWtb1bFoQsLshn5SvHJvnKBaezx3sA4jvPIAkA==
+"@web3api/graph-node-plugin-js@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/graph-node-plugin-js/-/graph-node-plugin-js-0.0.1-prealpha.58.tgz#ea0a872847495d0e64767aa0b56e04c9bdb6a537"
+  integrity sha512-9sHOR+Poy8oJuioqHattd2SpcXIZ7gU7JnLD+Posk+WtxMPYok4hRJIpMPEMGsHxwirjvzwX2h9sRqQHCgORbA==
   dependencies:
-    "@web3api/core-js" "0.0.1-prealpha.57"
-    "@web3api/http-plugin-js" "0.0.1-prealpha.57"
+    "@web3api/core-js" "0.0.1-prealpha.58"
+    "@web3api/http-plugin-js" "0.0.1-prealpha.58"
     apollo-link "1.2.14"
     apollo-link-http "1.5.17"
     cross-fetch "3.0.5"
     graphql-tag "2.10.4"
 
-"@web3api/http-plugin-js@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/http-plugin-js/-/http-plugin-js-0.0.1-prealpha.57.tgz#0c3bf5fc283232f9aae7baa946a6a98849f2620f"
-  integrity sha512-x8sQ2WiLW7E3srbm9xp9/QIIFYwXjjpbk9KIB8RPgwuBiPTMLD2A/IoVHbF8TAiHRqxnH2o3iv1OIRZI0hRgRw==
+"@web3api/http-plugin-js@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/http-plugin-js/-/http-plugin-js-0.0.1-prealpha.58.tgz#d27f4bdbf4a63f4f361785d2b5f54198cb8c967e"
+  integrity sha512-bwha8rHRBQYxN/th7vczF2vyzSLveSzqNbQmeADUqo8gfB1GndTCcUsNrPgqDemotoiyEmJB1DMuIMWL9kgQ5A==
   dependencies:
-    "@web3api/core-js" "0.0.1-prealpha.57"
+    "@web3api/core-js" "0.0.1-prealpha.58"
     axios "0.21.2"
 
-"@web3api/ipfs-plugin-js@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/ipfs-plugin-js/-/ipfs-plugin-js-0.0.1-prealpha.57.tgz#64c624f4cf753e25dff19cd1527843f1a40db06c"
-  integrity sha512-YM8HJGzLEEnggyxXlEA3PvUZ3t5zwLZWyxNPryoQBLqxdu3R468y0aMK4zlFbmRjAcY1cmQifI6sBy/3B/gInQ==
+"@web3api/ipfs-plugin-js@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/ipfs-plugin-js/-/ipfs-plugin-js-0.0.1-prealpha.58.tgz#5a286697d7222b6e8718f349e082bba319a14c64"
+  integrity sha512-Xy68cJ+1mvlM6gJAxAPbqJoubq8EWD8se8eE7AtOFWv5u98/2hg/b9CdxSZ2stR+z0rWH65VKlfb1f1VFNPtSQ==
   dependencies:
     "@dorgjelli-test/ipfs-http-client-lite" "0.3.1"
-    "@web3api/core-js" "0.0.1-prealpha.57"
+    "@web3api/core-js" "0.0.1-prealpha.58"
     abort-controller "3.0.0"
     cids "^1.1.4"
     is-ipfs "1.0.3"
 
-"@web3api/logger-plugin-js@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/logger-plugin-js/-/logger-plugin-js-0.0.1-prealpha.57.tgz#347e5c8952c9ae80e26768f11e81e65fd300b076"
-  integrity sha512-6tG0z2KA/7YLAWHpT6BqDyyK6RfDBopAYrPDUvp7z5HoTXerusUe4Qg4v6zj2e5fJOuycNTifHu5k742KMvB7g==
+"@web3api/logger-plugin-js@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/logger-plugin-js/-/logger-plugin-js-0.0.1-prealpha.58.tgz#e35faa7b5538ce97b049dbccf8d9b614b4e88e21"
+  integrity sha512-tDKNtisV0sR23gw43I5DVdVl+a+lI2jZ9l0fn4PHTxtSIsi84tlJU7rdpl+47bps9uEUq1izY/SKNcdSsvrYxQ==
   dependencies:
-    "@web3api/core-js" "0.0.1-prealpha.57"
+    "@web3api/core-js" "0.0.1-prealpha.58"
 
-"@web3api/manifest-schemas@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/manifest-schemas/-/manifest-schemas-0.0.1-prealpha.57.tgz#a18a1330839b1b6df80e244a6064721fae5414ea"
-  integrity sha512-XFOWel6jbY2wrirCyUgMNPszSIyfQbs8u2VGdgIvCiEBTw8ITgF443ikPzyU6QztG+Nyh8zVba2Zhw7xrpMsMg==
+"@web3api/manifest-schemas@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/manifest-schemas/-/manifest-schemas-0.0.1-prealpha.58.tgz#bf0c29ef7d43faf10c3ea6dc773627597c0cfb63"
+  integrity sha512-EV9GorPWrUqB8CzGZKz+rxq0HhWpncU2DyMqK6zdexzgVZQ5TIqXsstmo9RrC2JW21sZlpxe2nc+UwHr1BmdOg==
 
-"@web3api/os-js@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/os-js/-/os-js-0.0.1-prealpha.57.tgz#7babea3c39a70fd9ef8fb16275c736ce7a183eae"
-  integrity sha512-p0pzVZ7yJbnOJTdWU9MX6I6s2KSpagm0VT2CEIHiXLsuQQTw+UCBwcgKj+D3SygyBwmOG5s6/ZTOWgduHmUCpg==
+"@web3api/os-js@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/os-js/-/os-js-0.0.1-prealpha.58.tgz#37e5c3c4fbec7050744b940980e3dfa91dcedfac"
+  integrity sha512-4tB748r1C/AsntQlbHR5WUWjC5jNaFvG5OyHCEDTR7sKawgvg8+r2XpKD9BLZpcfqExVWIiHF+fCyQ9IqIWPmQ==
 
-"@web3api/schema-bind@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/schema-bind/-/schema-bind-0.0.1-prealpha.57.tgz#00d54706b10290b3553663dc12d195d9fd33fd98"
-  integrity sha512-WMExPnm+MWTd8qjN1SNuBSPtkIJUE4Am4XTl0CIcKCwWCU8liMQS52V1rUl4o89a7hCLRikAt1QJ5R7zzbAm9w==
+"@web3api/schema-bind@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/schema-bind/-/schema-bind-0.0.1-prealpha.58.tgz#4dcb087903d78576f41acad5d02defad4367115f"
+  integrity sha512-t3yOb6gyC+8Svkf8OQ141aadfJUsUi50BeeQbCB97GXMSSTrxNDVV0SbJPMyRqXcUT51zASjP3ne0EYcLVJ3xw==
   dependencies:
-    "@web3api/os-js" "0.0.1-prealpha.57"
-    "@web3api/schema-parse" "0.0.1-prealpha.57"
+    "@web3api/os-js" "0.0.1-prealpha.58"
+    "@web3api/schema-parse" "0.0.1-prealpha.58"
     mustache "4.0.1"
 
-"@web3api/schema-compose@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/schema-compose/-/schema-compose-0.0.1-prealpha.57.tgz#1b17bee23d5e41fc02d8ab37115a9538442433b3"
-  integrity sha512-oJeXoHpxZfWd+y7ycsHvmsnky4L+AnY62EKvUnglTPCC5oe4vFC37/vIdDfX9wiIcOYLFWaEMqC50ngNdwtvbQ==
+"@web3api/schema-compose@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/schema-compose/-/schema-compose-0.0.1-prealpha.58.tgz#7f3b9e4670fd78867e8cad874cbb6161ab7b367d"
+  integrity sha512-NME7wYIkAceRU4c0GSBk0O408kxFJ3o7A9+gQerYvMGgUHS2jnGOuT8VLQs9NqSbqUjclwf3N4oa9ThPmSIQ8Q==
   dependencies:
-    "@web3api/schema-parse" "0.0.1-prealpha.57"
+    "@web3api/schema-parse" "0.0.1-prealpha.58"
     graphql "15.5.0"
     mustache "4.0.1"
 
-"@web3api/schema-parse@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/schema-parse/-/schema-parse-0.0.1-prealpha.57.tgz#3f6d88bbde0b3f1b1957ae8793326f43c15a55c7"
-  integrity sha512-+hLquSeUu0rrkihLYioCg1h82msZkBaMiDiZIrF4Rzr8zl9koqyGj9plCU7KLuAD0LEd6INgzrbs35HZvywqgg==
+"@web3api/schema-parse@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/schema-parse/-/schema-parse-0.0.1-prealpha.58.tgz#f9ff6294ef70e0486ddabccbc4df892ac44b7776"
+  integrity sha512-PeI5LAYBjDY1eCzLh7ksH92jpbRNTC3ToT2chTPhU7i+xBSO+H8MLYXMVn1+y32a5qMRkw5NbWoret45s6FXvA==
   dependencies:
     graphql "15.5.0"
     graphql-schema-cycles "1.1.3"
 
-"@web3api/sha3-plugin-js@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/sha3-plugin-js/-/sha3-plugin-js-0.0.1-prealpha.57.tgz#b1f3555435c5e3338fbc2d36bd3cd842d08180e2"
-  integrity sha512-OJev7Ggd8EaHzHx9o/ZoZV1PqRIvu5tqlwgJwCSR8pJ9WgGx4vRaQcSpvSUJCIM5u3nBk4c0eoMDU8OibHq8nA==
+"@web3api/sha3-plugin-js@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/sha3-plugin-js/-/sha3-plugin-js-0.0.1-prealpha.58.tgz#1fac1f869a783c0d62586b660151f35bffa9400f"
+  integrity sha512-T2vsveaSbHl79PPgHz6K+RRZ0DR6XOE4WMRUOjzNKMFexkg+14FMRRoV4EoHQ0Htg7v+tLmhosAp3AulqZaQZQ==
   dependencies:
-    "@web3api/core-js" "0.0.1-prealpha.57"
+    "@web3api/core-js" "0.0.1-prealpha.58"
     js-sha3 "0.8.0"
 
-"@web3api/tracing-js@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/tracing-js/-/tracing-js-0.0.1-prealpha.57.tgz#8cb496a5292512f6aa74064d231620c6a63fe458"
-  integrity sha512-T6nDac/D3/cQqGzQBdd2bRGwdDID09gwK7PC/zB3ywfREvnSLTOLzxFGDdpifRQO1JIJEzQDyITQhRNXIXkVDg==
+"@web3api/tracing-js@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/tracing-js/-/tracing-js-0.0.1-prealpha.58.tgz#dd2825b6e5f3dfba8e541e3613bcdc0fa32ead4e"
+  integrity sha512-5VYzN0cMXU8D8q1Qd9sqgRqL8cFoJjdTbRH+zR5gyD4HlAqkt15xH/XLNIrDfAGftM2mPbH29Bj0Bcds6V9uHg==
   dependencies:
     "@opentelemetry/api" "0.20.0"
     "@opentelemetry/context-zone" "0.20.0"
@@ -1532,12 +1532,12 @@
     "@opentelemetry/web" "0.20.0"
     browser-util-inspect "0.2.0"
 
-"@web3api/uts46-plugin-js@0.0.1-prealpha.57":
-  version "0.0.1-prealpha.57"
-  resolved "https://registry.yarnpkg.com/@web3api/uts46-plugin-js/-/uts46-plugin-js-0.0.1-prealpha.57.tgz#d0663603d982e6b80790df52d4216a6e862038b6"
-  integrity sha512-QLggOPhliMED1Nzhi9P7ZocjrUOQxdWjOaGXVfXQHZYdjFdZN5+M2mISkJdLtQLR3LeQnm3xuD7ibw5AkJnODA==
+"@web3api/uts46-plugin-js@0.0.1-prealpha.58":
+  version "0.0.1-prealpha.58"
+  resolved "https://registry.yarnpkg.com/@web3api/uts46-plugin-js/-/uts46-plugin-js-0.0.1-prealpha.58.tgz#6dd6457002b0d0b092f67b9871ad88fe0ea31d4b"
+  integrity sha512-e4MxmljNwLuqQXW8W66yRp+gGxXj/G3KjU0wkSlzYVuWkeCHXc0CBW8IqnCiJN0/1BTi0nUpaA8STxTch9VsAg==
   dependencies:
-    "@web3api/core-js" "0.0.1-prealpha.57"
+    "@web3api/core-js" "0.0.1-prealpha.58"
     idna-uts46-hx "3.4.0"
 
 "@wry/equality@^0.1.2":

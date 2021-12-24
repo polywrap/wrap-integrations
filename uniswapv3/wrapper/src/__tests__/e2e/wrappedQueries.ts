@@ -22,7 +22,6 @@ export async function constant<T>(client: Web3ApiClient, ensUri: string, method:
     module: "query",
     method: method,
     input: {},
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -44,7 +43,6 @@ export async function createPool(client: Web3ApiClient, ensUri: string, tokenA: 
       tickCurrent,
       ticks: { ticks },
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -61,7 +59,6 @@ export async function encodeSqrtRatioX96(client: Web3ApiClient, ensUri: string, 
       amount1: amount1.toString(),
       amount0: amount0.toString(),
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -79,7 +76,6 @@ export async function createRoute(client: Web3ApiClient, ensUri: string, pools: 
       inToken,
       outToken,
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -96,7 +92,6 @@ export async function encodeRouteToPath(client: Web3ApiClient, ensUri: string, r
       route,
       exactOutput,
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -114,7 +109,6 @@ export async function encodeUnwrapWETH9(client: Web3ApiClient, ensUri: string, a
       recipient,
       feeOptions: feeOptions ?? null,
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -133,7 +127,6 @@ export async function encodeSweepToken(client: Web3ApiClient, ensUri: string, to
       recipient,
       feeOptions: feeOptions ?? null,
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -147,7 +140,6 @@ export async function encodeRefundETH(client: Web3ApiClient, ensUri: string): Pr
     module: "query",
     method: "encodeRefundETH",
     input: {},
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -163,7 +155,6 @@ export async function encodeMulticall(client: Web3ApiClient, ensUri: string, cal
     input: {
       calldatas,
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -179,7 +170,6 @@ export async function getTickAtSqrtRatio(client: Web3ApiClient, ensUri: string, 
     input: {
       sqrtRatioX96: sqrtRatioX96.toString(),
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -196,7 +186,6 @@ export async function nearestUsableTick(client: Web3ApiClient, ensUri: string, t
       tick,
       tickSpacing,
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -212,7 +201,6 @@ export async function feeAmountToTickSpacing(client: Web3ApiClient, ensUri: stri
     input: {
       feeAmount: typeof feeAmount === "string" ? feeAmount : FeeAmountEnum[feeAmount],
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -229,7 +217,6 @@ export async function createTradeFromRoute(client: Web3ApiClient, ensUri: string
       tradeRoute,
       tradeType,
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -246,7 +233,6 @@ export async function createTradeFromRoutes(client: Web3ApiClient, ensUri: strin
       tradeRoutes,
       tradeType,
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -263,7 +249,6 @@ export async function swapCallParameters(client: Web3ApiClient, ensUri: string, 
       trades,
       options,
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -282,7 +267,6 @@ export async function quoteCallParameters(client: Web3ApiClient, ensUri: string,
       tradeType: typeof tradeType === "string" ? tradeType : TradeTypeEnum[tradeType],
       options: options ?? null,
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -299,7 +283,6 @@ export async function collectRewards(client: Web3ApiClient, ensUri: string, ince
       incentiveKeys,
       options,
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -316,7 +299,6 @@ export async function withdrawToken(client: Web3ApiClient, ensUri: string, incen
       incentiveKeys,
       options,
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -332,7 +314,6 @@ export async function encodeDeposit(client: Web3ApiClient, ensUri: string, incen
     input: {
       incentiveKeys,
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -348,7 +329,6 @@ export async function safeTransferFromParameters(client: Web3ApiClient, ensUri: 
     input: {
       options,
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -364,7 +344,6 @@ export async function createCallParameters(client: Web3ApiClient, ensUri: string
     input: {
       pool
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -381,7 +360,6 @@ export async function addCallParameters(client: Web3ApiClient, ensUri: string, p
       position,
       options,
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -397,7 +375,6 @@ export async function collectCallParameters(client: Web3ApiClient, ensUri: strin
     input: {
       options
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -414,7 +391,6 @@ export async function removeCallParameters(client: Web3ApiClient, ensUri: string
       position,
       options,
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;
@@ -433,7 +409,6 @@ export async function createPosition(client: Web3ApiClient, ensUri: string, pool
       tickUpper,
       liquidity: liquidity.toString(),
     },
-    decode: true,
   });
   if (query.error) {
     throw query.error;

@@ -1,35 +1,15 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   ChainId,
   Ethereum_Query,
-  Ethereum_StaticTxResult,
   FeeAmount,
   getChainIdKey,
+  Subgraph_Query,
   Tick,
 } from "../query/w3";
 import { getFeeAmountEnum } from "./enumUtils";
-import { MAX_TICK, MIN_TICK } from "./constants";
 
-import { BigInt } from "@web3api/wasm-as";
-
-export function poolAbi(methodName: string): string {
-  if (methodName == "token0") {
-    return "function token0() external view returns (address)";
-  } else if (methodName == "token1") {
-    return "function token1() external view returns (address)";
-  } else if (methodName == "fee") {
-    return "function fee() external view returns (uint24)";
-  } else if (methodName == "tickSpacing") {
-    return "function tickSpacing() external view returns (int24)";
-  } else if (methodName == "liquidity") {
-    return "function liquidity() external view returns (uint128)";
-  } else if (methodName == "slot0") {
-    return "function slot0() external view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)";
-  } else if (methodName == "ticks") {
-    return "function ticks(int24 tick) external view returns (uint128 liquidityGross, int128 liquidityNet, uint256 feeGrowthOutside0X128, uint256 feeGrowthOutside1X128, int56 tickCumulativeOutside, uint160 secondsPerLiquidityOutsideX128, uint32 secondsOutside, bool initialized)";
-  } else {
-    throw new Error("Invalid method name: " + methodName);
-  }
-}
+import { BigInt, JSON } from "@web3api/wasm-as";
 
 export class PoolImmutables {
   token0: string;
@@ -41,6 +21,43 @@ export class PoolState {
   liquidity: BigInt;
   sqrtPriceX96: BigInt;
   tick: i32;
+}
+
+class SubgraphEndpoint {
+  author: string;
+  name: string;
+}
+
+export function poolAbi(methodName: string): string {
+  if (methodName == "token0") {
+    return "function token0() external view returns (address)";
+  } else if (methodName == "token1") {
+    return "function token1() external view returns (address)";
+  } else if (methodName == "fee") {
+    return "function fee() external view returns (uint24)";
+  } else if (methodName == "liquidity") {
+    return "function liquidity() external view returns (uint128)";
+  } else if (methodName == "slot0") {
+    return "function slot0() external view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)";
+  } else if (methodName == "ticks") {
+    return "function ticks(int24 tick) external view returns (uint128 liquidityGross, int128 liquidityNet, uint256 feeGrowthOutside0X128, uint256 feeGrowthOutside1X128, int56 tickCumulativeOutside, uint160 secondsPerLiquidityOutsideX128, uint32 secondsOutside, bool initialized)";
+  } else {
+    throw new Error("Invalid method name: " + methodName);
+  }
+}
+
+function getSubgraphEndpoint(chainId: ChainId): SubgraphEndpoint {
+  switch (chainId) {
+    case ChainId.MAINNET:
+    case ChainId.RINKEBY:
+      return { author: "uniswap", name: "uniswap-v3" };
+    case ChainId.OPTIMISM:
+      return { author: "ianlapham", name: "uniswap-optimism-dev" };
+    case ChainId.ARBITRUM_ONE:
+      return { author: "ianlapham", name: "arbitrum-minimal" };
+    default:
+      throw new Error("Unknown or Unsupported chain ID");
+  }
 }
 
 export function ethCallView(
@@ -84,55 +101,37 @@ export function fetchPoolState(address: string, chainId: ChainId): PoolState {
   };
 }
 
-export function fetchPoolTicks(
+export function fetchPoolTicksSubgraph(
   address: string,
-  chainId: ChainId,
-  tickSpacing: i32
+  chainId: ChainId
 ): Tick[] {
-  const ticks: Tick[] = [];
-  for (let i = 0; i >= MIN_TICK; i -= tickSpacing) {
-    const tick: Tick | null = fetchTick(address, chainId, i);
-    if (tick !== null) {
-      ticks.push(tick);
-    }
-  }
-  ticks.reverse();
-  for (let i = tickSpacing; i <= MAX_TICK; i += tickSpacing) {
-    const tick: Tick | null = fetchTick(address, chainId, i);
-    if (tick !== null) {
-      ticks.push(tick);
-    }
-  }
-  return ticks;
-}
-
-function fetchTick(address: string, chainId: ChainId, index: i32): Tick | null {
-  const staticTx: Ethereum_StaticTxResult = Ethereum_Query.callContractStatic({
-    address: address,
-    method: poolAbi("ticks"),
-    args: [index.toString()],
-    connection: {
-      node: null,
-      networkNameOrChainId: getChainIdKey(chainId),
-    },
-    txOverrides: null,
+  const endpoint: SubgraphEndpoint = getSubgraphEndpoint(chainId);
+  const query: JSON.Value = Subgraph_Query.subgraphQuery({
+    subgraphAuthor: endpoint.author,
+    subgraphName: endpoint.name,
+    query: `
+      query {
+        ticks(first: 1000, skip: 0, where: { poolAddress: "${address}" }, orderBy: tickIdx) {
+          tickIdx
+          liquidityGross
+          liquidityNet
+        }
+      }`,
   });
-  if (staticTx.error) {
-    return null;
-  }
-  const tickStr: string = Ethereum_Query.callContractView({
-    address: address,
-    method: poolAbi("ticks"),
-    args: [index.toString()],
-    connection: {
-      node: null,
-      networkNameOrChainId: getChainIdKey(chainId),
-    },
-  });
-  const tickInfo: string[] = tickStr.split(",");
-  return {
-    index: index,
-    liquidityGross: BigInt.fromString(tickInfo[0]),
-    liquidityNet: BigInt.fromString(tickInfo[1]),
-  };
+  return (<JSON.Obj>query)
+    .getArr("ticks")!
+    .valueOf()
+    .map<Tick>(
+      (v: JSON.Value, _i: i32, _arr: JSON.Value[]): Tick => {
+        const jsonObj: JSON.Obj = <JSON.Obj>v;
+        const index: string = jsonObj.getString("tickIdx")!.valueOf();
+        const liqGross: string = jsonObj.getString("liquidityGross")!.valueOf();
+        const liqNet: string = jsonObj.getString("liquidityNet")!.valueOf();
+        return {
+          index: I32.parseInt(index),
+          liquidityGross: BigInt.fromString(liqGross),
+          liquidityNet: BigInt.fromString(liqNet),
+        };
+      }
+    );
 }

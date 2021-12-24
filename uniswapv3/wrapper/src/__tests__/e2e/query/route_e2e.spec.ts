@@ -35,18 +35,18 @@ describe("Route (mainnet fork)", () => {
     ensUri = `ens/testnet/${api.ensDomain}`;
     // set up test case data
     pools = [
-      await getPoolFromAddress(DAI_WETH_address, false, client, ensUri),
-      await getPoolFromAddress(DAI_USDC_address, false, client, ensUri),
-      await getPoolFromAddress(USDC_USDT_address, false, client, ensUri),
+      await getPoolFromAddress(client, ensUri, DAI_WETH_address, false),
+      await getPoolFromAddress(client, ensUri, DAI_USDC_address, false),
+      await getPoolFromAddress(client, ensUri, USDC_USDT_address, false),
     ].filter(isDefined);
     tokens = getTokens(pools);
     // set up ethers provider
     ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546");
     // get uni pools
     uniPools = [
-      await getUniswapPool(DAI_WETH_address, ethersProvider, false),
-      await getUniswapPool(DAI_USDC_address, ethersProvider, false),
-      await getUniswapPool(USDC_USDT_address, ethersProvider, false),
+      await getUniswapPool(ethersProvider, DAI_WETH_address, false),
+      await getUniswapPool(ethersProvider, DAI_USDC_address, false),
+      await getUniswapPool(ethersProvider, USDC_USDT_address, false),
     ].filter(isDefined);
   });
 

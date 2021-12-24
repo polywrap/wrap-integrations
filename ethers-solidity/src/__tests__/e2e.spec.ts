@@ -35,7 +35,6 @@ describe("e2e", () => {
         types,
         values,
       },
-      decode: true,
     });
 
     expect(result.error).toBeFalsy();

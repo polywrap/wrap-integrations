@@ -1,5 +1,5 @@
 import { Token, Pool, FeeAmountEnum, FeeAmount, ChainIdEnum, ChainId } from "./types";
-import { ClientConfig, coreInterfaceUris, Web3ApiClient } from "@web3api/client-js";
+import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
 import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
 import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
 import { ensPlugin } from "@web3api/ens-plugin-js";
@@ -12,7 +12,7 @@ import * as uniCore from "@uniswap/sdk-core";
 import { ethersSolidity } from "ethers-solidity-plugin-js";
 
 export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): ClientConfig {
- return {
+  return {
    redirects: [],
    plugins: [
      {
@@ -36,25 +36,13 @@ export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): 
         },
         defaultNetwork: "testnet"
       }),
-    },
+     },
      {
       uri: "w3://ens/ethers-solidity.polywrap.eth",
-      plugin: ethersSolidity({}),
+       // @ts-ignore
+      plugin: ethersSolidity({}), // TODO: why am i getting an "incompatible types" error here?
      },
     ],
-    interfaces: [
-    {
-      interface: coreInterfaceUris.uriResolver.uri,
-      implementations: [
-        "w3://ens/ipfs.web3api.eth",
-        "w3://ens/ens.web3api.eth",
-      ],
-    },
-    {
-      interface: coreInterfaceUris.logger.uri,
-      implementations: ["w3://ens/js-logger.web3api.eth"],
-    },
-  ],
   };
 }
 
@@ -85,21 +73,20 @@ export function getTokens(pools: Pool[]): Token[] {
 }
 
 export async function getPools(client: Web3ApiClient, ensUri: string, fetchTicks?: boolean, sliceStart?: number, sliceEnd?: number): Promise<Pool[]> {
-  const pools: Promise<Pool>[] = poolList.slice(sliceStart, sliceEnd).map(
-    (address: string): Promise<Pool> => getPoolFromAddress(address, fetchTicks ?? false, client, ensUri));
+  const pools: Promise<Pool>[] = poolList
+    .slice(sliceStart, sliceEnd)
+    .map((address: string) => getPoolFromAddress(client, ensUri, address, fetchTicks));
   return Promise.all(pools);
 }
 
 export async function getUniPools(provider: ethers.providers.BaseProvider, fetchTicks?: boolean, sliceStart?: number, sliceEnd?: number): Promise<UniPool[]> {
-  const pools: (UniPool | undefined)[] = await Promise.all(
-    poolList
-      .slice(sliceStart, sliceEnd)
-      .map((address: string)  => getUniswapPool(address, provider, fetchTicks))
-  );
-  return pools.filter(isDefined);
+  const pools: Promise<UniPool>[] = poolList
+    .slice(sliceStart, sliceEnd)
+      .map((address: string)  => getUniswapPool(provider, address, fetchTicks))
+  return Promise.all(pools);
 }
 
-export async function getPoolFromAddress(address: string, fetchTicks: boolean, client: Web3ApiClient, ensUri: string): Promise<Pool> {
+export async function getPoolFromAddress(client: Web3ApiClient, ensUri: string, address: string, fetchTicks?: boolean): Promise<Pool> {
   const poolData = await client.query<{
     fetchPoolFromAddress: Pool;
   }>({
@@ -116,13 +103,12 @@ export async function getPoolFromAddress(address: string, fetchTicks: boolean, c
     variables: {
       chainId: ChainIdEnum.MAINNET,
       address: address,
-      fetchTicks: fetchTicks,
+      fetchTicks: fetchTicks ?? false,
     },
   });
   if (poolData.errors) {
     throw poolData.errors;
   }
-  //console.log(address + ": " + (poolData.data!.fetchPoolFromAddress.token0.currency.symbol ?? "NA") + " " + (poolData.data!.fetchPoolFromAddress.token1.currency.symbol ?? "NA"));
   return poolData.data!.fetchPoolFromAddress;
 }
 
