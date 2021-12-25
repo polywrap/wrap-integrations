@@ -126,8 +126,8 @@ export interface NextTickResult {
 }
 
 export interface PoolChangeResult {
-  tokenAmount: TokenAmount;
-  pool: Pool;
+  amount: TokenAmount;
+  nextPool: Pool;
 }
 
 export interface TradeRoute {

@@ -9,12 +9,13 @@ import * as ethers from "ethers";
 import poolList from "../testData/poolList.json";
 import { getUniswapPool } from "../uniswapCreatePool";
 
-jest.setTimeout(300000);
+jest.setTimeout(240000);
 
 describe("Pool (mainnet fork)", () => {
 
   let client: Web3ApiClient;
   let ensUri: string;
+  const addresses: string[] = poolList;
   let pools: Pool[];
   let pool0: Pool;
   let uniPool0: uni.Pool;
@@ -29,13 +30,14 @@ describe("Pool (mainnet fork)", () => {
     const apiPath: string = path.resolve(__dirname + "/../../../../");
     const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
     ensUri = `ens/testnet/${api.ensDomain}`;
-    // set up test case data
-    pools = await getPools(client, ensUri);
-    pool0 = await getPoolFromAddress(client, ensUri, poolList[0], true);
-    uniPool0 = await getUniswapPool( ethersProvider, poolList[0], true);
-    console.log(JSON.stringify(pool0.tickDataProvider));
     // set up ethers provider
     ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546");
+    // set up test case data
+    pools = await getPools(client, ensUri);
+    pool0 = await getPoolFromAddress(client, ensUri, addresses[0], true);
+    // const ticks: Tick[] = pool0.tickDataProvider!.ticks;
+    // const uniTicks: uni.Tick[] = ticks.map(tick => new uni.Tick({ ...tick }));
+    uniPool0 = await getUniswapPool(ethersProvider, addresses[0], true);
   });
 
   afterAll(async () => {
@@ -43,7 +45,6 @@ describe("Pool (mainnet fork)", () => {
   });
 
   it("Gets pool address", async () => {
-    const addresses: string[] = poolList;
     for (let i = 0; i < pools.length; i++) {
       const query = await client.query<{
         getPoolAddress: string;
@@ -99,17 +100,17 @@ describe("Pool (mainnet fork)", () => {
     expect(query.errors).toBeFalsy();
     expect(query.data).toBeTruthy();
 
-    const { tokenAmount, pool }: PoolChangeResult = query.data!.getPoolOutputAmount;
+    const { amount, nextPool }: PoolChangeResult = query.data!.getPoolOutputAmount;
     const uniInputAmount = uniCore.CurrencyAmount.fromRawAmount<uniCore.Token>(uniPool0.token0, inputAmount.amount);
     const [uniCurrencyAmount, uniPool] = await uniPool0.getOutputAmount(uniInputAmount);
 
     // output amount
-    expect(tokenAmount.token.address).toEqual(uniCurrencyAmount.currency.address);
-    expect(tokenAmount.amount).toEqual(uniCurrencyAmount.numerator.toString());
+    expect(amount.token.address).toEqual(uniCurrencyAmount.currency.address);
+    expect(amount.amount).toEqual(uniCurrencyAmount.numerator.toString());
     // pool state
-    expect(pool.sqrtRatioX96).toEqual(uniPool.sqrtRatioX96.toString());
-    expect(pool.liquidity).toEqual(uniPool.liquidity.toString());
-    expect(pool.tickCurrent).toEqual(uniPool.tickCurrent);
+    expect(nextPool.sqrtRatioX96).toEqual(uniPool.sqrtRatioX96.toString());
+    expect(nextPool.liquidity).toEqual(uniPool.liquidity.toString());
+    expect(nextPool.tickCurrent).toEqual(uniPool.tickCurrent);
   });
 
   it("getPoolInputAmount", async () => {
@@ -141,16 +142,16 @@ describe("Pool (mainnet fork)", () => {
     expect(query.errors).toBeFalsy();
     expect(query.data).toBeTruthy();
 
-    const { tokenAmount, pool }: PoolChangeResult = query.data!.getPoolInputAmount;
+    const { amount, nextPool }: PoolChangeResult = query.data!.getPoolInputAmount;
     const unitOutputAmount = uniCore.CurrencyAmount.fromRawAmount<uniCore.Token>(uniPool0.token0, outputAmount.amount);
     const [uniCurrencyAmount, uniPool] = await uniPool0.getInputAmount(unitOutputAmount);
 
     // input amount
-    expect(tokenAmount.token.address).toEqual(uniCurrencyAmount.currency.address);
-    expect(tokenAmount.amount).toEqual(uniCurrencyAmount.numerator.toString());
+    expect(amount.token.address).toEqual(uniCurrencyAmount.currency.address);
+    expect(amount.amount).toEqual(uniCurrencyAmount.numerator.toString());
     // pool state
-    expect(pool.sqrtRatioX96).toEqual(uniPool.sqrtRatioX96.toString());
-    expect(pool.liquidity).toEqual(uniPool.liquidity.toString());
-    expect(pool.tickCurrent).toEqual(uniPool.tickCurrent);
+    expect(nextPool.sqrtRatioX96).toEqual(uniPool.sqrtRatioX96.toString());
+    expect(nextPool.liquidity).toEqual(uniPool.liquidity.toString());
+    expect(nextPool.tickCurrent).toEqual(uniPool.tickCurrent);
   });
 });

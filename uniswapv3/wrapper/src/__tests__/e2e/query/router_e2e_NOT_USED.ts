@@ -8,7 +8,7 @@ import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
 import { ChainId } from "../../../../../../uniswapv2/wrapper/src/__tests__/e2e/types";
 
-jest.setTimeout(300000);
+jest.setTimeout(180000);
 
 describe("SwapRouter (mainnet fork)", () => {
 

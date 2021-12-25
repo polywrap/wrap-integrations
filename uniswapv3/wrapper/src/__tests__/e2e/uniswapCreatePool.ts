@@ -80,7 +80,7 @@ async function getToken(tokenContract: ethers.Contract): Promise<Token> {
   return new Token(1, tokenContract.address, decimals, symbol, name);
 }
 
-export async function getUniswapPool(provider: ethers.providers.Provider, poolAddress: string, fetchTicks?: boolean): Promise<Pool> {
+export async function getUniswapPool(provider: ethers.providers.Provider, poolAddress: string, fetchTicks?: boolean, useTicks?: Tick[]): Promise<Pool> {
 
   const poolContract: ethers.Contract = new ethers.Contract(
     poolAddress,
@@ -93,12 +93,16 @@ export async function getUniswapPool(provider: ethers.providers.Provider, poolAd
   const tokenContractA: ethers.Contract = new ethers.Contract(immutables.token0, ERC20ABI, provider);
   const tokenContractB: ethers.Contract = new ethers.Contract(immutables.token1, ERC20ABI, provider);
 
-  const [state, tokenA, tokenB, ticks] = await Promise.all([
+  const [state, tokenA, tokenB] = await Promise.all([
     getPoolState(poolContract),
     getToken(tokenContractA),
     getToken(tokenContractB),
-    fetchTicks ? getPoolTicks(poolAddress) : undefined,
   ]);
+
+  let ticks: Tick[] | undefined = undefined;
+  if (fetchTicks && !useTicks) {
+    ticks = await getPoolTicks(poolAddress);
+  }
 
   return new Pool(
     tokenA,
@@ -107,6 +111,6 @@ export async function getUniswapPool(provider: ethers.providers.Provider, poolAd
     state.sqrtPriceX96.toString(),
     state.liquidity.toString(),
     state.tick,
-    ticks
+    ticks ?? useTicks
   );
 }
