@@ -35,8 +35,6 @@ describe("Pool (mainnet fork)", () => {
     // set up test case data
     pools = await getPools(client, ensUri);
     pool0 = await getPoolFromAddress(client, ensUri, addresses[0], true);
-    // const ticks: Tick[] = pool0.tickDataProvider!.ticks;
-    // const uniTicks: uni.Tick[] = ticks.map(tick => new uni.Tick({ ...tick }));
     uniPool0 = await getUniswapPool(ethersProvider, addresses[0], true);
   });
 
