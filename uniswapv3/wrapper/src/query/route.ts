@@ -14,7 +14,7 @@ import {
   poolToken0Price,
   poolToken1Price,
 } from "./pool";
-import { wrapToken } from "../utils/tokenUtils";
+import { _wrapToken } from "../utils/tokenUtils";
 import { tokenEquals } from "./token";
 import Price from "../utils/Price";
 
@@ -50,14 +50,14 @@ export function createRoute(input: Input_createRoute): Route {
     throw new Error("CHAIN_IDS: all pools must be on the same chain");
   }
 
-  const wrappedInput: Token = wrapToken(inToken);
+  const wrappedInput: Token = _wrapToken(inToken);
   if (!poolInvolvesToken({ pool: pools[0], token: wrappedInput })) {
     throw new Error(
       "INPUT: the first pool in pools must involve the input token"
     );
   }
 
-  const wrappedOutput: Token = wrapToken(outToken);
+  const wrappedOutput: Token = _wrapToken(outToken);
   if (
     !poolInvolvesToken({ pool: pools[pools.length - 1], token: wrappedOutput })
   ) {
@@ -67,10 +67,10 @@ export function createRoute(input: Input_createRoute): Route {
   }
 
   // Normalizes token0-token1 order and selects the next token/fee step to add to the path
-  const tokenPath: Token[] = [wrappedInput];
+  const path: Token[] = [wrappedInput];
   for (let i = 0; i < pools.length; i++) {
     const pool: Pool = pools[i];
-    const currentInputToken: Token = tokenPath[i];
+    const currentInputToken: Token = path[i];
     if (!poolInvolvesToken({ pool: pool, token: currentInputToken })) {
       throw new Error(
         "PATH: pools does not constitute a valid path, wherein each pool has a token in common with its adjacent pool"
@@ -82,12 +82,12 @@ export function createRoute(input: Input_createRoute): Route {
     })
       ? pool.token1
       : pool.token0;
-    tokenPath.push(nextToken);
+    path.push(nextToken);
   }
 
   return {
     pools: pools,
-    path: tokenPath,
+    path: path,
     input: inToken,
     output: outToken,
   };
@@ -125,7 +125,7 @@ export function routeMidPrice(input: Input_routeMidPrice): PriceType {
     },
     tokenEquals({
       tokenA: route.pools[0].token0,
-      tokenB: wrapToken(route.input),
+      tokenB: _wrapToken(route.input),
     })
       ? {
           nextInput: route.pools[0].token1,

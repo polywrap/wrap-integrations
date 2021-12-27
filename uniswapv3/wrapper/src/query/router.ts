@@ -10,12 +10,12 @@ import {
   Trade,
   TradeType,
 } from "./w3";
-import { isEther, wrapToken } from "../utils/tokenUtils";
+import { _isEther, _wrapToken } from "../utils/tokenUtils";
 import { tokenEquals } from "./token";
 import { tradeMaximumAmountIn, tradeMinimumAmountOut } from "./trade";
 import { getChecksumAddress } from "../utils/addressUtils";
-import { getFeeAmount } from "../utils/utils";
-import { ADDRESS_ZERO } from "../utils/constants";
+import { _getFeeAmount } from "../utils/enumUtils";
+import { ADDRESS_ZERO, ZERO_HEX } from "../utils/constants";
 import {
   encodePermit,
   encodeRouteToPath,
@@ -27,8 +27,6 @@ import {
 } from "./routerUtils";
 
 import { BigInt } from "@web3api/wasm-as";
-
-const ZERO_HEX: string = "0x0";
 
 class ExactInputSingleParams {
   tokenIn: string;
@@ -82,9 +80,9 @@ export function swapCallParameters(
   const sampleTrade: Trade = trades[0];
 
   // All trades should have the same starting token.
-  const tokenIn: Token = wrapToken(sampleTrade.inputAmount.token);
-  for (let i = 0; i < trades.length; i++) {
-    const tokenA: Token = wrapToken(trades[0].inputAmount.token);
+  const tokenIn: Token = _wrapToken(sampleTrade.inputAmount.token);
+  for (let i = 1; i < trades.length; i++) {
+    const tokenA: Token = _wrapToken(trades[i].inputAmount.token);
     if (!tokenEquals({ tokenA, tokenB: tokenIn })) {
       throw new Error(
         "TOKEN_IN_DIFF: the input token of the trades must match"
@@ -92,9 +90,9 @@ export function swapCallParameters(
     }
   }
   // All trades should have the same ending token.
-  const tokenOut: Token = wrapToken(sampleTrade.outputAmount.token);
-  for (let i = 0; i < trades.length; i++) {
-    const tokenA: Token = wrapToken(trades[0].outputAmount.token);
+  const tokenOut: Token = _wrapToken(sampleTrade.outputAmount.token);
+  for (let i = 1; i < trades.length; i++) {
+    const tokenA: Token = _wrapToken(trades[i].outputAmount.token);
     if (!tokenEquals({ tokenA, tokenB: tokenOut })) {
       throw new Error(
         "TOKEN_OUT_DIFF: the output token of the trades must match"
@@ -120,11 +118,11 @@ export function swapCallParameters(
 
   // flag for whether a refund needs to happen
   const mustRefund: boolean =
-    isEther(sampleTrade.inputAmount.token) &&
+    _isEther(sampleTrade.inputAmount.token) &&
     sampleTrade.tradeType == TradeType.EXACT_OUTPUT;
-  const inputIsNative: boolean = isEther(sampleTrade.inputAmount.token);
+  const inputIsNative: boolean = _isEther(sampleTrade.inputAmount.token);
   // flags for whether funds should be sent first to the router
-  const outputIsNative: boolean = isEther(sampleTrade.outputAmount.token);
+  const outputIsNative: boolean = _isEther(sampleTrade.outputAmount.token);
   const routerMustCustody: boolean = outputIsNative || options.fee !== null;
 
   let sumValue: BigInt = BigInt.ZERO;
@@ -145,7 +143,7 @@ export function swapCallParameters(
 
   // encode permit if necessary
   if (options.inputTokenPermit !== null) {
-    if (isEther(sampleTrade.inputAmount.token)) {
+    if (_isEther(sampleTrade.inputAmount.token)) {
       throw new Error(
         "NON_TOKEN_PERMIT: cannot encode permit of native currency (e.g. Ether)"
       );
@@ -191,7 +189,7 @@ export function swapCallParameters(
           const exactInputSingleParams: ExactInputSingleParams = {
             tokenIn: route.path[0].address,
             tokenOut: route.path[1].address,
-            fee: getFeeAmount(route.pools[0].fee),
+            fee: _getFeeAmount(route.pools[0].fee),
             recipient: routerMustCustody ? ADDRESS_ZERO : recipient,
             deadline,
             amountIn,
@@ -205,14 +203,14 @@ export function swapCallParameters(
           calldatas.push(
             Ethereum_Query.encodeFunction({
               method: routerAbi("exactInputSingle"),
-              args: [stringifyParams(exactInputSingleParams)],
+              args: [paramsToJsonString(exactInputSingleParams)],
             })
           );
         } else {
           const exactOutputSingleParams: ExactOutputSingleParams = {
             tokenIn: route.path[0].address,
             tokenOut: route.path[1].address,
-            fee: getFeeAmount(route.pools[0].fee),
+            fee: _getFeeAmount(route.pools[0].fee),
             recipient: routerMustCustody ? ADDRESS_ZERO : recipient,
             deadline,
             amountOut,
@@ -226,7 +224,7 @@ export function swapCallParameters(
           calldatas.push(
             Ethereum_Query.encodeFunction({
               method: routerAbi("exactOutputSingle"),
-              args: [stringifyParams(exactOutputSingleParams)],
+              args: [paramsToJsonString(exactOutputSingleParams)],
             })
           );
         }
@@ -254,7 +252,7 @@ export function swapCallParameters(
           calldatas.push(
             Ethereum_Query.encodeFunction({
               method: routerAbi("exactInput"),
-              args: [stringifyParams(exactInputParams)],
+              args: [paramsToJsonString(exactInputParams)],
             })
           );
         } else {
@@ -269,7 +267,7 @@ export function swapCallParameters(
           calldatas.push(
             Ethereum_Query.encodeFunction({
               method: routerAbi("exactOutput"),
-              args: [stringifyParams(exactOutputParams)],
+              args: [paramsToJsonString(exactOutputParams)],
             })
           );
         }
@@ -291,7 +289,7 @@ export function swapCallParameters(
       } else {
         calldatas.push(
           encodeSweepToken({
-            token: wrapToken(sampleTrade.outputAmount.token),
+            token: _wrapToken(sampleTrade.outputAmount.token),
             amountMinimum: totalAmountOut.amount,
             recipient: recipient,
             feeOptions: options.fee,
@@ -322,56 +320,56 @@ export function swapCallParameters(
 
 function routerAbi(methodName: string): string {
   if (methodName == "exactInputSingle") {
-    return "function exactInputSingle(address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 deadline, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96) external payable returns (uint256 amountOut)";
+    return "function exactInputSingle(tuple(address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 deadline, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96) calldata params) external payable returns (uint256 amountOut)";
   } else if (methodName == "exactOutputSingle") {
-    return "function exactOutputSingle(address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 deadline, uint256 amountOut, uint256 amountInMaximum, uint160 sqrtPriceLimitX96) external payable returns (uint256 amountIn)";
+    return "function exactOutputSingle(tuple(address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 deadline, uint256 amountOut, uint256 amountInMaximum, uint160 sqrtPriceLimitX96) calldata params) external payable returns (uint256 amountIn)";
   } else if (methodName == "exactInput") {
-    return "function exactInput(bytes path, address recipient, uint256 deadline, uint256 amountIn, uint256 amountOutMinimum) external payable returns (uint256 amountOut)";
+    return "function exactInput(tuple(bytes path, address recipient, uint256 deadline, uint256 amountIn, uint256 amountOutMinimum) calldata params) external payable returns (uint256 amountOut)";
   } else if (methodName == "exactOutput") {
-    return "function exactOutput(bytes path, address recipient, uint256 deadline, uint256 amountOut, uint256 amountInMaximum) external payable returns (uint256 amountIn)";
+    return "function exactOutput(tuple(bytes path, address recipient, uint256 deadline, uint256 amountOut, uint256 amountInMaximum) calldata params) external payable returns (uint256 amountIn)";
   } else {
     throw new Error("Invalid method name: " + methodName);
   }
 }
 
-function stringifyParams<T>(params: T): string {
+function paramsToJsonString<T>(params: T): string {
   if (params instanceof ExactInputSingleParams) {
     return `{
-      tokenIn: ${params.tokenIn},
-      tokenOut: ${params.tokenOut},
-      fee: ${params.fee},
-      recipient: ${params.recipient},
-      deadline: ${params.deadline},
-      amountIn: ${params.amountIn},
-      amountOutMinimum: ${params.amountOutMinimum},
-      sqrtPriceLimitX96: ${params.sqrtPriceLimitX96}
+      "tokenIn": "${params.tokenIn}",
+      "tokenOut": "${params.tokenOut}",
+      "fee": ${params.fee},
+      "recipient": "${params.recipient}",
+      "deadline": "${params.deadline}",
+      "amountIn": "${params.amountIn}",
+      "amountOutMinimum": "${params.amountOutMinimum}",
+      "sqrtPriceLimitX96": "${params.sqrtPriceLimitX96}"
     }`;
   } else if (params instanceof ExactOutputSingleParams) {
     return `{
-      tokenIn: ${params.tokenIn},
-      tokenOut: ${params.tokenOut},
-      fee: ${params.fee},
-      recipient: ${params.recipient},
-      deadline: ${params.deadline},
-      amountOut: ${params.amountOut},
-      amountInMaximum: ${params.amountInMaximum},
-      sqrtPriceLimitX96: ${params.sqrtPriceLimitX96}
+      "tokenIn": "${params.tokenIn}",
+      "tokenOut": "${params.tokenOut}",
+      "fee": ${params.fee},
+      "recipient": "${params.recipient}",
+      "deadline": "${params.deadline}",
+      "amountOut": "${params.amountOut}",
+      "amountInMaximum": "${params.amountInMaximum}",
+      "sqrtPriceLimitX96": "${params.sqrtPriceLimitX96}"
     }`;
   } else if (params instanceof ExactInputParams) {
     return `{
-      path: ${params.path},
-      recipient: ${params.recipient},
-      deadline: ${params.deadline},
-      amountIn: ${params.amountIn},
-      amountOutMinimum: ${params.amountOutMinimum},
+      "path": "${params.path}",
+      "recipient": "${params.recipient}",
+      "deadline": "${params.deadline}",
+      "amountIn": "${params.amountIn}",
+      "amountOutMinimum": "${params.amountOutMinimum}"
     }`;
   } else if (params instanceof ExactOutputParams) {
     return `{
-      path: ${params.path},
-      recipient: ${params.recipient},
-      deadline: ${params.deadline},
-      amountOut: ${params.amountOut},
-      amountInMaximum: ${params.amountInMaximum},
+      "path": "${params.path}",
+      "recipient": "${params.recipient}",
+      "deadline": "${params.deadline}",
+      "amountOut": "${params.amountOut}",
+      "amountInMaximum": "${params.amountInMaximum}"
     }`;
   } else {
     throw new Error("unknown router parameters type");

@@ -1,6 +1,21 @@
 import { FeeAmount, PermitV } from "../query/w3";
 
-export function getFeeAmount(feeAmount: FeeAmount): u32 {
+export function _feeAmountToTickSpacing(feeAmount: FeeAmount): i32 {
+  switch (feeAmount) {
+    case FeeAmount.LOWEST:
+      return 1;
+    case FeeAmount.LOW:
+      return 10;
+    case FeeAmount.MEDIUM:
+      return 60;
+    case FeeAmount.HIGH:
+      return 200;
+    default:
+      throw new Error("Unknown FeeAmount");
+  }
+}
+
+export function _getFeeAmount(feeAmount: FeeAmount): u32 {
   switch (feeAmount) {
     case FeeAmount.LOWEST:
       return 100;
@@ -30,22 +45,7 @@ export function getFeeAmountEnum(feeAmount: u32): FeeAmount {
   }
 }
 
-export function getTickSpacings(feeAmount: FeeAmount): i32 {
-  switch (feeAmount) {
-    case FeeAmount.LOWEST:
-      return 1;
-    case FeeAmount.LOW:
-      return 10;
-    case FeeAmount.MEDIUM:
-      return 60;
-    case FeeAmount.HIGH:
-      return 200;
-    default:
-      throw new Error("Unknown FeeAmount");
-  }
-}
-
-export function getPermitV(permitV: PermitV): i32 {
+export function _getPermitV(permitV: PermitV): i32 {
   switch (permitV) {
     case PermitV.v_0:
       return 0;

@@ -1,4 +1,4 @@
-import { ETHER, getWETH } from "../../../utils/tokenUtils";
+import { ETHER, _getWETH } from "../../../utils/tokenUtils";
 import { ChainId, FeeAmount, Pool, Price, Route, Token } from "../../../query/w3";
 import { createPool, encodeSqrtRatioX96, getTickAtSqrtRatio } from "../../../query";
 import { BigInt } from "@web3api/wasm-as";
@@ -35,7 +35,7 @@ const eth: Token = {
   address: "",
   currency: ETHER,
 };
-const weth: Token = getWETH(ChainId.MAINNET);
+const weth: Token = _getWETH(ChainId.MAINNET);
 const token0: Token = getTestToken(0);
 const token1: Token = getTestToken(1);
 const token2: Token = getTestToken(2);

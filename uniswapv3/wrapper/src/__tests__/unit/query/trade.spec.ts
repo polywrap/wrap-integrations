@@ -9,7 +9,7 @@ import {
   TradeSwap,
   TradeType
 } from "../../../query/w3";
-import { ETHER, getWETH } from "../../../utils/tokenUtils";
+import { ETHER, _getWETH } from "../../../utils/tokenUtils";
 import {
   bestTradeExactIn,
   bestTradeExactOut,
@@ -27,7 +27,7 @@ import {
   tradeWorstExecutionPrice
 } from "../../../query";
 import { BigInt, Nullable } from "@web3api/wasm-as";
-import { getTickSpacings } from "../../../utils/utils";
+import { _feeAmountToTickSpacing } from "../../../utils/enumUtils";
 import { MAX_TICK, MIN_TICK } from "../../../utils/constants";
 import Price from "../../../utils/Price";
 import { BigFloat } from "as-bigfloat";
@@ -61,12 +61,12 @@ const v2StylePool = (
     tickCurrent: getTickAtSqrtRatio({ sqrtRatioX96 }),
     ticks: { ticks: [
       {
-        index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: getTickSpacings(feeAmount) }),
+        index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: _feeAmountToTickSpacing(feeAmount) }),
         liquidityNet: liquidity,
         liquidityGross: liquidity
       },
       {
-        index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: getTickSpacings(feeAmount) }),
+        index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: _feeAmountToTickSpacing(feeAmount) }),
         liquidityNet: liquidity.opposite(),
         liquidityGross: liquidity
       }
@@ -105,15 +105,15 @@ const pool_1_3: Pool = v2StylePool(
   { token: token3, amount: BigInt.fromUInt32(130000) }
 );
 const pool_weth_0: Pool = v2StylePool(
-  { token: getWETH(ChainId.MAINNET), amount: BigInt.fromUInt32(100000) },
+  { token: _getWETH(ChainId.MAINNET), amount: BigInt.fromUInt32(100000) },
   { token: token0, amount: BigInt.fromUInt32(100000) }
 );
 const pool_weth_1: Pool = v2StylePool(
-  { token: getWETH(ChainId.MAINNET), amount: BigInt.fromUInt32(100000) },
+  { token: _getWETH(ChainId.MAINNET), amount: BigInt.fromUInt32(100000) },
   { token: token1, amount: BigInt.fromUInt32(100000) }
 );
 const pool_weth_2: Pool = v2StylePool(
-  { token: getWETH(ChainId.MAINNET), amount: BigInt.fromUInt32(100000) },
+  { token: _getWETH(ChainId.MAINNET), amount: BigInt.fromUInt32(100000) },
   { token: token2, amount: BigInt.fromUInt32(100000) }
 );
 
@@ -946,10 +946,10 @@ describe('Trade', () => {
       });
       expect(result).toHaveLength(2);
       expect(result[0].inputAmount.token.currency).toStrictEqual(ETHER);
-      expect(result[0].swaps[0].route.path).toStrictEqual([getWETH(ChainId.MAINNET), token0, token1, token3]);
+      expect(result[0].swaps[0].route.path).toStrictEqual([_getWETH(ChainId.MAINNET), token0, token1, token3]);
       expect(result[0].outputAmount.token).toStrictEqual(token3);
       expect(result[1].inputAmount.token.currency).toStrictEqual(ETHER);
-      expect(result[1].swaps[0].route.path).toStrictEqual([getWETH(ChainId.MAINNET), token0, token3]);
+      expect(result[1].swaps[0].route.path).toStrictEqual([_getWETH(ChainId.MAINNET), token0, token3]);
       expect(result[1].outputAmount.token).toStrictEqual(token3);
     });
 
@@ -965,10 +965,10 @@ describe('Trade', () => {
       });
       expect(result).toHaveLength(2);
       expect(result[0].inputAmount.token).toStrictEqual(token3);
-      expect(result[0].swaps[0].route.path).toStrictEqual([token3, token0, getWETH(ChainId.MAINNET)]);
+      expect(result[0].swaps[0].route.path).toStrictEqual([token3, token0, _getWETH(ChainId.MAINNET)]);
       expect(result[0].outputAmount.token.currency).toStrictEqual(ETHER);
       expect(result[1].inputAmount.token).toStrictEqual(token3);
-      expect(result[1].swaps[0].route.path).toStrictEqual([token3, token1, token0, getWETH(ChainId.MAINNET)]);
+      expect(result[1].swaps[0].route.path).toStrictEqual([token3, token1, token0, _getWETH(ChainId.MAINNET)]);
       expect(result[1].outputAmount.token.currency).toStrictEqual(ETHER);
     });
   });
@@ -1304,10 +1304,10 @@ describe('Trade', () => {
       });
       expect(result).toHaveLength(2);
       expect(result[0].inputAmount.token.currency).toStrictEqual(ETHER);
-      expect(result[0].swaps[0].route.path).toStrictEqual([getWETH(ChainId.MAINNET), token0, token1, token3]);
+      expect(result[0].swaps[0].route.path).toStrictEqual([_getWETH(ChainId.MAINNET), token0, token1, token3]);
       expect(result[0].outputAmount.token).toStrictEqual(token3);
       expect(result[1].inputAmount.token.currency).toStrictEqual(ETHER);
-      expect(result[1].swaps[0].route.path).toStrictEqual([getWETH(ChainId.MAINNET), token0, token3]);
+      expect(result[1].swaps[0].route.path).toStrictEqual([_getWETH(ChainId.MAINNET), token0, token3]);
       expect(result[1].outputAmount.token).toStrictEqual(token3);
     });
 
@@ -1323,10 +1323,10 @@ describe('Trade', () => {
       });
       expect(result).toHaveLength(2);
       expect(result[0].inputAmount.token).toStrictEqual(token3);
-      expect(result[0].swaps[0].route.path).toStrictEqual([token3, token0, getWETH(ChainId.MAINNET)]);
+      expect(result[0].swaps[0].route.path).toStrictEqual([token3, token0, _getWETH(ChainId.MAINNET)]);
       expect(result[0].outputAmount.token.currency).toStrictEqual(ETHER);
       expect(result[1].inputAmount.token).toStrictEqual(token3);
-      expect(result[1].swaps[0].route.path).toStrictEqual([token3, token1, token0, getWETH(ChainId.MAINNET)]);
+      expect(result[1].swaps[0].route.path).toStrictEqual([token3, token1, token0, _getWETH(ChainId.MAINNET)]);
       expect(result[1].outputAmount.token.currency).toStrictEqual(ETHER);
     });
   });

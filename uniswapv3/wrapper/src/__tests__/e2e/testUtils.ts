@@ -1,5 +1,5 @@
 import { Token, Pool, FeeAmountEnum, FeeAmount, ChainIdEnum, ChainId } from "./types";
-import { ClientConfig, coreInterfaceUris, Web3ApiClient } from "@web3api/client-js";
+import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
 import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
 import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
 import { ensPlugin } from "@web3api/ens-plugin-js";
@@ -7,11 +7,12 @@ import tokenList from "./testData/tokenList.json";
 import poolList from "./testData/poolList.json";
 import { getUniswapPool } from "./uniswapCreatePool";
 import { ethers } from "ethers";
-import { Pool as UniPool } from "@uniswap/v3-sdk";
+import * as uni from "@uniswap/v3-sdk";
 import * as uniCore from "@uniswap/sdk-core";
+import { ethersSolidity } from "ethers-solidity-plugin-js";
 
 export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): ClientConfig {
- return {
+  return {
    redirects: [],
    plugins: [
      {
@@ -35,21 +36,13 @@ export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): 
         },
         defaultNetwork: "testnet"
       }),
-    },
+     },
+     {
+      uri: "w3://ens/ethers-solidity.polywrap.eth",
+       // @ts-ignore
+      plugin: ethersSolidity({}), // TODO: why am i getting an "incompatible types" error here?
+     },
     ],
-    interfaces: [
-    {
-      interface: coreInterfaceUris.uriResolver.uri,
-      implementations: [
-        "w3://ens/ipfs.web3api.eth",
-        "w3://ens/ens.web3api.eth",
-      ],
-    },
-    {
-      interface: coreInterfaceUris.logger.uri,
-      implementations: ["w3://ens/js-logger.web3api.eth"],
-    },
-  ],
   };
 }
 
@@ -80,18 +73,20 @@ export function getTokens(pools: Pool[]): Token[] {
 }
 
 export async function getPools(client: Web3ApiClient, ensUri: string, fetchTicks?: boolean, sliceStart?: number, sliceEnd?: number): Promise<Pool[]> {
-  const pools: Promise<Pool>[] = poolList.slice(sliceStart, sliceEnd).map(
-    async (address: string): Promise<Pool> => {
-      return await getPoolFromAddress(address, fetchTicks ?? false, client, ensUri);
-    });
+  const pools: Promise<Pool>[] = poolList
+    .slice(sliceStart, sliceEnd)
+    .map((address: string) => getPoolFromAddress(client, ensUri, address, fetchTicks));
   return Promise.all(pools);
 }
 
-export async function getUniPools(provider: ethers.providers.BaseProvider, fetchTicks?: boolean, sliceStart?: number, sliceEnd?: number): Promise<UniPool[]> {
-  return Promise.all(poolList.slice(sliceStart, sliceEnd).map((address: string)  => getUniswapPool(address, provider, fetchTicks)));
+export async function getUniPools(provider: ethers.providers.BaseProvider, fetchTicks?: boolean, sliceStart?: number, sliceEnd?: number, useTicks?: uni.Tick[][]): Promise<uni.Pool[]> {
+  const pools: Promise<uni.Pool>[] = poolList
+    .slice(sliceStart, sliceEnd)
+      .map((address: string, i: number)  => getUniswapPool(provider, address, fetchTicks, useTicks?.[i]))
+  return Promise.all(pools);
 }
 
-export async function getPoolFromAddress(address: string, fetchTicks: boolean, client: Web3ApiClient, ensUri: string): Promise<Pool> {
+export async function getPoolFromAddress(client: Web3ApiClient, ensUri: string, address: string, fetchTicks?: boolean): Promise<Pool> {
   const poolData = await client.query<{
     fetchPoolFromAddress: Pool;
   }>({
@@ -108,7 +103,7 @@ export async function getPoolFromAddress(address: string, fetchTicks: boolean, c
     variables: {
       chainId: ChainIdEnum.MAINNET,
       address: address,
-      fetchTicks: fetchTicks,
+      fetchTicks: fetchTicks ?? false,
     },
   });
   if (poolData.errors) {
@@ -167,3 +162,19 @@ export function getFeeAmount(feeAmount: FeeAmount): number {
       throw new Error("Unknown FeeAmount");
   }
 }
+
+export function isDefined<T>(t: T | undefined): t is T {
+  return !!t;
+}
+
+export const getFakeTestToken = (i: number): Token => {
+  return {
+    chainId: ChainIdEnum.MAINNET,
+    address: "0x000000000000000000000000000000000000000" + (i + 1).toString(),
+    currency: {
+      decimals: 18,
+      symbol: "t" + i.toString(),
+      name: "token" + i.toString(),
+    }
+  };
+};

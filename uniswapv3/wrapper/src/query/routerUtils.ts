@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   Ethereum_Query,
+  EthersSolidity_Query,
   FeeOptions,
   Input_encodeMulticall,
   Input_encodePermit,
@@ -13,9 +14,9 @@ import {
   Route,
   Token,
 } from "./w3";
-import { wrapToken } from "../utils/tokenUtils";
+import { _wrapToken } from "../utils/tokenUtils";
 import { tokenEquals } from "./token";
-import { getFeeAmount, getPermitV } from "../utils/utils";
+import { _getFeeAmount, _getPermitV } from "../utils/enumUtils";
 import Fraction from "../utils/Fraction";
 import { getChecksumAddress } from "../utils/addressUtils";
 
@@ -32,7 +33,11 @@ class EncodeRouteStep {
  * @param input.bigint
  */
 export function toHex(input: Input_toHex): string {
-  return "0x" + input.value.toString(16);
+  const hex: string = input.value.toString(16);
+  if (hex.length % 2 != 0) {
+    return "0x0" + hex;
+  }
+  return "0x" + hex;
 }
 
 /**
@@ -52,7 +57,7 @@ export function encodeRouteToPath(input: Input_encodeRouteToPath): string {
       })
         ? pool.token1
         : pool.token0;
-      const fee: string = getFeeAmount(pool.fee).toString();
+      const fee: string = _getFeeAmount(pool.fee).toString();
 
       if (index === 0) {
         return {
@@ -68,7 +73,7 @@ export function encodeRouteToPath(input: Input_encodeRouteToPath): string {
         };
       }
     },
-    { inToken: wrapToken(route.input), path: [], types: [] }
+    { inToken: _wrapToken(route.input), path: [], types: [] }
   );
 
   if (exactOutput) {
@@ -76,7 +81,7 @@ export function encodeRouteToPath(input: Input_encodeRouteToPath): string {
     finalStep.path.reverse();
   }
 
-  return Ethereum_Query.encodeParams({
+  return EthersSolidity_Query.pack({
     types: finalStep.types,
     values: finalStep.path,
   });
@@ -94,7 +99,7 @@ export function encodePermit(input: Input_encodePermit): string {
           token.address,
           toHex({ value: options.nonce! }),
           toHex({ value: options.expiry! }),
-          getPermitV(options.v).toString(),
+          _getPermitV(options.v).toString(),
           options.r,
           options.s,
         ],
@@ -105,7 +110,7 @@ export function encodePermit(input: Input_encodePermit): string {
           token.address,
           toHex({ value: options.amount! }),
           toHex({ value: options.deadline! }),
-          getPermitV(options.v).toString(),
+          _getPermitV(options.v).toString(),
           options.r,
           options.s,
         ],
@@ -175,7 +180,7 @@ export function encodeMulticall(input: Input_encodeMulticall): string {
     : Ethereum_Query.encodeFunction({
         method:
           "function multicall(bytes[] calldata data) external payable returns (bytes[] memory results)",
-        args: [calldatas.toString()],
+        args: ['["' + calldatas.join('", "') + '"]'],
       });
 }
 

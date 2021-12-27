@@ -27,7 +27,7 @@ import {
   TradeType,
 } from "./w3";
 import { tokenAmountEquals, tokenEquals } from "./token";
-import { copyTokenAmount, wrapAmount, wrapToken } from "../utils/tokenUtils";
+import { copyTokenAmount, _wrapAmount, _wrapToken } from "../utils/tokenUtils";
 import {
   getPoolInputAmount,
   getPoolOutputAmount,
@@ -47,9 +47,9 @@ import { BigInt, Nullable } from "@web3api/wasm-as";
  */
 function createTrade(swaps: TradeSwap[], tradeType: TradeType): Trade {
   // All routes should have the same starting token.
-  const tokenIn: Token = wrapToken(swaps[0].inputAmount.token);
+  const tokenIn: Token = _wrapToken(swaps[0].inputAmount.token);
   for (let i = 0; i < swaps.length; i++) {
-    const tokenA: Token = wrapToken(swaps[i].route.input);
+    const tokenA: Token = _wrapToken(swaps[i].route.input);
     if (!tokenEquals({ tokenA, tokenB: tokenIn })) {
       throw new Error(
         "INPUT_CURRENCY_MATCH: the input token of the trade and all its routes must match"
@@ -57,9 +57,9 @@ function createTrade(swaps: TradeSwap[], tradeType: TradeType): Trade {
     }
   }
   // All routes should have the same ending token.
-  const tokenOut: Token = wrapToken(swaps[0].outputAmount.token);
+  const tokenOut: Token = _wrapToken(swaps[0].outputAmount.token);
   for (let i = 0; i < swaps.length; i++) {
-    const tokenA: Token = wrapToken(swaps[i].route.output);
+    const tokenA: Token = _wrapToken(swaps[i].route.output);
     if (!tokenEquals({ tokenA, tokenB: tokenOut })) {
       throw new Error(
         "OUTPUT_CURRENCY_MATCH: the output token of the trade and all its routes must match"
@@ -133,7 +133,7 @@ function createTradeSwap(
         "INPUT: the input amount token does not match the route input token"
       );
     }
-    amounts[0] = wrapAmount(amount);
+    amounts[0] = _wrapAmount(amount);
     for (let i = 0; i < route.path.length - 1; i++) {
       amounts[i + 1] = getPoolOutputAmount({
         pool: route.pools[i],
@@ -155,7 +155,7 @@ function createTradeSwap(
         "OUTPUT: the output amount token does not match the route output token"
       );
     }
-    amounts[amounts.length - 1] = wrapAmount(amount);
+    amounts[amounts.length - 1] = _wrapAmount(amount);
     for (let i = route.path.length - 1; i > 0; i--) {
       amounts[i - 1] = getPoolInputAmount({
         pool: route.pools[i - 1],
@@ -472,8 +472,8 @@ function _bestTradeExactIn(
     throw new Error("INVALID_RECURSION");
   }
 
-  const amountIn = wrapAmount(nextAmountIn);
-  const tokenOut = wrapToken(currencyOut);
+  const amountIn = _wrapAmount(nextAmountIn);
+  const tokenOut = _wrapToken(currencyOut);
   for (let i = 0; i < pools.length; i++) {
     const pool = pools[i];
     // pool irrelevant
@@ -484,16 +484,6 @@ function _bestTradeExactIn(
       inputAmount: amountIn,
       sqrtPriceLimitX96: null,
     }).amount;
-    // TODO: how should i replicate this? This exception is not thrown in the JS sdk
-    // try {
-    //   ;[amountOut] = await pool.getOutputAmount(amountIn)
-    // } catch (error) {
-    //   // input too low
-    //   if (error.isInsufficientInputAmountError) {
-    //     continue
-    //   }
-    //   throw error
-    // }
 
     // we have arrived at the output token, so this is the final trade of one of the paths
     if (tokenEquals({ tokenA: amountOut.token, tokenB: tokenOut })) {
@@ -583,23 +573,12 @@ function _bestTradeExactOut(
     throw new Error("INVALID_RECURSION");
   }
 
-  const amountOut: TokenAmount = wrapAmount(nextAmountOut);
-  const tokenIn: Token = wrapToken(currencyIn);
+  const amountOut: TokenAmount = _wrapAmount(nextAmountOut);
+  const tokenIn: Token = _wrapToken(currencyIn);
   for (let i = 0; i < pools.length; i++) {
     const pool = pools[i];
     // pool irrelevant
     if (!poolInvolvesToken({ pool, token: amountOut.token })) continue;
-
-    // TODO: how should i replicate this? This exception is not actually thrown in the JS sdk
-    // try {
-    //   ;[amountIn] = await pool.getInputAmount(amountOut)
-    // } catch (error) {
-    //   // not enough liquidity in this pool
-    //   if (error.isInsufficientReservesError) {
-    //     continue
-    //   }
-    //   throw error
-    // }
 
     const poolChangeResult: PoolChangeResult = getPoolInputAmount({
       pool,

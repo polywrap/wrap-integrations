@@ -1,6 +1,9 @@
 #import { Query, StaticTxResult } into Ethereum from "w3://ens/ethereum.web3api.eth"
 #import { Query } into SHA3 from "w3://ens/sha3.web3api.eth"
+#import { Query } into EthersSolidity from "w3://ens/ethers-solidity.polywrap.eth"
 #import { Query } into ERC20 from "w3://ipfs/QmeiPWHe2ixfitcgjRwP5AaJD5R7DbsGhQNQwT4rFNyxx8"
+#ximport { Query } into Subgraph from "w3://ipfs/QmcnrHegojMFqHkRhixazY67Zb9mSbMLv6sSxyDpUtnrQS"
+#import { Query } into Subgraph from "w3://fs//Users/kris/WebstormProjects/polywrap/demos/subgraph-query/wrapper/build"
 #import { ChainId, TradeType, Currency, Token, Price, TokenAmount, Tick, TickListDataProvider, Pool, FeeAmount, Route, TradeSwap, Trade, BestTradeOptions, Position, PermitOptions, FeeOptions, SwapOptions, MethodParameters, GasOptions, MintAmounts } from "../common/schema.graphql"
 
 #ximport { Query } into Console from "w3://ipfs/QmVGwj3FtvhiErJ1wWbmRuHpvEQ3t1BPNESvEiMJM57p2y"
@@ -111,7 +114,7 @@ type RemoveLiquidityOptions {
   deadline: BigInt! # When the transaction expires, in epoch seconds.
   burnToken: Boolean # Whether the NFT should be burned if the entire position is being exited, by default false.
   permit: NFTPermitOptions # The optional permit of the token ID being exited, in case the exit transaction is being sent by an account that does not own the NFT
-  collectOptions: CollectOptions! # Parameters to be passed on to collect
+  collectOptions: CollectOptions! # Parameters to be passed on to collect; tokenId is ignored.
 }
 
 type Query {
@@ -137,6 +140,28 @@ type Query {
     tokenA: Token!
     tokenB: Token!
   ): Boolean!
+
+  ## Token Utils
+
+  getEther(
+    chainId: ChainId!
+  ): Token!
+
+  getWETH(
+    chainId: ChainId!
+  ): Token!
+
+  isEther(
+    token: Token!
+  ): Boolean!
+
+  wrapToken(
+    token: Token!
+  ): Token!
+
+  wrapAmount(
+    amount: TokenAmount!
+  ): TokenAmount!
 
   ## TickDataProvider
 
@@ -353,78 +378,77 @@ type Query {
 
    ## Position
 
-#  # Constructs and validates a Position for a given Pool with the given liquidity
-#  createPosition(
-#    pool: Pool!
-#    tickLower: Int32!
-#    tickUpper: Int32!
-#    liquidity: BigInt!
-#  ): Position!
-#
-#  # Computes the maximum amount of liquidity received for a given amount of token0, token1, and the prices at the tick boundaries.
-#  createPositionFromAmounts(
-#    pool: Pool! # The pool for which the position should be created
-#    tickLower: Int32! # The lower tick of the position
-#    tickUpper: Int32! # The upper tick of the position
-#    amount0: BigInt! # token0 amount
-#    amount1: BigInt! # token1 amount
-#    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
-#  ): Position!
-#
-#  # Computes a position with the maximum amount of liquidity received for a given amount of token0, assuming an unlimited amount of token1
-#  createPositionFromAmount0(
-#    pool: Pool! # The pool for which the position should be created
-#    tickLower: Int32! # The lower tick of the position
-#    tickUpper: Int32! # The upper tick of the position
-#    amount0: BigInt! # The desired amount of token0
-#    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
-#  ): Position!
-#
-#  # Computes a position with the maximum amount of liquidity received for a given amount of token1, assuming an unlimited amount of token0
-#  createPositionFromAmount1(
-#    pool: Pool! # The pool for which the position should be created
-#    tickLower: Int32! # The lower tick of the position
-#    tickUpper: Int32! # The upper tick of the position
-#    amount1: BigInt! # The desired amount of token1
-#    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
-#  ): Position!
-#
-#  # Returns the price of token0 at the lower tick
-#  positionToken0PriceLower(
-#    position: Position!
-#  ): String!
-#
-#  # Returns the price of token0 at the upper tick
-#  positionToken0PriceUpper(
-#    position: Position!
-#  ): String!
-#
-#  # Returns the amount of token0 that this position's liquidity could be burned for at the current pool price
-#  positionAmount0(
-#    position: Position!
-#  ): TokenAmount!
-#
-#  # Returns the amount of token1 that this position's liquidity could be burned for at the current pool price
-#  positionAmount1(
-#    position: Position!
-#  ): TokenAmount!
-#
-#  # Returns the minimum amounts that must be sent in order to safely mint the amount of liquidity held by the position with the given slippage tolerance
-#  mintAmountsWithSlippage(
-#    slippageTolerance: String! # Tolerance of unfavorable slippage from the current price
-#    position: Position!
-#  ): MintAmounts!
-#
-#  # Returns the minimum amounts that should be requested in order to safely burn the amount of liquidity held by the position with the given slippage tolerance
-#  burnAmountsWithSlippage(
-#    slippageTolerance: String! # Tolerance of unfavorable slippage from the current price
-#    position: Position!
-#  ): MintAmounts!
-#
-#  # Returns the minimum amounts that must be sent in order to mint the amount of liquidity held by the position at the current price for the pool
-#  mintAmounts(
-#    position: Position!
-#  ): MintAmounts!
+  # Constructs and validates a Position for a given Pool with the given liquidity
+  createPosition(
+    pool: Pool! # For which pool the liquidity is assigned
+    tickLower: Int32! # The lower tick of the position
+    tickUpper: Int32! # The upper tick of the position
+    liquidity: BigInt! # The amount of liquidity that is in the position
+  ): Position!
+
+  # Computes the maximum amount of liquidity received for a given amount of token0, token1, and the prices at the tick boundaries
+  createPositionFromAmounts(
+    pool: Pool! # The pool for which the position should be created
+    tickLower: Int32! # The lower tick of the position
+    tickUpper: Int32! # The upper tick of the position
+    amount0: BigInt! # token0 amount
+    amount1: BigInt! # token1 amount
+    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
+  ): Position!
+
+  # Computes a position with the maximum amount of liquidity received for a given amount of token0, assuming an unlimited amount of token1
+  createPositionFromAmount0(
+    pool: Pool! # The pool for which the position should be created
+    tickLower: Int32! # The lower tick of the position
+    tickUpper: Int32! # The upper tick of the position
+    amount0: BigInt! # The desired amount of token0
+    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
+  ): Position!
+
+  # Computes a position with the maximum amount of liquidity received for a given amount of token1, assuming an unlimited amount of token0. Always uses full precision.
+  createPositionFromAmount1(
+    pool: Pool! # The pool for which the position should be created
+    tickLower: Int32! # The lower tick of the position
+    tickUpper: Int32! # The upper tick of the position
+    amount1: BigInt! # The desired amount of token1
+  ): Position!
+
+  # Returns the price of token0 at the lower tick
+  positionToken0PriceLower(
+    position: Position!
+  ): Price!
+
+  # Returns the price of token0 at the upper tick
+  positionToken0PriceUpper(
+    position: Position!
+  ): Price!
+
+  # Returns the amount of token0 that this position's liquidity could be burned for at the current pool price
+  positionAmount0(
+    position: Position!
+  ): TokenAmount!
+
+  # Returns the amount of token1 that this position's liquidity could be burned for at the current pool price
+  positionAmount1(
+    position: Position!
+  ): TokenAmount!
+
+  # Returns the minimum amounts that must be sent in order to mint the amount of liquidity held by the position at the current price for the pool
+  mintAmounts(
+    position: Position!
+  ): MintAmounts!
+
+  # Returns the minimum amounts that must be sent in order to safely mint the amount of liquidity held by the position with the given slippage tolerance
+  mintAmountsWithSlippage(
+    position: Position!
+    slippageTolerance: String! # Tolerance of unfavorable slippage from the current price
+  ): MintAmounts!
+
+  # Returns the minimum amounts that should be requested in order to safely burn the amount of liquidity held by the position with the given slippage tolerance
+  burnAmountsWithSlippage(
+    position: Position!
+    slippageTolerance: String! # Tolerance of unfavorable slippage from the current price
+  ): MintAmounts!
 
    ## Router
 
@@ -468,53 +492,58 @@ type Query {
 
    ## Staker
 
-#  # Returns the calldatas for 'unstakeToken', 'claimReward', and 'stakeToken'.
-#  # Note:  A `tokenId` can be staked in many programs but to claim rewards and continue the program you must unstake, claim, and then restake.
-#  collectRewards(
-#    incentiveKeys: [IncentiveKey!]! # An IncentiveKey or array of IncentiveKeys that `tokenId` is staked in. Input an array of IncentiveKeys to claim rewards for each program.
-#    options: ClaimOptions! # ClaimOptions to specify tokenId, recipient, and amount wanting to collect. Note that you can only specify one amount and one recipient across the various programs if you are collecting from multiple programs at once.
-#  ): MethodParameters!
-#
-#  # Returns calldata for unstaking, claiming, and withdrawing.
-#  withdrawToken(
-#    incentiveKeys: [IncentiveKey!]! # A list of incentiveKeys to unstake from. Should include all incentiveKeys (unique staking programs) that `options.tokenId` is staked in.
-#    withdrawOptions: FullWithdrawOptions! # Options for producing claim calldata and withdraw calldata. Can't withdraw without unstaking all programs for `tokenId`.
-#  ): MethodParameters!
+  # Returns the calldatas for 'unstakeToken', 'claimReward', and 'stakeToken'.
+  # Note:  A `tokenId` can be staked in many programs but to claim rewards and continue the program you must unstake, claim, and then restake.
+  collectRewards(
+    incentiveKeys: [IncentiveKey!]! # An array of IncentiveKeys that `tokenId` is staked in; claims rewards for each program.
+    options: ClaimOptions! # ClaimOptions to specify tokenId, recipient, and amount wanting to collect. Note that you can only specify one amount and one recipient across the various programs if you are collecting from multiple programs at once.
+  ): MethodParameters!
+
+  # Returns calldata for unstaking, claiming, and withdrawing.
+  withdrawToken(
+    incentiveKeys: [IncentiveKey!]! # A list of incentiveKeys to unstake from. Should include all incentiveKeys (unique staking programs) that `options.tokenId` is staked in.
+    options: FullWithdrawOptions! # Options for producing claim calldata and withdraw calldata. Can't withdraw without unstaking all programs for `tokenId`.
+  ): MethodParameters!
+
+  # Returns an encoded IncentiveKey as a string
+  encodeDeposit(
+    incentiveKeys: [IncentiveKey!]! # An array of IncentiveKeys to be encoded and used in the data parameter in `safeTransferFrom`
+  ): String!
 
    ## Quoter
 
-#  # Produces the on-chain method name of the appropriate function within QuoterV2, and the relevant hex encoded parameters.
-#  quoteCallParameters(
-#    route: Route! # The swap route, a list of pools through which a swap can occur
-#    amount: TokenAmount! # The amount of the quote, either an amount in, or an amount out
-#    tradeType: TradeType! # The trade type, either exact input or exact output
-#    options: QuoteOptions
-#  ): MethodParameters!
-#
-#  ## NonfungiblePositionManager
-#
-#  createCallParametersNFPM(
-#    pool: Pool!
-#  ): MethodParameters!
-#
-#  addCallParametersNFPM(
-#    position: Position!
-#    options: AddLiquidityOptions!
-#  ): MethodParameters!
-#
-#  collectCallParametersNFPM(
-#    options: CollectOptions!
-#  ): MethodParameters!
-#
-#  # Produces the calldata for completely or partially exiting a position
-#  removeCallParameters(
-#    position: Position! # The position to exit
-#    options: RemoveLiquidityOptions! # Additional information necessary for generating the calldata
-#  ): MethodParameters!
-#
-#  safeTransferFromParameters(
-#    options: SafeTransferOptions!
-#  ): MethodParameters!
+  # Produces the on-chain method name of the appropriate function within QuoterV2, and the relevant hex encoded parameters.
+  quoteCallParameters(
+    route: Route! # The swap route, a list of pools through which a swap can occur
+    amount: TokenAmount! # The amount of the quote, either an amount in, or an amount out
+    tradeType: TradeType! # The trade type, either exact input or exact output
+    options: QuoteOptions
+  ): MethodParameters!
+
+  ## NonfungiblePositionManager
+
+  createCallParameters(
+    pool: Pool!
+  ): MethodParameters!
+
+  addCallParameters(
+    position: Position!
+    options: AddLiquidityOptions!
+  ): MethodParameters!
+
+  collectCallParameters(
+    options: CollectOptions!
+  ): MethodParameters!
+
+  # Produces the calldata for completely or partially exiting a position
+  removeCallParameters(
+    position: Position! # The position to exit
+    options: RemoveLiquidityOptions! # Additional information necessary for generating the calldata
+  ): MethodParameters!
+
+  safeTransferFromParameters(
+    options: SafeTransferOptions!
+  ): MethodParameters!
 
   ## Utils
 
@@ -552,14 +581,14 @@ type Query {
   ): BigInt!
 
   # Computes the maximum amount of liquidity received for a given amount of token0, token1, and the prices at the tick boundaries.
-#  maxLiquidityForAmounts(
-#    sqrtRatioCurrentX96: BigInt! # the current price
-#    sqrtRatioAX96: BigInt! # price at lower boundary
-#    sqrtRatioBX96: BigInt! # price at upper boundary
-#    amount0: BigInt! # token0 amount
-#    amount1: BigInt! # token1 amount
-#    useFullPrecision: Boolean! # if false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
-#  ): BigInt!
+  maxLiquidityForAmounts(
+    sqrtRatioCurrentX96: BigInt! # the current price
+    sqrtRatioAX96: BigInt! # price at lower boundary
+    sqrtRatioBX96: BigInt! # price at upper boundary
+    amount0: BigInt! # token0 amount
+    amount1: BigInt! # token1 amount
+    useFullPrecision: Boolean! # if false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
+  ): BigInt!
 
   # Returns the most significant bit of a positive integer, starting with first bit = 0
   mostSignificantBit(
@@ -685,8 +714,38 @@ type Query {
     chainId: ChainId! # the id of the chain to be queried
   ): [Tick!]!
 
+  ##  Enum Utils
+
+  feeAmountToTickSpacing(
+    feeAmount: FeeAmount!
+  ): Int32!
+
+  getFeeAmount(
+    feeAmount: FeeAmount!
+  ): UInt32!
+
+  getPermitV(
+    permitV: PermitV!
+  ): Int32!
+
   ##  constants
 
-#  FACTORY_ADDRESS: String!
-#  POOL_INIT_CODE_HASH: String!
+  FACTORY_ADDRESS: String!
+
+  POOL_INIT_CODE_HASH: String!
+
+  POOL_INIT_CODE_HASH_OPTIMISM: String!
+
+  # historical artifact due to small compiler mismatch
+  POOL_INIT_CODE_HASH_OPTIMISM_KOVAN: String!
+
+  MIN_TICK: Int32!
+
+  MAX_TICK: Int32!
+
+  MIN_SQRT_RATIO: BigInt!
+
+  MAX_SQRT_RATIO: BigInt!
+
+
 }
