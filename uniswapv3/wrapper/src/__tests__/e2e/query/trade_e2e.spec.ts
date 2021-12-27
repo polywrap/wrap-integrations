@@ -1,12 +1,11 @@
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
-import { Pool, Token, TokenAmount, Trade } from "../types";
+import { ChainIdEnum, Pool, Tick, Token, TokenAmount, Trade } from "../types";
 import path from "path";
 import { getPlugins, getPools, getTokens, getUniPools } from "../testUtils";
 import * as uni from "@uniswap/v3-sdk";
 import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
-import { ChainId } from "../../../../../../uniswapv2/wrapper/src/__tests__/e2e/types";
 
 jest.setTimeout(180000);
 
@@ -29,10 +28,12 @@ describe("Trade (mainnet fork)", () => {
     const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
     ensUri = `ens/testnet/${api.ensDomain}`;
     // set up test case data
-    pools = await getPools(client, ensUri, true);
+    const sliceStart = 0;
+    const sliceEnd = 3;
+    pools = await getPools(client, ensUri, true, sliceStart, sliceEnd);
     tokens = getTokens(pools);
     tokens.push({
-      chainId: ChainId.MAINNET,
+      chainId: ChainIdEnum.MAINNET,
       address: "",
       currency: {
         decimals: 18,
@@ -43,7 +44,9 @@ describe("Trade (mainnet fork)", () => {
     // set up ethers provider
     ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546");
     // get uni pools
-    uniPools = await getUniPools(ethersProvider, true);
+    const ticks: Tick[][] = pools.map((pool: Pool): Tick[] => pool.tickDataProvider!.ticks);
+    const uniTicks: uni.Tick[][] = ticks.map(tickArr => tickArr.map(tick => new uni.Tick({ ...tick })));
+    uniPools = await getUniPools(ethersProvider, true, sliceStart, sliceEnd, uniTicks);
   });
 
   afterAll(async () => {
@@ -59,7 +62,7 @@ describe("Trade (mainnet fork)", () => {
         // get best trades
         const amountIn: TokenAmount = {
           token: tokens[i],
-          amount: "1000000000000000000"
+          amount: "10000000000"
         }
         const tokenOut = tokens[j];
         const query = await client.invoke<Trade[]>({
@@ -78,22 +81,26 @@ describe("Trade (mainnet fork)", () => {
         const actualTrades: Trade[] = query.data!;
 
         // get expected best trades
-        const uniAmountIn: uniCore.CurrencyAmount<uniCore.Token> = uniCore.CurrencyAmount.fromRawAmount(
-          new uniCore.Token(
+        const uniTokenIn: uniCore.Token = amountIn.token.address === ""
+          ? uniCore.WETH9[1]
+          : new uniCore.Token(
           1,
           amountIn.token.address,
           amountIn.token.currency.decimals,
           amountIn.token.currency.symbol || "",
           amountIn.token.currency.name || ""
-        ), amountIn.amount);
-        const uniTokenOut: uniCore.Token = new uniCore.Token(
+        );
+        const uniAmountIn: uniCore.CurrencyAmount<uniCore.Token> = uniCore.CurrencyAmount.fromRawAmount(uniTokenIn, amountIn.amount);
+        const uniTokenOut: uniCore.Token = tokenOut.address === ""
+          ? uniCore.WETH9[1]
+          : new uniCore.Token(
           1,
           tokenOut.address,
           tokenOut.currency.decimals,
           tokenOut.currency.symbol || "",
           tokenOut.currency.name || ""
         );
-        const expectedTrades = await uni.Trade.bestTradeExactIn(uniPools, uniAmountIn, uniTokenOut);
+        const expectedTrades: uni.Trade<uniCore.Token, uniCore.Token, uniCore.TradeType.EXACT_INPUT>[] = await uni.Trade.bestTradeExactIn(uniPools, uniAmountIn, uniTokenOut);
 
         // compare trade route paths
         expect(actualTrades.length).toStrictEqual(expectedTrades.length);
@@ -125,7 +132,7 @@ describe("Trade (mainnet fork)", () => {
         const tokenIn = tokens[i];
         const amountOut: TokenAmount = {
           token: tokens[j],
-          amount: "1000000000000000000"
+          amount: "10000000000"
         }
         const query = await client.invoke<Trade[]>({
           uri: ensUri,
@@ -143,24 +150,35 @@ describe("Trade (mainnet fork)", () => {
         const actualTrades: Trade[] = query.data!;
 
         // get expected best trades
-        const uniTokenIn: uniCore.Token = new uniCore.Token(
+        const uniTokenIn: uniCore.Token = tokenIn.address === ""
+          ? uniCore.WETH9[1]
+          : new uniCore.Token(
           1,
           tokenIn.address,
           tokenIn.currency.decimals,
           tokenIn.currency.symbol || "",
           tokenIn.currency.name || ""
         );
+        const uniTokenOut: uniCore.Token = amountOut.token.address === ""
+        ? uniCore.WETH9[1]
+        : new uniCore.Token(
+          1,
+          amountOut.token.address,
+          amountOut.token.currency.decimals,
+          amountOut.token.currency.symbol || "",
+          amountOut.token.currency.name || ""
+        );
         const uniAmountOut: uniCore.CurrencyAmount<uniCore.Token> = uniCore.CurrencyAmount.fromRawAmount(
-          new uniCore.Token(
-            1,
-            amountOut.token.address,
-            amountOut.token.currency.decimals,
-            amountOut.token.currency.symbol || "",
-            amountOut.token.currency.name || ""
-          ), amountOut.amount);
-        const expectedTrades = await uni.Trade.bestTradeExactOut(uniPools, uniTokenIn, uniAmountOut);
+          uniTokenOut, amountOut.amount);
+        const expectedTrades: uni.Trade<uniCore.Token, uniCore.Token, uniCore.TradeType.EXACT_OUTPUT>[] = await uni.Trade.bestTradeExactOut(uniPools, uniTokenIn, uniAmountOut);
 
         // compare trade route paths
+        // if (actualTrades.length !== expectedTrades.length) {
+        //   const acutalPaths = actualTrades.map(trade => trade.swaps.map(swap => swap.route.path.map(token => token.currency.symbol)));
+        //   console.log("received: " + JSON.stringify(acutalPaths, null, 2));
+        //   const expectedPaths = expectedTrades.map(trade => trade.swaps.map(swap => swap.route.tokenPath.map(token => token.symbol)));
+        //   console.log("expected: " + JSON.stringify(expectedPaths, null, 2));
+        // }
         expect(actualTrades.length).toStrictEqual(expectedTrades.length);
         for (let k = 0; k < actualTrades.length; k++) {
           const actualTrade = actualTrades[k];

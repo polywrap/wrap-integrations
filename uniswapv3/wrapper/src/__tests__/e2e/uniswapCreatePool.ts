@@ -99,9 +99,11 @@ export async function getUniswapPool(provider: ethers.providers.Provider, poolAd
     getToken(tokenContractB),
   ]);
 
-  let ticks: Tick[] | undefined = undefined;
+  let ticks: Tick[] | undefined;
   if (fetchTicks && !useTicks) {
     ticks = await getPoolTicks(poolAddress);
+  } else {
+    ticks = useTicks;
   }
 
   return new Pool(
@@ -111,6 +113,6 @@ export async function getUniswapPool(provider: ethers.providers.Provider, poolAd
     state.sqrtPriceX96.toString(),
     state.liquidity.toString(),
     state.tick,
-    ticks ?? useTicks
+    ticks
   );
 }

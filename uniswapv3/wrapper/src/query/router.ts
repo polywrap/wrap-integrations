@@ -264,11 +264,6 @@ export function swapCallParameters(
             amountInMaximum: amountIn,
           };
 
-          // throw new Error(Ethereum_Query.encodeFunction({
-          //   method: routerAbi("exactOutput"),
-          //   args: arrayifyParams(exactOutputParams),
-          // }));
-
           calldatas.push(
             Ethereum_Query.encodeFunction({
               method: routerAbi("exactOutput"),

@@ -7,7 +7,7 @@ import tokenList from "./testData/tokenList.json";
 import poolList from "./testData/poolList.json";
 import { getUniswapPool } from "./uniswapCreatePool";
 import { ethers } from "ethers";
-import { Pool as UniPool } from "@uniswap/v3-sdk";
+import * as uni from "@uniswap/v3-sdk";
 import * as uniCore from "@uniswap/sdk-core";
 import { ethersSolidity } from "ethers-solidity-plugin-js";
 
@@ -79,10 +79,10 @@ export async function getPools(client: Web3ApiClient, ensUri: string, fetchTicks
   return Promise.all(pools);
 }
 
-export async function getUniPools(provider: ethers.providers.BaseProvider, fetchTicks?: boolean, sliceStart?: number, sliceEnd?: number): Promise<UniPool[]> {
-  const pools: Promise<UniPool>[] = poolList
+export async function getUniPools(provider: ethers.providers.BaseProvider, fetchTicks?: boolean, sliceStart?: number, sliceEnd?: number, useTicks?: uni.Tick[][]): Promise<uni.Pool[]> {
+  const pools: Promise<uni.Pool>[] = poolList
     .slice(sliceStart, sliceEnd)
-      .map((address: string)  => getUniswapPool(provider, address, fetchTicks))
+      .map((address: string, i: number)  => getUniswapPool(provider, address, fetchTicks, useTicks?.[i]))
   return Promise.all(pools);
 }
 
