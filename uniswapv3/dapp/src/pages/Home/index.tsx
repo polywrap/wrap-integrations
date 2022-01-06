@@ -1,5 +1,6 @@
 import { Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { Hero } from '../../components/Hero';
 import ReactGA from 'react-ga';
 
 const useStyles = makeStyles((theme) => ({
@@ -19,7 +20,7 @@ export const Home = () => {
 
   return (
     <Box className={classes.root}>
-
+      <Hero />
     </Box>
   );
 };
