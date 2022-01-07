@@ -1,41 +1,46 @@
 #import { Mutation, TxResponse } into Ethereum from "w3://ens/ethereum.web3api.eth"
 #import { ChainId, Currency, Token, Route, Trade, Pool, SwapOptions, MethodParameters, GasOptions } from "../common/schema.graphql"
 
-type SwapArgs {
-  tokenIn: Token!
-  tokenOut: Token!
-  amount: BigInt!
-  tradeType: TradeType!
-}
 
-# TODO: should we add functions to create pools, add liquidity, remove liquidity, etc? Possibly as Query functions that return MethodParameters to be used with execCall(...)?
+
+
 type Mutation {
+
+  swap (
+    tokenIn: Token!
+    tokenOut: Token!
+    amount: BigInt!
+    tradeType: TradeType!
+    swapOptions: SwapOptions!
+      gasOptions: GasOptions!
+  ): Ethereum_TxResponse!
+ 
+ pool(
+   tokenA: Token!,
+   tokenB: Token!,
+   gasOptions: GasOptions!
+ ): Ethereum_TxResponse!
+  exec(
+      token: Token
+      trade: Trade
+      swapOptions: SwapOptions
+      gasOptions: GasOptions!
+  ): Ethereum_TxResponse!
+
+  execCall(
+    parameters: MethodParameters!
+    address: String!
+    chainId: ChainId!
+    gasOptions: GasOptions!
+  ): Ethereum_TxResponse!
+  
+  approve(
+    token: Token!
+    amount: BigInt
+    gasOptions: GasOptions!
+  ): Ethereum_TxResponse!
 
   placeholder(
     param: Boolean!
   ): Boolean!
-
-#  swap(
-#    swaps: [SwapArgs!]!
-#    swapOptions: SwapOptions!
-#    gasOptions: GasOptions
-#  ): Ethereum_TxResponse!
-#
-#  exec(
-#    trade: [Trade!]!
-#    swapOptions: SwapOptions!
-#    gasOptions: GasOptions
-#  ): Ethereum_TxResponse!
-#
-#  execCall(
-#    parameters: MethodParameters!
-#    chainId: ChainId!
-#    gasOptions: GasOptions
-#  ): Ethereum_TxResponse!
-#
-#  approve(
-#    token: Token!
-#    amount: BigInt
-#    gasOptions: GasOptions
-#  ): Ethereum_TxResponse!
 }
