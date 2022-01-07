@@ -86,6 +86,7 @@ export function fetchPoolFromTokens(input: Input_fetchPoolFromTokens): Pool {
     initCodeHashManualOverride: null,
   });
   const chainId: ChainId = tokenA.chainId;
+
   // fetch data
   const state: PoolState = fetchPoolState(address, chainId);
   const ticks: TickListDataProvider | null = fetchTicks
@@ -113,6 +114,7 @@ export function fetchPoolFromAddress(input: Input_fetchPoolFromAddress): Pool {
   const chainId: ChainId = input.chainId;
   const address: string = input.address;
   const fetchTicks: boolean = input.fetchTicks;
+
   // fetch data
   const immutables: PoolImmutables = fetchPoolImmutables(address, chainId);
   const state: PoolState = fetchPoolState(address, chainId);

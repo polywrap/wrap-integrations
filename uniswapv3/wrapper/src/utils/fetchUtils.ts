@@ -135,3 +135,17 @@ export function fetchPoolTicksSubgraph(
       }
     );
 }
+
+// export function poolExists(address: string, chainId: ChainId): boolean {
+//   const res: Ethereum_StaticTxResult = Ethereum_Query.callContractStatic({
+//     address: address,
+//     method: poolAbi("liquidity"),
+//     args: [],
+//     connection: {
+//       node: null,
+//       networkNameOrChainId: getChainIdKey(chainId),
+//     },
+//     txOverrides: null,
+//   });
+//   return !res.error;
+// }

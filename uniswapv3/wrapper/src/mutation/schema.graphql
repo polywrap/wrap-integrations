@@ -1,9 +1,6 @@
 #import { Mutation, TxResponse } into Ethereum from "w3://ens/ethereum.web3api.eth"
 #import { ChainId, Currency, Token, Route, Trade, Pool, SwapOptions, MethodParameters, GasOptions } from "../common/schema.graphql"
 
-
-
-
 type Mutation {
 
   swap (
@@ -11,25 +8,27 @@ type Mutation {
     tokenOut: Token!
     amount: BigInt!
     tradeType: TradeType!
+    feeAmount: FeeAmount!
     swapOptions: SwapOptions!
-      gasOptions: GasOptions!
+    gasOptions: GasOptions!
   ): Ethereum_TxResponse!
- 
- pool(
-   tokenA: Token!,
-   tokenB: Token!,
-   gasOptions: GasOptions!
- ): Ethereum_TxResponse!
+
+  pool(
+    tokenA: Token!
+    tokenB: Token!
+    feeAmount: FeeAmount!
+    gasOptions: GasOptions!
+  ): Ethereum_TxResponse!
+
   execSwap(
-      token: Token!
-      trades: [Trade!]!
-      swapOptions: SwapOptions!
-      gasOptions: GasOptions!
+    trades: [Trade!]!
+    swapOptions: SwapOptions!
+    gasOptions: GasOptions!
   ): Ethereum_TxResponse!
 
   execPool(
-      token: Token!
-      gasOptions: GasOptions!
+    pool: Pool!
+    gasOptions: GasOptions!
   ): Ethereum_TxResponse!
   
   execCall(
@@ -44,8 +43,4 @@ type Mutation {
     amount: BigInt
     gasOptions: GasOptions!
   ): Ethereum_TxResponse!
-
-  placeholder(
-    param: Boolean!
-  ): Boolean!
 }
