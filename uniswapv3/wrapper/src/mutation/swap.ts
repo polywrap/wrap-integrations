@@ -71,7 +71,7 @@ export function swap(input: Input_swap): Ethereum_TxResponse {
   });
 }
 
-function execSwap(input: Input_execSwap): Ethereum_TxResponse {
+export function execSwap(input: Input_execSwap): Ethereum_TxResponse {
   const swapParameters: MethodParameters = swapCallParameters({
     trades: input.trades,
     options: input.swapOptions,
@@ -122,13 +122,13 @@ export function execCall(input: Input_execCall): Ethereum_TxResponse {
     tx: {
       to: address,
       from: null,
-      nonce: Nullable.fromNull<number>(),
+      nonce: Nullable.fromNull<u32>(),
       gasLimit: gasOptions.gasLimit,
       gasPrice: gasOptions.gasPrice,
       data: methodParameters.calldata,
       value: BigInt.fromString(methodParameters.value),
-      chainId: Nullable.fromNull<number>(),
-      type: Nullable.fromNull<number>(),
+      chainId: Nullable.fromNull<u32>(),
+      type: Nullable.fromNull<u32>(),
     },
     connection: {
       node: null,
