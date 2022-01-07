@@ -20,13 +20,18 @@ type Mutation {
    tokenB: Token!,
    gasOptions: GasOptions!
  ): Ethereum_TxResponse!
-  exec(
-      token: Token
-      trade: Trade
-      swapOptions: SwapOptions
+  execSwap(
+      token: Token!
+      trades: [Trade!]!
+      swapOptions: SwapOptions!
       gasOptions: GasOptions!
   ): Ethereum_TxResponse!
 
+  execPool(
+      token: Token!
+      gasOptions: GasOptions!
+  ): Ethereum_TxResponse!
+  
   execCall(
     parameters: MethodParameters!
     address: String!
