@@ -1,0 +1,8 @@
+format: 0.0.1-prealpha.1
+language: dapp/typescript
+packages:
+  - uri: "w3://fs/./../wrapper/build"
+    namespace: "uniswap"
+  - uri: "w3://fs/./node_modules/@web3api/ethereum-plugin-js/build"
+    namespace: "ethereum"
+    isPlugin: true
