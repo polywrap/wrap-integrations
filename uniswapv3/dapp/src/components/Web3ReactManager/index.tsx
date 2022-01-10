@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function PolywrapProvider({ children }: { children: JSX.Element }) {
+export default function Web3ReactManager({ children }: { children: JSX.Element }) {
   const classes = useStyles();
   const { active, account, library, chainId } = useWeb3React()
   const { active: networkActive, error: networkError, activate: activateNetwork } = useWeb3React(NetworkContextName)

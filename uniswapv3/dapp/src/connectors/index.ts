@@ -8,6 +8,8 @@ import UNISWAP_LOGO_URL from '../assets/svg/logo.svg'
 import { ALL_SUPPORTED_CHAIN_IDS, INFURA_NETWORK_URLS, SupportedChainId } from '../constants/chains'
 import { FortmaticConnector } from './Fortmatic'
 import { NetworkConnector } from './NetworkConnector'
+import { Web3Provider } from "@ethersproject/providers";
+import getLibrary from "../utils/getLibrary";
 
 const FORMATIC_KEY = process.env.REACT_APP_FORTMATIC_KEY
 const PORTIS_ID = process.env.REACT_APP_PORTIS_ID
@@ -16,6 +18,11 @@ export const network = new NetworkConnector({
   urls: INFURA_NETWORK_URLS,
   defaultChainId: 1,
 })
+
+let networkLibrary: Web3Provider | undefined
+export function getNetworkLibrary(): Web3Provider {
+  return (networkLibrary = networkLibrary ?? getLibrary(network.provider))
+}
 
 export const injected = new InjectedConnector({
   supportedChainIds: ALL_SUPPORTED_CHAIN_IDS,
