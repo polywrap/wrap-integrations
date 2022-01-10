@@ -10,6 +10,7 @@ export function useInactiveListener(suppress = false) {
   const { active, error, activate } = useWeb3React() // specifically using useWeb3React because of what this hook does
 
   useEffect(() => {
+    // @ts-ignore
     const { ethereum } = window
 
     if (ethereum && ethereum.on && !active && !error && !suppress) {
