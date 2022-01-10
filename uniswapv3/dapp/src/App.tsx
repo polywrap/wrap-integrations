@@ -10,8 +10,12 @@ import { MembraneBg } from './components/MembraneBg'
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import './App.css';
-import { Web3ReactProvider } from '@web3-react/core'
+import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core'
+import { NetworkContextName } from './constants/network'
 import getLibrary from "./utils/getLibrary";
+
+
+const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName);
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {
@@ -32,33 +36,35 @@ const App: React.FC = () => {
 
   return (
     <Web3ReactProvider getLibrary={getLibrary}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <ParallaxProvider>
-          <Box width='100%' minHeight='100vh' overflow="hidden">
-            <HashRouter>
-              <Grid container className={classes.wrapper}>
-                <Box
-                  display='flex'
-                  flexDirection='column'
-                  flexGrow='1'
-                  position='relative'
-                  className={classes.main}
-                >
-                  <MembraneBg />
-                  <Header />
-                  <Switch >
-                    <Route path='/' exact>
-                      <Home />
-                    </Route>
-                  </Switch>
-                  <Footer />
-                </Box>
-              </Grid>
-            </HashRouter>
-          </Box>
-        </ParallaxProvider>
-      </ThemeProvider>
+      <Web3ProviderNetwork getLibrary={getLibrary}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <ParallaxProvider>
+            <Box width='100%' minHeight='100vh' overflow="hidden">
+              <HashRouter>
+                <Grid container className={classes.wrapper}>
+                  <Box
+                    display='flex'
+                    flexDirection='column'
+                    flexGrow='1'
+                    position='relative'
+                    className={classes.main}
+                  >
+                    <MembraneBg />
+                    <Header />
+                    <Switch >
+                      <Route path='/' exact>
+                        <Home />
+                      </Route>
+                    </Switch>
+                    <Footer />
+                  </Box>
+                </Grid>
+              </HashRouter>
+            </Box>
+          </ParallaxProvider>
+        </ThemeProvider>
+      </Web3ProviderNetwork>
     </Web3ReactProvider>
   );
 };
