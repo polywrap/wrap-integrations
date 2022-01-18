@@ -1,0 +1,234 @@
+type Block {
+  chainId: String!
+  hash: String!
+  protocol: String!
+}
+
+type TransferConfirmation {
+  completed: Boolean!
+  currentConfirmation: UInt32!
+  expectedConfirmation: UInt32!
+  block: Block!
+}
+
+type OperationError {
+  kind: String!
+  id: String!
+}
+
+type EstimateResult {
+  error: Boolean!
+  reason: String
+  estimate: Estimate
+}
+
+type RevealParams {
+  fee: UInt32
+  gasLimit: UInt32
+  storageLimit: UInt32
+}
+
+type TransferParams {
+  to: String!
+  amount: UInt32!
+  source: String
+  fee: UInt32
+  gasLimit: UInt32
+  storageLimit: UInt32
+  mutez: Boolean
+}
+
+type OriginateParams {
+  code: String!
+  storage: String!
+  balance: String
+  delegate: String
+  fee: UInt32
+  gasLimit: UInt32
+  storageLimit: UInt32
+  mutez: Boolean
+  init: String
+}
+
+type Estimate {
+  burnFeeMutez: UInt32!
+  gasLimit: UInt32!
+  minimalFeeMutez: UInt32!
+  opSize: String!
+  storageLimit: UInt32!
+  suggestedFeeMutez: UInt32!
+  totalCost: UInt32!
+  usingBaseFeeMutez: UInt32!
+  consumedMilligas: UInt32!
+}
+
+type OriginationOperation {
+  contractAddress: String
+  hash: String!
+  consumedGas: String
+  errors: [OperationError!]
+  fee: UInt32!
+  gasLimit: UInt32!
+  includedInBlock: UInt32!
+  revealStatus: String
+  status: String
+  storageDiff: String
+  storageLimit: UInt32!
+  storageSize: String
+}
+
+type OriginationResponse {
+  error: Boolean!
+  reason: String
+  origination: OriginationOperation
+}
+
+type TxOperation {
+  hash: String!
+  source: String
+  amount: BigInt
+  consumedGas: BigInt
+  destination: String!
+  errors: [OperationError!]
+  fee: UInt32!
+  gasLimit: UInt32!
+  includedInBlock: String!
+  status: String!
+  storageDiff: String
+  storageLimit: UInt32!
+  storageSize: BigInt
+}
+
+type TxOperationEntry {
+  branch: String!
+  chainId: String!
+  hash: String!
+  protocol: String!
+  signature: String
+  contents: [OperationContentEntry!]!
+}
+
+type OperationContent {
+  kind: String!
+  branch: String!
+  chainId: String!
+  hash: String!
+  protocol: String!
+  signature: String
+}
+
+type OperationContentEntry {
+  kind: String!
+}
+
+type Connection {
+  node: String
+  networkNameOrChainId: String
+}
+
+type SignResult {
+  bytes: String!
+  sig: String!
+  prefixSig: String!
+  sbytes: String!
+}
+
+type OriginationConfirmationResponse {
+  confirmation: UInt32!
+  origination: OriginationOperation!
+}
+
+type CallContractMethodConfirmationResponse {
+  confirmation: UInt32!
+  operation: TxOperation!
+}
+
+type Query {
+  getPublicKey(
+    connection: Connection
+  ): String!
+
+  getPublicKeyHash(
+    connection: Connection
+  ): String!
+
+  getRevealEstimate(
+    connection: Connection
+    params: RevealParams!
+  ): EstimateResult!
+
+  getTransferEstimate(
+    connection: Connection
+    params: TransferParams!
+  ): EstimateResult!
+
+  getOriginateEstimate(
+    connection: Connection
+    params: OriginateParams!
+  ): EstimateResult! 
+
+  checkAddress(
+    connection: Connection
+    address: String!
+  ): Boolean!
+
+  getBalance(
+    connection: Connection
+    address: String!
+  ): String!
+
+  getContractStorage(
+    address: String!
+    key: String!
+    field: String!
+    connection: Connection
+  ): String!
+}
+
+type Mutation {
+  callContractMethod(
+    address: String!
+    method: String!
+    args: String
+    connection: Connection
+  ): TxOperation!
+
+  callContractMethodAndConfirmation(
+    address: String!
+    method: String!
+    args: String
+    connection: Connection
+    confirmations: UInt32!
+    interval: UInt32
+    timeout: UInt32
+  ): CallContractMethodConfirmationResponse!
+
+  transfer(
+    connection: Connection
+    params: TransferParams!
+  ): String!
+
+  transferAndConfirm(
+    connection: Connection
+    params: TransferParams!
+    confirmations: UInt32!
+  ): TransferConfirmation!
+
+  signMessage(
+    connection: Connection
+    message: String!
+  ): SignResult!
+
+  originate(
+    connection: Connection
+    params: OriginateParams!
+  ): OriginationResponse!
+
+  originateAndConfirm(
+    connection: Connection
+    params: OriginateParams!
+    confirmations: UInt32!
+    interval: UInt32
+    timeout: UInt32
+  ): OriginationConfirmationResponse!
+}
