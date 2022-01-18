@@ -1,0 +1,20 @@
+#import { Query, Connection } into Tezos from "w3://ens/tezos.web3api.eth"
+
+type GetAssetResponse {
+  low: String!
+  open: String!
+  high: String!
+  asset: String!
+  close: String!
+  volume: String!
+  endPeriod: String!
+  startPeriod: String!
+}
+
+type Query {
+  getAssetData(
+    connection: Tezos_Connection
+    oracleContractAddress: String!
+    assetCode: String!
+  ): GetAssetResponse!
+}
