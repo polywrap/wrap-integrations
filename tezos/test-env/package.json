@@ -1,0 +1,21 @@
+{
+  "name": "@web3api/tezos-test-env",
+  "version": "0.0.1-prealpha.61",
+  "description": "Web3Api tezos test environment",
+  "main": "index.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/web3-api/monorepo.git"
+  },
+  "scripts": {
+    "test:env:up": "node script.js up",
+    "test:env:down": "node script.js down"
+  },
+  "dependencies": {
+    "dotenv": "10.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
