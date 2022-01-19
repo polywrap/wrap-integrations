@@ -1,0 +1,50 @@
+#import { Mutation, Connection, TxOperation, CallContractMethodConfirmationResponse, TransferParams, TransferConfirmation, SignResult, OriginateParams, OriginationResponse, OriginationConfirmationResponse} into Tezos from "w3://ens/tezos.web3api.eth"
+
+type Mutation {
+    callContractMethod(
+        address: String!
+        method: String!
+        args: String
+        connection: Tezos_Connection
+    ): Tezos_TxOperation! 
+
+    callContractMethodAndConfirmation(
+        address: String!
+        method: String!
+        args: String
+        connection: Tezos_Connection
+        confirmations: UInt32!
+        interval: UInt32
+        timeout: UInt32
+    ): Tezos_CallContractMethodConfirmationResponse!
+
+    signMessage(
+        connection: Tezos_Connection
+        message: String!
+    ): Tezos_SignResult!
+
+    transfer(
+        connection: Tezos_Connection
+        params: Tezos_TransferParams!
+    ): String!
+
+    transferAndConfirm(
+        connection: Tezos_Connection
+        params: Tezos_TransferParams!
+        confirmations: UInt32!
+    ): Tezos_TransferConfirmation!
+    
+    originate(
+        connection: Tezos_Connection
+        params: Tezos_OriginateParams!
+    ): Tezos_OriginationResponse!
+
+    originateAndConfirm(
+        connection: Tezos_Connection
+        params: Tezos_OriginateParams!
+        confirmations: UInt32!
+        interval: UInt32
+        timeout: UInt32
+    ): Tezos_OriginationConfirmationResponse!
+}
+
