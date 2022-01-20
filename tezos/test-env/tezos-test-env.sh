@@ -12,7 +12,7 @@ export suwe="$(flextesa key suwe)"
 startup() {
     echo "starting tezos node with protocol ${PROTOCOL} ...."
     flextesa mini-net \
-        --root "$ROOT_PATH" --size 1 "$@" \
+        --root "$ROOT_PATH" --size 3 "$@" \
         --set-history-mode N000:archive \
         --number-of-b 1 \
         --balance-of-bootstrap-accounts tez:100_000_000 \

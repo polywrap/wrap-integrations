@@ -6,12 +6,12 @@ services:
     container_name: TEZOS_POLYWRAP_SANDBOX
     platform: '${TEZOS_POLYWRAP_PLATFORM}'
     volumes:
-      - ./init.sh:/usr/bin/init.sh
+      - ./tezos-test-env.sh:/usr/bin/tezos-test-env.sh
     ports:
       - '${TEZOS_POLYWRAP_PORT}:20000'
     environment:
       - TEZOS_POLYWRAP_BLOCK_TIME=${TEZOS_POLYWRAP_BLOCK_TIME}
-    command: /bin/sh init.sh startup
+    command: "/bin/sh tezos-test-env.sh startup"
     networks:
       - tezos-node-test-env
 
