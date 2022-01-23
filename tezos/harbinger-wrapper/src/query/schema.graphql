@@ -11,10 +11,21 @@ type GetAssetResponse {
   startPeriod: String!
 }
 
+enum Network {
+  CUSTOM
+  MAINNET
+  GRANADANET
+}
+
+type CustomConnection {
+  connection: Tezos_Connection!
+  oracleContractAddress: String!
+}
+
 type Query {
   getAssetData(
-    connection: Tezos_Connection
-    oracleContractAddress: String!
+    network: Network!
     assetCode: String!
+    custom: CustomConnection
   ): GetAssetResponse!
 }
