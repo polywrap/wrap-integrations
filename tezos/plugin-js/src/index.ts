@@ -294,7 +294,7 @@ export class TezosPlugin extends Plugin {
     if (!connection) {
       return this._connections[this._defaultNetwork];
     }
-    const { networkNameOrChainId, node } = connection;
+    const { networkNameOrChainId, provider } = connection;
     let result: Connection;
     // If a custom network is provided, either get an already
     // established connection, or a create a new one
@@ -311,8 +311,8 @@ export class TezosPlugin extends Plugin {
     // If a custom node endpoint is provided, create a combined
     // connection with the node's endpoint and a connection's signer
     // (if one exists for the network)
-    if (node) {
-      const nodeConnection = Connection.fromNode(node);
+    if (provider) {
+      const nodeConnection = Connection.fromNode(provider);
       const nodeNetwork = nodeConnection.getProvider().rpc;
       const chainId = await nodeNetwork.getChainId();
       const establishedConnection = this._connections[chainId];

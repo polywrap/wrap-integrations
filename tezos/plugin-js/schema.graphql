@@ -122,7 +122,7 @@ type OperationContentEntry {
 }
 
 type Connection {
-  node: String
+  provider: String
   networkNameOrChainId: String
 }
 
