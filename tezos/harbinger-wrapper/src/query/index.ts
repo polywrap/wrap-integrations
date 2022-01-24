@@ -10,7 +10,7 @@ import { getString, normalizeValue } from "../utils/common"
 import { JSON } from "assemblyscript-json"; 
 
 // Provide default oracle contract addresses for network
-// @link for reference - https://github.com/tacoinfra/harbinger
+// @link for contract references - https://github.com/tacoinfra/harbinger
 // Below are contract addresses
 // NB: Florencenet is not supported because there are no available public rpc node
 // MainNet    -> KT1Jr5t9UvGiqkvvsuUbPJHaYx24NzdUwNW9
