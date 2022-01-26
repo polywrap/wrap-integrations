@@ -2,8 +2,9 @@ import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import { getFakeTestToken, getPlugins } from "../testUtils";
 import path from "path";
-import { ChainIdEnum, FeeAmountEnum, IncentiveKey, Pool, Token } from "../types";
+import { ChainIdEnum, Ethereum_TxResponse, FeeAmountEnum, IncentiveKey, Pool, Token } from "../types";
 import { createPool, encodeSqrtRatioX96, collectRewards, withdrawToken, encodeDeposit, safeTransferFromParameters } from "../wrappedQueries";
+import { ethers, providers } from "ethers";
 
 jest.setTimeout(120000);
 
@@ -25,10 +26,13 @@ describe('Staker', () => {
   let token0: Token;
   let token1: Token;
   let pool_0_1: Pool;
+  let ethersProvider: providers.JsonRpcProvider;
   let incentiveKey: IncentiveKey;
   let incentiveKeys: IncentiveKey[];
 
+ 
   let client: Web3ApiClient;
+  let recvier: string
   let ensUri: string;
 
   beforeAll(async () => {
@@ -40,9 +44,46 @@ describe('Staker', () => {
     const apiPath: string = path.resolve(__dirname + "/../../../../");
     const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
     ensUri = `ens/testnet/${api.ensDomain}`;
+    ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546") as providers.JsonRpcProvider;
+    recvier = await ethersProvider.getSigner().getAddress();
     // set up test case data
     token0 = getFakeTestToken(0);
     token1 = getFakeTestToken(1);
+
+    const TXresp1 = await client.query<{approve: Ethereum_TxResponse}>({
+      uri: ensUri,
+      query: `
+        mutation {
+          approve(
+            token: $token
+          )
+        }
+      `,
+      variables: {
+        token: getFakeTestToken(0),
+      },
+    });
+    const T1Approve: string = TXresp1.data?.approve?.hash ?? "";
+    const ApproveTx1= await ethersProvider.getTransaction(T1Approve);
+    await ApproveTx1.wait();
+
+  
+    const TXresp2 = await client.query<{approve: Ethereum_TxResponse}>({
+      uri: ensUri,
+      query: `
+        mutation {
+          approve(
+            token: $token
+          )
+        }
+      `,
+      variables: {
+        token: getFakeTestToken(1),
+      },
+    });
+    const T2Approve: string = TXresp2.data?.approve?.hash ?? "";
+    const ApproveTx2 = await ethersProvider.getTransaction(T2Approve);
+    await ApproveTx2.wait();
     pool_0_1 = await createPool(client, ensUri, token0, token1, FeeAmountEnum.MEDIUM, await encodeSqrtRatioX96(client, ensUri, 1, 1), 0, 0, []);
     incentiveKey = {
       rewardToken: reward,
@@ -60,6 +101,8 @@ describe('Staker', () => {
       refundee: '0x0000000000000000000000000000000000000089'
     });
   });
+
+
 
   afterAll(async () => {
     await stopTestEnvironment();

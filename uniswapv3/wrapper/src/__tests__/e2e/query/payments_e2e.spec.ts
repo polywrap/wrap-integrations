@@ -1,4 +1,4 @@
-import { FeeOptions, Token } from "../types";
+import { Ethereum_TxResponse, FeeOptions, Token } from "../types";
 import { getFakeTestToken, getPlugins } from "../testUtils";
 import {
   encodeUnwrapWETH9,
@@ -8,6 +8,7 @@ import {
 import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
+import { ethers } from "ethers";
 
 jest.setTimeout(120000);
 
@@ -23,6 +24,7 @@ describe('Payments (SDK test replication)', () => {
   let token: Token;
 
   let client: Web3ApiClient;
+  let ethersProvider: ethers.providers.BaseProvider;
   let ensUri: string;
 
   beforeAll(async () => {
@@ -34,10 +36,30 @@ describe('Payments (SDK test replication)', () => {
     const apiPath: string = path.resolve(__dirname + "/../../../../");
     const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
     ensUri = `ens/testnet/${api.ensDomain}`;
+    ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546");
     // set up test case data
     token = getFakeTestToken(0);
+
+    const TXResponse = await client.query<{approve: Ethereum_TxResponse}>({
+      uri: ensUri,
+      query: `
+        mutation {
+          approve(
+            token: $token
+          )
+        }
+      `,
+      variables: {
+        token: token,
+      },
+    });
+    const T1Approve: string = TXResponse.data?.approve?.hash ?? "";
+    const ApproveTx1= await ethersProvider.getTransaction(T1Approve);
+    await ApproveTx1.wait();
+
   });
 
+  
   afterAll(async () => {
     await stopTestEnvironment();
   });

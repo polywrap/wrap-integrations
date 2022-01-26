@@ -3,7 +3,8 @@ import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@we
 import { getFakeTestToken, getPlugins } from "../testUtils";
 import path from "path";
 import { createPool, encodeSqrtRatioX96, createCallParameters, addCallParameters, collectCallParameters, removeCallParameters, safeTransferFromParameters, feeAmountToTickSpacing, createPosition } from "../wrappedQueries";
-import { ChainIdEnum, FeeAmountEnum, Pool, SafeTransferOptions, Token, TokenAmount } from "../types";
+import { ChainIdEnum, Ethereum_TxResponse, FeeAmountEnum, Pool, SafeTransferOptions, Token, TokenAmount } from "../types";
+import { ethers } from "ethers";
 
 jest.setTimeout(120000);
 
@@ -40,6 +41,7 @@ describe('NonfungiblePositionManager', () => {
 
   let client: Web3ApiClient;
   let ensUri: string;
+  let ethersProvider: ethers.providers.BaseProvider;
 
   beforeAll(async () => {
     const { ethereum: testEnvEtherem, ensAddress, ipfs } = await initTestEnvironment();
@@ -50,9 +52,44 @@ describe('NonfungiblePositionManager', () => {
     const apiPath: string = path.resolve(__dirname + "/../../../../");
     const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
     ensUri = `ens/testnet/${api.ensDomain}`;
+    ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546");
     // set up test case data
     token0 = getFakeTestToken(0);
     token1 = getFakeTestToken(1);
+    const TXresp1 = await client.query<{approve: Ethereum_TxResponse}>({
+      uri: ensUri,
+      query: `
+        mutation {
+          approve(
+            token: $token
+          )
+        }
+      `,
+      variables: {
+        token: weth,
+      },
+    });
+    const T1Approve: string = TXresp1.data?.approve?.hash ?? "";
+    const ApproveTx1= await ethersProvider.getTransaction(T1Approve);
+    await ApproveTx1.wait();
+
+  
+    const TXresp2 = await client.query<{approve: Ethereum_TxResponse}>({
+      uri: ensUri,
+      query: `
+        mutation {
+          approve(
+            token: $token
+          )
+        }
+      `,
+      variables: {
+        token: ETHER,
+      },
+    });
+    const T2Approve: string = TXresp2.data?.approve?.hash ?? "";
+    const ApproveTx2 = await ethersProvider.getTransaction(T2Approve);
+    await ApproveTx2.wait();
     const sqrtRatioX96: string = await encodeSqrtRatioX96(client, ensUri, 1, 1);
     pool_0_1 = await createPool(client, ensUri, token0, token1, FeeAmountEnum.MEDIUM, sqrtRatioX96, 0, 0, []);
     pool_1_weth = await createPool(client, ensUri, token1, weth, FeeAmountEnum.MEDIUM, sqrtRatioX96, 0, 0, []);

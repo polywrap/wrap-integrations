@@ -1,4 +1,4 @@
-import { Token, ChainIdEnum, FeeAmountEnum, Pool, Trade, TradeTypeEnum, MethodParameters } from "../types";
+import { Token, ChainIdEnum, FeeAmountEnum, Pool, Trade, TradeTypeEnum, MethodParameters, Ethereum_TxResponse } from "../types";
 import {
   encodeSqrtRatioX96,
   createPool,
@@ -14,6 +14,7 @@ import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import { getPlugins } from "../testUtils";
 import path from "path";
+import { ethers } from "ethers";
 
 jest.setTimeout(120000);
 
@@ -74,6 +75,7 @@ describe('SwapQuoter', () => {
 
   let client: Web3ApiClient;
   let ensUri: string;
+  let ethersProvider: ethers.providers.BaseProvider;
 
   beforeAll(async () => {
     const { ethereum: testEnvEtherem, ensAddress, ipfs } = await initTestEnvironment();
@@ -84,7 +86,60 @@ describe('SwapQuoter', () => {
     const apiPath: string = path.resolve(__dirname + "/../../../../");
     const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
     ensUri = `ens/testnet/${api.ensDomain}`;
+    ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546");
     // set up test case data
+    const TXresp1 = await client.query<{approve: Ethereum_TxResponse}>({
+      uri: ensUri,
+      query: `
+        mutation {
+          approve(
+            token: $token
+          )
+        }
+      `,
+      variables: {
+        token: WETH,
+      },
+    });
+    const T1Approve: string = TXresp1.data?.approve?.hash ?? "";
+    const ApproveTx1= await ethersProvider.getTransaction(T1Approve);
+    await ApproveTx1.wait();
+
+    const TXresp2 = await client.query<{approve: Ethereum_TxResponse}>({
+      uri: ensUri,
+      query: `
+        mutation {
+          approve(
+            token: $token
+          )
+        }
+      `,
+      variables: {
+        token: token1,
+      },
+    });
+    const T2Approve: string = TXresp1.data?.approve?.hash ?? "";
+    const ApproveTx2= await ethersProvider.getTransaction(T2Approve);
+    await ApproveTx2.wait();
+
+    const TXresp3 = await client.query<{approve: Ethereum_TxResponse}>({
+      uri: ensUri,
+      query: `
+        mutation {
+          approve(
+            token: $token
+          )
+        }
+      `,
+      variables: {
+        token: token0,
+      },
+    });
+    const T3Approve: string = TXresp3.data?.approve?.hash ?? "";
+    const ApproveTx3= await ethersProvider.getTransaction(T3Approve);
+    await ApproveTx1.wait();
+
+    
     pool_0_1 = await makePool(client, ensUri, token0, token1);
     pool_1_weth = await makePool(client, ensUri, token1, WETH);
   });

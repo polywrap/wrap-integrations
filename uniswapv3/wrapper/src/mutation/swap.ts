@@ -37,7 +37,7 @@ export function swap(input: Input_swap): Ethereum_TxResponse {
   const pool: Pool = fetchPoolFromTokens({
     tokenA: input.tokenIn,
     tokenB: input.tokenOut,
-    fee: input.feeAmount,
+    fee: input?.feeAmount,
     fetchTicks: true,
   });
 

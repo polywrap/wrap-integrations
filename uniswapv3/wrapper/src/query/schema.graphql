@@ -3,7 +3,6 @@
 #import { Query } into EthersSolidity from "w3://ens/ethers-solidity.polywrap.eth"
 #import { Query } into ERC20 from "w3://ipfs/QmeiPWHe2ixfitcgjRwP5AaJD5R7DbsGhQNQwT4rFNyxx8"
 #ximport { Query } into Subgraph from "w3://ipfs/QmcnrHegojMFqHkRhixazY67Zb9mSbMLv6sSxyDpUtnrQS"
-#import { Query } into Subgraph from "w3://fs///Users/kris/WebstormProjects/polywrap/demos/subgraph-query/wrapper/build"
 #import { ChainId, TradeType, Currency, Token, Price, TokenAmount, Tick, TickListDataProvider, Pool, FeeAmount, Route, TradeSwap, Trade, BestTradeOptions, Position, PermitOptions, FeeOptions, SwapOptions, MethodParameters, GasOptions, MintAmounts } from "../common/schema.graphql"
 
 
