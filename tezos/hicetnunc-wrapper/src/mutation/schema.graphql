@@ -1,0 +1,7 @@
+#import { Mutation, Connection } into Tezos from "w3://ens/tezos.web3api.eth"
+
+type Mutation {
+  set(
+    connection: Tezos_Connection
+  ): String!
+}
