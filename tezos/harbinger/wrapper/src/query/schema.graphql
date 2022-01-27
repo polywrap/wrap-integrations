@@ -12,9 +12,9 @@ type GetAssetResponse {
 }
 
 enum Network {
-  CUSTOM
-  MAINNET
-  GRANADANET
+  custom
+  mainnet
+  granadanet
 }
 
 type CustomConnection {

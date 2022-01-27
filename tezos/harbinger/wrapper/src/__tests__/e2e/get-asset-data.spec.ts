@@ -32,7 +32,7 @@ describe("getAssetData", () => {
             query {
               getAssetData(
                 assetCode: $assetCode,
-                network: MAINNET
+                network: mainnet
               )
             }
           `,
@@ -62,12 +62,11 @@ describe("getAssetData", () => {
         query {
           getAssetData(
             assetCode: $assetCode,
-            network: GRANADANET
+            network: granadanet
             )
           }
           `,
           variables: {
-            network: "granadanet",
             assetCode: "XTZ-USD",
             oracleContractAddress: "KT1Jr5t9UvGiqkvvsuUbPJHaYx24NzdUwNW9",
             connection: {
@@ -96,7 +95,7 @@ describe("getAssetData", () => {
         query {
             getAssetData(
               assetCode: $assetCode,
-              network: CUSTOM,
+              network: custom,
               custom: $custom
             )
           }
@@ -133,7 +132,7 @@ describe("getAssetData", () => {
         query {
             getAssetData(
               assetCode: $assetCode,
-              network: CUSTOM
+              network: custom
             )
           }
           `,

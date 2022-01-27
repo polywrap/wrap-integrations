@@ -16,7 +16,7 @@ import { JSON } from "assemblyscript-json";
 // MainNet    -> KT1Jr5t9UvGiqkvvsuUbPJHaYx24NzdUwNW9
 // Granadanet -> KT1ENR6CK7cBWCtZt1G3PovwTw3FgSW472mS
 export function getAssetData(input: Input_getAssetData): GetAssetResponse {
-  if (input.network == Network.CUSTOM && input.custom === null) {
+  if (input.network == Network.custom && input.custom === null) {
     throw new Error(`custom network should have a valid connection and oracle contract address `)
   }
   let oracleContractAddress: string = "KT1Jr5t9UvGiqkvvsuUbPJHaYx24NzdUwNW9";
@@ -25,14 +25,14 @@ export function getAssetData(input: Input_getAssetData): GetAssetResponse {
     networkNameOrChainId: "mainnet"
   };
   switch (input.network) {
-    case Network.GRANADANET:
+    case Network.granadanet:
       connection = <Tezos_Connection> {
         provider: "https://rpc.granada.tzstats.com",
         networkNameOrChainId: "granadanet"  
       }
       oracleContractAddress = "KT1ENR6CK7cBWCtZt1G3PovwTw3FgSW472mS";
       break;
-    case Network.CUSTOM:
+    case Network.custom:
       connection = input.custom!.connection;
       oracleContractAddress = input.custom!.oracleContractAddress;
       break;
