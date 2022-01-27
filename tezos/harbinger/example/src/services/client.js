@@ -1,7 +1,6 @@
 import { Web3ApiClient } from "@web3api/client-js"
 import { tezosPlugin } from "@web3api/tezos-plugin-js"
 
-
 export const client = new Web3ApiClient({
     plugins: [
         {
@@ -11,7 +10,7 @@ export const client = new Web3ApiClient({
                 mainnet: {
                     provider: "https://rpc.tzstats.com"
                 },  
-                testnet: {
+                granadanet: {
                     provider: "https://rpc.granada.tzstats.com",
                 }
             },

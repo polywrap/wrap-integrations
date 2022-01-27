@@ -1,6 +1,6 @@
 import { client } from './client'
 
-const HARBINGER_URI = 'w3://ipfs/QmZh1Hek5xPy22huJgokwUE1XQP2bujYpun1GzcuKt96kv/harbinger'
+const HARBINGER_URI = 'w3://ipfs/QmYEz2Zxr5Zd3UuWs2ijocsGkvaoLurkzXJb1Wc9NK1nWt'
 
 export const getAssetData = async (assetCode, network) => {
     return await client.query({
@@ -8,17 +8,13 @@ export const getAssetData = async (assetCode, network) => {
             query: `
                 query {
                     getAssetData(
-                        network: $network
-                        assetCode: $assetCode
-                        connection: $connection
+                        network: $network,
+                        assetCode: $assetCode,
                     )
                 }`,
             variables: {
                 assetCode,
-                network,
-                connection: {
-                    networkNameOrChainId: network
-                }
+                network
             }
     });
 }

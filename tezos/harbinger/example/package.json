@@ -7,7 +7,7 @@
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-scripts": "3.2.0",
-    "uuid": "^3.3.3"
+    "@web3api/client-js": "0.0.1-prealpha.61"
   },
   "scripts": {
     "start": "react-scripts start",
