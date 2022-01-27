@@ -42,9 +42,40 @@ export const mutation = (plugin: Plugin): Mutation.Module => ({
   ): Promise<Types.OriginationConfirmationResponse> => {
     return plugin.originateAndConfirm(input);
   },
+
+  connectTempleWallet: async (
+    input: Mutation.Input_connectTempleWallet
+  ): Promise<boolean> => {
+    return plugin.connectTempleWallet(input);
+  },
+
+  walletContractCallMethod: async (
+    input: Mutation.Input_walletContractCallMethod
+  ): Promise<string> => {
+    return plugin.walletContractCallMethod(input);
+  },
+
+  walletOriginate: async (
+    input: Mutation.Input_walletOriginate
+  ): Promise<string> => {
+    return plugin.walletOriginate(input);
+  },
+
 });
 
 export const query = (plugin: Plugin): Query.Module => ({
+  getWalletPKH: async (
+    input: Query.Input_getWalletPKH
+  ): Promise<string> => {
+    return plugin.getWalletPKH(input);
+  },
+
+  getOperationStatus: async (
+    input: Query.Input_getOperationStatus 
+  ): Promise<Types.OperationStatus> => {
+    return plugin.getOperationStatus(input);
+  },
+
   getContractStorage: async (
     input: Query.Input_getContractStorage
   ): Promise<string> => {

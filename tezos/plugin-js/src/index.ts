@@ -22,6 +22,8 @@ import {
 } from "@web3api/core-js";
 import { TransactionOperation } from "@taquito/taquito";
 import { char2Bytes } from "@taquito/utils";
+import { TempleWallet, TempleDAppNetwork } from "@temple-wallet/dapp"
+import { getOperation } from "./indexer";
 
 // Export all types that are nested inside of TezosConfig.
 // This is required for the extractPluginConfigs.ts script.
@@ -82,8 +84,8 @@ export class TezosPlugin extends Plugin {
   public async callContractMethod(
     input: Mutation.Input_callContractMethod
   ): Promise<Types.TxOperation> {
-    const res = await this._callContractMethod(input);
-    return Mapping.toTxOperation(res);
+    const transactionOperation = await this._callContractMethod(input);
+    return Mapping.toTxOperation(transactionOperation);
   }
 
   public async callContractMethodAndConfirmation(
@@ -178,7 +180,53 @@ export class TezosPlugin extends Plugin {
     };
   }
 
+  public async connectTempleWallet(
+    input: Mutation.Input_connectTempleWallet
+  ): Promise<boolean> {
+    const isAvailable = await TempleWallet.isAvailable();
+    if (!isAvailable) {
+      throw new Error('Temple Wallet is not available.');
+    }
+    const connection = await this.getConnection(input.connection);
+    const wallet = new TempleWallet(input.appName);
+    await wallet.connect(<TempleDAppNetwork>input.network);
+    connection.getProvider().setWalletProvider(wallet);
+    return wallet.connected;
+  }
+
+  public async walletContractCallMethod(
+    input: Mutation.Input_walletContractCallMethod
+  ): Promise<string> {
+    const connection = await this.getConnection(input.connection);
+    const contract = await connection.getProvider().wallet.at(input.address);
+    const walletOperation = await contract.methods[input.method](...this.parseArgs(input.args)).send();
+    return walletOperation.opHash;
+  }
+
+  public async walletOriginate(
+    input: Mutation.Input_walletOriginate
+  ): Promise<string> {
+    const connection = await this.getConnection(input.connection);
+    const originateParams = Mapping.fromOriginateParams(input.params);
+    const originateWalletOperation = await connection.getProvider()
+      .wallet
+      .originate(originateParams)
+      .send();
+    return originateWalletOperation.opHash;
+  }
+
   // Query
+  public async getWalletPKH(input: Query.Input_getWalletPKH): Promise<string> {
+    const connection = await this.getConnection(input.connection);
+    return await connection.getProvider().wallet.pkh();
+  }
+
+  public async getOperationStatus(input: Query.Input_getOperationStatus): Promise<Types.OperationStatus> {
+    const network = input.network.toString().toLowerCase();
+    const response = await getOperation(network, input.hash);
+    return Mapping.toOperationStatus(response);
+  }
+
   public async getPublicKey(input: Query.Input_getPublicKey): Promise<string> {
     const connection = await this.getConnection(input.connection);
     return await connection.getSigner().publicKey();

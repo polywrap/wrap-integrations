@@ -51,7 +51,12 @@ describe("Tezos Plugin", () => {
           uri,
           query: `
             query {
-              getContractStorage(address: $address, connection: $connection, key: $key, field: $field)
+              getContractStorage(
+                address: $address, 
+                connection: $connection, 
+                key: $key, 
+                field: $field
+              )
             }
           `,
           variables: {
@@ -68,6 +73,26 @@ describe("Tezos Plugin", () => {
         expect(response.data).toBeDefined()
         expect(response.data?.getContractStorage).toBeDefined()
         expect(response.data?.getContractStorage).not.toBe("")
+      })
+    })
+
+    describe("getOperationStatus", () => {
+      it("should get operation status", async () => {
+        const response =  await client.query<{ getOperationStatus: string }>({
+          uri,
+          query: `
+            query {
+              getOperationStatus (
+                network: Mainnet, 
+                hash: "onkA3x4oUSjsqwKWSRJNsyKYMnKx2nNQqiYcjh13rrzyYtC9wks"
+              )
+            }
+          `,
+        })
+
+        expect(response.errors).toBeUndefined()
+        expect(response.data).toBeDefined()
+        expect(response.data?.getOperationStatus).toBeDefined()
       })
     })
 

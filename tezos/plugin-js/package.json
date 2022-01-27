@@ -24,7 +24,9 @@
     "@taquito/signer": "10.2.1",
     "@taquito/taquito": "10.2.1",
     "@taquito/utils": "10.2.1",
-    "@web3api/core-js": "0.0.1-prealpha.61"
+    "@web3api/core-js": "0.0.1-prealpha.61",
+    "@temple-wallet/dapp": "6.1.0",
+    "axios": "0.25.0"
   },
   "devDependencies": {
     "@types/jest": "26.0.8",

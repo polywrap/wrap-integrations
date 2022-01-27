@@ -1,3 +1,34 @@
+enum GetOperationStatusSupportedNetworks {
+  Mainnet
+  Hangzhounet
+  Granadanet
+}
+
+type OperationStatus {
+    hash: String!
+    type: String!
+    block: String!
+    time: String!
+    height: String!
+    cycle: UInt32!
+    counter: UInt32!
+    status: String!
+    is_success: Boolean!
+    is_contract: Boolean!
+    gas_limit: UInt32!
+    gas_used: UInt32!
+    gas_price: UInt32!
+    storage_limit: UInt32!
+    storage_size: UInt32!
+    storage_paid: UInt32!
+    volume: UInt32!
+    fee: UInt32!
+    days_destroyed: UInt32!
+    sender: String!
+    receiver: String!
+    confirmations: UInt32!
+}
+
 type Block {
   chainId: String!
   hash: String!
@@ -183,9 +214,36 @@ type Query {
     field: String!
     connection: Connection
   ): String!
+
+  getWalletPKH(
+    connection: Connection
+  ): String!
+
+  getOperationStatus(
+    hash: String!
+    network: GetOperationStatusSupportedNetworks!
+  ): OperationStatus!
 }
 
 type Mutation {
+  connectTempleWallet(
+    appName: String!
+    network: String!
+    connection: Connection
+  ): Boolean!
+
+  walletContractCallMethod(
+    address: String!
+    method: String!
+    args: String
+    connection: Connection
+  ): String!
+
+  walletOriginate(
+    connection: Connection
+    params: OriginateParams!
+  ): String!
+
   callContractMethod(
     address: String!
     method: String!
