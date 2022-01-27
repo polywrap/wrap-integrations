@@ -1,9 +1,9 @@
 {
-  "name": "learn-react-in-x-minutes",
+  "name": "@web3api/harbinger-wrapper-example",
+  "description": "Example of harbinger wrapper",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@tacoinfra/harbinger-lib": "^2.0.2",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-scripts": "3.2.0",

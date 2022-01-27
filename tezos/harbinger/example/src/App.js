@@ -1,86 +1,68 @@
-import React, {  useEffect } from 'react';
-import { harbinger_lib, helloworld, bw_harbinger } from './services/queries';
-// import { mockdata } from './data/data';
-
+import React, {  useEffect, useState } from 'react';
+import { getAssetData } from './services/queries';
 
 function App() {
+  const [activeAsset, setActiveAsset] = useState('BTC-USD');
+  const [network, setNetwork] = useState('mainnet');
+  const [assetData, setAssetData] = useState(null);
 
-  async function init() {
-    
-    let harbinger = await harbinger_lib();
-    console.log(harbinger);
-
-
-    let response = await helloworld();
-    console.log("response");
-    console.log(response);
-
-
-    let harbinger_response = await bw_harbinger();
-    console.log("harbinger_response");
-    console.log(harbinger_response);
-    
+  async function onLoad() {    
+    const response = await getAssetData();
+    setAssetData(response);
   }
 
   useEffect(() => {
-    init();
+    onLoad();
   }, []);
-
-
 
   return (
     <>
-      
       <section>
-        <h4 class="title">Harbinger Data Search</h4> <br></br>
-        
+        <h4 class="title">Harbinger Data Search</h4> <br></br>   
         <div class="container">
-
           <div class="row">
             <div class="col-lg-12">
               <div class="card shadow mb-1 bg-white rounded" >
                 <div class="card-body">
                   <div class="row">
-                      <div class="col-lg-3">
-                          <p class=""><i class="fas fa-code"></i> Engine</p>
-                          <select class="selects" name="cars" id="cars">
-                            <option value="plugin">Plugin</option>
-                            <option value="polywraper">Polywraper</option>
+                      <div class="col-lg-5 ">
+                          <p class=""><i class="fas fa-network-wired"></i> Asset</p>
+                          <select class="selects" name="asset" id="asset">
+                            <option value="BTC-USD">BTC-USD</option>
+                            <option value="ETH-USD">ETH-USD</option>
+                            <option value="COMP-USD">COMP-USD</option>
+                            <option value="LINK-USD">LINK-USD</option>
+                            <option value="REP-USD">REP-USD</option>
+                            <option value="XTZ-USD">XTZ-USD</option>
+                            <option value="KNC-USD">KNC-USD</option>
+                            <option value="DAI-USDC">DAI-USDC</option>
+                            <option value="BAT-USDC">BAT-USDC</option>
+                            <option value="ZRX-USD">ZRX-USD</option>
                           </select>
                       </div>
-                      <div class="col-lg-3">
+                      <div class="col-lg-5">
                           <p class=""><i class="fas fa-network-wired"></i> Network</p>
-                          <select class="selects" name="cars" id="cars">
-                            <option value="mainNet">MainNet</option>
-                            <option value="florencenet">Florencenet</option>
+                          <select class="selects" name="network" id="network">
+                            <option value="mainnet">Mainnet</option>
                             <option value="granadanet">Granadanet</option>
                           </select>
                       </div>
-                      <div class="col-lg-3">
-                          <p class=""><i class="fas fa-exchange-alt"></i> Exchange</p>
-                          <select class="selects" name="cars" id="cars">
-                            <option value="coinbase">Coinbase</option>
-                            <option value="binance">Binance</option>
-                            <option value="gemini">Gemini</option>
-                            <option value="okex">OKEx</option>
-                          </select>
-                      </div>
-                      <div class="col-lg-3">
-                        <button class="searchbtn" type="button"> <i class="fas fa-search"></i> Search </button>
+                      <div class="col-lg-2">
+                        <button class="searchbtn" type="button"> <i class="fas fa-search"></i>Search</button>
                       </div>
                   </div>
                 </div>
               </div>
             </div> 
           </div> 
-
+          {}
           <div class="row">
             <div class="col-lg-12">
               <div class="card shadow mb-1 bg-white rounded" >
                 <div class="card-body">
                   <div class="row">
                       <div class="col-lg-3">
-                        <p class="resph"><b>Oracle Data for Asset</b></p>
+                        <p class="resph"><b>Asset</b></p>
                       </div>
                       <div class="col-lg-8">
                         <p class="">: BAT-USDC</p>
@@ -142,16 +124,12 @@ function App() {
                         <p class="">: 612</p>
                       </div>
                   </div>
-
                 </div>
               </div>
             </div> 
           </div> 
-
         </div>
-        
       </section>
-
     </>
   )
 }
