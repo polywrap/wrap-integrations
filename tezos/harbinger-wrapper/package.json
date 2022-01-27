@@ -1,6 +1,6 @@
 {
-  "name": "templates-api-assemblyscript",
-  "description": "Web3API Assemblyscript Template",
+  "name": "@web3api/harbinger-wrapper",
+  "description": "Polywrap Harbinger Wrapper",
   "private": true,
   "version": "0.0.1-prealpha.61",
   "scripts": {
@@ -8,7 +8,6 @@
     "clean": "npx rimraf ./node_modules ./build ./coverage ./.w3 ./**/w3",
     "build": "yarn build:web3api",
     "build:web3api": "npx w3 build",
-    "codegen": "npx w3 codegen",
     "test": "yarn test:e2e",
     "test:e2e": "jest --passWithNoTests --runInBand --verbose",
     "test:env:up": "npx w3 test-env up",
