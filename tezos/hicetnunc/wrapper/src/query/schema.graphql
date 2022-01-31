@@ -1,0 +1,61 @@
+#import { Query, Connection } into Tezos from "w3://ens/tezos.web3api.eth"
+
+enum Network {
+  custom
+  mainnet
+}
+
+type CustomConnection {
+  connection: Tezos_Connection!
+  contractAddress: String!
+}
+
+type GetBalanceResponse {
+  owner: String!
+  token_id: String! 
+  balance: String!
+}
+
+type GetTokenMetadataResponse {
+  token_id: String! 
+  ipfs_hash: String!
+}
+
+type GetTokenCountResponse {
+  tokenCount: String! 
+}
+
+type GetSwapsResponse {
+  creator: String! 
+  issuer: String!
+  objkt_amount: String!
+  objkt_id: String!
+  royalties: String!
+}
+
+type Query {
+  getBalanceOf(
+    network: Network!
+    owner: String! 
+    token_id: String! 
+    custom: CustomConnection
+  ): GetBalanceResponse!
+
+  getTokenMetadata(
+    network: Network!
+    token_id: String!
+    custom: CustomConnection
+  ): GetTokenMetadataResponse!
+
+  getTokenCountData(
+    network: Network!
+    custom: CustomConnection
+  ): GetTokenCountResponse!
+  
+  getSwapsData(
+    network: Network!
+    swap_id: String!
+    custom: CustomConnection
+  ): GetSwapsResponse!
+}
+
