@@ -93,7 +93,7 @@ describe("getBalanceOfData", () => {
   })
 
 
-  it.only("should swap data", async () => {
+  it("should swap data", async () => {
     const response =  await client.query<{ getSwapsData: QuerySchema.GetSwapsResponse}>({
       uri: ensUri,
       query: `
