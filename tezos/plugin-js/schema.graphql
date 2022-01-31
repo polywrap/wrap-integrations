@@ -211,7 +211,7 @@ type Query {
   getContractStorage(
     address: String!
     key: String!
-    field: String!
+    field: String
     connection: Connection
   ): String!
 

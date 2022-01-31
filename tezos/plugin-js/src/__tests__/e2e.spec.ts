@@ -74,6 +74,62 @@ describe("Tezos Plugin", () => {
         expect(response.data?.getContractStorage).toBeDefined()
         expect(response.data?.getContractStorage).not.toBe("")
       })
+
+      it("should get storage data when a field is not provided ", async () => {
+        const response =  await client.query<{ getContractStorage: string }>({
+          uri,
+          query: `
+            query {
+              getContractStorage(
+                address: $address, 
+                connection: $connection, 
+                key: $key
+              )
+            }
+          `,
+          variables: {
+            address: "KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton",
+            connection: {
+              networkNameOrChainId: "mainnet"
+            },
+            key: "all_tokens"
+          }
+        })
+
+        expect(response.errors).toBeUndefined()
+        expect(response.data).toBeDefined()
+        expect(response.data?.getContractStorage).toBeDefined()
+        expect(response.data?.getContractStorage).not.toBe("")
+      })
+
+      it("should parse storage data", async () => {
+        const response =  await client.query<{ getContractStorage: string }>({
+          uri,
+          query: `
+            query {
+              getContractStorage(
+                address: $address, 
+                connection: $connection, 
+                key: $key,
+                field: $field
+              )
+            }
+          `,
+          variables: {
+            address: "KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton",
+            connection: {
+              networkNameOrChainId: "mainnet"
+            },
+            key: "token_metadata",
+            field: "152"
+          }
+        })
+
+        expect(response.errors).toBeUndefined()
+        expect(response.data).toBeDefined()
+        expect(response.data?.getContractStorage).toBeDefined()
+        expect(response.data?.getContractStorage).not.toBe("")
+      })
     })
 
     describe("getOperationStatus", () => {

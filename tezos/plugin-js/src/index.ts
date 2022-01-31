@@ -20,7 +20,7 @@ import {
   PluginPackageManifest,
   PluginFactory,
 } from "@web3api/core-js";
-import { TransactionOperation } from "@taquito/taquito";
+import { TransactionOperation, MichelsonMap } from "@taquito/taquito";
 import { char2Bytes } from "@taquito/utils";
 import { TempleWallet, TempleDAppNetwork } from "@temple-wallet/dapp"
 import { getOperation } from "./indexer";
@@ -329,10 +329,19 @@ export class TezosPlugin extends Plugin {
   public async getContractStorage(input: Query.Input_getContractStorage): Promise<string> {
     const connection = await this.getConnection(input.connection);
     const contract = await connection.getProvider().contract.at(input.address)
-    const storage = await contract.storage()
+    const storage = await contract.storage();
     // @ts-ignore
-    const response = await storage[input.key].get(input.field)
-    return JSON.stringify(response)
+    let data = storage[input.key];
+    if(!!input.field) {
+      let field = input.field;
+      try {
+        field = JSON.parse(<string>input.field);
+      } catch (error) {
+        // ignore if parsing string fails
+      }
+      data = await data.get(field);
+    }
+    return this.stringifyStorage(data);
   }
 
   // Utils
@@ -389,6 +398,37 @@ export class TezosPlugin extends Plugin {
     const connection = await this.getConnection(input.connection);
     const contract = await connection.getContract(input.address);
     return contract.methods[input.method](...this.parseArgs(input.args)).send();
+  }
+
+  private stringifyStorage(output: any): string {
+    switch (typeof output) {
+      case "number":
+      case "string":
+      case "boolean":
+        output = output.toString();
+        break;
+      case "object":
+        if (typeof output.valueOf() === 'string') {
+          output = output.valueOf();
+          break;
+        }
+        if (MichelsonMap.isMichelsonMap(output)) {
+          output = Object.fromEntries(output['valueMap']);
+          break;
+        }
+        const keys = Object.keys(output)
+        if (keys.length > 0) {
+          let out: Record<string, any> = {};
+          for (const key of keys) {
+            out[key] = this.stringifyStorage(output[key]);
+          }
+          output = out;
+        }
+        break;
+      default:
+        throw new Error(`type '${typeof output}' is not supported while parsing storage`);   
+    }
+    return output;
   }
 }
 
