@@ -40,8 +40,7 @@
     "rimraf": "3.0.2",
     "ts-jest": "26.5.4",
     "ts-node": "8.10.2",
-    "typescript": "4.5.2",
-    "@web3api/tezos-test-env": "0.0.1-prealpha.61"
+    "typescript": "4.5.2"
   },
   "publishConfig": {
     "access": "public"

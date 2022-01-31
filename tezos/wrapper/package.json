@@ -25,8 +25,6 @@
     "@web3api/ipfs-plugin-js": "0.0.1-prealpha.61",
     "@web3api/test-env-js": "0.0.1-prealpha.61",
     "@web3api/wasm-as": "0.0.1-prealpha.61",
-    "@web3api/tezos-test-env": "0.0.1-prealpha.61",
-    "@web3api/tezos-plugin-js": "0.0.1-prealpha.61",
     "assemblyscript": "0.19.1",
     "jest": "27.4.7",
     "ts-jest": "27.1.2",
