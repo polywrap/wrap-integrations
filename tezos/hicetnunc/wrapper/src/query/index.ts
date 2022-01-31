@@ -25,7 +25,7 @@ export function getBalanceOf(input: Input_getBalanceOf): GetBalanceResponse {
   if (input.network == Network.custom && input.custom === null) {
     throw new Error(`custom network should have a valid connection and contract address`);
   }
-  const connectionDetails = getConnectionDetails(input.network, input.custom);
+  const connectionDetails = getConnectionDetails(input.network, input.custom, false);
   const balance = Tezos_Query.getContractStorage({
     address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
@@ -43,7 +43,7 @@ export function getTokenMetadata(input: Input_getTokenMetadata): GetTokenMetadat
   if (input.network == Network.custom && input.custom === null) {
     throw new Error(`custom network should have a valid connection and contract address `)
   }
-  const connectionDetails = getConnectionDetails(input.network, input.custom);
+  const connectionDetails = getConnectionDetails(input.network, input.custom, false);
   const storage = Tezos_Query.getContractStorage({
     address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
@@ -62,7 +62,7 @@ export function getTokenCountData(input: Input_getTokenCountData): GetTokenCount
   if (input.network == Network.custom && input.custom === null) {
     throw new Error(`custom network should have a valid connection and contract address`)
   }
-  const connectionDetails = getConnectionDetails(input.network, input.custom);
+  const connectionDetails = getConnectionDetails(input.network, input.custom, false);
   const count = Tezos_Query.getContractStorage({
     address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
@@ -77,9 +77,9 @@ export function getSwapsData(input: Input_getSwapsData): GetSwapsResponse {
   if (input.network == Network.custom && input.custom === null) {
     throw new Error(`custom network should have a valid connection and oracle contract address `)
   }
-  const connectionDetails = getConnectionDetails(input.network, input.custom);
+  const connectionDetails = getConnectionDetails(input.network, input.custom, true);
   const storage = Tezos_Query.getContractStorage({
-    address: "KT1HbQepzV1nVGg8QVznG7z4RcHseD5kwqBn",
+    address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
     key: "swaps",
     field: input.swap_id
@@ -94,8 +94,11 @@ export function getSwapsData(input: Input_getSwapsData): GetSwapsResponse {
   };
 }
 
-function getConnectionDetails(network: Network, custom: CustomConnection | null): ConnectionDetails {
+function getConnectionDetails(network: Network, custom: CustomConnection | null, isMarketPlace: boolean): ConnectionDetails {
   let address: string = "KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton";
+  if(isMarketPlace) {
+    address = "KT1HbQepzV1nVGg8QVznG7z4RcHseD5kwqBn"
+  }
   let connection: Tezos_Connection = {
     provider: "https://rpc.tzstats.com",
     networkNameOrChainId: "mainnet"

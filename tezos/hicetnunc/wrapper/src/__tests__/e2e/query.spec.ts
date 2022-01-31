@@ -108,6 +108,7 @@ describe("getBalanceOfData", () => {
         swap_id: "500004"
       }
     });
+
     expect(response.errors).toBeUndefined()
     expect(response.data).toBeDefined()
     expect(response.data?.getSwapsData).toBeDefined()
