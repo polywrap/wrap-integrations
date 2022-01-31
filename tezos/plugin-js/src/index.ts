@@ -413,7 +413,8 @@ export class TezosPlugin extends Plugin {
           break;
         }
         if (MichelsonMap.isMichelsonMap(output)) {
-          output = Object.fromEntries(output['valueMap']);
+          const values = Object.fromEntries(output['valueMap']);
+          output = JSON.stringify(values);
           break;
         }
         const keys = Object.keys(output)
@@ -422,13 +423,13 @@ export class TezosPlugin extends Plugin {
           for (const key of keys) {
             out[key] = this.stringifyStorage(output[key]);
           }
-          output = out;
+          output = JSON.stringify(out);
         }
         break;
       default:
         throw new Error(`type '${typeof output}' is not supported while parsing storage`);   
     }
-    return JSON.stringify(output);
+    return output;
   }
 }
 
