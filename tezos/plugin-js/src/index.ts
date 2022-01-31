@@ -428,7 +428,7 @@ export class TezosPlugin extends Plugin {
       default:
         throw new Error(`type '${typeof output}' is not supported while parsing storage`);   
     }
-    return output;
+    return JSON.stringify(output);
   }
 }
 
