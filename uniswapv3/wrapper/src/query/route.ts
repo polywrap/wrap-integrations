@@ -8,12 +8,7 @@ import {
   Input_routeChainId,
   Input_routeMidPrice,
 } from "./w3";
-import {
-  poolChainId,
-  poolInvolvesToken,
-  poolToken0Price,
-  poolToken1Price,
-} from "./pool";
+import { poolChainId, poolInvolvesToken } from "./pool";
 import { _wrapToken } from "../utils/tokenUtils";
 import { tokenEquals } from "./token";
 import Price from "../utils/Price";
@@ -90,6 +85,7 @@ export function createRoute(input: Input_createRoute): Route {
     path: path,
     input: inToken,
     output: outToken,
+    midPrice: routeMidPrice({ pools, inToken, outToken }),
   };
 }
 
@@ -104,9 +100,11 @@ export function routeChainId(input: Input_routeChainId): ChainId {
  * Returns the mid price of the route
  */
 export function routeMidPrice(input: Input_routeMidPrice): PriceType {
-  const route: Route = input.route;
+  const pools: Pool[] = input.pools;
+  const inToken: Token = input.inToken;
+  const outToken: Token = input.outToken;
 
-  const price: Price = route.pools.slice(1).reduce<MidPriceStep>(
+  const price: Price = pools.slice(1).reduce<MidPriceStep>(
     (step: MidPriceStep, pool: Pool) => {
       const nextInput: Token = step.nextInput;
       const price: Price = step.price;
@@ -116,30 +114,30 @@ export function routeMidPrice(input: Input_routeMidPrice): PriceType {
       })
         ? {
             nextInput: pool.token1,
-            price: price.mul(Price.from(poolToken0Price({ pool }))),
+            price: price.mul(Price.from(pool.token0Price)),
           }
         : {
             nextInput: pool.token0,
-            price: price.mul(Price.from(poolToken1Price({ pool }))),
+            price: price.mul(Price.from(pool.token1Price)),
           };
     },
     tokenEquals({
-      tokenA: route.pools[0].token0,
-      tokenB: _wrapToken(route.input),
+      tokenA: pools[0].token0,
+      tokenB: _wrapToken(inToken),
     })
       ? {
-          nextInput: route.pools[0].token1,
-          price: Price.from(poolToken0Price({ pool: route.pools[0] })),
+          nextInput: pools[0].token1,
+          price: Price.from(pools[0].token0Price),
         }
       : {
-          nextInput: route.pools[0].token0,
-          price: Price.from(poolToken1Price({ pool: route.pools[0] })),
+          nextInput: pools[0].token0,
+          price: Price.from(pools[0].token1Price),
         }
   ).price;
 
   return new Price(
-    route.input,
-    route.output,
+    inToken,
+    outToken,
     price.denominator,
     price.numerator
   ).toPriceType();

@@ -31,7 +31,6 @@ import { ADDRESS_ZERO, ZERO_HEX } from "../utils/constants";
 import {
   burnAmountsWithSlippage,
   createPosition,
-  mintAmounts,
   mintAmountsWithSlippage,
 } from "./position";
 import { getChecksumAddress } from "../utils/addressUtils";
@@ -103,9 +102,8 @@ export function addCallParameters(
   const calldatas: string[] = [];
 
   // get amounts
-  const amountsDesired: MintAmounts = mintAmounts({ position });
-  const amount0Desired: BigInt = amountsDesired.amount0;
-  const amount1Desired: BigInt = amountsDesired.amount1;
+  const amount0Desired: BigInt = position.mintAmounts.amount0;
+  const amount1Desired: BigInt = position.mintAmounts.amount1;
 
   // adjust for slippage
   const minimumAmounts: MintAmounts = mintAmountsWithSlippage({

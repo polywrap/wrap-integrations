@@ -18,6 +18,7 @@ import {
   Pool,
   PoolChangeResult,
   Price as PriceType,
+  Fraction as FractionType,
   Route,
   Token,
   TokenAmount,
@@ -34,7 +35,7 @@ import {
   poolInvolvesToken,
 } from "./pool";
 import Price from "../utils/Price";
-import { createRoute, routeMidPrice } from "./route";
+import { createRoute } from "./route";
 import Fraction from "../utils/Fraction";
 import { PriorityQueue } from "../utils/PriorityQueue";
 
@@ -99,7 +100,7 @@ function createTrade(swaps: TradeSwap[], tradeType: TradeType): Trade {
     inputAmount,
     outputAmount,
   });
-  const priceImpact: string = tradePriceImpact({ swaps, outputAmount });
+  const priceImpact: FractionType = tradePriceImpact({ swaps, outputAmount });
 
   return {
     swaps,
@@ -307,7 +308,7 @@ export function tradeExecutionPrice(
  * @param input.swaps the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
  * @param input.outputAmount the trade output amount, e.g. from Trade object or tradeOutputAmount(...)
  */
-export function tradePriceImpact(input: Input_tradePriceImpact): string {
+export function tradePriceImpact(input: Input_tradePriceImpact): FractionType {
   const swaps: TradeSwap[] = input.swaps;
   const outputAmount: TokenAmount = input.outputAmount;
 
@@ -316,7 +317,7 @@ export function tradePriceImpact(input: Input_tradePriceImpact): string {
   for (let i = 0; i < swaps.length; i++) {
     const route: Route = swaps[i].route;
     const inputAmount: TokenAmount = swaps[i].inputAmount;
-    const midPrice: Price = Price.from(routeMidPrice({ route }));
+    const midPrice: Price = Price.from(route.midPrice);
     const quote: Fraction = midPrice.quote(inputAmount);
     spotOutputAmount = spotOutputAmount.add(quote);
   }
@@ -326,7 +327,11 @@ export function tradePriceImpact(input: Input_tradePriceImpact): string {
     .sub(tradeOutputFraction)
     .div(spotOutputAmount);
 
-  return priceImpact.toFixed(18);
+  return {
+    numerator: priceImpact.numerator,
+    denominator: priceImpact.denominator,
+    quotient: priceImpact.toFixed(18),
+  };
 }
 
 /**

@@ -130,7 +130,12 @@ describe('Route', () => {
         inToken: token0,
         outToken: token1,
       });
-      const price: Price = routeMidPrice({ route });
+      const price: Price = routeMidPrice({
+        pools: [pool_0_1],
+        inToken: token0,
+        outToken: token1,
+      });
+      expect(price).toStrictEqual(route.midPrice);
       expect(price.price.substring(0, 6)).toStrictEqual('0.2000');
       expect(price.baseToken).toStrictEqual(token0);
       expect(price.quoteToken).toStrictEqual(token1);
@@ -142,7 +147,12 @@ describe('Route', () => {
         inToken: token1,
         outToken: token0,
       });
-      const price: Price = routeMidPrice({ route });
+      const price: Price = routeMidPrice({
+        pools: [pool_0_1],
+        inToken: token1,
+        outToken: token0,
+      });
+      expect(price).toStrictEqual(route.midPrice);
       expect(price.price.substring(0, 6)).toStrictEqual('5.0000');
       expect(price.baseToken).toStrictEqual(token1);
       expect(price.quoteToken).toStrictEqual(token0);
@@ -154,7 +164,12 @@ describe('Route', () => {
         inToken: token0,
         outToken: token2,
       });
-      const price: Price = routeMidPrice({ route });
+      const price: Price = routeMidPrice({
+        pools: [pool_0_1, pool_1_2],
+        inToken: token0,
+        outToken: token2,
+      });
+      expect(price).toStrictEqual(route.midPrice);
       expect(price.price.substring(0, 6)).toStrictEqual('0.1000');
       expect(price.baseToken).toStrictEqual(token0);
       expect(price.quoteToken).toStrictEqual(token2);
@@ -166,7 +181,12 @@ describe('Route', () => {
         inToken: token2,
         outToken: token0,
       });
-      const price: Price = routeMidPrice({ route });
+      const price: Price = routeMidPrice({
+        pools: [pool_1_2, pool_0_1],
+        inToken: token2,
+        outToken: token0,
+      });
+      expect(price).toStrictEqual(route.midPrice);
       expect(price.price.substring(0, 7)).toStrictEqual('10.0000');
       expect(price.baseToken).toStrictEqual(token2);
       expect(price.quoteToken).toStrictEqual(token0);
@@ -178,7 +198,12 @@ describe('Route', () => {
         inToken: eth,
         outToken: token0,
       });
-      const price: Price = routeMidPrice({ route });
+      const price: Price = routeMidPrice({
+        pools: [pool_0_weth],
+        inToken: eth,
+        outToken: token0,
+      });
+      expect(price).toStrictEqual(route.midPrice);
       expect(price.price.substring(0, 6)).toStrictEqual('0.3333');
       expect(price.baseToken).toStrictEqual(eth);
       expect(price.quoteToken).toStrictEqual(token0);
@@ -190,7 +215,12 @@ describe('Route', () => {
         inToken: token1,
         outToken: weth,
       });
-      const price: Price = routeMidPrice({ route });
+      const price: Price = routeMidPrice({
+        pools: [pool_1_weth],
+        inToken: token1,
+        outToken: weth,
+      });
+      expect(price).toStrictEqual(route.midPrice);
       const priceStr: string = BigFloat.fromString(price.price).toFixed(4);
       expect(priceStr).toStrictEqual('0.1429');
       expect(price.baseToken).toStrictEqual(token1);
@@ -203,7 +233,12 @@ describe('Route', () => {
         inToken: eth,
         outToken: weth,
       });
-      const price: Price = routeMidPrice({ route });
+      const price: Price = routeMidPrice({
+        pools: [pool_0_weth, pool_0_1, pool_1_weth],
+        inToken: eth,
+        outToken: weth,
+      });
+      expect(price).toStrictEqual(route.midPrice);
       const priceStr: string = BigFloat.fromString(price.price).toFixed(6);
       expect(priceStr).toStrictEqual('0.009524');
       expect(price.baseToken).toStrictEqual(eth);
@@ -216,7 +251,12 @@ describe('Route', () => {
         inToken: weth,
         outToken: eth,
       });
-      const price: Price = routeMidPrice({ route });
+      const price: Price = routeMidPrice({
+        pools: [pool_0_weth, pool_0_1, pool_1_weth],
+        inToken: weth,
+        outToken: eth,
+      });
+      expect(price).toStrictEqual(route.midPrice);
       const priceStr: string = BigFloat.fromString(price.price).toFixed(6);
       expect(priceStr).toStrictEqual('0.009524');
       expect(price.baseToken).toStrictEqual(weth);

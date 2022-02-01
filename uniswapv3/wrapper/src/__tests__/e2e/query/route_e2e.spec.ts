@@ -92,12 +92,16 @@ describe("Route (mainnet fork)", () => {
       query: `
         query {
           routeMidPrice(
-            route: $route
+            pools: $pools
+            inToken: $inToken
+            outToken: $outToken
           )
         }
       `,
       variables: {
-        route: route
+        pools: pools,
+        inToken: inToken,
+        outToken: outToken,
       },
     });
     expect(midPriceQuery.errors).toBeFalsy();
@@ -106,5 +110,6 @@ describe("Route (mainnet fork)", () => {
     const price: Price = midPriceQuery.data!.routeMidPrice;
     const uniPrice: uniCore.Price<uniCore.Token, uniCore.Token> = uniRoute.midPrice;
     expect(price.price).toEqual(uniPrice.toFixed(18));
+    expect(price).toStrictEqual(route.midPrice);
   });
 });

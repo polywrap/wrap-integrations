@@ -214,12 +214,16 @@ type Query {
 
   # Returns the current mid price of the pool in terms of token0, i.e. the ratio of token1 over token0
   poolToken0Price(
-    pool: Pool!
+    token0: Token!
+    token1: Token!
+    sqrtRatioX96: BigInt!
   ): Price!
 
   # Returns the current mid price of the pool in terms of token1, i.e. the ratio of token0 over token1
   poolToken1Price(
-    pool: Pool!
+    token0: Token!
+    token1: Token!
+    sqrtRatioX96: BigInt!
   ): Price!
 
   # Returns the price of the given token in terms of the other token in the pool
@@ -268,7 +272,9 @@ type Query {
 
   #  Returns the mid price of the route
   routeMidPrice(
-    route: Route!
+    pools: [Pool!]! # the ordered list of pools from which to calculate the mid price
+    inToken: Token! # the input token
+    outToken: Token! # the output token
   ): Price!
 
    ## Trade
@@ -327,7 +333,7 @@ type Query {
   tradePriceImpact(
     swaps: [TradeSwap!]! # the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
     outputAmount: TokenAmount! # the trade output amount, e.g. from Trade object or tradeOutputAmount(...)
-  ): String!
+  ): Fraction!
 
   # Get the minimum amount that must be received from the trade for the given slippage tolerance
   tradeMinimumAmountOut(
@@ -415,27 +421,38 @@ type Query {
 
   # Returns the price of token0 at the lower tick
   positionToken0PriceLower(
-    position: Position!
+    pool: Pool! # For which pool the liquidity is assigned
+    tickLower: Int32! # The lower tick of the position
   ): Price!
 
   # Returns the price of token0 at the upper tick
   positionToken0PriceUpper(
-    position: Position!
+    pool: Pool! # For which pool the liquidity is assigned
+    tickUpper: Int32! # The upper tick of the position
   ): Price!
 
   # Returns the amount of token0 that this position's liquidity could be burned for at the current pool price
   positionAmount0(
-    position: Position!
+    pool: Pool! # For which pool the liquidity is assigned
+    tickLower: Int32! # The lower tick of the position
+    tickUpper: Int32! # The upper tick of the position
+    liquidity: BigInt! # The amount of liquidity that is in the position
   ): TokenAmount!
 
   # Returns the amount of token1 that this position's liquidity could be burned for at the current pool price
   positionAmount1(
-    position: Position!
+    pool: Pool! # For which pool the liquidity is assigned
+    tickLower: Int32! # The lower tick of the position
+    tickUpper: Int32! # The upper tick of the position
+    liquidity: BigInt! # The amount of liquidity that is in the position
   ): TokenAmount!
 
   # Returns the minimum amounts that must be sent in order to mint the amount of liquidity held by the position at the current price for the pool
   mintAmounts(
-    position: Position!
+    pool: Pool! # For which pool the liquidity is assigned
+    tickLower: Int32! # The lower tick of the position
+    tickUpper: Int32! # The upper tick of the position
+    liquidity: BigInt! # The amount of liquidity that is in the position
   ): MintAmounts!
 
   # Returns the minimum amounts that must be sent in order to safely mint the amount of liquidity held by the position with the given slippage tolerance
