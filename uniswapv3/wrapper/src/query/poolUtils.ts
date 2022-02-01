@@ -182,7 +182,7 @@ export function simulateSwap(
       tick: state.tick,
       lte: zeroForOne,
       tickSpacing: getPoolTickSpacing({ pool: pool }),
-      tickDataProvider: pool.tickDataProvider!,
+      tickDataProvider: pool.tickDataProvider,
     });
     step.tickNext = nextTickResult.index;
     step.initialized = nextTickResult.found;
@@ -236,7 +236,7 @@ export function simulateSwap(
       if (step.initialized) {
         let liquidityNet: BigInt = getTick({
           tickIndex: step.tickNext,
-          tickDataProvider: pool.tickDataProvider!,
+          tickDataProvider: pool.tickDataProvider,
         }).liquidityNet;
         // if we're moving leftward, we interpret liquidityNet as the opposite sign
         // safe because liquidityNet cannot be type(int128).min

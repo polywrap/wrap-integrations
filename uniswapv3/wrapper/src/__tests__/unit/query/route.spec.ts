@@ -26,7 +26,7 @@ const getTestPool = (tokenA: Token, tokenB: Token, amount1: BigInt, amount0: Big
     sqrtRatioX96: sqrtRatioX96,
     liquidity: BigInt.ZERO,
     tickCurrent: getTickAtSqrtRatio({ sqrtRatioX96 }),
-    ticks: { ticks: [] },
+    ticks: [],
   });
 }
 

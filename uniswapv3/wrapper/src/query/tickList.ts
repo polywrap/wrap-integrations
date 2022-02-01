@@ -1,33 +1,17 @@
 import {
-  Input_createTickListDataProvider,
   Input_getTick,
   Input_nextInitializedTickWithinOneWord,
   NextTickResult,
   Tick,
-  TickListDataProvider,
 } from "./w3";
 import * as TickListUtils from "./tickListUtils";
-
-/**
- * constructs and validates a TickListDataProvider
- */
-export function createTickListDataProvider(
-  input: Input_createTickListDataProvider
-): TickListDataProvider {
-  const ticks: Tick[] = input.ticks;
-  const tickSpacing: i32 = input.tickSpacing;
-  TickListUtils.validateTickList({ ticks: ticks, tickSpacing: tickSpacing });
-  return {
-    ticks: ticks,
-  };
-}
 
 /**
  * returns tick at requested index
  */
 export function getTick(input: Input_getTick): Tick {
   const tickIndex: i32 = input.tickIndex;
-  const ticks: Tick[] = input.tickDataProvider.ticks;
+  const ticks: Tick[] = input.tickDataProvider;
   return TickListUtils.findTick(ticks, tickIndex);
 }
 
@@ -40,7 +24,7 @@ export function nextInitializedTickWithinOneWord(
   const tick: i32 = input.tick;
   const lte: boolean = input.lte;
   const tickSpacing: i32 = input.tickSpacing;
-  const ticks: Tick[] = input.tickDataProvider.ticks;
+  const ticks: Tick[] = input.tickDataProvider;
 
   const compressed: i32 = <i32>Math.floor(<f64>tick / tickSpacing);
 

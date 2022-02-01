@@ -130,9 +130,7 @@ describe('TickList', () => {
         tick: -257,
         lte: true,
         tickSpacing: 1,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: -512,
         found: false,
@@ -142,9 +140,7 @@ describe('TickList', () => {
         tick: -256,
         lte: true,
         tickSpacing: 1,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: -256,
         found: false,
@@ -154,9 +150,7 @@ describe('TickList', () => {
         tick: -1,
         lte: true,
         tickSpacing: 1,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: -256,
         found: false,
@@ -166,9 +160,7 @@ describe('TickList', () => {
         tick: 0,
         lte: true,
         tickSpacing: 1,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: 0,
         found: true,
@@ -178,9 +170,7 @@ describe('TickList', () => {
         tick: 1,
         lte: true,
         tickSpacing: 1,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: 0,
         found: true,
@@ -190,9 +180,7 @@ describe('TickList', () => {
         tick: 255,
         lte: true,
         tickSpacing: 1,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: 0,
         found: true,
@@ -202,9 +190,7 @@ describe('TickList', () => {
         tick: 256,
         lte: true,
         tickSpacing: 1,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: 256,
         found: false,
@@ -214,9 +200,7 @@ describe('TickList', () => {
         tick: 257,
         lte: true,
         tickSpacing: 1,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: 256,
         found: false,
@@ -228,9 +212,7 @@ describe('TickList', () => {
         tick: -258,
         lte: false,
         tickSpacing: 1,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: -257,
         found: false,
@@ -240,9 +222,7 @@ describe('TickList', () => {
         tick: -257,
         lte: false,
         tickSpacing: 1,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: -1,
         found: false,
@@ -252,9 +232,7 @@ describe('TickList', () => {
         tick: -256,
         lte: false,
         tickSpacing: 1,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: -1,
         found: false,
@@ -264,9 +242,7 @@ describe('TickList', () => {
         tick: -2,
         lte: false,
         tickSpacing: 1,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: -1,
         found: false,
@@ -276,9 +252,7 @@ describe('TickList', () => {
         tick: -1,
         lte: false,
         tickSpacing: 1,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: 0,
         found: true,
@@ -288,9 +262,7 @@ describe('TickList', () => {
         tick: 0,
         lte: false,
         tickSpacing: 1,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: 255,
         found: false,
@@ -300,9 +272,7 @@ describe('TickList', () => {
         tick: 1,
         lte: false,
         tickSpacing: 1,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: 255,
         found: false,
@@ -312,9 +282,7 @@ describe('TickList', () => {
         tick: 254,
         lte: false,
         tickSpacing: 1,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: 255,
         found: false,
@@ -324,9 +292,7 @@ describe('TickList', () => {
         tick: 255,
         lte: false,
         tickSpacing: 1,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: 511,
         found: false,
@@ -336,9 +302,7 @@ describe('TickList', () => {
         tick: 256,
         lte: false,
         tickSpacing: 1,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: 511,
         found: false,
@@ -362,9 +326,7 @@ describe('TickList', () => {
         tick: -1,
         lte: true,
         tickSpacing: 10,
-        tickDataProvider: {
-          ticks: ticks,
-        },
+        tickDataProvider: ticks,
       })).toStrictEqual({
         index: -2560,
         found: false,

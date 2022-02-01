@@ -61,10 +61,6 @@ export interface Tick {
   liquidityNet: BigInt;
 }
 
-export interface TickListDataProvider {
-  ticks: Array<Tick>;
-}
-
 export interface Pool {
   token0: Token;
   token1: Token;
@@ -72,7 +68,7 @@ export interface Pool {
   sqrtRatioX96: BigInt;
   liquidity: BigInt;
   tickCurrent: Int32;
-  tickDataProvider?: TickListDataProvider | null;
+  tickDataProvider: Tick[];
   token0Price: Price;
   token1Price: Price;
 }

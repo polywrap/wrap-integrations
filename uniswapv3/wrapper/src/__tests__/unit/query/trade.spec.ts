@@ -59,7 +59,7 @@ const v2StylePool = (
     sqrtRatioX96: sqrtRatioX96,
     liquidity: liquidity,
     tickCurrent: getTickAtSqrtRatio({ sqrtRatioX96 }),
-    ticks: { ticks: [
+    ticks: [
       {
         index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: _feeAmountToTickSpacing(feeAmount) }),
         liquidityNet: liquidity,
@@ -70,7 +70,7 @@ const v2StylePool = (
         liquidityNet: liquidity.opposite(),
         liquidityGross: liquidity
       }
-    ]}
+    ],
   });
 };
 

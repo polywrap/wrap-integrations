@@ -68,10 +68,6 @@ type Tick {
   liquidityNet: BigInt!
 }
 
-type TickListDataProvider {
-  ticks: [Tick!]!
-}
-
 type Pool {
   token0: Token!
   token1: Token!
@@ -79,7 +75,7 @@ type Pool {
   sqrtRatioX96: BigInt!
   liquidity: BigInt!
   tickCurrent: Int32!
-  tickDataProvider: TickListDataProvider
+  tickDataProvider: [Tick!]!
   token0Price: Price!
   token1Price: Price!
 }

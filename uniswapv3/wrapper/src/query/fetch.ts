@@ -5,7 +5,6 @@ import {
   Input_fetchPoolFromAddress,
   Input_fetchToken,
   Pool,
-  TickListDataProvider,
   Token,
   Tick,
   Input_fetchTickList,
@@ -88,8 +87,8 @@ export function fetchPoolFromTokens(input: Input_fetchPoolFromTokens): Pool {
   const chainId: ChainId = tokenA.chainId;
   // fetch data
   const state: PoolState = fetchPoolState(address, chainId);
-  const ticks: TickListDataProvider | null = fetchTicks
-    ? { ticks: fetchTickList({ address, chainId }) }
+  const ticks: Tick[] | null = fetchTicks
+    ? fetchTickList({ address, chainId })
     : null;
 
   return createPool({
@@ -116,8 +115,8 @@ export function fetchPoolFromAddress(input: Input_fetchPoolFromAddress): Pool {
   // fetch data
   const immutables: PoolImmutables = fetchPoolImmutables(address, chainId);
   const state: PoolState = fetchPoolState(address, chainId);
-  const ticks: TickListDataProvider | null = fetchTicks
-    ? { ticks: fetchTickList({ address, chainId }) }
+  const ticks: Tick[] | null = fetchTicks
+    ? fetchTickList({ address, chainId })
     : null;
 
   return createPool({

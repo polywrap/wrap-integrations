@@ -16,7 +16,7 @@ import {
   Pool,
   PoolChangeResult,
   Price as PriceType,
-  TickListDataProvider,
+  Tick,
   Token,
   TokenAmount,
 } from "./w3";
@@ -43,7 +43,7 @@ export function createPool(input: Input_createPool): Pool {
   const sqrtRatioX96: BigInt = input.sqrtRatioX96;
   const liquidity: BigInt = input.liquidity;
   const tickCurrent: i32 = input.tickCurrent;
-  const ticks: TickListDataProvider | null = input.ticks;
+  const ticks: Tick[] | null = input.ticks;
 
   if (tokenA.chainId != tokenB.chainId) {
     throw new Error("CHAIN_IDS: tokens in a pool must have the same chain id");
@@ -76,7 +76,7 @@ export function createPool(input: Input_createPool): Pool {
     sqrtRatioX96: sqrtRatioX96,
     liquidity: liquidity,
     tickCurrent: tickCurrent,
-    tickDataProvider: ticks,
+    tickDataProvider: ticks === null ? [] : ticks,
     token0Price: poolToken0Price({
       token0: tokens[0],
       token1: tokens[1],

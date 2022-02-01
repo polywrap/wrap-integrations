@@ -53,7 +53,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
           tickCurrent: 0,
-          ticks: { ticks: [] },
+          ticks: [],
         });
       };
       expect(error).toThrow("CHAIN_IDS: tokens in a pool must have the same chain id");
@@ -68,7 +68,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
           tickCurrent: 0,
-          ticks: { ticks: [] },
+          ticks: [],
         });
       };
       expect(error).toThrow("ADDRESSES: tokens in a pool cannot have the same address");
@@ -83,7 +83,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
           tickCurrent: 1,
-          ticks: { ticks: [] },
+          ticks: [],
         });
       };
       expect(error).toThrow("PRICE_BOUNDS: sqrtRatioX96 is invalid for current tick");
@@ -96,7 +96,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }).addInt(1),
           liquidity: BigInt.ZERO,
           tickCurrent: -1,
-          ticks: { ticks: [] },
+          ticks: [],
         });
       };
       expect(errorNeg).toThrow("PRICE_BOUNDS: sqrtRatioX96 is invalid for current tick");
@@ -111,7 +111,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
           tickCurrent: 0,
-          ticks: { ticks: [] },
+          ticks: [],
         });
       };
       expect(noError).not.toThrow();
@@ -126,7 +126,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
           tickCurrent: 0,
-          ticks: { ticks: [] },
+          ticks: [],
         });
       };
       expect(noError).not.toThrow();
@@ -141,7 +141,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
           tickCurrent: 0,
-          ticks: { ticks: [] },
+          ticks: [],
         });
       };
       expect(noError).not.toThrow();
@@ -156,7 +156,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
           tickCurrent: 0,
-          ticks: { ticks: [] },
+          ticks: [],
         });
       };
       expect(noError).not.toThrow();
@@ -172,7 +172,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
           tickCurrent: 0,
-          ticks: { ticks: [] },
+          ticks: [],
         });
       expect(poolA.token0).toStrictEqual(DAI);
 
@@ -183,7 +183,7 @@ describe('Pool', () => {
         sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
         liquidity: BigInt.ZERO,
         tickCurrent: 0,
-        ticks: { ticks: [] },
+        ticks: [],
       });
       expect(poolB.token0).toStrictEqual(DAI);
     });
@@ -198,7 +198,7 @@ describe('Pool', () => {
         sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
         liquidity: BigInt.ZERO,
         tickCurrent: 0,
-        ticks: { ticks: [] },
+        ticks: [],
       });
       expect(poolA.token1).toStrictEqual(USDC);
 
@@ -209,7 +209,7 @@ describe('Pool', () => {
         sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
         liquidity: BigInt.ZERO,
         tickCurrent: 0,
-        ticks: { ticks: [] },
+        ticks: [],
       });
       expect(poolB.token1).toStrictEqual(USDC);
     });
@@ -227,7 +227,7 @@ describe('Pool', () => {
         sqrtRatioX96: sqrtRatioX96,
         liquidity: BigInt.ZERO,
         tickCurrent: getTickAtSqrtRatio({ sqrtRatioX96 }),
-        ticks: { ticks: [] },
+        ticks: [],
       });
       const priceA: Price = poolToken0Price({
         token0: poolA.token0,
@@ -244,7 +244,7 @@ describe('Pool', () => {
         sqrtRatioX96: sqrtRatioX96,
         liquidity: BigInt.ZERO,
         tickCurrent: getTickAtSqrtRatio({ sqrtRatioX96 }),
-        ticks: { ticks: [] },
+        ticks: [],
       });
       const priceB: Price = poolToken0Price({
         token0: poolB.token0,
@@ -269,7 +269,7 @@ describe('Pool', () => {
         sqrtRatioX96: sqrtRatioX96,
         liquidity: BigInt.ZERO,
         tickCurrent: getTickAtSqrtRatio({ sqrtRatioX96 }),
-        ticks: { ticks: [] },
+        ticks: [],
       });
       const priceA: Price = poolToken1Price({
         token0: poolA.token0,
@@ -287,7 +287,7 @@ describe('Pool', () => {
         sqrtRatioX96: sqrtRatioX96,
         liquidity: BigInt.ZERO,
         tickCurrent: getTickAtSqrtRatio({ sqrtRatioX96 }),
-        ticks: { ticks: [] },
+        ticks: [],
       });
       const priceB: Price = poolToken1Price({
         token0: poolB.token0,
@@ -310,7 +310,7 @@ describe('Pool', () => {
         sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
         liquidity: BigInt.ZERO,
         tickCurrent: 0,
-        ticks: { ticks: [] },
+        ticks: [],
       });
       expect(poolPriceOf({ token: DAI, pool: pool })).toStrictEqual(pool.token0Price);
       expect(poolPriceOf({ token: USDC, pool: pool })).toStrictEqual(pool.token1Price);
@@ -325,7 +325,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
           tickCurrent: 0,
-          ticks: { ticks: [] },
+          ticks: [],
         });
         poolPriceOf({ token: _getWETH(ChainId.MAINNET), pool: pool });
       };
@@ -342,7 +342,7 @@ describe('Pool', () => {
         sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
         liquidity: BigInt.ZERO,
         tickCurrent: 0,
-        ticks: { ticks: [] },
+        ticks: [],
       });
       expect(poolChainId({ pool: poolA })).toStrictEqual(ChainId.MAINNET);
 
@@ -353,7 +353,7 @@ describe('Pool', () => {
         sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
         liquidity: BigInt.ZERO,
         tickCurrent: 0,
-        ticks: { ticks: [] },
+        ticks: [],
       });
       expect(poolChainId({ pool: poolB })).toStrictEqual(ChainId.MAINNET);
     });
@@ -368,7 +368,7 @@ describe('Pool', () => {
         sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
         liquidity: BigInt.ZERO,
         tickCurrent: 0,
-        ticks: { ticks: [] },
+        ticks: [],
       });
       expect(poolInvolvesToken({ token: USDC, pool: pool })).toStrictEqual(true);
       expect(poolInvolvesToken({ token: DAI, pool: pool })).toStrictEqual(true);
@@ -386,18 +386,17 @@ describe('Pool', () => {
         sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
         liquidity: ONE_ETHER,
         tickCurrent: 0,
-        ticks: { ticks: [
+        ticks: [
           {
             index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
             liquidityNet: ONE_ETHER,
             liquidityGross: ONE_ETHER
           },
-            {
-              index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
-              liquidityNet: ONE_ETHER.opposite(),
-              liquidityGross: ONE_ETHER
-            }]
-        },
+          {
+            index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
+            liquidityNet: ONE_ETHER.opposite(),
+            liquidityGross: ONE_ETHER
+          }],
       });
     });
 

@@ -44,7 +44,7 @@ describe("Trade (mainnet fork)", () => {
     // set up ethers provider
     ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546");
     // get uni pools
-    const ticks: Tick[][] = pools.map((pool: Pool): Tick[] => pool.tickDataProvider!.ticks);
+    const ticks: Tick[][] = pools.map((pool: Pool): Tick[] => pool.tickDataProvider);
     const uniTicks: uni.Tick[][] = ticks.map(tickArr => tickArr.map(tick => new uni.Tick({ ...tick })));
     uniPools = await getUniPools(ethersProvider, true, sliceStart, sliceEnd, uniTicks);
   });
