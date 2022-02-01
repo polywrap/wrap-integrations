@@ -20,7 +20,7 @@ import {
   PluginPackageManifest,
   PluginFactory,
 } from "@web3api/core-js";
-import { TransactionOperation, MichelsonMap } from "@taquito/taquito";
+import { TransactionOperation, MichelsonMap, BigMapAbstraction } from "@taquito/taquito";
 import { char2Bytes } from "@taquito/utils";
 import { TempleWallet, TempleDAppNetwork } from "@temple-wallet/dapp"
 import { getOperation } from "./indexer";
@@ -339,7 +339,11 @@ export class TezosPlugin extends Plugin {
       } catch (error) {
         // ignore if parsing string fails
       }
-      data = await data.get(field);
+      if (data instanceof BigMapAbstraction) {
+        data = await data.get(field);
+      } else {
+        data = data[field];
+      }
     }
     return this.stringifyStorage(data);
   }
