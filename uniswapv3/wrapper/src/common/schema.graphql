@@ -172,8 +172,3 @@ type MethodParameters {
   calldata: String! # The hex encoded calldata to perform the given operation
   value: String! # The amount of ether (wei) to send in hex.
 }
-
-type GasOptions {
-  gasPrice: BigInt
-  gasLimit: BigInt
-}

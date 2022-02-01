@@ -1,41 +1,61 @@
 #import { Mutation, TxResponse } into Ethereum from "w3://ens/ethereum.web3api.eth"
-#import { ChainId, Currency, Token, Route, Trade, Pool, SwapOptions, MethodParameters, GasOptions } from "../common/schema.graphql"
+#import { ChainId, Currency, Token, TokenAmount, Route, Trade, TradeType, Pool, FeeAmount, SwapOptions, MethodParameters } from "../common/schema.graphql"
 
-type SwapArgs {
-  tokenIn: Token!
-  tokenOut: Token!
-  amount: BigInt!
-  tradeType: TradeType!
+type GasOptions {
+  gasPrice: BigInt
+  gasLimit: BigInt
 }
 
-# TODO: should we add functions to create pools, add liquidity, remove liquidity, etc? Possibly as Query functions that return MethodParameters to be used with execCall(...)?
 type Mutation {
 
-  placeholder(
-    param: Boolean!
-  ): Boolean!
+  # Perform on-chain swap using token and fee amount information to find the correct pool
+  swapWithTokens(
+    tokenIn: Token! # input token
+    tokenOut: Token! # output token
+    amount: BigInt! # amount being swapped in or out, depending on trade type
+    tradeType: TradeType! # type of trade, either exact input with calculated output or vice versa
+    feeAmount: FeeAmount! # fee amount of the pool being used for the swap
+    swapOptions: SwapOptions! # configuration for the swap
+    gasOptions: GasOptions # optional configuration for transaction gas
+  ): Ethereum_TxResponse!
 
-#  swap(
-#    swaps: [SwapArgs!]!
-#    swapOptions: SwapOptions!
-#    gasOptions: GasOptions
-#  ): Ethereum_TxResponse!
-#
-#  exec(
-#    trade: [Trade!]!
-#    swapOptions: SwapOptions!
-#    gasOptions: GasOptions
-#  ): Ethereum_TxResponse!
-#
-#  execCall(
-#    parameters: MethodParameters!
-#    chainId: ChainId!
-#    gasOptions: GasOptions
-#  ): Ethereum_TxResponse!
-#
-#  approve(
-#    token: Token!
-#    amount: BigInt
-#    gasOptions: GasOptions
-#  ): Ethereum_TxResponse!
+  # Perform on-chain swap using pool at provided address
+  swap(
+    address: String! # Ethereum address of pool used for swap
+    amount: TokenAmount! # token amount being swapped in or out, depending on trade type
+    tradeType: TradeType! # type of trade, either exact input with calculated output or vice versa
+    swapOptions: SwapOptions! # optional configuration for the swap
+    gasOptions: GasOptions # optional configuration for transaction gas
+  ): Ethereum_TxResponse!
+
+  pool(
+    tokenA: Token!
+    tokenB: Token!
+    feeAmount: FeeAmount!
+    gasOptions: GasOptions
+  ): Ethereum_TxResponse!
+
+  execSwap(
+    trades: [Trade!]!
+    swapOptions: SwapOptions!
+    gasOptions: GasOptions
+  ): Ethereum_TxResponse!
+
+  execPool(
+    pool: Pool!
+    gasOptions: GasOptions
+  ): Ethereum_TxResponse!
+
+  execCall(
+    parameters: MethodParameters!
+    address: String!
+    chainId: ChainId!
+    gasOptions: GasOptions
+  ): Ethereum_TxResponse!
+
+  approve(
+    token: Token!
+    amount: BigInt
+    gasOptions: GasOptions
+  ): Ethereum_TxResponse!
 }
