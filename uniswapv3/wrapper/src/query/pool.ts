@@ -16,7 +16,7 @@ import {
   Pool,
   PoolChangeResult,
   Price as PriceType,
-  TickListDataProvider,
+  Tick,
   Token,
   TokenAmount,
 } from "./w3";
@@ -43,7 +43,7 @@ export function createPool(input: Input_createPool): Pool {
   const sqrtRatioX96: BigInt = input.sqrtRatioX96;
   const liquidity: BigInt = input.liquidity;
   const tickCurrent: i32 = input.tickCurrent;
-  const ticks: TickListDataProvider | null = input.ticks;
+  const ticks: Tick[] | null = input.ticks;
 
   if (tokenA.chainId != tokenB.chainId) {
     throw new Error("CHAIN_IDS: tokens in a pool must have the same chain id");
@@ -76,7 +76,17 @@ export function createPool(input: Input_createPool): Pool {
     sqrtRatioX96: sqrtRatioX96,
     liquidity: liquidity,
     tickCurrent: tickCurrent,
-    tickDataProvider: ticks,
+    tickDataProvider: ticks === null ? [] : ticks,
+    token0Price: poolToken0Price({
+      token0: tokens[0],
+      token1: tokens[1],
+      sqrtRatioX96,
+    }),
+    token1Price: poolToken1Price({
+      token0: tokens[0],
+      token1: tokens[1],
+      sqrtRatioX96,
+    }),
   };
 }
 
@@ -109,12 +119,14 @@ export function poolInvolvesToken(input: Input_poolInvolvesToken): boolean {
  * Returns the current mid price of the pool in terms of token0, i.e. the ratio of token1 over token0
  */
 export function poolToken0Price(input: Input_poolToken0Price): PriceType {
-  const pool: Pool = input.pool;
+  const token0: Token = input.token0;
+  const token1: Token = input.token1;
+  const sqrtRatioX96: BigInt = input.sqrtRatioX96;
   return new Price(
-    pool.token0,
-    pool.token1,
+    token0,
+    token1,
     Q192,
-    BigInt.mul(pool.sqrtRatioX96, pool.sqrtRatioX96)
+    BigInt.mul(sqrtRatioX96, sqrtRatioX96)
   ).toPriceType();
 }
 
@@ -122,11 +134,13 @@ export function poolToken0Price(input: Input_poolToken0Price): PriceType {
  * Returns the current mid price of the pool in terms of token1, i.e. the ratio of token0 over token1
  */
 export function poolToken1Price(input: Input_poolToken1Price): PriceType {
-  const pool: Pool = input.pool;
+  const token0: Token = input.token0;
+  const token1: Token = input.token1;
+  const sqrtRatioX96: BigInt = input.sqrtRatioX96;
   return new Price(
-    pool.token1,
-    pool.token0,
-    BigInt.mul(pool.sqrtRatioX96, pool.sqrtRatioX96),
+    token1,
+    token0,
+    BigInt.mul(sqrtRatioX96, sqrtRatioX96),
     Q192
   ).toPriceType();
 }
@@ -144,8 +158,8 @@ export function poolPriceOf(input: Input_poolPriceOf): PriceType {
     );
   }
   return tokenEquals({ tokenA: token, tokenB: pool.token0 })
-    ? poolToken0Price({ pool: pool })
-    : poolToken1Price({ pool: pool });
+    ? pool.token0Price
+    : pool.token1Price;
 }
 
 /**
@@ -202,6 +216,16 @@ export function getPoolOutputAmount(
       liquidity: liquidity,
       tickCurrent: tickCurrent,
       tickDataProvider: pool.tickDataProvider,
+      token0Price: poolToken0Price({
+        token0: pool.token0,
+        token1: pool.token1,
+        sqrtRatioX96,
+      }),
+      token1Price: poolToken1Price({
+        token0: pool.token0,
+        token1: pool.token1,
+        sqrtRatioX96,
+      }),
     },
   };
 }
@@ -253,6 +277,16 @@ export function getPoolInputAmount(
       liquidity: liquidity,
       tickCurrent: tickCurrent,
       tickDataProvider: pool.tickDataProvider,
+      token0Price: poolToken0Price({
+        token0: pool.token0,
+        token1: pool.token1,
+        sqrtRatioX96,
+      }),
+      token1Price: poolToken1Price({
+        token0: pool.token0,
+        token1: pool.token1,
+        sqrtRatioX96,
+      }),
     },
   };
 }

@@ -41,21 +41,24 @@ export interface Price {
   price: string;
 }
 
+export interface Fraction {
+  denominator: BigInt;
+  numerator: BigInt;
+  quotient: string;
+}
+
 export interface Route {
   pools: Array<Pool>;
   path: Array<Token>;
   input: Token;
   output: Token;
+  midPrice: Price;
 }
 
 export interface Tick {
   index: Int32;
   liquidityGross: BigInt;
   liquidityNet: BigInt;
-}
-
-export interface TickListDataProvider {
-  ticks: Array<Tick>;
 }
 
 export interface Pool {
@@ -65,7 +68,9 @@ export interface Pool {
   sqrtRatioX96: BigInt;
   liquidity: BigInt;
   tickCurrent: Int32;
-  tickDataProvider?: TickListDataProvider | null;
+  tickDataProvider: Tick[];
+  token0Price: Price;
+  token1Price: Price;
 }
 
 export interface Trade {
@@ -242,6 +247,11 @@ export interface Position {
   tickLower: UInt32;
   tickUpper: UInt32;
   liquidity: BigInt;
+  token0Amount: TokenAmount;
+  token1Amount: TokenAmount;
+  mintAmounts: MintAmounts;
+  token0PriceLower: Price;
+  token0PriceUpper: Price;
 }
 
 export interface MintAmounts {

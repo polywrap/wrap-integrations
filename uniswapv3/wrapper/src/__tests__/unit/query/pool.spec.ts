@@ -1,5 +1,5 @@
 import { BigInt } from "@web3api/wasm-as";
-import { ChainId, FeeAmount, Pool, PoolChangeResult, Token, TokenAmount } from "../../../query/w3";
+import { ChainId, FeeAmount, Pool, PoolChangeResult, Price, Token, TokenAmount } from "../../../query/w3";
 import { _getWETH } from "../../../utils/tokenUtils";
 import {
   createPool,
@@ -53,7 +53,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
           tickCurrent: 0,
-          ticks: { ticks: [] },
+          ticks: [],
         });
       };
       expect(error).toThrow("CHAIN_IDS: tokens in a pool must have the same chain id");
@@ -68,7 +68,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
           tickCurrent: 0,
-          ticks: { ticks: [] },
+          ticks: [],
         });
       };
       expect(error).toThrow("ADDRESSES: tokens in a pool cannot have the same address");
@@ -83,7 +83,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
           tickCurrent: 1,
-          ticks: { ticks: [] },
+          ticks: [],
         });
       };
       expect(error).toThrow("PRICE_BOUNDS: sqrtRatioX96 is invalid for current tick");
@@ -96,7 +96,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }).addInt(1),
           liquidity: BigInt.ZERO,
           tickCurrent: -1,
-          ticks: { ticks: [] },
+          ticks: [],
         });
       };
       expect(errorNeg).toThrow("PRICE_BOUNDS: sqrtRatioX96 is invalid for current tick");
@@ -111,7 +111,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
           tickCurrent: 0,
-          ticks: { ticks: [] },
+          ticks: [],
         });
       };
       expect(noError).not.toThrow();
@@ -126,7 +126,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
           tickCurrent: 0,
-          ticks: { ticks: [] },
+          ticks: [],
         });
       };
       expect(noError).not.toThrow();
@@ -141,7 +141,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
           tickCurrent: 0,
-          ticks: { ticks: [] },
+          ticks: [],
         });
       };
       expect(noError).not.toThrow();
@@ -156,7 +156,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
           tickCurrent: 0,
-          ticks: { ticks: [] },
+          ticks: [],
         });
       };
       expect(noError).not.toThrow();
@@ -172,7 +172,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
           tickCurrent: 0,
-          ticks: { ticks: [] },
+          ticks: [],
         });
       expect(poolA.token0).toStrictEqual(DAI);
 
@@ -183,7 +183,7 @@ describe('Pool', () => {
         sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
         liquidity: BigInt.ZERO,
         tickCurrent: 0,
-        ticks: { ticks: [] },
+        ticks: [],
       });
       expect(poolB.token0).toStrictEqual(DAI);
     });
@@ -198,7 +198,7 @@ describe('Pool', () => {
         sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
         liquidity: BigInt.ZERO,
         tickCurrent: 0,
-        ticks: { ticks: [] },
+        ticks: [],
       });
       expect(poolA.token1).toStrictEqual(USDC);
 
@@ -209,7 +209,7 @@ describe('Pool', () => {
         sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
         liquidity: BigInt.ZERO,
         tickCurrent: 0,
-        ticks: { ticks: [] },
+        ticks: [],
       });
       expect(poolB.token1).toStrictEqual(USDC);
     });
@@ -227,10 +227,15 @@ describe('Pool', () => {
         sqrtRatioX96: sqrtRatioX96,
         liquidity: BigInt.ZERO,
         tickCurrent: getTickAtSqrtRatio({ sqrtRatioX96 }),
-        ticks: { ticks: [] },
+        ticks: [],
       });
-      const priceA: string = poolToken0Price({ pool: poolA }).price.substring(0, 5);
-      expect(priceA).toStrictEqual("1.010");
+      const priceA: Price = poolToken0Price({
+        token0: poolA.token0,
+        token1: poolA.token1,
+        sqrtRatioX96: poolA.sqrtRatioX96
+      });
+      expect(priceA.price.substring(0, 5)).toStrictEqual("1.010");
+      expect(priceA).toStrictEqual(poolA.token0Price);
 
       const poolB: Pool = createPool({
         tokenA: DAI,
@@ -239,10 +244,16 @@ describe('Pool', () => {
         sqrtRatioX96: sqrtRatioX96,
         liquidity: BigInt.ZERO,
         tickCurrent: getTickAtSqrtRatio({ sqrtRatioX96 }),
-        ticks: { ticks: [] },
+        ticks: [],
       });
-      const priceB: string = poolToken0Price({ pool: poolB }).price.substring(0, 5);
-      expect(priceB).toStrictEqual("1.010");
+      const priceB: Price = poolToken0Price({
+        token0: poolB.token0,
+        token1: poolB.token1,
+        sqrtRatioX96: poolB.sqrtRatioX96
+      });
+      expect(priceB.price.substring(0, 5)).toStrictEqual("1.010");
+      expect(priceB).toStrictEqual(poolB.token0Price);
+
     });
   });
 
@@ -258,11 +269,16 @@ describe('Pool', () => {
         sqrtRatioX96: sqrtRatioX96,
         liquidity: BigInt.ZERO,
         tickCurrent: getTickAtSqrtRatio({ sqrtRatioX96 }),
-        ticks: { ticks: [] },
+        ticks: [],
       });
-      const priceA: string = poolToken1Price({ pool: poolA }).price;
-      const priceRoundedA: string = BigFloat.fromString(priceA).toFixed(4);
+      const priceA: Price = poolToken1Price({
+        token0: poolA.token0,
+        token1: poolA.token1,
+        sqrtRatioX96: poolA.sqrtRatioX96
+      });
+      const priceRoundedA: string = BigFloat.fromString(priceA.price).toFixed(4);
       expect(priceRoundedA).toStrictEqual("0.9901");
+      expect(priceA).toStrictEqual(poolA.token1Price);
 
       const poolB: Pool = createPool({
         tokenA: DAI,
@@ -271,11 +287,16 @@ describe('Pool', () => {
         sqrtRatioX96: sqrtRatioX96,
         liquidity: BigInt.ZERO,
         tickCurrent: getTickAtSqrtRatio({ sqrtRatioX96 }),
-        ticks: { ticks: [] },
+        ticks: [],
       });
-      const priceB: string = poolToken1Price({ pool: poolB }).price;
-      const priceRoundedB: string = BigFloat.fromString(priceB).toFixed(4);
+      const priceB: Price = poolToken1Price({
+        token0: poolB.token0,
+        token1: poolB.token1,
+        sqrtRatioX96: poolB.sqrtRatioX96
+      });
+      const priceRoundedB: string = BigFloat.fromString(priceB.price).toFixed(4);
       expect(priceRoundedB).toStrictEqual("0.9901");
+      expect(priceB).toStrictEqual(poolB.token1Price);
     });
   });
 
@@ -289,10 +310,10 @@ describe('Pool', () => {
         sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
         liquidity: BigInt.ZERO,
         tickCurrent: 0,
-        ticks: { ticks: [] },
+        ticks: [],
       });
-      expect(poolPriceOf({ token: DAI, pool: pool })).toStrictEqual(poolToken0Price({ pool }));
-      expect(poolPriceOf({ token: USDC, pool: pool })).toStrictEqual(poolToken1Price({ pool }));
+      expect(poolPriceOf({ token: DAI, pool: pool })).toStrictEqual(pool.token0Price);
+      expect(poolPriceOf({ token: USDC, pool: pool })).toStrictEqual(pool.token1Price);
     });
 
     it('throws if invalid token', () => {
@@ -304,7 +325,7 @@ describe('Pool', () => {
           sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
           liquidity: BigInt.ZERO,
           tickCurrent: 0,
-          ticks: { ticks: [] },
+          ticks: [],
         });
         poolPriceOf({ token: _getWETH(ChainId.MAINNET), pool: pool });
       };
@@ -321,7 +342,7 @@ describe('Pool', () => {
         sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
         liquidity: BigInt.ZERO,
         tickCurrent: 0,
-        ticks: { ticks: [] },
+        ticks: [],
       });
       expect(poolChainId({ pool: poolA })).toStrictEqual(ChainId.MAINNET);
 
@@ -332,7 +353,7 @@ describe('Pool', () => {
         sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
         liquidity: BigInt.ZERO,
         tickCurrent: 0,
-        ticks: { ticks: [] },
+        ticks: [],
       });
       expect(poolChainId({ pool: poolB })).toStrictEqual(ChainId.MAINNET);
     });
@@ -347,7 +368,7 @@ describe('Pool', () => {
         sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
         liquidity: BigInt.ZERO,
         tickCurrent: 0,
-        ticks: { ticks: [] },
+        ticks: [],
       });
       expect(poolInvolvesToken({ token: USDC, pool: pool })).toStrictEqual(true);
       expect(poolInvolvesToken({ token: DAI, pool: pool })).toStrictEqual(true);
@@ -365,18 +386,17 @@ describe('Pool', () => {
         sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
         liquidity: ONE_ETHER,
         tickCurrent: 0,
-        ticks: { ticks: [
+        ticks: [
           {
             index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
             liquidityNet: ONE_ETHER,
             liquidityGross: ONE_ETHER
           },
-            {
-              index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
-              liquidityNet: ONE_ETHER.opposite(),
-              liquidityGross: ONE_ETHER
-            }]
-        },
+          {
+            index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
+            liquidityNet: ONE_ETHER.opposite(),
+            liquidityGross: ONE_ETHER
+          }],
       });
     });
 

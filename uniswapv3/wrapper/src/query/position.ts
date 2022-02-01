@@ -23,7 +23,7 @@ import {
   MIN_SQRT_RATIO,
   MIN_TICK,
 } from "../utils/constants";
-import { createPool, getPoolTickSpacing, poolToken0Price } from "./pool";
+import { createPool, getPoolTickSpacing } from "./pool";
 import {
   getSqrtRatioAtTick,
   getTickAtSqrtRatio,
@@ -69,7 +69,32 @@ export function createPosition(input: Input_createPosition): Position {
     );
   }
 
-  return { pool, tickLower, tickUpper, liquidity };
+  return {
+    pool,
+    tickLower,
+    tickUpper,
+    liquidity,
+    token0Amount: positionAmount0({
+      pool: input.pool,
+      tickLower: input.tickLower,
+      tickUpper: input.tickUpper,
+      liquidity: input.liquidity,
+    }),
+    token1Amount: positionAmount1({
+      pool: input.pool,
+      tickLower: input.tickLower,
+      tickUpper: input.tickUpper,
+      liquidity: input.liquidity,
+    }),
+    mintAmounts: mintAmounts({
+      pool: input.pool,
+      tickLower: input.tickLower,
+      tickUpper: input.tickUpper,
+      liquidity: input.liquidity,
+    }),
+    token0PriceLower: positionToken0PriceLower({ pool, tickLower }),
+    token0PriceUpper: positionToken0PriceUpper({ pool, tickUpper }),
+  };
 }
 
 /**
@@ -166,11 +191,12 @@ export function createPositionFromAmount1(
 export function positionToken0PriceLower(
   input: Input_positionToken0PriceLower
 ): PriceType {
-  const position: Position = input.position;
+  const pool: Pool = input.pool;
+  const tickLower: i32 = input.tickLower;
   return tickToPrice({
-    baseToken: position.pool.token0,
-    quoteToken: position.pool.token1,
-    tick: position.tickLower,
+    baseToken: pool.token0,
+    quoteToken: pool.token1,
+    tick: tickLower,
   });
 }
 
@@ -181,11 +207,12 @@ export function positionToken0PriceLower(
 export function positionToken0PriceUpper(
   input: Input_positionToken0PriceUpper
 ): PriceType {
-  const position: Position = input.position;
+  const pool: Pool = input.pool;
+  const tickUpper: i32 = input.tickUpper;
   return tickToPrice({
-    baseToken: position.pool.token0,
-    quoteToken: position.pool.token1,
-    tick: position.tickUpper,
+    baseToken: pool.token0,
+    quoteToken: pool.token1,
+    tick: tickUpper,
   });
 }
 
@@ -194,30 +221,33 @@ export function positionToken0PriceUpper(
  * @param input.position
  */
 export function positionAmount0(input: Input_positionAmount0): TokenAmount {
-  const position: Position = input.position;
-  if (position.pool.tickCurrent < position.tickLower) {
+  const pool: Pool = input.pool;
+  const tickLower: i32 = input.tickLower;
+  const tickUpper: i32 = input.tickUpper;
+  const liquidity: BigInt = input.liquidity;
+  if (pool.tickCurrent < tickLower) {
     return {
-      token: position.pool.token0,
+      token: pool.token0,
       amount: getAmount0Delta({
-        sqrtRatioAX96: getSqrtRatioAtTick({ tick: position.tickLower }),
-        sqrtRatioBX96: getSqrtRatioAtTick({ tick: position.tickUpper }),
-        liquidity: position.liquidity,
+        sqrtRatioAX96: getSqrtRatioAtTick({ tick: tickLower }),
+        sqrtRatioBX96: getSqrtRatioAtTick({ tick: tickUpper }),
+        liquidity: liquidity,
         roundUp: false,
       }),
     };
-  } else if (position.pool.tickCurrent < position.tickUpper) {
+  } else if (pool.tickCurrent < tickUpper) {
     return {
-      token: position.pool.token0,
+      token: pool.token0,
       amount: getAmount0Delta({
-        sqrtRatioAX96: position.pool.sqrtRatioX96,
-        sqrtRatioBX96: getSqrtRatioAtTick({ tick: position.tickUpper }),
-        liquidity: position.liquidity,
+        sqrtRatioAX96: pool.sqrtRatioX96,
+        sqrtRatioBX96: getSqrtRatioAtTick({ tick: tickUpper }),
+        liquidity: liquidity,
         roundUp: false,
       }),
     };
   } else {
     return {
-      token: position.pool.token0,
+      token: pool.token0,
       amount: BigInt.ZERO,
     };
   }
@@ -228,29 +258,32 @@ export function positionAmount0(input: Input_positionAmount0): TokenAmount {
  * @param input.position
  */
 export function positionAmount1(input: Input_positionAmount1): TokenAmount {
-  const position: Position = input.position;
-  if (position.pool.tickCurrent < position.tickLower) {
+  const pool: Pool = input.pool;
+  const tickLower: i32 = input.tickLower;
+  const tickUpper: i32 = input.tickUpper;
+  const liquidity: BigInt = input.liquidity;
+  if (pool.tickCurrent < tickLower) {
     return {
-      token: position.pool.token1,
+      token: pool.token1,
       amount: BigInt.ZERO,
     };
-  } else if (position.pool.tickCurrent < position.tickUpper) {
+  } else if (pool.tickCurrent < tickUpper) {
     return {
-      token: position.pool.token1,
+      token: pool.token1,
       amount: getAmount1Delta({
-        sqrtRatioAX96: getSqrtRatioAtTick({ tick: position.tickLower }),
-        sqrtRatioBX96: position.pool.sqrtRatioX96,
-        liquidity: position.liquidity,
+        sqrtRatioAX96: getSqrtRatioAtTick({ tick: tickLower }),
+        sqrtRatioBX96: pool.sqrtRatioX96,
+        liquidity: liquidity,
         roundUp: false,
       }),
     };
   } else {
     return {
-      token: position.pool.token1,
+      token: pool.token1,
       amount: getAmount1Delta({
-        sqrtRatioAX96: getSqrtRatioAtTick({ tick: position.tickLower }),
-        sqrtRatioBX96: getSqrtRatioAtTick({ tick: position.tickUpper }),
-        liquidity: position.liquidity,
+        sqrtRatioAX96: getSqrtRatioAtTick({ tick: tickLower }),
+        sqrtRatioBX96: getSqrtRatioAtTick({ tick: tickUpper }),
+        liquidity: liquidity,
         roundUp: false,
       }),
     };
@@ -262,29 +295,32 @@ export function positionAmount1(input: Input_positionAmount1): TokenAmount {
  * @param input.position
  */
 export function mintAmounts(input: Input_mintAmounts): MintAmounts {
-  const position: Position = input.position;
-  if (position.pool.tickCurrent < position.tickLower) {
+  const pool: Pool = input.pool;
+  const tickLower: i32 = input.tickLower;
+  const tickUpper: i32 = input.tickUpper;
+  const liquidity: BigInt = input.liquidity;
+  if (pool.tickCurrent < tickLower) {
     return {
       amount0: getAmount0Delta({
-        sqrtRatioAX96: getSqrtRatioAtTick({ tick: position.tickLower }),
-        sqrtRatioBX96: getSqrtRatioAtTick({ tick: position.tickUpper }),
-        liquidity: position.liquidity,
+        sqrtRatioAX96: getSqrtRatioAtTick({ tick: tickLower }),
+        sqrtRatioBX96: getSqrtRatioAtTick({ tick: tickUpper }),
+        liquidity: liquidity,
         roundUp: true,
       }),
       amount1: BigInt.ZERO,
     };
-  } else if (position.pool.tickCurrent < position.tickUpper) {
+  } else if (pool.tickCurrent < tickUpper) {
     return {
       amount0: getAmount0Delta({
-        sqrtRatioAX96: position.pool.sqrtRatioX96,
-        sqrtRatioBX96: getSqrtRatioAtTick({ tick: position.tickUpper }),
-        liquidity: position.liquidity,
+        sqrtRatioAX96: pool.sqrtRatioX96,
+        sqrtRatioBX96: getSqrtRatioAtTick({ tick: tickUpper }),
+        liquidity: liquidity,
         roundUp: true,
       }),
       amount1: getAmount1Delta({
-        sqrtRatioAX96: getSqrtRatioAtTick({ tick: position.tickLower }),
-        sqrtRatioBX96: position.pool.sqrtRatioX96,
-        liquidity: position.liquidity,
+        sqrtRatioAX96: getSqrtRatioAtTick({ tick: tickLower }),
+        sqrtRatioBX96: pool.sqrtRatioX96,
+        liquidity: liquidity,
         roundUp: true,
       }),
     };
@@ -292,9 +328,9 @@ export function mintAmounts(input: Input_mintAmounts): MintAmounts {
     return {
       amount0: BigInt.ZERO,
       amount1: getAmount1Delta({
-        sqrtRatioAX96: getSqrtRatioAtTick({ tick: position.tickLower }),
-        sqrtRatioBX96: getSqrtRatioAtTick({ tick: position.tickUpper }),
-        liquidity: position.liquidity,
+        sqrtRatioAX96: getSqrtRatioAtTick({ tick: tickLower }),
+        sqrtRatioBX96: getSqrtRatioAtTick({ tick: tickUpper }),
+        liquidity: liquidity,
         roundUp: true,
       }),
     };
@@ -346,29 +382,25 @@ export function mintAmountsWithSlippage(
     pool: position.pool,
     tickLower: position.tickLower,
     tickUpper: position.tickUpper,
-    amount0: mintAmounts({ position }).amount0,
-    amount1: mintAmounts({ position }).amount1,
+    amount0: position.mintAmounts.amount0,
+    amount1: position.mintAmounts.amount1,
     useFullPrecision: false,
   });
 
   // we want the smaller amounts...
   // ...which occurs at the upper price for amount0...
   const amount0: BigInt = mintAmounts({
-    position: createPosition({
-      pool: poolUpper,
-      liquidity: positionThatWillBeCreated.liquidity,
-      tickLower: position.tickLower,
-      tickUpper: position.tickUpper,
-    }),
+    pool: poolUpper,
+    liquidity: positionThatWillBeCreated.liquidity,
+    tickLower: position.tickLower,
+    tickUpper: position.tickUpper,
   }).amount0;
   // ...and the lower for amount1
   const amount1: BigInt = mintAmounts({
-    position: createPosition({
-      pool: poolLower,
-      liquidity: positionThatWillBeCreated.liquidity,
-      tickLower: position.tickLower,
-      tickUpper: position.tickUpper,
-    }),
+    pool: poolLower,
+    liquidity: positionThatWillBeCreated.liquidity,
+    tickLower: position.tickLower,
+    tickUpper: position.tickUpper,
   }).amount1;
 
   return { amount0, amount1 };
@@ -416,21 +448,17 @@ export function burnAmountsWithSlippage(
   // we want the smaller amounts...
   // ...which occurs at the upper price for amount0...
   const amount0: BigInt = positionAmount0({
-    position: createPosition({
-      pool: poolUpper,
-      liquidity: position.liquidity,
-      tickLower: position.tickLower,
-      tickUpper: position.tickUpper,
-    }),
+    pool: poolUpper,
+    liquidity: position.liquidity,
+    tickLower: position.tickLower,
+    tickUpper: position.tickUpper,
   }).amount;
   // ...and the lower for amount1
   const amount1: BigInt = positionAmount1({
-    position: createPosition({
-      pool: poolLower,
-      liquidity: position.liquidity,
-      tickLower: position.tickLower,
-      tickUpper: position.tickUpper,
-    }),
+    pool: poolLower,
+    liquidity: position.liquidity,
+    tickLower: position.tickLower,
+    tickUpper: position.tickUpper,
   }).amount;
 
   return { amount0, amount1 };
@@ -447,10 +475,10 @@ function ratiosAfterSlippage(
   slippageTolerance: Fraction
 ): BigInt[] {
   const one: Fraction = new Fraction(BigInt.ONE);
-  const priceLower: Fraction = Price.fromPriceType(poolToken0Price({ pool }))
+  const priceLower: Fraction = Price.fromPriceType(pool.token0Price)
     .raw()
     .mul(one.sub(slippageTolerance));
-  const priceUpper: Fraction = Price.fromPriceType(poolToken0Price({ pool }))
+  const priceUpper: Fraction = Price.fromPriceType(pool.token0Price)
     .raw()
     .mul(slippageTolerance.add(one));
 

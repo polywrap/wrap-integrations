@@ -149,8 +149,14 @@ describe('Position', () => {
         tickLower: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) + TICK_SPACING,
         tickUpper: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) + TICK_SPACING * 2,
       });
-      const amount: string = positionAmount0({ position }).amount.toString();
+      const amount: string = positionAmount0({
+        pool: position.pool,
+        liquidity: position.liquidity,
+        tickLower: position.tickLower,
+        tickUpper: position.tickUpper,
+      }).amount.toString();
       expect(amount).toStrictEqual('49949961958869841');
+      expect(amount).toStrictEqual(position.token0Amount.amount.toString());
     });
 
     it('is correct for price below', () => {
@@ -160,8 +166,14 @@ describe('Position', () => {
         tickLower: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) - TICK_SPACING * 2,
         tickUpper: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) - TICK_SPACING,
       });
-      const amount: string = positionAmount0({ position }).amount.toString();
+      const amount: string = positionAmount0({
+        pool: position.pool,
+        liquidity: position.liquidity,
+        tickLower: position.tickLower,
+        tickUpper: position.tickUpper,
+      }).amount.toString();
       expect(amount).toStrictEqual('0');
+      expect(amount).toStrictEqual(position.token0Amount.amount.toString());
     });
 
     it('is correct for in-range position', () => {
@@ -171,8 +183,14 @@ describe('Position', () => {
         tickLower: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) - TICK_SPACING * 2,
         tickUpper: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) + TICK_SPACING * 2,
       });
-      const amount: string = positionAmount0({ position }).amount.toString();
+      const amount: string = positionAmount0({
+        pool: position.pool,
+        liquidity: position.liquidity,
+        tickLower: position.tickLower,
+        tickUpper: position.tickUpper,
+      }).amount.toString();
       expect(amount).toStrictEqual('120054069145287995769396');
+      expect(amount).toStrictEqual(position.token0Amount.amount.toString());
     });
   });
 
@@ -184,8 +202,14 @@ describe('Position', () => {
         tickLower: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) + TICK_SPACING,
         tickUpper: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) + TICK_SPACING * 2,
       });
-      const amount: string = positionAmount1({ position }).amount.toString();
+      const amount: string = positionAmount1({
+        pool: position.pool,
+        liquidity: position.liquidity,
+        tickLower: position.tickLower,
+        tickUpper: position.tickUpper,
+      }).amount.toString();
       expect(amount).toStrictEqual('0');
+      expect(amount).toStrictEqual(position.token1Amount.amount.toString());
     });
 
     it('is correct for price below', () => {
@@ -195,8 +219,14 @@ describe('Position', () => {
         tickLower: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) - TICK_SPACING * 2,
         tickUpper: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) - TICK_SPACING,
       });
-      const amount: string = positionAmount1({ position }).amount.toString();
+      const amount: string = positionAmount1({
+        pool: position.pool,
+        liquidity: position.liquidity,
+        tickLower: position.tickLower,
+        tickUpper: position.tickUpper,
+      }).amount.toString();
       expect(amount).toStrictEqual('49970077052');
+      expect(amount).toStrictEqual(position.token1Amount.amount.toString());
     });
 
     it('is correct for in-range position', () => {
@@ -206,8 +236,14 @@ describe('Position', () => {
         tickLower: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) - TICK_SPACING * 2,
         tickUpper: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) + TICK_SPACING * 2,
       });
-      const amount: string = positionAmount1({ position }).amount.toString();
+      const amount: string = positionAmount1({
+        pool: position.pool,
+        liquidity: position.liquidity,
+        tickLower: position.tickLower,
+        tickUpper: position.tickUpper,
+      }).amount.toString();
       expect(amount).toStrictEqual('79831926242');
+      expect(amount).toStrictEqual(position.token1Amount.amount.toString());
     });
   });
 
@@ -428,9 +464,16 @@ describe('Position', () => {
         tickLower: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) + TICK_SPACING,
         tickUpper: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) + TICK_SPACING * 2,
       });
-      const amounts: MintAmounts = mintAmounts({ position });
+      const amounts: MintAmounts = mintAmounts({
+        pool: position.pool,
+        liquidity: position.liquidity,
+        tickLower: position.tickLower,
+        tickUpper: position.tickUpper,
+      });
       expect(amounts.amount0.toString()).toStrictEqual('49949961958869841754182');
       expect(amounts.amount1.toString()).toStrictEqual('0');
+      expect(amounts.amount0.toString()).toStrictEqual(position.mintAmounts.amount0.toString());
+      expect(amounts.amount1.toString()).toStrictEqual(position.mintAmounts.amount1.toString());
     });
 
     it('is correct for price below', () => {
@@ -440,9 +483,16 @@ describe('Position', () => {
         tickLower: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) - TICK_SPACING * 2,
         tickUpper: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) - TICK_SPACING,
       });
-      const amounts: MintAmounts = mintAmounts({ position });
+      const amounts: MintAmounts = mintAmounts({
+        pool: position.pool,
+        liquidity: position.liquidity,
+        tickLower: position.tickLower,
+        tickUpper: position.tickUpper,
+      });
       expect(amounts.amount0.toString()).toStrictEqual('0');
       expect(amounts.amount1.toString()).toStrictEqual('49970077053');
+      expect(amounts.amount0.toString()).toStrictEqual(position.mintAmounts.amount0.toString());
+      expect(amounts.amount1.toString()).toStrictEqual(position.mintAmounts.amount1.toString());
     });
 
     it('is correct for in-range position', () => {
@@ -452,9 +502,16 @@ describe('Position', () => {
         tickLower: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) - TICK_SPACING * 2,
         tickUpper: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) + TICK_SPACING * 2,
       });
-      const amounts: MintAmounts = mintAmounts({ position });
+      const amounts: MintAmounts = mintAmounts({
+        pool: position.pool,
+        liquidity: position.liquidity,
+        tickLower: position.tickLower,
+        tickUpper: position.tickUpper,
+      });
       expect(amounts.amount0.toString()).toStrictEqual('120054069145287995769397');
       expect(amounts.amount1.toString()).toStrictEqual('79831926243');
+      expect(amounts.amount0.toString()).toStrictEqual(position.mintAmounts.amount0.toString());
+      expect(amounts.amount1.toString()).toStrictEqual(position.mintAmounts.amount1.toString());
     });
   });
 });

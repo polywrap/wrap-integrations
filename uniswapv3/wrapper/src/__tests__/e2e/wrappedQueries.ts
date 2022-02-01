@@ -1,4 +1,4 @@
-import { Web3ApiClient } from "@web3api/client-js";
+ import { Web3ApiClient } from "@web3api/client-js";
 import {
   AddLiquidityOptions,
   BigInt, ClaimOptions, CollectOptions,
@@ -41,7 +41,7 @@ export async function createPool(client: Web3ApiClient, ensUri: string, tokenA: 
       sqrtRatioX96: sqrtRatioX96.toString(),
       liquidity: liquidity.toString(),
       tickCurrent,
-      ticks: { ticks },
+      ticks,
     },
   });
   if (query.error) {

@@ -41,12 +41,20 @@ type Currency {
   name: String
 }
 
+# Represents Price of a token in terms of another token. When used as a function argument, the 'price' property is ignored.
 type Price {
   baseToken: Token! # the base token of the price
   quoteToken: Token! # the quote token of the price
   denominator: BigInt! # amount of base token used to calculate price
   numerator: BigInt! # amount of quote token used to calculate price
-  price: String! # a string representation of the price
+  price: String! # a decimal string representation of the price
+}
+
+# Represents fraction, typically a percent.
+type Fraction {
+  numerator: BigInt!
+  denominator: BigInt!
+  quotient: String! # a decimal string representation of the fraction
 }
 
 type TokenAmount {
@@ -60,10 +68,6 @@ type Tick {
   liquidityNet: BigInt!
 }
 
-type TickListDataProvider {
-  ticks: [Tick!]!
-}
-
 type Pool {
   token0: Token!
   token1: Token!
@@ -71,7 +75,9 @@ type Pool {
   sqrtRatioX96: BigInt!
   liquidity: BigInt!
   tickCurrent: Int32!
-  tickDataProvider: TickListDataProvider
+  tickDataProvider: [Tick!]!
+  token0Price: Price!
+  token1Price: Price!
 }
 
 type Route {
@@ -79,6 +85,7 @@ type Route {
   path: [Token!]!
   input: Token!
   output: Token!
+  midPrice: Price!
 }
 
 # Options used when determining the best trade in bestTradeExactIn(...) and bestTradeExactOut(...)
@@ -99,7 +106,7 @@ type Trade {
   inputAmount: TokenAmount!
   outputAmount: TokenAmount!
   executionPrice: Price!
-  priceImpact: String!
+  priceImpact: Fraction!
 }
 
 type MintAmounts {
@@ -112,6 +119,11 @@ type Position {
   tickLower: Int32!
   tickUpper: Int32!
   liquidity: BigInt!
+  token0Amount: TokenAmount!
+  token1Amount: TokenAmount!
+  mintAmounts: MintAmounts!
+  token0PriceLower: Price!
+  token0PriceUpper: Price!
 }
 
 #type StandardPermitArguments {

@@ -31,18 +31,17 @@ const pool: Pool = createPool({
   sqrtRatioX96: encodeSqrtRatioX96({ amount1: BigInt.ONE, amount0: BigInt.ONE }),
   liquidity: ONE_ETHER,
   tickCurrent: 0,
-  ticks: { ticks: [
-      {
-        index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
-        liquidityNet: ONE_ETHER,
-        liquidityGross: ONE_ETHER
-      },
-      {
-        index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
-        liquidityNet: ONE_ETHER.opposite(),
-        liquidityGross: ONE_ETHER
-      }]
-  },
+  ticks: [
+    {
+      index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
+      liquidityNet: ONE_ETHER,
+      liquidityGross: ONE_ETHER
+    },
+    {
+      index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
+      liquidityNet: ONE_ETHER.opposite(),
+      liquidityGross: ONE_ETHER
+    }],
 });
 
 describe('Pool Utils', () => {
