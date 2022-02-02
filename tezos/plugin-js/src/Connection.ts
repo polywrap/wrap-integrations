@@ -6,6 +6,7 @@ import {
   TezosToolkit,
 } from "@taquito/taquito";
 import { InMemorySigner } from "@taquito/signer";
+import { Tzip16Module } from "@taquito/tzip16"
 
 export type Address = string;
 export type AccountIndex = number;
@@ -76,6 +77,7 @@ export class Connection {
 
   public setProvider(provider: TezosProvider, signer?: InMemorySigner): void {
     this._client = new TezosToolkit(provider);
+    this._client.addExtension(new Tzip16Module());
 
     if (signer) {
       this._client.setProvider({

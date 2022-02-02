@@ -215,6 +215,13 @@ type Query {
     connection: Connection
   ): String!
 
+  executeTzip16View(
+    address: String!
+    viewName: String!
+    args: String!
+    connection: Connection
+  ): String!
+
   getWalletPKH(
     connection: Connection
   ): String!

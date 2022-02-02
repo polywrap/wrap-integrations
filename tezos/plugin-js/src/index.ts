@@ -20,6 +20,7 @@ import {
   PluginPackageManifest,
   PluginFactory,
 } from "@web3api/core-js";
+import { tzip16 } from "@taquito/tzip16"
 import { TransactionOperation, MichelsonMap, BigMapAbstraction } from "@taquito/taquito";
 import { char2Bytes } from "@taquito/utils";
 import { TempleWallet, TempleDAppNetwork } from "@temple-wallet/dapp"
@@ -328,7 +329,7 @@ export class TezosPlugin extends Plugin {
 
   public async getContractStorage(input: Query.Input_getContractStorage): Promise<string> {
     const connection = await this.getConnection(input.connection);
-    const contract = await connection.getProvider().contract.at(input.address)
+    const contract = await connection.getProvider().contract.at(input.address);
     const storage = await contract.storage();
     // @ts-ignore
     let data = storage[input.key];
@@ -345,7 +346,15 @@ export class TezosPlugin extends Plugin {
         data = data[field];
       }
     }
-    return this.stringifyStorage(data);
+    return this.stringify(data);
+  }
+
+  public async executeTzip16View(input: Query.Input_executeTzip16View): Promise<string> {
+    const connection = await this.getConnection(input.connection);
+    const contract = await connection.getProvider().contract.at(input.address, tzip16);
+    const views = await contract.tzip16().metadataViews()
+    const data = await views[input.viewName]().executeView(...this.parseArgs(input.args))
+    return this.stringify(data);
   }
 
   // Utils
@@ -404,7 +413,10 @@ export class TezosPlugin extends Plugin {
     return contract.methods[input.method](...this.parseArgs(input.args)).send();
   }
 
-  private stringifyStorage(output: any): string {
+  private stringify(output: any): string {
+    if (!output) {
+      return ""
+    }
     switch (typeof output) {
       case "number":
       case "string":
@@ -425,13 +437,11 @@ export class TezosPlugin extends Plugin {
         if (keys.length > 0) {
           let out: Record<string, any> = {};
           for (const key of keys) {
-            out[key] = this.stringifyStorage(output[key]);
+            out[key] = this.stringify(output[key]);
           }
           output = JSON.stringify(out);
         }
-        break;
-      default:
-        throw new Error(`type '${typeof output}' is not supported while parsing storage`);   
+        break;  
     }
     return output;
   }

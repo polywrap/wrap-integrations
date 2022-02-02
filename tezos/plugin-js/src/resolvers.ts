@@ -82,6 +82,12 @@ export const query = (plugin: Plugin): Query.Module => ({
     return plugin.getContractStorage(input);
   },
 
+  executeTzip16View: async (
+    input: Query.Input_executeTzip16View
+  ): Promise<string> => {
+    return plugin.executeTzip16View(input);
+  },
+
   getPublicKey: async (
     input: Query.Input_getPublicKey
   ): Promise<string> => {

@@ -132,6 +132,37 @@ describe("Tezos Plugin", () => {
       })
     })
 
+    describe("executeTzip16View",() => {
+      it("should execute a tzip16 view", async () => {
+        const response = await client.query<{ executeTzip16View: string }>({
+          uri,
+          query: `
+            query {
+              executeTzip16View(
+                address: $address,
+                args: $args,
+                viewName: $viewName
+                connection: $connection,
+              )
+            }
+          `,
+          variables: {
+            address: "KT1GBZmSxmnKJXGMdMLbugPfLyUPmuLSMwKS",
+            connection: {
+              networkNameOrChainId: "mainnet"
+            },
+            viewName: "resolve-name",
+            args: JSON.stringify(["616c6963652e74657a"])
+          }
+        })
+
+        expect(response.errors).toBeUndefined()
+        expect(response.data).toBeDefined()
+        expect(response.data?.executeTzip16View).toBeDefined()
+        expect(typeof response.data?.executeTzip16View).toBe('string')
+      })
+    })
+
     describe("getOperationStatus", () => {
       it("should get operation status", async () => {
         const response =  await client.query<{ getOperationStatus: string }>({
