@@ -230,6 +230,11 @@ type Query {
     hash: String!
     network: GetOperationStatusSupportedNetworks!
   ): OperationStatus!
+
+  encodeMichelsonExpressionToBytes(
+    expression: JSON!
+    value: JSON!
+  ): String!
 }
 
 type Mutation {

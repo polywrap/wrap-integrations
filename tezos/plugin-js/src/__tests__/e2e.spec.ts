@@ -45,6 +45,55 @@ describe("Tezos Plugin", () => {
   })
 
   describe("Query", () => {
+    describe("encodeMichelsonExpressionToBytes", () => {
+      it("should encode a michelson expression to bytes", async () => {
+        const response = await client.query<{ encodeMichelsonExpressionToBytes: string }>({
+          uri,
+          query: `
+            query {
+              encodeMichelsonExpressionToBytes(
+                expression: $expression, 
+                value: $value
+              )
+            }
+          `,
+          variables: {
+            expression: {
+              prim: 'pair',
+              args: [
+                  {
+                      prim: 'pair',
+                      args: [
+                          {
+                              annots: ['%label'],
+                              prim: 'bytes',
+                          },
+                          {
+                              annots: ['%owner'],
+                              prim: 'address',
+                          },
+                      ],
+                  },
+                  {
+                      annots: ['%nonce'],
+                      prim: 'nat',
+                  }
+              ],
+            },
+            value: {
+              label: '636f6d6d6974', 
+              owner: 'tz1VxMudmADssPp6FPDGRsvJXE41DD6i9g6n', 
+              nonce: 491919002 
+            },
+          }
+        })
+
+        expect(response.errors).toBeUndefined()
+        expect(response.data).toBeDefined()
+        expect(response.data?.encodeMichelsonExpressionToBytes).toBe('05070707070a00000006636f6d6d69740a0000001600007128c922351e2a0b591f36ce638880052891b9f6009ada90d503')
+      })
+    })
+
     describe("getContractStorage", () => {
       it("should get storage of contract", async () => {
         const response =  await client.query<{ getContractStorage: string }>({

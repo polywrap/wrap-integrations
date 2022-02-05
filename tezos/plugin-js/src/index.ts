@@ -13,6 +13,7 @@ import {
   ConnectionConfigs,
 } from "./Connection";
 import * as Mapping from "./mapping";
+import { getOperation } from "./indexer";
 
 import {
   Client,
@@ -20,11 +21,12 @@ import {
   PluginPackageManifest,
   PluginFactory,
 } from "@web3api/core-js";
-import { tzip16 } from "@taquito/tzip16"
-import { TransactionOperation, MichelsonMap, BigMapAbstraction } from "@taquito/taquito";
+import { tzip16 } from "@taquito/tzip16";
 import { char2Bytes } from "@taquito/utils";
-import { TempleWallet, TempleDAppNetwork } from "@temple-wallet/dapp"
-import { getOperation } from "./indexer";
+import { Schema } from "@taquito/michelson-encoder";
+import { MichelsonType, packDataBytes } from "@taquito/michel-codec";
+import { TempleWallet, TempleDAppNetwork } from "@temple-wallet/dapp";
+import { TransactionOperation, MichelsonMap, BigMapAbstraction } from "@taquito/taquito";
 
 // Export all types that are nested inside of TezosConfig.
 // This is required for the extractPluginConfigs.ts script.
@@ -355,6 +357,14 @@ export class TezosPlugin extends Plugin {
     const views = await contract.tzip16().metadataViews()
     const data = await views[input.viewName]().executeView(...this.parseArgs(input.args))
     return this.stringify(data);
+  }
+
+  public async encodeMichelsonExpressionToBytes(input: Query.Input_encodeMichelsonExpressionToBytes): Promise<string> {
+    const expression = input.expression as unknown as MichelsonType;
+    const schema = new Schema(expression);
+    const encoded = schema.Encode(input.value)
+    const packed = packDataBytes(encoded, expression);
+    return packed.bytes;
   }
 
   // Utils

@@ -64,6 +64,12 @@ export const mutation = (plugin: Plugin): Mutation.Module => ({
 });
 
 export const query = (plugin: Plugin): Query.Module => ({
+  encodeMichelsonExpressionToBytes: async (
+    input: Query.Input_encodeMichelsonExpressionToBytes
+  ): Promise<string> => {
+    return plugin.encodeMichelsonExpressionToBytes(input);
+  },
+
   getWalletPKH: async (
     input: Query.Input_getWalletPKH
   ): Promise<string> => {
