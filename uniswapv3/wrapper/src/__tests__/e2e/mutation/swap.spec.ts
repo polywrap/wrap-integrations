@@ -187,14 +187,19 @@ describe("Swap (mainnet fork)", () => {
   });
 
   it("swap: eth -> usdc; swapWithPool: usdc -> wbtc", async () => {
-    const recipient = await ethersProvider.getSigner(3).getAddress();
+    const recipient = await ethersProvider.getSigner().getAddress();
 
     const ETH: Token = await getEther(client, ensUri, ChainIdEnum.MAINNET);
     const USDC: Token = tokens.find(token => token.currency.symbol === "USDC") as Token;
     const WBTC: Token = tokens.find(token => token.currency.symbol === "WBTC") as Token;
 
-    const usdcContract = new ethers.Contract(USDC.address, erc20ABI, ethersProvider);
+    const usdcContract = new ethers.Contract(USDC.address, erc20ABI, ethersProvider.getSigner(2));
     const startUsdcBalance: ethers.BigNumber = await usdcContract.balanceOf(recipient);
+
+    const wbtcContract = new ethers.Contract(WBTC.address, erc20ABI, ethersProvider);
+    const startWbtcBalance: ethers.BigNumber = await wbtcContract.balanceOf(recipient);
+    expect(startWbtcBalance.eq(0)).toBeTruthy()
+    
     const usdcOut = "1000000000";
 
     // swap eth -> usdc
@@ -243,12 +248,9 @@ describe("Swap (mainnet fork)", () => {
     const usdcWbtcTxResponse = await usdcWbtcTx.wait();
     expect(usdcWbtcTxResponse.status).toBeTruthy();
 
-    // TODO: how is it possible that the end balance wasn't decreased by usdcIn, yet the trade went through and wbtc was increased?
-    // const endUsdcBalance: ethers.BigNumber = await usdcContract.balanceOf(recipient);
-    // console.log(endUsdcBalance.toString())
-    // expect(endUsdcBalance.eq(0)).toBeTruthy();
-    const wbtcContract = new ethers.Contract(WBTC.address, erc20ABI, ethersProvider);
-    const wbtcBalance: ethers.BigNumber = await wbtcContract.balanceOf(recipient);
-    expect(wbtcBalance.gt(0)).toBeTruthy();
+    const endUsdcBalance: ethers.BigNumber = await usdcContract.balanceOf(recipient);
+    expect(endUsdcBalance.eq(0)).toBeTruthy();
+    const endWbtcBalance: ethers.BigNumber = await wbtcContract.balanceOf(recipient);
+    expect(endWbtcBalance.gt(0)).toBeTruthy();
   });
 });
