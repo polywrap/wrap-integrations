@@ -1,7 +1,7 @@
  import { Web3ApiClient } from "@web3api/client-js";
 import {
-  AddLiquidityOptions,
-  BigInt, ClaimOptions, CollectOptions,
+  AddLiquidityOptions, BestTradeOptions,
+  BigInt, ChainId, ChainIdEnum, ClaimOptions, CollectOptions,
   FeeAmount,
   FeeAmountEnum,
   FeeOptions, FullWithdrawOptions, IncentiveKey,
@@ -191,6 +191,21 @@ export async function nearestUsableTick(client: Web3ApiClient, ensUri: string, t
     throw query.error;
   }
   return query.data!;
+}
+
+export async function getSqrtRatioAtTick(client: Web3ApiClient, ensUri: string, tick: number): Promise<string> {
+ const query = await client.invoke<string>({
+   uri: ensUri,
+   module: "query",
+   method: "getSqrtRatioAtTick",
+   input: {
+     tick,
+   },
+ });
+ if (query.error) {
+   throw query.error;
+ }
+ return query.data!;
 }
 
 export async function feeAmountToTickSpacing(client: Web3ApiClient, ensUri: string, feeAmount: FeeAmount): Promise<number> {
@@ -414,4 +429,70 @@ export async function createPosition(client: Web3ApiClient, ensUri: string, pool
     throw query.error;
   }
   return query.data!;
+}
+
+export async function bestTradeExactIn(client: Web3ApiClient, ensUri: string, pools: Pool[], amountIn: TokenAmount, tokenOut: Token, options?: BestTradeOptions): Promise<Trade[]> {
+  const query = await client.invoke<Trade[]>({
+    uri: ensUri,
+    module: "query",
+    method: "bestTradeExactIn",
+    input: {
+      pools,
+      amountIn,
+      tokenOut,
+      options,
+    },
+  });
+  if (query.error) {
+    throw query.error;
+  }
+  return query.data!;
+}
+
+export async function bestTradeExactOut(client: Web3ApiClient, ensUri: string, pools: Pool[], tokenIn: Token, amountOut: TokenAmount, options?: BestTradeOptions): Promise<Trade[]> {
+ const query = await client.invoke<Trade[]>({
+   uri: ensUri,
+   module: "query",
+   method: "bestTradeExactOut",
+   input: {
+     pools,
+     tokenIn,
+     amountOut,
+     options,
+   },
+ });
+ if (query.error) {
+   throw query.error;
+ }
+ return query.data!;
+}
+
+export async function getEther(client: Web3ApiClient, ensUri: string, chainId: ChainId): Promise<Token> {
+ const query = await client.invoke<Token>({
+   uri: ensUri,
+   module: "query",
+   method: "getEther",
+   input: {
+     chainId: typeof chainId === "string" ? chainId : ChainIdEnum[chainId],
+   },
+ });
+ if (query.error) {
+   throw query.error;
+ }
+ return query.data!;
+}
+
+export async function getWETH(client: Web3ApiClient, ensUri: string, chainId: ChainId): Promise<Token> {
+ const query = await client.invoke<Token>({
+   uri: ensUri,
+   module: "query",
+   method: "getWETH",
+   input: {
+     chainId: typeof chainId === "string" ? chainId : ChainIdEnum[chainId],
+   },
+ });
+ if (query.error) {
+   throw query.error;
+ }
+ return query.data!;
 }

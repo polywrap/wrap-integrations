@@ -3,7 +3,6 @@ import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
 import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
 import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
 import { ensPlugin } from "@web3api/ens-plugin-js";
-import tokenList from "./testData/tokenList.json";
 import poolList from "./testData/poolList.json";
 import { getUniswapPool } from "./uniswapCreatePool";
 import { ethers } from "ethers";
@@ -44,25 +43,6 @@ export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): 
      },
     ],
   };
-}
-
-export async function getTokenList(): Promise<Token[]> {
-  let tokens: Token[] = [];
-  tokenList.forEach((token: {
-    address: string;
-    decimals: number;
-    symbol: string;
-    name: string;
-  }) => tokens.push({
-    chainId: ChainIdEnum.MAINNET,
-    address: token.address,
-    currency: {
-      decimals: token.decimals,
-      symbol: token.symbol,
-      name: token.name,
-    },
-  }));
-  return tokens;
 }
 
 export function getTokens(pools: Pool[]): Token[] {
