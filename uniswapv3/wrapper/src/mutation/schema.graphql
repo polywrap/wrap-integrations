@@ -7,42 +7,9 @@ type GasOptions {
 }
 
 type Mutation {
-
-  # Perform on-chain swap using token and fee amount information to find the correct pool
-  swapWithTokens(
-    tokenIn: Token! # input token
-    tokenOut: Token! # output token
-    amount: BigInt! # amount being swapped in or out, depending on trade type
-    tradeType: TradeType! # type of trade, either exact input with calculated output or vice versa
-    feeAmount: FeeAmount! # fee amount of the pool being used for the swap
-    swapOptions: SwapOptions! # configuration for the swap
-    gasOptions: GasOptions # optional configuration for transaction gas
-  ): Ethereum_TxResponse!
-
-  # Perform on-chain swap using pool at provided address
-  swap(
-    address: String! # Ethereum address of pool used for swap
-    amount: TokenAmount! # token amount being swapped in or out, depending on trade type
-    tradeType: TradeType! # type of trade, either exact input with calculated output or vice versa
-    swapOptions: SwapOptions! # optional configuration for the swap
-    gasOptions: GasOptions # optional configuration for transaction gas
-  ): Ethereum_TxResponse!
-
-  pool(
-    tokenA: Token!
-    tokenB: Token!
-    feeAmount: FeeAmount!
-    gasOptions: GasOptions
-  ): Ethereum_TxResponse!
-
-  execSwap(
-    trades: [Trade!]!
-    swapOptions: SwapOptions!
-    gasOptions: GasOptions
-  ): Ethereum_TxResponse!
-
-  execPool(
-    pool: Pool!
+  approve(
+    token: Token!
+    amount: BigInt
     gasOptions: GasOptions
   ): Ethereum_TxResponse!
 
@@ -53,9 +20,41 @@ type Mutation {
     gasOptions: GasOptions
   ): Ethereum_TxResponse!
 
-  approve(
-    token: Token!
-    amount: BigInt
+  execSwap(
+    trades: [Trade!]!
+    swapOptions: SwapOptions!
+    gasOptions: GasOptions
+  ): Ethereum_TxResponse!
+
+  # Perform on-chain swap using token and fee amount information to find the correct pool
+  swap(
+    inToken: Token! # input token
+    outToken: Token! # output token
+    fee: FeeAmount! # fee amount of the pool being used for the swap
+    amount: BigInt! # amount being swapped in or out, depending on trade type
+    tradeType: TradeType! # type of trade, either exact input with calculated output or vice versa
+    swapOptions: SwapOptions! # configuration for the swap
+    gasOptions: GasOptions # optional configuration for transaction gas
+  ): Ethereum_TxResponse!
+
+  # Perform on-chain swap using pool at provided address; requires ERC20-compliant input and output (i.e. no Ether)
+  swapWithPool(
+    address: String! # Ethereum address of pool used for swap
+    amount: TokenAmount! # token amount being swapped in or out, depending on trade type
+    tradeType: TradeType! # type of trade, either exact input with calculated output or vice versa
+    swapOptions: SwapOptions! # optional configuration for the swap
+    gasOptions: GasOptions # optional configuration for transaction gas
+  ): Ethereum_TxResponse!
+
+  deployPool(
+    pool: Pool!
+    gasOptions: GasOptions
+  ): Ethereum_TxResponse!
+
+  deployPoolFromTokens(
+    tokenA: Token!
+    tokenB: Token!
+    fee: FeeAmount!
     gasOptions: GasOptions
   ): Ethereum_TxResponse!
 }

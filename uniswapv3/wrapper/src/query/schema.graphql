@@ -1,4 +1,4 @@
-#import { Query, StaticTxResult } into Ethereum from "w3://ens/ethereum.web3api.eth"
+#import { Query } into Ethereum from "w3://ens/ethereum.web3api.eth"
 #import { Query } into SHA3 from "w3://ens/sha3.web3api.eth"
 #import { Query } into EthersSolidity from "w3://ens/ethers-solidity.polywrap.eth"
 #import { Query } into ERC20 from "w3://ipfs/QmeiPWHe2ixfitcgjRwP5AaJD5R7DbsGhQNQwT4rFNyxx8"

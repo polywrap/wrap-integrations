@@ -110,7 +110,7 @@ export function fetchPoolFromTokens(input: Input_fetchPoolFromTokens): Pool {
  */
 export function fetchPoolFromAddress(input: Input_fetchPoolFromAddress): Pool {
   const chainId: ChainId = input.chainId;
-  const address: string = input.address;
+  const address: string = input.address.toLowerCase();
   const fetchTicks: boolean = input.fetchTicks;
   // fetch data
   const immutables: PoolImmutables = fetchPoolImmutables(address, chainId);
