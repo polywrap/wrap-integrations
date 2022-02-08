@@ -1,6 +1,6 @@
 // translated to AS from https://github.com/Uniswap/uniswap-sdk-core/blob/main/src/entities/fractions/fraction.ts
 
-import { Rounding } from "../query/w3";
+import { Rounding } from "./enumUtils";
 
 import { BigInt } from "@web3api/wasm-as";
 import { BigFloat } from "as-bigfloat";

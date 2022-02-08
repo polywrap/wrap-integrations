@@ -1,6 +1,7 @@
 // translated to AS from https://github.com/Uniswap/uniswap-sdk-core/blob/main/src/entities/fractions/fraction.ts
 
-import { Rounding, Token, TokenAmount, Price as PriceType } from "../query/w3";
+import { Rounding } from "./enumUtils";
+import { Token, TokenAmount, Price as PriceType } from "../query/w3";
 import Fraction from "./Fraction";
 import { tokenEquals } from "../query";
 

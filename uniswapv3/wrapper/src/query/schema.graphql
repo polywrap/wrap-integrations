@@ -6,24 +6,16 @@
 #import { Query } into Subgraph from "w3://fs//Users/kris/WebstormProjects/polywrap/demos/subgraph-query/wrapper/build"
 #import { ChainId, TradeType, Currency, Token, Price, TokenAmount, Tick, Pool, FeeAmount, Route, TradeSwap, Trade, BestTradeOptions, Position, PermitOptions, FeeOptions, SwapOptions, MethodParameters, MintAmounts } from "../common/schema.graphql"
 
-#ximport { Query } into Console from "w3://ipfs/QmVGwj3FtvhiErJ1wWbmRuHpvEQ3t1BPNESvEiMJM57p2y"
-
-enum Rounding {
-  ROUND_DOWN
-  ROUND_HALF_UP
-  ROUND_UP
-}
-
 # Return value of nextInitializedTickWithinOneWord(...)
 type NextTickResult {
-  index: Int32!
-  found: Boolean!
+  index: Int32! # tick index of returned next tick
+  found: Boolean! # true the returned tick index represents an initialized tick, or false if max or min tick are returned instead
 }
 
 # Input or output amount and next pool state; return value of getPoolInputAmount(...) and getPoolOutputAmount(...)
 type PoolChangeResult {
-  amount: TokenAmount!
-  nextPool: Pool!
+  amount: TokenAmount! # input or output amount resulting from simulated swap
+  nextPool: Pool! # Pool state after simulated swap
 }
 
 # Input used to create a trade
@@ -48,6 +40,7 @@ type ClaimOptions {
   amount: BigInt # The amount of `rewardToken` to claim. 0 claims all.
 }
 
+# Options to specify when withdrawing tokens
 type FullWithdrawOptions implements ClaimOptions {
   owner: String! # Set when withdrawing. The position will be sent to `owner` on withdraw.
   data: String #  Set when withdrawing. `data` is passed to `safeTransferFrom` when transferring the position from contract back to owner.
@@ -75,15 +68,16 @@ type CommonAddLiquidityOptions {
 #type IncreaseOptions implements CommonAddLiquidityOptions {
 #  tokenId: BigInt! # Indicates the ID of the position to increase liquidity for.
 #}
-#
-#union AddLiquidityOptions = MintOptions | IncreaseOptions
-# TODO: Return to use of union type once union type support is merged
+
+# TODO: Use union type once union type support is merged
+# Union of MintOptions and IncreaseOptions; one of either recipient or tokenId is required.
 type AddLiquidityOptions implements CommonAddLiquidityOptions {
   recipient: String # The account that should receive the minted NFT.
-  createPool: Boolean # Creates pool if not initialized before mint.
-  tokenId: BigInt # Indicates the ID of the position to increase liquidity for.
+  createPool: Boolean # Creates pool if not initialized before mint. Ignored if recipient is not null.
+  tokenId: BigInt # Indicates the ID of the position to increase liquidity for. Ignored if recipient is not null.
 }
 
+# Options to specify when calling safeTransferFrom(...) to transfer an NFT
 type SafeTransferOptions {
   sender: String! # The account sending the NFT.
   recipient: String! # The account that should receive the NFT.
@@ -91,13 +85,15 @@ type SafeTransferOptions {
   data: String # The optional parameter that passes data to the `onERC721Received` call for the staker
 }
 
+# Options to specify when calling collectCallParameters(...) to collect liquidity provider rewards or removeCallParameters(...) to exit a liquidity position.
 type CollectOptions {
-  tokenId: BigInt! # Indicates the ID of the position to collect for.
+  tokenId: BigInt! # Indicates the ID of the position to collect for. Ignored when CollectOptions is as property of RemoveLiquidityOptions for use in removeCallParameters(...).
   expectedCurrencyOwed0: TokenAmount! # Expected value of tokensOwed0, including as-of-yet-unaccounted-for fees/liquidity value to be burned
   expectedCurrencyOwed1: TokenAmount! # Expected value of tokensOwed1, including as-of-yet-unaccounted-for fees/liquidity value to be burned
   recipient: String! # The account that should receive the tokens.
 }
 
+# Permission parameters for NFT transfers, in case the transaction is being sent by an account that does not own the NFT
 type NFTPermitOptions {
   v: PermitV!
   r: String!
@@ -121,21 +117,25 @@ type Query {
 
   ## Token
 
+  # Returns true if the currencies are equivalent, false otherwise
   currencyEquals(
     currencyA: Currency!
     currencyB: Currency!
   ): Boolean!
 
+  # Returns true if the tokens are equivalent, false otherwise
   tokenEquals(
     tokenA: Token!
     tokenB: Token!
   ): Boolean!
 
+  # Returns true if the token amounts are equivalent, false otherwise
   tokenAmountEquals(
     tokenAmountA: TokenAmount!
     tokenAmountB: TokenAmount!
   ): Boolean!
 
+  # Returns true if the address of tokenA would precede the address of token B when sorted alphabetically
   tokenSortsBefore(
     tokenA: Token!
     tokenB: Token!
@@ -143,59 +143,64 @@ type Query {
 
   ## Token Utils
 
+  # Returns an Ether token on the specified chain
   getEther(
     chainId: ChainId!
   ): Token!
 
+  # Returns a Wrapped Ether token on the specified chain
   getWETH(
     chainId: ChainId!
   ): Token!
 
+  # Returns true if the token is Ether, false otherwise. A token representing Ether must have an empty string in its address field.
   isEther(
     token: Token!
   ): Boolean!
 
+  # If the input token is Ether, the return value is Wrapped Ether; otherwise, the return value is the same as the input value.
   wrapToken(
     token: Token!
   ): Token!
 
+  # If the input token amount represents an amount of Ether, the return value represents the same amount in Wrapped Ether; otherwise, the return value is the same as the input value.
   wrapAmount(
     amount: TokenAmount!
   ): TokenAmount!
 
   ## TickDataProvider
 
-  # validates a tick list
+  # validates a tick list, returning true of the tick list is valid. Throws an exception if the tick list is not valid.
   validateTickList(
-    ticks: [Tick!]!
-    tickSpacing: Int32!
+    ticks: [Tick!]! # a list of ticks to validate
+    tickSpacing: Int32! # the tick spacing of the list
   ): Boolean!
 
   # returns tick at requested index
   getTick(
-    tickDataProvider: [Tick!]!
-    tickIndex: Int32!
+    tickDataProvider: [Tick!]! # a list of ticks to search
+    tickIndex: Int32! # the tick index of the requested tick
   ): Tick!
 
   # returns next initialized tick, or max or min tick. Returns true if a tick is found at index
   nextInitializedTickWithinOneWord(
-    tickDataProvider: [Tick!]!
-    tick: Int32!
-    lte: Boolean!
-    tickSpacing: Int32!
+    tickDataProvider: [Tick!]! # tick list to search
+    tick: Int32! # current tick index
+    lte: Boolean! # true of returned tick index should be less than or equal to current tick index
+    tickSpacing: Int32! # tick spacing of tick list
   ): NextTickResult!
 
   ## Pool
 
   # constructs and validates a Pool
   createPool(
-    tokenA: Token!
-    tokenB: Token!
-    fee: FeeAmount!
-    sqrtRatioX96: BigInt!
-    liquidity: BigInt!
-    tickCurrent: Int32!
-    ticks: [Tick!]
+    tokenA: Token! # pool token
+    tokenB: Token! # pool token
+    fee: FeeAmount! # fee amount for swaps through pool
+    sqrtRatioX96: BigInt! # encoded representation of current swap price
+    liquidity: BigInt! # pool liquidity
+    tickCurrent: Int32! # current pool tick
+    ticks: [Tick!] # pool tick list
   ): Pool!
 
   # Returns the Ethereum address of the Pool contract
@@ -206,30 +211,30 @@ type Query {
     initCodeHashManualOverride: String # Override the init code hash used to compute the pool address if necessary
   ): String!
 
-  # Returns true if the token is either token0 or token1
+  # Returns true if the token is in the Pool (i.e. pool.token0 or pool.token1)
   poolInvolvesToken(
     pool: Pool!
-    token: Token! # The token to check
+    token: Token!
   ): Boolean!
 
   # Returns the current mid price of the pool in terms of token0, i.e. the ratio of token1 over token0
   poolToken0Price(
-    token0: Token!
-    token1: Token!
-    sqrtRatioX96: BigInt!
+    token0: Token! # pool token; pool.token0
+    token1: Token! # pool token; pool.token1
+    sqrtRatioX96: BigInt! # encoded representation of current price in pool; pool.sqrtRatioX96
   ): Price!
 
   # Returns the current mid price of the pool in terms of token1, i.e. the ratio of token0 over token1
   poolToken1Price(
-    token0: Token!
-    token1: Token!
-    sqrtRatioX96: BigInt!
+    token0: Token! # pool token; pool.token0
+    token1: Token! # pool token; pool.token1
+    sqrtRatioX96: BigInt! # encoded representation of current price in pool; pool.sqrtRatioX96
   ): Price!
 
   # Returns the price of the given token in terms of the other token in the pool
   poolPriceOf(
-    pool: Pool!
-    token: Token! # The token to return price of
+    pool: Pool! # Pool that involves token
+    token: Token! # The token to return the price of
   ): Price!
 
   # Returns the chain ID of the tokens in the pool
@@ -239,14 +244,14 @@ type Query {
 
   # Given an input amount of a token, return the computed output amount, and a pool with state updated after the trade
   getPoolOutputAmount(
-    pool: Pool!
+    pool: Pool! # Pool that involves input and output tokens
     inputAmount: TokenAmount! # The input amount for which to quote the output amount
     sqrtPriceLimitX96: BigInt # The Q64.96 sqrt price limit
   ): PoolChangeResult!
 
   # Given a desired output amount of a token, return the computed input amount and a pool with state updated after the trade
   getPoolInputAmount(
-    pool: Pool!
+    pool: Pool! # Pool that involves input and output tokens
     outputAmount: TokenAmount! # The output amount for which to quote the input amount
     sqrtPriceLimitX96: BigInt # The Q64.96 sqrt price limit. If zero for one, the price cannot be less than this value after the swap. If one for zero, the price cannot be greater than this value after the swap.
   ): PoolChangeResult!
@@ -351,7 +356,7 @@ type Query {
 
   # Return the execution price after accounting for slippage tolerance
   tradeWorstExecutionPrice(
-    trade: Trade!
+    trade: Trade! # trade for which to calculate execution price
     slippageTolerance: String! # the allowed tolerated slippage
   ): Price!
 
@@ -384,7 +389,7 @@ type Query {
 
    ## Position
 
-  # Constructs and validates a Position for a given Pool with the given liquidity
+  # Constructs and validates a liquidity Position for a given Pool with the given liquidity
   createPosition(
     pool: Pool! # For which pool the liquidity is assigned
     tickLower: Int32! # The lower tick of the position
@@ -457,13 +462,13 @@ type Query {
 
   # Returns the minimum amounts that must be sent in order to safely mint the amount of liquidity held by the position with the given slippage tolerance
   mintAmountsWithSlippage(
-    position: Position!
+    position: Position! # Position for which to calculate mint amounts
     slippageTolerance: String! # Tolerance of unfavorable slippage from the current price
   ): MintAmounts!
 
   # Returns the minimum amounts that should be requested in order to safely burn the amount of liquidity held by the position with the given slippage tolerance
   burnAmountsWithSlippage(
-    position: Position!
+    position: Position! # Position for which to calculate burn amounts
     slippageTolerance: String! # Tolerance of unfavorable slippage from the current price
   ): MintAmounts!
 
@@ -483,17 +488,20 @@ type Query {
     exactOutput: Boolean! # whether the route should be encoded in reverse, for making exact output swaps
   ): String!
 
+  # Encodes arguments and returns transaction calldata to call selfPermit or selfPermitAllowed on an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol
   encodePermit(
     token: Token!
     options: PermitOptions!
   ): String!
 
+  # Encodes arguments and returns transaction calldata to call unwrapWETH9 or unwrapWETH9WithFee on an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol
   encodeUnwrapWETH9(
     amountMinimum: BigInt!
     recipient: String!
     feeOptions: FeeOptions
   ): String!
 
+  # Encodes arguments and returns transaction calldata to call sweepToken or sweepTokenWithFee on an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol
   encodeSweepToken(
     token: Token!
     amountMinimum: BigInt!
@@ -501,8 +509,10 @@ type Query {
     feeOptions: FeeOptions
   ): String!
 
+  # Encodes arguments and returns transaction calldata to call refundEth on an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol
   encodeRefundETH: String!
 
+  # Encodes multiple calldatas into a single calldata for making multiple calls in one transaction using a contract implementing the necessary interface, such as an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol
   encodeMulticall(
     calldatas: [String!]!
   ): String!
@@ -534,32 +544,36 @@ type Query {
     route: Route! # The swap route, a list of pools through which a swap can occur
     amount: TokenAmount! # The amount of the quote, either an amount in, or an amount out
     tradeType: TradeType! # The trade type, either exact input or exact output
-    options: QuoteOptions
+    options: QuoteOptions # Optional configuration
   ): MethodParameters!
 
   ## NonfungiblePositionManager
 
+  # Returns calldata for creating a pool on-chain using an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol
   createCallParameters(
-    pool: Pool!
+    pool: Pool! # An off-chain representation of the pool to create on-chain
   ): MethodParameters!
 
+  # Returns calldata for minting or adding liquidity to a pool on-chain using an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol. Optionally creates the pool if it doesn't exist.
   addCallParameters(
-    position: Position!
-    options: AddLiquidityOptions!
+    position: Position! # Liquidity position to add to pool
+    options: AddLiquidityOptions! # Required transaction configuration
   ): MethodParameters!
 
+  # Returns calldata for collecting liquidity provider rewards using an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol
   collectCallParameters(
-    options: CollectOptions!
+    options: CollectOptions! # Required transaction configuration
   ): MethodParameters!
 
-  # Produces the calldata for completely or partially exiting a position
+  # Returns calldata for completely or partially exiting a liquidity position using an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol
   removeCallParameters(
     position: Position! # The position to exit
     options: RemoveLiquidityOptions! # Additional information necessary for generating the calldata
   ): MethodParameters!
 
+  # Returns calldata for safely transferring an NFT using an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol
   safeTransferFromParameters(
-    options: SafeTransferOptions!
+    options: SafeTransferOptions! # Required transaction configuration
   ): MethodParameters!
 
   ## Utils
@@ -584,14 +598,14 @@ type Query {
     amount0: BigInt! # The denominator amount i.e., the amount of token0
   ): BigInt!
 
-  # fullMath
+  # Returns (a * b) / denominator
   mulDivRoundingUp(
     a: BigInt!
     b: BigInt!
     denominator: BigInt!
   ): BigInt!
 
-  # liquidityMath
+  # Returns x + y
   addDelta(
     x: BigInt!
     y: BigInt!
@@ -630,7 +644,7 @@ type Query {
     price: Price! # price for which to return the closest tick that represents a price less than or equal to the input price, i.e. the price of the returned tick is less than or equal to the input price. Note that a string price is not used as input here, so the "price" property of the Price type can have any value without affecting the results.
   ): Int32!
 
-  # sqrtPriceMath
+  # used to facilitate liquidity math using sqrtRatioX96 values
   getAmount0Delta(
     sqrtRatioAX96: BigInt!
     sqrtRatioBX96: BigInt!
@@ -638,7 +652,7 @@ type Query {
     roundUp: Boolean!
   ): BigInt!
 
-  # sqrtPriceMath
+  # used to facilitate liquidity math using sqrtRatioX96 values
   getAmount1Delta(
     sqrtRatioAX96: BigInt!
     sqrtRatioBX96: BigInt!
@@ -646,7 +660,7 @@ type Query {
     roundUp: Boolean!
   ): BigInt!
 
-  # sqrtPriceMath
+  # used to facilitate liquidity math using sqrtRatioX96 values
   getNextSqrtPriceFromInput(
     sqrtPX96: BigInt!
     liquidity: BigInt!
@@ -654,7 +668,7 @@ type Query {
     zeroForOne: Boolean!
   ): BigInt!
 
-  # sqrtPriceMath
+  # used to facilitate liquidity math using sqrtRatioX96 values
   getNextSqrtPriceFromOutput(
     sqrtPX96: BigInt!
     liquidity: BigInt!
@@ -662,23 +676,23 @@ type Query {
     zeroForOne: Boolean!
   ): BigInt!
 
-  # TickList
+  # Returns true if the tick index is smaller than all tick indices in the list
   tickIsBelowSmallest(
-    ticks: [Tick!]!
-    tick: Int32!
+    ticks: [Tick!]! # tick list to check
+    tick: Int32! # input tick index
   ): Boolean!
 
-  # TickList
+  # Returns true if the tick index is greater than or equal to all tick indices in the list
   tickIsAtOrAboveLargest(
-    ticks: [Tick!]!
-    tick: Int32!
+    ticks: [Tick!]! # tick list to check
+    tick: Int32! # input tick index
   ): Boolean!
 
-  # TickList
+  # Returns next initialized tick following the input tick
   nextInitializedTick(
-    ticks: [Tick!]!
-    tick: Int32!
-    lte: Boolean!
+    ticks: [Tick!]! # tick list to check
+    tick: Int32! # input tick index
+    lte: Boolean! # If true, searches list for next initialized tick that has index less than or equal to the input tick index
   ): Tick!
 
   # Returns true if a tick list is sorted by tick index
@@ -698,13 +712,13 @@ type Query {
 
   ##  Fetch
 
-  # returns token object constructed from on-chain token contract
+  # returns token object constructed from the on-chain token contract at the given address
   fetchToken(
     address: String! # the Ethereum address of token's ERC20 contract
     chainId: ChainId! # the id of the chain to be queried
   ): Token!
 
-  # returns pool object constructed from on-chain pool contract
+  # returns pool object constructed from the on-chain pool contract associated with the tokens and fee amount
   fetchPoolFromTokens(
     tokenA: Token! # a token in the pool
     tokenB: Token! # the other token in the pool
@@ -712,14 +726,14 @@ type Query {
     fetchTicks: Boolean! # if true, the full list of pool ticks will be fetched
   ): Pool!
 
-  # returns pool object constructed from on-chain pool contract
+  # returns pool object constructed from the on-chain pool contract at the given address
   fetchPoolFromAddress(
     address: String! # the Ethereum address of the pool contract
     chainId: ChainId! # the id of the chain to be queried
     fetchTicks: Boolean! # if true, the full list of pool ticks will be fetched
   ): Pool!
 
-  # returns array of ticks from on-chain pool contract at given address
+  # returns array of ticks from the on-chain pool contract at the given address
   fetchTickList(
     address: String! # the Ethereum address of the pool contract
     chainId: ChainId! # the id of the chain to be queried
@@ -727,20 +741,24 @@ type Query {
 
   ##  Enum Utils
 
+  # Returns the tick spacing associated with a FeeAmount enum value
   feeAmountToTickSpacing(
     feeAmount: FeeAmount!
   ): Int32!
 
+  # Returns the fee (in one-hundred-thousandths of a percent) associated with a FeeAmount enum value
   getFeeAmount(
     feeAmount: FeeAmount!
   ): UInt32!
 
+  # Returns v value associated with a PermitV enum value
   getPermitV(
     permitV: PermitV!
   ): Int32!
 
   ##  constants
 
+  # address of Uniswap's Pool factory contract
   FACTORY_ADDRESS: String!
 
   POOL_INIT_CODE_HASH: String!
@@ -750,13 +768,15 @@ type Query {
   # historical artifact due to small compiler mismatch
   POOL_INIT_CODE_HASH_OPTIMISM_KOVAN: String!
 
+  # smallest valid tick index in a pool
   MIN_TICK: Int32!
 
+  # largest valid tick index in a pool
   MAX_TICK: Int32!
 
+  # smallest valid sqrtRatioX96 in a pool
   MIN_SQRT_RATIO: BigInt!
 
+  # largest valid sqrtRatioX96 in a pool
   MAX_SQRT_RATIO: BigInt!
-
-
 }

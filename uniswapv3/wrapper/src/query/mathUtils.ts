@@ -57,7 +57,7 @@ export function mulDivRoundingUp(input: Input_mulDivRoundingUp): BigInt {
 export function addDelta(input: Input_addDelta): BigInt {
   const x: BigInt = input.x;
   const y: BigInt = input.y;
-  // TODO: this if branch seems pointless since it's mathematically the same thing. Why does Uniswap SDK do this?
+  // this if branch seems pointless since it's mathematically the same thing. Why does Uniswap SDK do this?
   //  positive y: x + y
   //  negative y: x - (-1 * -y) = x - y = x + -y;
   // if (y.isNegative) {
