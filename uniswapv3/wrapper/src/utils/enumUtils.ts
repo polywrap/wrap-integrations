@@ -1,5 +1,12 @@
 import { FeeAmount, PermitV } from "../query/w3";
 
+export enum Rounding {
+  ROUND_DOWN,
+  ROUND_HALF_UP,
+  ROUND_UP,
+  _MAX_,
+}
+
 export function _feeAmountToTickSpacing(feeAmount: FeeAmount): i32 {
   switch (feeAmount) {
     case FeeAmount.LOWEST:
