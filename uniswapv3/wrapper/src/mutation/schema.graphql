@@ -1,60 +1,66 @@
 #import { Mutation, TxResponse } into Ethereum from "w3://ens/ethereum.web3api.eth"
 #import { ChainId, Currency, Token, TokenAmount, Route, Trade, TradeType, Pool, FeeAmount, SwapOptions, MethodParameters } from "../common/schema.graphql"
 
+# Transaction gas configuration
 type GasOptions {
-  gasPrice: BigInt
-  gasLimit: BigInt
+  gasPrice: BigInt # The gas price to set for the transaction
+  gasLimit: BigInt # The gas limit to set for the transaction
 }
 
 type Mutation {
+  # Call the approve(...) function of an ERC20 token contract on-chain, allowing the Uniswap router contract to transfer tokens
   approve(
-    token: Token!
-    amount: BigInt
-    gasOptions: GasOptions
+    token: Token! # Token for which to approve the Uniswap router contract to transfer
+    amount: BigInt # The amount to approve for transfer; defaults to maximum amount if null
+    gasOptions: GasOptions # Transaction gas configuration
   ): Ethereum_TxResponse!
 
+  # Send an Ethereum transaction to the given address
   execCall(
-    parameters: MethodParameters!
-    address: String!
-    chainId: ChainId!
-    gasOptions: GasOptions
+    parameters: MethodParameters! # Transaction calldata and Ether value
+    address: String! # Address of the target Ethereum contract
+    chainId: ChainId! # Id of the chain on which to execute the transaction
+    gasOptions: GasOptions # Transaction gas configuration
   ): Ethereum_TxResponse!
 
+  # Perform an on-chain swap with one or more trades in a single transaction
   execSwap(
-    trades: [Trade!]!
-    swapOptions: SwapOptions!
-    gasOptions: GasOptions
+    trades: [Trade!]! # Trades to encode into calldata
+    swapOptions: SwapOptions! # Swap configuration
+    gasOptions: GasOptions # Transaction gas configuration
   ): Ethereum_TxResponse!
 
-  # Perform on-chain swap using token and fee amount information to find the correct pool
+  # Perform an on-chain swap within a single pool by using token and fee amount information to find the correct pool
   swap(
-    inToken: Token! # input token
-    outToken: Token! # output token
-    fee: FeeAmount! # fee amount of the pool being used for the swap
-    amount: BigInt! # amount being swapped in or out, depending on trade type
-    tradeType: TradeType! # type of trade, either exact input with calculated output or vice versa
-    swapOptions: SwapOptions! # configuration for the swap
-    gasOptions: GasOptions # optional configuration for transaction gas
+    inToken: Token! # Input token of the pool
+    outToken: Token! # Output token of the pool
+    fee: FeeAmount! # Fee amount of the pool being used for the swap
+    amount: BigInt! # Amount being swapped in or out, depending on trade type
+    tradeType: TradeType! # Type of trade, either exact input or exact output
+    swapOptions: SwapOptions! # Swap configuration
+    gasOptions: GasOptions # Transaction gas configuration
   ): Ethereum_TxResponse!
 
-  # Perform on-chain swap using pool at provided address; requires ERC20-compliant input and output (i.e. no Ether)
+  # Perform an on-chain swap using a single pool at provided address; requires ERC20-compliant input and output (i.e. no Ether)
   swapWithPool(
-    address: String! # Ethereum address of pool used for swap
-    amount: TokenAmount! # token amount being swapped in or out, depending on trade type
-    tradeType: TradeType! # type of trade, either exact input with calculated output or vice versa
-    swapOptions: SwapOptions! # optional configuration for the swap
-    gasOptions: GasOptions # optional configuration for transaction gas
+    address: String! # Ethereum address of the pool used for the swap
+    amount: TokenAmount! # Token amount being swapped in or out, depending on trade type
+    tradeType: TradeType! # Type of trade, either exact input or exact output
+    swapOptions: SwapOptions! # Swap configuration
+    gasOptions: GasOptions # Transaction gas configuration
   ): Ethereum_TxResponse!
 
+  # Deploy a pool contract on-chain
   deployPool(
-    pool: Pool!
-    gasOptions: GasOptions
+    pool: Pool! # A representation of the pool to deploy
+    gasOptions: GasOptions # Transaction gas configuration
   ): Ethereum_TxResponse!
 
+  # Deploy a pool contract on chain for the given tokens and fee amount
   deployPoolFromTokens(
-    tokenA: Token!
-    tokenB: Token!
-    fee: FeeAmount!
-    gasOptions: GasOptions
+    tokenA: Token! # The first token of the pool, irrespective of sort order
+    tokenB: Token! # The second token of the pool, irrespective of sort order
+    fee: FeeAmount! # The fee tier of the pool
+    gasOptions: GasOptions # Transaction gas configuration
   ): Ethereum_TxResponse!
 }

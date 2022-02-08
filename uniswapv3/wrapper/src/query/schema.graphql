@@ -194,13 +194,13 @@ type Query {
 
   # constructs and validates a Pool
   createPool(
-    tokenA: Token! # pool token
-    tokenB: Token! # pool token
-    fee: FeeAmount! # fee amount for swaps through pool
+    tokenA: Token! # The first token of the pool, irrespective of sort order
+    tokenB: Token! # The second token of the pool, irrespective of sort order
+    fee: FeeAmount! # fee amount for swaps through the pool
     sqrtRatioX96: BigInt! # encoded representation of current swap price
-    liquidity: BigInt! # pool liquidity
+    liquidity: BigInt! # the total liquidity available in the pool
     tickCurrent: Int32! # current pool tick
-    ticks: [Tick!] # pool tick list
+    ticks: [Tick!] # a validated list of all ticks in the pool
   ): Pool!
 
   # Returns the Ethereum address of the Pool contract
