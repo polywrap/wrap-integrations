@@ -6,58 +6,80 @@
 #import { Query } into Subgraph from "w3://fs//Users/kris/WebstormProjects/polywrap/demos/subgraph-query/wrapper/build"
 #import { ChainId, TradeType, Currency, Token, Price, TokenAmount, Tick, Pool, FeeAmount, Route, TradeSwap, Trade, BestTradeOptions, Position, PermitOptions, FeeOptions, SwapOptions, MethodParameters, MintAmounts } from "../common/schema.graphql"
 
-# Return value of nextInitializedTickWithinOneWord(...)
+"Return value of nextInitializedTickWithinOneWord(...)"
 type NextTickResult {
-  index: Int32! # tick index of returned next tick
-  found: Boolean! # true the returned tick index represents an initialized tick, or false if max or min tick are returned instead
+  "Tick index of returned next tick"
+  index: Int32!
+  "True if the returned tick index represents an initialized tick, or false if max or min tick are returned instead"
+  found: Boolean!
 }
 
-# Input or output amount and next pool state; return value of getPoolInputAmount(...) and getPoolOutputAmount(...)
+"Input or output amount and next pool state; return value of getPoolInputAmount(...) and getPoolOutputAmount(...)"
 type PoolChangeResult {
-  amount: TokenAmount! # input or output amount resulting from simulated swap
-  nextPool: Pool! # Pool state after simulated swap
+  "input or output amount resulting from simulated swap"
+  amount: TokenAmount!
+  "Pool state after simulated swap"
+  nextPool: Pool!
 }
 
-# Input used to create a trade
+"Input used to create a trade"
 type TradeRoute {
-  route: Route! # The route of the trade
-  amount: TokenAmount! # The amount being passed in or out, depending on the trade type
+  "The route of the trade"
+  route: Route!
+  "The amount being passed in or out, depending on the trade type"
+  amount: TokenAmount!
 }
 
-# Represents a unique staking program.
+"Represents a unique staking program."
 type IncentiveKey {
-  rewardToken: Token! # The token rewarded for participating in the staking program.
-  pool: Pool! # The pool that the staked positions must provide in.
-  startTime: BigInt! # The time when the incentive program begins.
-  endTime: BigInt! # The time that the incentive program ends.
-  refundee: String! #  The address which receives any remaining reward tokens at `endTime`.
+  "The token rewarded for participating in the staking program."
+  rewardToken: Token!
+  "The pool that the staked positions must provide in."
+  pool: Pool!
+  "The time when the incentive program begins."
+  startTime: BigInt!
+  "The time that the incentive program ends."
+  endTime: BigInt!
+  "The address which receives any remaining reward tokens at `endTime`."
+  refundee: String!
 }
 
-# Options to specify when claiming rewards.
+"Options to specify when claiming rewards."
 type ClaimOptions {
-  tokenId: BigInt! # The id of the NFT
-  recipient: String! # Address to send rewards to.
-  amount: BigInt # The amount of `rewardToken` to claim. 0 claims all.
+  "The id of the NFT"
+  tokenId: BigInt!
+  "Address to send rewards to."
+  recipient: String!
+  "The amount of `rewardToken` to claim. 0 claims all."
+  amount: BigInt
 }
 
-# Options to specify when withdrawing tokens
+"Options to specify when withdrawing tokens"
 type FullWithdrawOptions implements ClaimOptions {
-  owner: String! # Set when withdrawing. The position will be sent to `owner` on withdraw.
-  data: String #  Set when withdrawing. `data` is passed to `safeTransferFrom` when transferring the position from contract back to owner.
+  "Set when withdrawing. The position will be sent to `owner` on withdraw."
+  owner: String!
+  "Set when withdrawing. `data` is passed to `safeTransferFrom` when transferring the position from contract back to owner."
+  data: String
 }
 
-# Optional arguments to send to the quoter.
+"Optional arguments to send to the quoter."
 type QuoteOptions {
-  sqrtPriceLimitX96: BigInt # The optional price limit for the trade.
+  "The optional price limit for the trade."
+  sqrtPriceLimitX96: BigInt
 }
 
-# Options for producing the calldata to add liquidity.
+"Options for producing the calldata to add liquidity."
 type CommonAddLiquidityOptions {
-  slippageTolerance: String! # How much the pool price is allowed to move.
-  deadline: BigInt! # When the transaction expires, in epoch seconds.
-  useNative: Token # Whether to spend ether. If true, one of the pool tokens must be WETH, by default false
-  token0Permit: PermitOptions # The optional permit parameters for spending token0
-  token1Permit: PermitOptions # The optional permit parameters for spending token1
+  "How much the pool price is allowed to move."
+  slippageTolerance: String!
+  "When the transaction expires, in epoch seconds."
+  deadline: BigInt!
+  "Whether to spend ether. If true, one of the pool tokens must be WETH, by default false"
+  useNative: Token
+  "The optional permit parameters for spending token0"
+  token0Permit: PermitOptions
+  "The optional permit parameters for spending token1"
+  token1Permit: PermitOptions
 }
 
 #type MintOptions implements CommonAddLiquidityOptions {
@@ -70,30 +92,41 @@ type CommonAddLiquidityOptions {
 #}
 
 # TODO: Use union type once union type support is merged
-# Union of MintOptions and IncreaseOptions; one of either recipient or tokenId is required.
+"Union of MintOptions and IncreaseOptions; one of either recipient or tokenId is required."
 type AddLiquidityOptions implements CommonAddLiquidityOptions {
-  recipient: String # The account that should receive the minted NFT.
-  createPool: Boolean # Creates pool if not initialized before mint. Ignored if recipient is not null.
-  tokenId: BigInt # Indicates the ID of the position to increase liquidity for. Ignored if recipient is not null.
+  "The account that should receive the minted NFT."
+  recipient: String
+  "Creates pool if not initialized before mint. Ignored if recipient is not null."
+  createPool: Boolean
+  "Indicates the ID of the position to increase liquidity for. Ignored if recipient is not null."
+  tokenId: BigInt
 }
 
-# Options to specify when calling safeTransferFrom(...) to transfer an NFT
+"Options to specify when calling safeTransferFrom(...) to transfer an NFT"
 type SafeTransferOptions {
-  sender: String! # The account sending the NFT.
-  recipient: String! # The account that should receive the NFT.
-  tokenId: BigInt! # The id of the token being sent.
-  data: String # The optional parameter that passes data to the `onERC721Received` call for the staker
+  "The account sending the NFT."
+  sender: String!
+  "The account that should receive the NFT."
+  recipient: String!
+  "The id of the token being sent."
+  tokenId: BigInt!
+  "The optional parameter that passes data to the `onERC721Received` call for the staker"
+  data: String
 }
 
-# Options to specify when calling collectCallParameters(...) to collect liquidity provider rewards or removeCallParameters(...) to exit a liquidity position.
+"Options to specify when calling collectCallParameters(...) to collect liquidity provider rewards or removeCallParameters(...) to exit a liquidity position."
 type CollectOptions {
-  tokenId: BigInt! # Indicates the ID of the position to collect for. Ignored when CollectOptions is as property of RemoveLiquidityOptions for use in removeCallParameters(...).
-  expectedCurrencyOwed0: TokenAmount! # Expected value of tokensOwed0, including as-of-yet-unaccounted-for fees/liquidity value to be burned
-  expectedCurrencyOwed1: TokenAmount! # Expected value of tokensOwed1, including as-of-yet-unaccounted-for fees/liquidity value to be burned
-  recipient: String! # The account that should receive the tokens.
+  "Indicates the ID of the position to collect for. Ignored when CollectOptions is as property of RemoveLiquidityOptions for use in removeCallParameters(...)."
+  tokenId: BigInt!
+  "Expected value of tokensOwed0, including as-of-yet-unaccounted-for fees/liquidity value to be burned"
+  expectedCurrencyOwed0: TokenAmount!
+  "Expected value of tokensOwed1, including as-of-yet-unaccounted-for fees/liquidity value to be burned"
+  expectedCurrencyOwed1: TokenAmount!
+  "The account that should receive the tokens."
+  recipient: String!
 }
 
-# Permission parameters for NFT transfers, in case the transaction is being sent by an account that does not own the NFT
+"Permission parameters for NFT transfers, in case the transaction is being sent by an account that does not own the NFT"
 type NFTPermitOptions {
   v: PermitV!
   r: String!
@@ -102,40 +135,47 @@ type NFTPermitOptions {
   spender: String!
 }
 
-# Options for producing the calldata to exit a position.
+"Options for producing the calldata to exit a position."
 type RemoveLiquidityOptions {
-  tokenId: BigInt! # The ID of the token to exit
-  liquidityPercentage: String! # The percentage of position liquidity to exit.
-  slippageTolerance: String! # How much the pool price is allowed to move.
-  deadline: BigInt! # When the transaction expires, in epoch seconds.
-  burnToken: Boolean # Whether the NFT should be burned if the entire position is being exited, by default false.
-  permit: NFTPermitOptions # The optional permit of the token ID being exited, in case the exit transaction is being sent by an account that does not own the NFT
-  collectOptions: CollectOptions! # Parameters to be passed on to collect; tokenId is ignored.
+  "The ID of the token to exit"
+  tokenId: BigInt!
+  "The percentage of position liquidity to exit."
+  liquidityPercentage: String!
+  "How much the pool price is allowed to move."
+  slippageTolerance: String!
+  "When the transaction expires, in epoch seconds."
+  deadline: BigInt!
+  "Whether the NFT should be burned if the entire position is being exited, by default false."
+  burnToken: Boolean
+  "The optional permit of the token ID being exited, in case the exit transaction is being sent by an account that does not own the NFT"
+  permit: NFTPermitOptions
+  "Parameters to be passed on to collect; tokenId is ignored."
+  collectOptions: CollectOptions!
 }
 
 type Query {
 
   ## Token
 
-  # Returns true if the currencies are equivalent, false otherwise
+  "Returns true if the currencies are equivalent, false otherwise"
   currencyEquals(
     currencyA: Currency!
     currencyB: Currency!
   ): Boolean!
 
-  # Returns true if the tokens are equivalent, false otherwise
+  "Returns true if the tokens are equivalent, false otherwise"
   tokenEquals(
     tokenA: Token!
     tokenB: Token!
   ): Boolean!
 
-  # Returns true if the token amounts are equivalent, false otherwise
+  "Returns true if the token amounts are equivalent, false otherwise"
   tokenAmountEquals(
     tokenAmountA: TokenAmount!
     tokenAmountB: TokenAmount!
   ): Boolean!
 
-  # Returns true if the address of tokenA would precede the address of token B when sorted alphabetically
+  "Returns true if the address of tokenA would precede the address of token B when sorted alphabetically"
   tokenSortsBefore(
     tokenA: Token!
     tokenB: Token!
@@ -143,221 +183,284 @@ type Query {
 
   ## Token Utils
 
-  # Returns an Ether token on the specified chain
+  "Returns an Ether token on the specified chain"
   getEther(
     chainId: ChainId!
   ): Token!
 
-  # Returns a Wrapped Ether token on the specified chain
+  "Returns a Wrapped Ether token on the specified chain"
   getWETH(
     chainId: ChainId!
   ): Token!
 
-  # Returns true if the token is Ether, false otherwise. A token representing Ether must have an empty string in its address field.
+  "Returns true if the token is Ether, false otherwise. A token representing Ether must have an empty string in its address field."
   isEther(
     token: Token!
   ): Boolean!
 
-  # If the input token is Ether, the return value is Wrapped Ether; otherwise, the return value is the same as the input value.
+  "If the input token is Ether, the return value is Wrapped Ether; otherwise, the return value is the same as the input value."
   wrapToken(
     token: Token!
   ): Token!
 
-  # If the input token amount represents an amount of Ether, the return value represents the same amount in Wrapped Ether; otherwise, the return value is the same as the input value.
+  "If the input token amount represents an amount of Ether, the return value represents the same amount in Wrapped Ether; otherwise, the return value is the same as the input value."
   wrapAmount(
     amount: TokenAmount!
   ): TokenAmount!
 
   ## TickDataProvider
 
-  # validates a tick list, returning true of the tick list is valid. Throws an exception if the tick list is not valid.
+  "Validates a tick list, returning true of the tick list is valid. Throws an exception if the tick list is not valid."
   validateTickList(
-    ticks: [Tick!]! # a list of ticks to validate
-    tickSpacing: Int32! # the tick spacing of the list
+    "A list of ticks to validate"
+    ticks: [Tick!]!
+    "The tick spacing of the list"
+    tickSpacing: Int32!
   ): Boolean!
 
-  # returns tick at requested index
+  "Returns the tick at the requested index"
   getTick(
-    tickDataProvider: [Tick!]! # a list of ticks to search
-    tickIndex: Int32! # the tick index of the requested tick
+    "A list of ticks to search"
+    tickDataProvider: [Tick!]!
+    "The tick index of the requested tick"
+    tickIndex: Int32!
   ): Tick!
 
-  # returns next initialized tick, or max or min tick. Returns true if a tick is found at index
+  "Returns next initialized tick, or max or min tick. Returns true if a tick is found at index."
   nextInitializedTickWithinOneWord(
-    tickDataProvider: [Tick!]! # tick list to search
-    tick: Int32! # current tick index
-    lte: Boolean! # true of returned tick index should be less than or equal to current tick index
-    tickSpacing: Int32! # tick spacing of tick list
+    "Tick list to search"
+    tickDataProvider: [Tick!]!
+    "Current tick index"
+    tick: Int32!
+    "True of returned tick index should be less than or equal to current tick index"
+    lte: Boolean!
+    "Tick spacing of tick list"
+    tickSpacing: Int32!
   ): NextTickResult!
 
   ## Pool
 
-  # constructs and validates a Pool
+  "Constructs and validates a Pool"
   createPool(
-    tokenA: Token! # The first token of the pool, irrespective of sort order
-    tokenB: Token! # The second token of the pool, irrespective of sort order
-    fee: FeeAmount! # fee amount for swaps through the pool
-    sqrtRatioX96: BigInt! # encoded representation of current swap price
-    liquidity: BigInt! # the total liquidity available in the pool
-    tickCurrent: Int32! # current pool tick
-    ticks: [Tick!] # a validated list of all ticks in the pool
+    "The first token of the pool, irrespective of sort order"
+    tokenA: Token!
+    "The second token of the pool, irrespective of sort order"
+    tokenB: Token!
+    "Fee amount for swaps through the pool"
+    fee: FeeAmount!
+    "Encoded representation of current swap price"
+    sqrtRatioX96: BigInt!
+    "The total liquidity available in the pool"
+    liquidity: BigInt!
+    "Current pool tick"
+    tickCurrent: Int32!
+    "A validated list of all ticks in the pool"
+    ticks: [Tick!]
   ): Pool!
 
-  # Returns the Ethereum address of the Pool contract
+  "Returns the Ethereum address of the Pool contract"
   getPoolAddress(
-    tokenA: Token! # The first token of the pool, irrespective of sort order
-    tokenB: Token! # The second token of the pool, irrespective of sort order
-    fee: FeeAmount! # The fee tier of the pool
-    initCodeHashManualOverride: String # Override the init code hash used to compute the pool address if necessary
+    "The first token of the pool, irrespective of sort order"
+    tokenA: Token!
+    "The second token of the pool, irrespective of sort order"
+    tokenB: Token!
+    "The fee tier of the pool"
+    fee: FeeAmount!
+    "Override the init code hash used to compute the pool address if necessary"
+    initCodeHashManualOverride: String
   ): String!
 
-  # Returns true if the token is in the Pool (i.e. pool.token0 or pool.token1)
+  "Returns true if the token is in the Pool (i.e. pool.token0 or pool.token1)"
   poolInvolvesToken(
     pool: Pool!
     token: Token!
   ): Boolean!
 
-  # Returns the current mid price of the pool in terms of token0, i.e. the ratio of token1 over token0
+  "Returns the current mid price of the pool in terms of token0, i.e. the ratio of token1 over token0"
   poolToken0Price(
-    token0: Token! # pool token; pool.token0
-    token1: Token! # pool token; pool.token1
-    sqrtRatioX96: BigInt! # encoded representation of current price in pool; pool.sqrtRatioX96
+    "The first token of the pool, i.e. pool.token0"
+    token0: Token!
+    "The second token of the pool, i.e. pool.token1"
+    token1: Token!
+    "Encoded representation of the current price in the pool, i.e. pool.sqrtRatioX96"
+    sqrtRatioX96: BigInt!
   ): Price!
 
-  # Returns the current mid price of the pool in terms of token1, i.e. the ratio of token0 over token1
+  "Returns the current mid price of the pool in terms of token1, i.e. the ratio of token0 over token1"
   poolToken1Price(
-    token0: Token! # pool token; pool.token0
-    token1: Token! # pool token; pool.token1
-    sqrtRatioX96: BigInt! # encoded representation of current price in pool; pool.sqrtRatioX96
+    "The first token of the pool, i.e. pool.token0"
+    token0: Token!
+    "The second token of the pool, i.e. pool.token1"
+    token1: Token!
+    "Encoded representation of the current price in the pool, i.e. pool.sqrtRatioX96"
+    sqrtRatioX96: BigInt!
   ): Price!
 
-  # Returns the price of the given token in terms of the other token in the pool
+  "Returns the price of the given token in terms of the other token in the pool"
   poolPriceOf(
-    pool: Pool! # Pool that involves token
-    token: Token! # The token to return the price of
+    "Pool that involves the token"
+    pool: Pool!
+    "The token to return the price of"
+    token: Token!
   ): Price!
 
-  # Returns the chain ID of the tokens in the pool
+  "Returns the chain ID of the tokens in the pool"
   poolChainId(
     pool: Pool!
   ): ChainId!
 
-  # Given an input amount of a token, return the computed output amount, and a pool with state updated after the trade
+  "Given an input amount of a token, return the computed output amount, and a pool with state updated after the trade"
   getPoolOutputAmount(
-    pool: Pool! # Pool that involves input and output tokens
-    inputAmount: TokenAmount! # The input amount for which to quote the output amount
-    sqrtPriceLimitX96: BigInt # The Q64.96 sqrt price limit
+    "Pool that involves input and output tokens"
+    pool: Pool!
+    "The input amount for which to quote the output amount"
+    inputAmount: TokenAmount!
+    "The Q64.96 sqrt price limit"
+    sqrtPriceLimitX96: BigInt
   ): PoolChangeResult!
 
-  # Given a desired output amount of a token, return the computed input amount and a pool with state updated after the trade
+  "Given a desired output amount of a token, return the computed input amount and a pool with state updated after the trade"
   getPoolInputAmount(
-    pool: Pool! # Pool that involves input and output tokens
-    outputAmount: TokenAmount! # The output amount for which to quote the input amount
-    sqrtPriceLimitX96: BigInt # The Q64.96 sqrt price limit. If zero for one, the price cannot be less than this value after the swap. If one for zero, the price cannot be greater than this value after the swap.
+    "Pool that involves input and output tokens"
+    pool: Pool!
+    "The output amount for which to quote the input amount"
+    outputAmount: TokenAmount!
+    "The Q64.96 sqrt price limit. If zero for one, the price cannot be less than this value after the swap. If one for zero, the price cannot be greater than this value after the swap."
+    sqrtPriceLimitX96: BigInt
   ): PoolChangeResult!
 
-  # Returns the tick spacing of ticks in the pool
+  "Returns the tick spacing of ticks in the pool"
   getPoolTickSpacing(
     pool: Pool!
   ): Int32!
 
    ## Route
 
-  # Constructs and validates a Route
+  "Constructs and validates a Route"
   createRoute(
-    pools: [Pool!]! # the ordered list of pools from which to construct the route
-    inToken: Token! # the input token
-    outToken: Token! # the output token
+    "The ordered list of pools from which to construct the route"
+    pools: [Pool!]!
+    "The input token"
+    inToken: Token!
+    "The output token"
+    outToken: Token!
   ): Route!
 
-  # Returns the chain id of the tokens in the route
+  "Returns the chain id of the tokens in the route"
   routeChainId(
     route: Route!
   ): ChainId!
 
-  #  Returns the mid price of the route
+  "Returns the mid price of the route"
   routeMidPrice(
-    pools: [Pool!]! # the ordered list of pools from which to calculate the mid price
-    inToken: Token! # the input token
-    outToken: Token! # the output token
+    "The ordered list of pools from which to calculate the mid price"
+    pools: [Pool!]!
+    "The input token"
+    inToken: Token!
+    "The output token"
+    outToken: Token!
   ): Price!
 
    ## Trade
 
-  # Constructs an exact in trade with the given amount in and route
+  "Constructs an exact in trade with the given amount in and route"
   createTradeExactIn(
-    tradeRoute: TradeRoute! # the route of the exact in trade and the amount being passed in
+    "The route of the exact in trade and the amount being passed in"
+    tradeRoute: TradeRoute!
   ): Trade!
 
-  # Constructs an exact out trade with the given amount out and route
+  "Constructs an exact out trade with the given amount out and route"
   createTradeExactOut(
-    tradeRoute: TradeRoute! # the route of the exact out trade and the amount returned
+    "The route of the exact out trade and the amount returned"
+    tradeRoute: TradeRoute!
   ): Trade!
 
-  # Constructs a trade by simulating swaps through the given route
+  "Constructs a trade by simulating swaps through the given route"
   createTradeFromRoute(
-    tradeRoute: TradeRoute!  # the route to swap through and the amount specified, either input or output, depending on the trade type
-    tradeType: TradeType! # whether the trade is an exact input or exact output swap
+    "The route to swap through and the amount specified, either input or output, depending on the trade type"
+    tradeRoute: TradeRoute!
+    "Whether the trade is an exact input or exact output swap"
+    tradeType: TradeType!
   ): Trade!
 
-  # Constructs a trade by simulating swaps through the given routes
+  "Constructs a trade by simulating swaps through the given routes"
   createTradeFromRoutes(
-    tradeRoutes: [TradeRoute!]! # the routes to swap through and how much of the amount should be routed through each
-    tradeType: TradeType! # whether the trade is an exact input or exact output swap
+    "The routes to swap through and how much of the amount should be routed through each"
+    tradeRoutes: [TradeRoute!]!
+    "Whether the trade is an exact input or exact output swap"
+    tradeType: TradeType!
   ): Trade!
 
-  # Creates a trade without computing the result of swapping through the route. Useful when you have simulated the trade elsewhere and do not have any tick data
+  "Creates a trade without computing the result of swapping through the route. Useful when you have simulated the trade elsewhere and do not have any tick data"
   createUncheckedTrade(
-    swap: TradeSwap! # the route to swap through, the amount being passed in, and the amount returned when the trade is executed
-    tradeType: TradeType! # the type of the trade, either exact in or exact out
+    "The route to swap through, the amount being passed in, and the amount returned when the trade is executed"
+    swap: TradeSwap!
+    "The type of the trade, either exact in or exact out"
+    tradeType: TradeType!
   ): Trade!
 
-  # Creates a trade without computing the result of swapping through the routes. Useful when you have simulated the trade elsewhere and do not have any tick data
+  "Creates a trade without computing the result of swapping through the routes. Useful when you have simulated the trade elsewhere and do not have any tick data"
   createUncheckedTradeWithMultipleRoutes(
-    swaps: [TradeSwap!]! # the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
-    tradeType: TradeType! # the type of the trade, either exact in or exact out
+    "The routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed"
+    swaps: [TradeSwap!]!
+    "The type of the trade, either exact in or exact out"
+    tradeType: TradeType!
   ): Trade!
 
-  # The input amount for the trade assuming no slippage
+  "The input amount for the trade assuming no slippage"
   tradeInputAmount(
-    swaps: [TradeSwap!]! # the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
+    "The routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed"
+    swaps: [TradeSwap!]!
   ): TokenAmount!
 
-  # The output amount for the trade assuming no slippage
+  "The output amount for the trade assuming no slippage"
   tradeOutputAmount(
-    swaps: [TradeSwap!]! # the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
+    "The routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed"
+    swaps: [TradeSwap!]!
   ): TokenAmount!
 
-  # The price expressed in terms of output amount/input amount
+  "The price expressed in terms of output amount/input amount"
   tradeExecutionPrice(
-    inputAmount: TokenAmount! # the trade input amount, e.g. from Trade object or tradeInputAmount(...)
-    outputAmount: TokenAmount! # the trade output amount, e.g. from Trade object or tradeOutputAmount(...)
+    "The trade input amount, e.g. from Trade object or tradeInputAmount(...)"
+    inputAmount: TokenAmount!
+    "The trade output amount, e.g. from Trade object or tradeOutputAmount(...)"
+    outputAmount: TokenAmount!
   ): Price!
 
-  # Returns the percent difference between the route's mid price and the price impact
+  "Returns the percent difference between the route's mid price and the price impact"
   tradePriceImpact(
-    swaps: [TradeSwap!]! # the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
-    outputAmount: TokenAmount! # the trade output amount, e.g. from Trade object or tradeOutputAmount(...)
+    "The routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed"
+    swaps: [TradeSwap!]!
+    "The trade output amount, e.g. from Trade object or tradeOutputAmount(...)"
+    outputAmount: TokenAmount!
   ): Fraction!
 
-  # Get the minimum amount that must be received from the trade for the given slippage tolerance
+  "Get the minimum amount that must be received from the trade for the given slippage tolerance"
   tradeMinimumAmountOut(
-    slippageTolerance: String! # The tolerance of unfavorable slippage from the execution price of this trade; a decimal number between 0 and 1 (e.g. "0.03") that represents a percentage
-    amountOut: TokenAmount! # The output amount of the trade, before slippage, e.g. from Trade object or tradeOutputAmount(...)
-    tradeType: TradeType! # The type of the trade, either exact in or exact out
+    "The tolerance of unfavorable slippage from the execution price of this trade; a decimal number between 0 and 1 (e.g. '0.03') that represents a percentage"
+    slippageTolerance: String!
+    "The output amount of the trade, before slippage, e.g. from Trade object or tradeOutputAmount(...)"
+    amountOut: TokenAmount!
+    "The type of the trade, either exact in or exact out"
+    tradeType: TradeType!
   ): TokenAmount!
 
-  # Get the maximum amount in that can be spent via the trade for the given slippage tolerance
+  "Get the maximum amount in that can be spent via the trade for the given slippage tolerance"
   tradeMaximumAmountIn(
-    slippageTolerance: String! # The tolerance of unfavorable slippage from the execution price of this trade; a decimal number between 0 and 1 (e.g. "0.03") that represents a percentage
-    amountIn: TokenAmount! # The input amount of the trade, before slippage, e.g. from Trade object or tradeInputAmount(...)
-    tradeType: TradeType! # The type of the trade, either exact in or exact out
+    "The tolerance of unfavorable slippage from the execution price of this trade; a decimal number between 0 and 1 (e.g. '0.03') that represents a percentage"
+    slippageTolerance: String!
+    "The input amount of the trade, before slippage, e.g. from Trade object or tradeInputAmount(...)"
+    amountIn: TokenAmount!
+    "The type of the trade, either exact in or exact out"
+    tradeType: TradeType!
   ): TokenAmount!
 
-  # Return the execution price after accounting for slippage tolerance
+  "Return the execution price after accounting for slippage tolerance"
   tradeWorstExecutionPrice(
-    trade: Trade! # trade for which to calculate execution price
-    slippageTolerance: String! # the allowed tolerated slippage
+    "Trade for which to calculate execution price"
+    trade: Trade!
+    "The allowed tolerated slippage"
+    slippageTolerance: String!
   ): Price!
 
   """
@@ -367,10 +470,14 @@ type Query {
   the amount in among multiple routes.
   """
   bestTradeExactIn(
-    pools: [Pool!]! # the pools to consider in finding the best trade
-    amountIn: TokenAmount! # exact amount of input currency to spend
-    tokenOut: Token! # the desired currency out
-    options: BestTradeOptions # options used when determining the best trade
+    "The pools to consider in finding the best trade"
+    pools: [Pool!]!
+    "Exact amount of input currency to spend"
+    amountIn: TokenAmount!
+    "The desired currency out"
+    tokenOut: Token!
+    "Options used when determining the best trade"
+    options: BestTradeOptions
   ): [Trade!]!
 
   """
@@ -381,127 +488,174 @@ type Query {
   the amount in among multiple routes.
   """
   bestTradeExactOut(
-    pools: [Pool!]! # the pools to consider in finding the best trade
-    tokenIn: Token! # the currency to spend
-    amountOut: TokenAmount! # the desired currency amount out
-    options: BestTradeOptions # options used when determining the best trade
+    "The pools to consider in finding the best trade"
+    pools: [Pool!]!
+    "The currency to spend"
+    tokenIn: Token!
+    "The desired currency amount out"
+    amountOut: TokenAmount!
+    "Options used when determining the best trade"
+    options: BestTradeOptions
   ): [Trade!]!
 
    ## Position
 
-  # Constructs and validates a liquidity Position for a given Pool with the given liquidity
+  "Constructs and validates a liquidity Position for a given Pool with the given liquidity"
   createPosition(
-    pool: Pool! # For which pool the liquidity is assigned
-    tickLower: Int32! # The lower tick of the position
-    tickUpper: Int32! # The upper tick of the position
-    liquidity: BigInt! # The amount of liquidity that is in the position
+    "For which pool the liquidity is assigned"
+    pool: Pool!
+    "The lower tick of the position"
+    tickLower: Int32!
+    "The upper tick of the position"
+    tickUpper: Int32!
+    "The amount of liquidity that is in the position"
+    liquidity: BigInt!
   ): Position!
 
-  # Computes the maximum amount of liquidity received for a given amount of token0, token1, and the prices at the tick boundaries
+  "Computes the maximum amount of liquidity received for a given amount of token0, token1, and the prices at the tick boundaries"
   createPositionFromAmounts(
-    pool: Pool! # The pool for which the position should be created
-    tickLower: Int32! # The lower tick of the position
-    tickUpper: Int32! # The upper tick of the position
-    amount0: BigInt! # token0 amount
-    amount1: BigInt! # token1 amount
-    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
+    "The pool for which the position should be created"
+    pool: Pool!
+    "The lower tick of the position"
+    tickLower: Int32!
+    "The upper tick of the position"
+    tickUpper: Int32!
+    "The amount of the first token of the pool"
+    amount0: BigInt!
+    "The amount of the second token of the pool"
+    amount1: BigInt!
+    "If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support"
+    useFullPrecision: Boolean!
   ): Position!
 
-  # Computes a position with the maximum amount of liquidity received for a given amount of token0, assuming an unlimited amount of token1
+  "Computes a position with the maximum amount of liquidity received for a given amount of token0, assuming an unlimited amount of token1"
   createPositionFromAmount0(
-    pool: Pool! # The pool for which the position should be created
-    tickLower: Int32! # The lower tick of the position
-    tickUpper: Int32! # The upper tick of the position
-    amount0: BigInt! # The desired amount of token0
-    useFullPrecision: Boolean! # If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
+    "The pool for which the position should be created"
+    pool: Pool!
+    "The lower tick of the position"
+    tickLower: Int32!
+    "The upper tick of the position"
+    tickUpper: Int32!
+    "The desired amount of token0"
+    amount0: BigInt!
+    "If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support"
+    useFullPrecision: Boolean!
   ): Position!
 
-  # Computes a position with the maximum amount of liquidity received for a given amount of token1, assuming an unlimited amount of token0. Always uses full precision.
+  "Computes a position with the maximum amount of liquidity received for a given amount of token1, assuming an unlimited amount of token0. Always uses full precision."
   createPositionFromAmount1(
-    pool: Pool! # The pool for which the position should be created
-    tickLower: Int32! # The lower tick of the position
-    tickUpper: Int32! # The upper tick of the position
-    amount1: BigInt! # The desired amount of token1
+    "The pool for which the position should be created"
+    pool: Pool!
+    "The lower tick of the position"
+    tickLower: Int32!
+    "The upper tick of the position"
+    tickUpper: Int32!
+    "The desired amount of token1"
+    amount1: BigInt!
   ): Position!
 
-  # Returns the price of token0 at the lower tick
+  "Returns the price of token0 at the lower tick"
   positionToken0PriceLower(
-    pool: Pool! # For which pool the liquidity is assigned
-    tickLower: Int32! # The lower tick of the position
+    "The pool for which the liquidity is assigned"
+    pool: Pool!
+    "The lower tick of the position"
+    tickLower: Int32!
   ): Price!
 
-  # Returns the price of token0 at the upper tick
+  "Returns the price of token0 at the upper tick"
   positionToken0PriceUpper(
-    pool: Pool! # For which pool the liquidity is assigned
-    tickUpper: Int32! # The upper tick of the position
+    "The pool for which the liquidity is assigned"
+    pool: Pool!
+    "The upper tick of the position"
+    tickUpper: Int32!
   ): Price!
 
-  # Returns the amount of token0 that this position's liquidity could be burned for at the current pool price
+  "Returns the amount of token0 that this position's liquidity could be burned for at the current pool price"
   positionAmount0(
-    pool: Pool! # For which pool the liquidity is assigned
-    tickLower: Int32! # The lower tick of the position
-    tickUpper: Int32! # The upper tick of the position
-    liquidity: BigInt! # The amount of liquidity that is in the position
+    "For which pool the liquidity is assigned"
+    pool: Pool!
+    "The lower tick of the position"
+    tickLower: Int32!
+    "The upper tick of the position"
+    tickUpper: Int32!
+    "The amount of liquidity that is in the position"
+    liquidity: BigInt!
   ): TokenAmount!
 
-  # Returns the amount of token1 that this position's liquidity could be burned for at the current pool price
+  "Returns the amount of token1 that this position's liquidity could be burned for at the current pool price"
   positionAmount1(
-    pool: Pool! # For which pool the liquidity is assigned
-    tickLower: Int32! # The lower tick of the position
-    tickUpper: Int32! # The upper tick of the position
-    liquidity: BigInt! # The amount of liquidity that is in the position
+    "For which pool the liquidity is assigned"
+    pool: Pool!
+    "The lower tick of the position"
+    tickLower: Int32!
+    "The upper tick of the position"
+    tickUpper: Int32!
+    "The amount of liquidity that is in the position"
+    liquidity: BigInt!
   ): TokenAmount!
 
-  # Returns the minimum amounts that must be sent in order to mint the amount of liquidity held by the position at the current price for the pool
+  "Returns the minimum amounts that must be sent in order to mint the amount of liquidity held by the position at the current price for the pool"
   mintAmounts(
-    pool: Pool! # For which pool the liquidity is assigned
-    tickLower: Int32! # The lower tick of the position
-    tickUpper: Int32! # The upper tick of the position
-    liquidity: BigInt! # The amount of liquidity that is in the position
+    "For which pool the liquidity is assigned"
+    pool: Pool!
+    "The lower tick of the position"
+    tickLower: Int32!
+    "The upper tick of the position"
+    tickUpper: Int32!
+    "The amount of liquidity that is in the position"
+    liquidity: BigInt!
   ): MintAmounts!
 
-  # Returns the minimum amounts that must be sent in order to safely mint the amount of liquidity held by the position with the given slippage tolerance
+  "Returns the minimum amounts that must be sent in order to safely mint the amount of liquidity held by the position with the given slippage tolerance"
   mintAmountsWithSlippage(
-    position: Position! # Position for which to calculate mint amounts
-    slippageTolerance: String! # Tolerance of unfavorable slippage from the current price
+    "Position for which to calculate mint amounts"
+    position: Position!
+    "Tolerance of unfavorable slippage from the current price"
+    slippageTolerance: String!
   ): MintAmounts!
 
-  # Returns the minimum amounts that should be requested in order to safely burn the amount of liquidity held by the position with the given slippage tolerance
+  "Returns the minimum amounts that should be requested in order to safely burn the amount of liquidity held by the position with the given slippage tolerance"
   burnAmountsWithSlippage(
-    position: Position! # Position for which to calculate burn amounts
-    slippageTolerance: String! # Tolerance of unfavorable slippage from the current price
+    "Position for which to calculate burn amounts"
+    position: Position!
+    "Tolerance of unfavorable slippage from the current price"
+    slippageTolerance: String!
   ): MintAmounts!
 
    ## Router
 
-  # Produces the on-chain method name to call and the hex encoded parameters to pass as arguments for a given trade
+  "Encodes arguments and returns transaction calldata to make a swap on an Uniswap's V3 Router contract"
   swapCallParameters(
-    trades: [Trade!]! # trades to produce call parameters for
-    options: SwapOptions! # options for the call parameters
+    "Trades for which to produce call parameters"
+    trades: [Trade!]!
+    "Configuration options for the swap call"
+    options: SwapOptions!
   ): MethodParameters!
 
    ## Router Utils: Encode route, SelfPermit, Payments, MultiCall
 
-  # Converts a route to a hex encoded path
+  "Converts a route to a hex encoded path"
   encodeRouteToPath(
-    route: Route! # the v3 path to convert to an encoded path
-    exactOutput: Boolean! # whether the route should be encoded in reverse, for making exact output swaps
+    "The v3 path to convert to an encoded path"
+    route: Route!
+    "Whether the route should be encoded in reverse, for making exact output swaps"
+    exactOutput: Boolean!
   ): String!
 
-  # Encodes arguments and returns transaction calldata to call selfPermit or selfPermitAllowed on an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol
+  "Encodes arguments and returns transaction calldata to call selfPermit or selfPermitAllowed on an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol"
   encodePermit(
     token: Token!
     options: PermitOptions!
   ): String!
 
-  # Encodes arguments and returns transaction calldata to call unwrapWETH9 or unwrapWETH9WithFee on an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol
+  "Encodes arguments and returns transaction calldata to call unwrapWETH9 or unwrapWETH9WithFee on an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol"
   encodeUnwrapWETH9(
     amountMinimum: BigInt!
     recipient: String!
     feeOptions: FeeOptions
   ): String!
 
-  # Encodes arguments and returns transaction calldata to call sweepToken or sweepTokenWithFee on an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol
+  "Encodes arguments and returns transaction calldata to call sweepToken or sweepTokenWithFee on an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol"
   encodeSweepToken(
     token: Token!
     amountMinimum: BigInt!
@@ -509,142 +663,178 @@ type Query {
     feeOptions: FeeOptions
   ): String!
 
-  # Encodes arguments and returns transaction calldata to call refundEth on an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol
+  "Encodes arguments and returns transaction calldata to call refundEth on an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol"
   encodeRefundETH: String!
 
-  # Encodes multiple calldatas into a single calldata for making multiple calls in one transaction using a contract implementing the necessary interface, such as an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol
+  "Encodes multiple calldatas into a single calldata for making multiple calls in one transaction using a contract implementing the necessary interface, such as an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol"
   encodeMulticall(
     calldatas: [String!]!
   ): String!
 
    ## Staker
 
-  # Returns the calldatas for 'unstakeToken', 'claimReward', and 'stakeToken'.
-  # Note:  A `tokenId` can be staked in many programs but to claim rewards and continue the program you must unstake, claim, and then restake.
+  """Returns transaction calldata for calling 'unstakeToken', 'claimReward', and 'stakeToken' in a single transaction on Uniswap's Staker contract.
+  Note:  A `tokenId` can be staked in many programs but to claim rewards and continue the program you must unstake, claim, and then restake."""
   collectRewards(
-    incentiveKeys: [IncentiveKey!]! # An array of IncentiveKeys that `tokenId` is staked in; claims rewards for each program.
-    options: ClaimOptions! # ClaimOptions to specify tokenId, recipient, and amount wanting to collect. Note that you can only specify one amount and one recipient across the various programs if you are collecting from multiple programs at once.
+    "An array of IncentiveKeys that `tokenId` is staked in; claims rewards for each program."
+    incentiveKeys: [IncentiveKey!]!
+    "ClaimOptions to specify tokenId, recipient, and amount wanting to collect. Note that you can only specify one amount and one recipient across the various programs if you are collecting from multiple programs at once."
+    options: ClaimOptions!
   ): MethodParameters!
 
-  # Returns calldata for unstaking, claiming, and withdrawing.
+  "Returns transaction calldata for unstaking, claiming, and withdrawing in a single transaction on Uniswap's Staker contract."
   withdrawToken(
-    incentiveKeys: [IncentiveKey!]! # A list of incentiveKeys to unstake from. Should include all incentiveKeys (unique staking programs) that `options.tokenId` is staked in.
-    options: FullWithdrawOptions! # Options for producing claim calldata and withdraw calldata. Can't withdraw without unstaking all programs for `tokenId`.
+    "A list of incentiveKeys to unstake from. Should include all incentiveKeys (unique staking programs) that `options.tokenId` is staked in."
+    incentiveKeys: [IncentiveKey!]!
+    "Options for producing claim calldata and withdraw calldata. Can't withdraw without unstaking all programs for `tokenId`."
+    options: FullWithdrawOptions!
   ): MethodParameters!
 
-  # Returns an encoded IncentiveKey as a string
+  "Returns an encoded IncentiveKey as a string"
   encodeDeposit(
-    incentiveKeys: [IncentiveKey!]! # An array of IncentiveKeys to be encoded and used in the data parameter in `safeTransferFrom`
+    "An array of IncentiveKeys to be encoded and used in the data parameter in `safeTransferFrom`"
+    incentiveKeys: [IncentiveKey!]!
   ): String!
 
    ## Quoter
 
-  # Produces the on-chain method name of the appropriate function within QuoterV2, and the relevant hex encoded parameters.
+  "Produces the on-chain method name of the appropriate function within QuoterV2, and the relevant hex encoded parameters."
   quoteCallParameters(
-    route: Route! # The swap route, a list of pools through which a swap can occur
-    amount: TokenAmount! # The amount of the quote, either an amount in, or an amount out
-    tradeType: TradeType! # The trade type, either exact input or exact output
-    options: QuoteOptions # Optional configuration
+    "The swap route, a list of pools through which a swap can occur"
+    route: Route!
+    "The amount of the quote, either an amount in, or an amount out"
+    amount: TokenAmount!
+    "The trade type, either exact input or exact output"
+    tradeType: TradeType!
+    "Optional configuration"
+    options: QuoteOptions
   ): MethodParameters!
 
   ## NonfungiblePositionManager
 
-  # Returns calldata for creating a pool on-chain using an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol
+  "Returns calldata for creating a pool on-chain using an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol"
   createCallParameters(
-    pool: Pool! # An off-chain representation of the pool to create on-chain
+    "An off-chain representation of the pool to create on-chain"
+    pool: Pool!
   ): MethodParameters!
 
-  # Returns calldata for minting or adding liquidity to a pool on-chain using an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol. Optionally creates the pool if it doesn't exist.
+  "Returns calldata for minting or adding liquidity to a pool on-chain using an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol. Optionally creates the pool if it doesn't exist."
   addCallParameters(
-    position: Position! # Liquidity position to add to pool
-    options: AddLiquidityOptions! # Required transaction configuration
+    "Liquidity position to add to pool"
+    position: Position!
+    "Required transaction configuration"
+    options: AddLiquidityOptions!
   ): MethodParameters!
 
-  # Returns calldata for collecting liquidity provider rewards using an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol
+  "Returns calldata for collecting liquidity provider rewards using an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol"
   collectCallParameters(
-    options: CollectOptions! # Required transaction configuration
+    "Required transaction configuration"
+    options: CollectOptions!
   ): MethodParameters!
 
-  # Returns calldata for completely or partially exiting a liquidity position using an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol
+  "Returns calldata for completely or partially exiting a liquidity position using an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol"
   removeCallParameters(
-    position: Position! # The position to exit
-    options: RemoveLiquidityOptions! # Additional information necessary for generating the calldata
+    "The position to exit"
+    position: Position!
+    "Additional information necessary for generating the calldata"
+    options: RemoveLiquidityOptions!
   ): MethodParameters!
 
-  # Returns calldata for safely transferring an NFT using an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol
+  "Returns calldata for safely transferring an NFT using an instance of Uniswap's NonfungiblePositionManager contract: https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol"
   safeTransferFromParameters(
-    options: SafeTransferOptions! # Required transaction configuration
+    "Required transaction configuration"
+    options: SafeTransferOptions!
   ): MethodParameters!
 
   ## Utils
 
-  # Converts a big int to a hex string
+  "Converts a big int to a hex string"
   toHex(
     value: BigInt!
   ): String!
 
-  # Computes a pool address
+  "Computes a pool address"
   computePoolAddress(
-    factoryAddress: String! # The Uniswap V3 factory address
-    tokenA: Token! # The first token of the pool, irrespective of sort order
-    tokenB: Token! # The second token of the pool, irrespective of sort order
-    fee: FeeAmount! # The fee tier of the pool
-    initCodeHashManualOverride: String # Override the init code hash used to compute the pool address if necessary
+    "The Uniswap V3 factory address"
+    factoryAddress: String!
+    "The first token of the pool, irrespective of sort order"
+    tokenA: Token!
+    "The second token of the pool, irrespective of sort order"
+    tokenB: Token!
+    "The fee tier of the pool"
+    fee: FeeAmount!
+    "Override the init code hash used to compute the pool address if necessary"
+    initCodeHashManualOverride: String
   ): String!
 
-  # Returns the sqrt ratio as a Q64.96 corresponding to a given ratio of amount1 and amount0
+  "Returns the sqrt ratio as a Q64.96 corresponding to a given ratio of amount1 and amount0"
   encodeSqrtRatioX96(
-    amount1: BigInt! # The numerator amount i.e., the amount of token1
-    amount0: BigInt! # The denominator amount i.e., the amount of token0
+    "The numerator amount i.e., the amount of token1"
+    amount1: BigInt!
+    "The denominator amount i.e., the amount of token0"
+    amount0: BigInt!
   ): BigInt!
 
-  # Returns (a * b) / denominator
+  "Returns (a * b) / denominator"
   mulDivRoundingUp(
     a: BigInt!
     b: BigInt!
     denominator: BigInt!
   ): BigInt!
 
-  # Returns x + y
+  "Returns x + y"
   addDelta(
     x: BigInt!
     y: BigInt!
   ): BigInt!
 
-  # Computes the maximum amount of liquidity received for a given amount of token0, token1, and the prices at the tick boundaries.
+  "Computes the maximum amount of liquidity received for a given amount of token0, token1, and the prices at the tick boundaries."
   maxLiquidityForAmounts(
-    sqrtRatioCurrentX96: BigInt! # the current price
-    sqrtRatioAX96: BigInt! # price at lower boundary
-    sqrtRatioBX96: BigInt! # price at upper boundary
-    amount0: BigInt! # token0 amount
-    amount1: BigInt! # token1 amount
-    useFullPrecision: Boolean! # if false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
+    "Encoded representation of the current price"
+    sqrtRatioCurrentX96: BigInt!
+    "Encoded representation of the price at lower tick boundary"
+    sqrtRatioAX96: BigInt!
+    "Encoded representation of the price at upper tick boundary"
+    sqrtRatioBX96: BigInt!
+    "Amount for the first token of the pool"
+    amount0: BigInt!
+    "Amount for the second token of the pool"
+    amount1: BigInt!
+    "If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support"
+    useFullPrecision: Boolean!
   ): BigInt!
 
-  # Returns the most significant bit of a positive integer, starting with first bit = 0
+  "Returns the most significant bit of a positive integer, starting with first bit = 0"
   mostSignificantBit(
     x: BigInt!
   ): UInt32!
 
-  # Returns the closest tick that is nearest a given tick and usable for the given tick spacing
+  "Returns the closest tick that is nearest a given tick and usable for the given tick spacing"
   nearestUsableTick(
-    tick: Int32! # the target tick
-    tickSpacing: Int32! # the spacing of the pool
+    "The target tick"
+    tick: Int32!
+    "The spacing of the pool"
+    tickSpacing: Int32!
   ): Int32!
 
-  # Returns a price object corresponding to the input tick and the base/quote token. Inputs must be tokens because the address order is used to interpret the price represented by the tick.
+  "Returns a price object corresponding to the input tick and the base/quote token. Inputs must be tokens because the address order is used to interpret the price represented by the tick."
   tickToPrice(
-    baseToken: Token! # the base token of the price
-    quoteToken: Token! # the quote token of the price
-    tick: Int32! # the tick for which to return the price
+    "The base token of the price"
+    baseToken: Token!
+    "The quote token of the price"
+    quoteToken: Token!
+    "The tick for which to return the price"
+    tick: Int32!
   ): Price!
 
-  # Returns the first tick for which the given price is greater than or equal to the tick price.
+  "Returns the first tick for which the given price is greater than or equal to the tick price."
   priceToClosestTick(
-    price: Price! # price for which to return the closest tick that represents a price less than or equal to the input price, i.e. the price of the returned tick is less than or equal to the input price. Note that a string price is not used as input here, so the "price" property of the Price type can have any value without affecting the results.
+    """Price for which to return the closest tick that represents a price less than or equal to the input price, i.e. the price of the returned tick is less than or equal to the input price.
+    Note that a string price is not used as input here, so the "price" property of the Price type can have any value without affecting the results."""
+    price: Price!
   ): Int32!
 
-  # used to facilitate liquidity math using sqrtRatioX96 values
+  "Used to facilitate liquidity math using sqrtRatioX96 values"
   getAmount0Delta(
     sqrtRatioAX96: BigInt!
     sqrtRatioBX96: BigInt!
@@ -652,7 +842,7 @@ type Query {
     roundUp: Boolean!
   ): BigInt!
 
-  # used to facilitate liquidity math using sqrtRatioX96 values
+  "Used to facilitate liquidity math using sqrtRatioX96 values"
   getAmount1Delta(
     sqrtRatioAX96: BigInt!
     sqrtRatioBX96: BigInt!
@@ -660,7 +850,7 @@ type Query {
     roundUp: Boolean!
   ): BigInt!
 
-  # used to facilitate liquidity math using sqrtRatioX96 values
+  "Used to facilitate liquidity math using sqrtRatioX96 values"
   getNextSqrtPriceFromInput(
     sqrtPX96: BigInt!
     liquidity: BigInt!
@@ -668,7 +858,7 @@ type Query {
     zeroForOne: Boolean!
   ): BigInt!
 
-  # used to facilitate liquidity math using sqrtRatioX96 values
+  "Used to facilitate liquidity math using sqrtRatioX96 values"
   getNextSqrtPriceFromOutput(
     sqrtPX96: BigInt!
     liquidity: BigInt!
@@ -676,107 +866,128 @@ type Query {
     zeroForOne: Boolean!
   ): BigInt!
 
-  # Returns true if the tick index is smaller than all tick indices in the list
+  "Returns true if the tick index is smaller than all tick indices in the list"
   tickIsBelowSmallest(
-    ticks: [Tick!]! # tick list to check
-    tick: Int32! # input tick index
+    "Tick list to check"
+    ticks: [Tick!]!
+    "Input tick index"
+    tick: Int32!
   ): Boolean!
 
-  # Returns true if the tick index is greater than or equal to all tick indices in the list
+  "Returns true if the tick index is greater than or equal to all tick indices in the list"
   tickIsAtOrAboveLargest(
-    ticks: [Tick!]! # tick list to check
-    tick: Int32! # input tick index
+    "Tick list to check"
+    ticks: [Tick!]!
+    "Input tick index"
+    tick: Int32!
   ): Boolean!
 
-  # Returns next initialized tick following the input tick
+  "Returns next initialized tick following the input tick"
   nextInitializedTick(
-    ticks: [Tick!]! # tick list to check
-    tick: Int32! # input tick index
-    lte: Boolean! # If true, searches list for next initialized tick that has index less than or equal to the input tick index
+    "Tick list to check"
+    ticks: [Tick!]!
+    "Input tick index"
+    tick: Int32!
+    "If true, searches list for next initialized tick that has index less than or equal to the input tick index"
+    lte: Boolean!
   ): Tick!
 
-  # Returns true if a tick list is sorted by tick index
+  "Returns true if a tick list is sorted by tick index"
   tickListIsSorted(
-    ticks: [Tick!]! # The tick list
+    "The tick list"
+    ticks: [Tick!]!
   ): Boolean!
 
-  # Returns the sqrt ratio as a Q64.96 for the given tick. The sqrt ratio is computed as sqrt(1.0001)^tick
+  "Returns the sqrt ratio as a Q64.96 for the given tick. The sqrt ratio is computed as sqrt(1.0001)^tick"
   getSqrtRatioAtTick(
-    tick: Int32! # the tick for which to compute the sqrt ratio
+    "The tick for which to compute the sqrt ratio"
+    tick: Int32!
   ): BigInt!
 
-  # Returns the tick corresponding to a given sqrt ratio, s.t. #getSqrtRatioAtTick(tick) <= sqrtRatioX96 and #getSqrtRatioAtTick(tick + 1) > sqrtRatioX96
+  "Returns the tick corresponding to a given sqrt ratio, s.t. #getSqrtRatioAtTick(tick) <= sqrtRatioX96 and #getSqrtRatioAtTick(tick + 1) > sqrtRatioX96"
   getTickAtSqrtRatio(
-    sqrtRatioX96: BigInt! # the sqrt ratio as a Q64.96 for which to compute the tick
+    "The sqrt ratio as a Q64.96 for which to compute the tick"
+    sqrtRatioX96: BigInt!
   ): Int32!
 
   ##  Fetch
 
-  # returns token object constructed from the on-chain token contract at the given address
+  "Returns token object constructed from the on-chain token contract at the given address"
   fetchToken(
-    address: String! # the Ethereum address of token's ERC20 contract
-    chainId: ChainId! # the id of the chain to be queried
+    "The Ethereum address of token's ERC20 contract"
+    address: String!
+    "The id of the chain to be queried"
+    chainId: ChainId!
   ): Token!
 
-  # returns pool object constructed from the on-chain pool contract associated with the tokens and fee amount
+  "Returns pool object constructed from the on-chain pool contract associated with the tokens and fee amount"
   fetchPoolFromTokens(
-    tokenA: Token! # a token in the pool
-    tokenB: Token! # the other token in the pool
-    fee: FeeAmount! # the pool's fee amount
-    fetchTicks: Boolean! # if true, the full list of pool ticks will be fetched
+    "A token in the pool"
+    tokenA: Token!
+    "The other token in the pool"
+    tokenB: Token!
+    "The pool's fee amount"
+    fee: FeeAmount!
+    "If true, the full list of pool ticks will be fetched"
+    fetchTicks: Boolean!
   ): Pool!
 
-  # returns pool object constructed from the on-chain pool contract at the given address
+  "Returns pool object constructed from the on-chain pool contract at the given address"
   fetchPoolFromAddress(
-    address: String! # the Ethereum address of the pool contract
-    chainId: ChainId! # the id of the chain to be queried
-    fetchTicks: Boolean! # if true, the full list of pool ticks will be fetched
+    "The Ethereum address of the pool contract"
+    address: String!
+    "The id of the chain to be queried"
+    chainId: ChainId!
+    "If true, the full list of pool ticks will be fetched"
+    fetchTicks: Boolean!
   ): Pool!
 
-  # returns array of ticks from the on-chain pool contract at the given address
+  "Returns array of ticks from the on-chain pool contract at the given address"
   fetchTickList(
-    address: String! # the Ethereum address of the pool contract
-    chainId: ChainId! # the id of the chain to be queried
+    "The Ethereum address of the pool contract"
+    address: String!
+    "The id of the chain to be queried"
+    chainId: ChainId!
   ): [Tick!]!
 
   ##  Enum Utils
 
-  # Returns the tick spacing associated with a FeeAmount enum value
+  "Returns the tick spacing associated with a FeeAmount enum value"
   feeAmountToTickSpacing(
     feeAmount: FeeAmount!
   ): Int32!
 
-  # Returns the fee (in one-hundred-thousandths of a percent) associated with a FeeAmount enum value
+  "Returns the fee (in one-hundred-thousandths of a percent) associated with a FeeAmount enum value"
   getFeeAmount(
     feeAmount: FeeAmount!
   ): UInt32!
 
-  # Returns v value associated with a PermitV enum value
+  "Returns v value associated with a PermitV enum value"
   getPermitV(
     permitV: PermitV!
   ): Int32!
 
   ##  constants
 
-  # address of Uniswap's Pool factory contract
+  "The address of Uniswap's pool factory contract"
   FACTORY_ADDRESS: String!
 
   POOL_INIT_CODE_HASH: String!
 
   POOL_INIT_CODE_HASH_OPTIMISM: String!
 
-  # historical artifact due to small compiler mismatch
+  "A historical artifact due to small compiler mismatch"
   POOL_INIT_CODE_HASH_OPTIMISM_KOVAN: String!
 
-  # smallest valid tick index in a pool
+  "Smallest valid tick index in a pool"
   MIN_TICK: Int32!
 
-  # largest valid tick index in a pool
+  "Largest valid tick index in a pool"
   MAX_TICK: Int32!
 
-  # smallest valid sqrtRatioX96 in a pool
+  "Smallest valid sqrtRatioX96 in a pool"
   MIN_SQRT_RATIO: BigInt!
 
-  # largest valid sqrtRatioX96 in a pool
+  "Largest valid sqrtRatioX96 in a pool"
   MAX_SQRT_RATIO: BigInt!
 }
