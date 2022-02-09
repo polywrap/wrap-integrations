@@ -22,14 +22,14 @@ export function execCall(input: Input_execCall): Ethereum_TxResponse {
   return Ethereum_Mutation.sendTransaction({
     tx: {
       to: address,
-      from: null,
+      m_from: null,
       nonce: Nullable.fromNull<u32>(),
       gasLimit: gasOptions === null ? null : gasOptions.gasLimit,
       gasPrice: gasOptions === null ? null : gasOptions.gasPrice,
       data: methodParameters.calldata,
       value: BigInt.fromString(methodParameters.value, 16),
       chainId: Nullable.fromNull<u32>(),
-      type: Nullable.fromNull<u32>(),
+      m_type: Nullable.fromNull<u32>(),
     },
     connection: {
       node: null,
