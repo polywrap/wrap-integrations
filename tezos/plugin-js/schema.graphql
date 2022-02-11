@@ -1,7 +1,7 @@
 enum GetOperationStatusSupportedNetworks {
-  Mainnet
-  Hangzhounet
-  Granadanet
+  mainnet
+  hangzhounet
+  granadanet
 }
 
 type OperationStatus {
@@ -59,7 +59,7 @@ type RevealParams {
   storageLimit: UInt32
 }
 
-type TransferParams {
+type SendParams {
   to: String!
   amount: UInt32!
   source: String
@@ -190,7 +190,7 @@ type Query {
 
   getTransferEstimate(
     connection: Connection
-    params: TransferParams!
+    params: SendParams!
   ): EstimateResult!
 
   getOriginateEstimate(
@@ -232,8 +232,8 @@ type Query {
   ): OperationStatus!
 
   encodeMichelsonExpressionToBytes(
-    expression: JSON!
-    value: JSON!
+    expression: String!
+    value: String!
   ): String!
 }
 
@@ -248,6 +248,7 @@ type Mutation {
     address: String!
     method: String!
     args: String
+    params: SendParams
     connection: Connection
   ): String!
 
@@ -260,6 +261,7 @@ type Mutation {
     address: String!
     method: String!
     args: String
+    params: SendParams
     connection: Connection
   ): TxOperation!
 
@@ -268,6 +270,7 @@ type Mutation {
     method: String!
     args: String
     connection: Connection
+    params: SendParams
     confirmations: UInt32!
     interval: UInt32
     timeout: UInt32
@@ -275,12 +278,12 @@ type Mutation {
 
   transfer(
     connection: Connection
-    params: TransferParams!
+    params: SendParams!
   ): String!
 
   transferAndConfirm(
     connection: Connection
-    params: TransferParams!
+    params: SendParams!
     confirmations: UInt32!
   ): TransferConfirmation!
 

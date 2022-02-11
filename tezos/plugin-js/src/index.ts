@@ -51,14 +51,12 @@ export class TezosPlugin extends Plugin {
   constructor(config: TezosConfig) {
     super();
     this._connections = Connection.fromConfigs(config.networks);
-
     // Assign the default network (mainnet if not provided)
     if (config.defaultNetwork) {
       this._defaultNetwork = config.defaultNetwork;
     } else {
       this._defaultNetwork = "mainnet";
     }
-
     // Create a connection for the default network if none exists
     if (!this._connections[this._defaultNetwork]) {
       this._connections[this._defaultNetwork] = Connection.fromNetwork(
@@ -107,10 +105,11 @@ export class TezosPlugin extends Plugin {
 
   public async transfer(input: Mutation.Input_transfer): Promise<string> {
     const connection = await this.getConnection(input.connection);
-    const transferParams = Mapping.fromTransferParams(input.params);
+    const transferParams = Mapping.fromSendParams(input.params);
     const transferOperation = await connection
       .getProvider()
-      .wallet.transfer(transferParams);
+      .wallet
+      .transfer(transferParams);
     const walletOperation = await transferOperation.send();
     return walletOperation.opHash;
   }
@@ -119,7 +118,7 @@ export class TezosPlugin extends Plugin {
     input: Mutation.Input_transferAndConfirm
   ): Promise<Types.TransferConfirmation> {
     const connection = await this.getConnection(input.connection);
-    const transferParams = Mapping.fromTransferParams(input.params);
+    const transferParams = Mapping.fromSendParams(input.params);
     const transactionWalletOperation = await connection
       .getProvider()
       .wallet.transfer(transferParams);
@@ -225,7 +224,7 @@ export class TezosPlugin extends Plugin {
   }
 
   public async getOperationStatus(input: Query.Input_getOperationStatus): Promise<Types.OperationStatus> {
-    const network = input.network.toString().toLowerCase();
+    const network = input.network.toString();
     const response = await getOperation(network, input.hash);
     return Mapping.toOperationStatus(response);
   }
@@ -271,7 +270,7 @@ export class TezosPlugin extends Plugin {
   ): Promise<Types.EstimateResult> {
     try {
       const connection = await this.getConnection(input.connection);
-      const transferParams = Mapping.fromTransferParams(input.params);
+      const transferParams = Mapping.fromSendParams(input.params);
       const estimate = await connection
         .getProvider()
         .estimate.transfer(transferParams);
@@ -360,9 +359,10 @@ export class TezosPlugin extends Plugin {
   }
 
   public async encodeMichelsonExpressionToBytes(input: Query.Input_encodeMichelsonExpressionToBytes): Promise<string> {
-    const expression = input.expression as unknown as MichelsonType;
+    const expression = this.parseValue(input.expression) as unknown as MichelsonType;
+    const value: any = this.parseValue(input.value);
     const schema = new Schema(expression);
-    const encoded = schema.Encode(input.value)
+    const encoded = schema.Encode(value)
     const packed = packDataBytes(encoded, expression);
     return packed.bytes;
   }
@@ -385,34 +385,55 @@ export class TezosPlugin extends Plugin {
       } else {
         result = Connection.fromNetwork(networkStr);
       }
-    } else {
-      result = this._connections[this._defaultNetwork];
-    }
+    } 
     // If a custom node endpoint is provided, create a combined
     // connection with the node's endpoint and a connection's signer
     // (if one exists for the network)
-    if (provider) {
+    else if (provider) {
       const nodeConnection = Connection.fromNode(provider);
-      const nodeNetwork = nodeConnection.getProvider().rpc;
-      const chainId = await nodeNetwork.getChainId();
-      const establishedConnection = this._connections[chainId];
-      if (establishedConnection) {
-        try {
-          nodeConnection.setSigner(establishedConnection.getSigner());
-        } catch (e) {
-          // It's okay if there isn't a signer available.
-        }
-      }
       result = nodeConnection;
+    } else {
+      result = this._connections[this._defaultNetwork];
     }
     return result;
+  }
+
+  private parseValue(value: string): any {
+    try {
+      return JSON.parse(value);
+    } catch (error) {
+      throw new Error(`unable to parse '${value}'`)
+    }
   }
 
   public parseArgs(args?: string | null): unknown[] {
     if (!args) {
       return [];
     }
-    return JSON.parse(args);
+    const parsedArgs: unknown[] = JSON.parse(args);
+    if (!Array.isArray(parsedArgs)) {
+      throw new Error(`args must be a stringified array`)
+    }
+    for (let argKey in parsedArgs) {
+      // TODO(abdul): deep parse all values for michelson maps
+      // POC
+      if (
+        typeof parsedArgs[argKey] === "object" && 
+        !Array.isArray(parsedArgs[argKey]) && 
+        parsedArgs[argKey].isMichelsonMap === true && 
+        parsedArgs[argKey].values
+      ) {
+        const map = new MichelsonMap();
+        for (let mapValue of parsedArgs[argKey].values) {
+          if (!(mapValue.key && mapValue.value)) {
+            throw new Error(`michelson map should have a key and a value`)
+          }
+          map.set(mapValue.key, mapValue.value);
+        }
+        parsedArgs[argKey] = map
+      }
+    }
+    return parsedArgs;
   }
 
   private async _callContractMethod(
@@ -420,7 +441,8 @@ export class TezosPlugin extends Plugin {
   ): Promise<TransactionOperation> {
     const connection = await this.getConnection(input.connection);
     const contract = await connection.getContract(input.address);
-    return contract.methods[input.method](...this.parseArgs(input.args)).send();
+    const sendParams = input.params ? Mapping.fromSendParams(input.params) : {};
+    return contract.methods[input.method](...this.parseArgs(input.args)).send(sendParams);
   }
 
   private stringify(output: any): string {
@@ -439,8 +461,12 @@ export class TezosPlugin extends Plugin {
           break;
         }
         if (MichelsonMap.isMichelsonMap(output)) {
-          const values = Object.fromEntries(output['valueMap']);
-          output = JSON.stringify(values);
+          const keys = output.keys()
+          const michelsonObject: Record<string, string> = {}
+          for (let key of keys) {
+            michelsonObject[key] = output.get(key)
+          }
+          output = JSON.stringify(michelsonObject);
           break;
         }
         const keys = Object.keys(output)

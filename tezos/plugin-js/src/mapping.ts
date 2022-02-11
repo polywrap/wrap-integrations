@@ -5,7 +5,7 @@ import {
   TxOperationEntry,
   Estimate,
   RevealParams,
-  TransferParams,
+  SendParams,
   OriginateParams,
   SignResult,
   TransferConfirmation,
@@ -128,9 +128,9 @@ export const fromRevealParams = (
   storageLimit: receipt.storageLimit ? receipt.storageLimit : undefined,
 });
 
-export const toTransferParams = (
+export const toSendParams = (
   receipt: Taquito.TransferParams
-): TransferParams => ({
+): SendParams => ({
   to: receipt.to,
   amount: receipt.amount,
   source: receipt.source,
@@ -140,8 +140,8 @@ export const toTransferParams = (
   mutez: receipt.mutez,
 });
 
-export const fromTransferParams = (
-  receipt: TransferParams
+export const fromSendParams = (
+  receipt: SendParams
 ): Taquito.TransferParams => ({
   to: receipt.to,
   amount: receipt.amount,

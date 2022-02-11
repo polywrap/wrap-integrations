@@ -31,41 +31,33 @@ export interface Connections {
 }
 
 export class Connection {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore: initialized within setProvider
   private _client: TezosClient;
 
   constructor(private _config: ConnectionConfig) {
     const { provider, signer } = _config;
-
     // Sanitize Provider & Signer
     this.setProvider(provider, signer !== undefined ? signer : undefined);
   }
 
   static fromConfigs(configs: ConnectionConfigs): Connections {
     const connections: Connections = {};
-
     for (const network of Object.keys(configs)) {
       // Create the connection
       const connection = new Connection(configs[network]);
       const networkStr = network.toLowerCase();
-
       connections[networkStr] = connection;
     }
-
     return connections;
   }
 
   static fromNetwork(network: string): Connection {
     network = network.toLowerCase();
-
     const provider = getProvider(network);
-    if (provider == undefined) {
+    if (!provider) {
       throw Error("Provider not available");
     }
-
     return new Connection({
-      provider: getProvider(network),
+      provider,
     });
   }
 
@@ -78,11 +70,8 @@ export class Connection {
   public setProvider(provider: TezosProvider, signer?: InMemorySigner): void {
     this._client = new TezosToolkit(provider);
     this._client.addExtension(new Tzip16Module());
-
     if (signer) {
-      this._client.setProvider({
-        signer: signer,
-      });
+      this.setSigner(signer);
     }
   }
 
@@ -94,7 +83,6 @@ export class Connection {
     if (!this._client) {
       throw Error(`Please call "setProvider(...)" before calling setSigner`);
     }
-
     this._config.signer = signer;
     this._client.setProvider({
       signer,
@@ -103,11 +91,9 @@ export class Connection {
 
   public getSigner(): InMemorySigner {
     const { signer } = this._config;
-
-    if (signer == undefined) {
+    if (!signer) {
       throw Error("Provider does not have a signer");
     }
-
     return signer;
   }
 

@@ -214,12 +214,12 @@ describe("Tezos Plugin", () => {
 
     describe("getOperationStatus", () => {
       it("should get operation status", async () => {
-        const response =  await client.query<{ getOperationStatus: string }>({
+        const response =  await client.query<{ getOperationStatus: Schema.OperationStatus }>({
           uri,
           query: `
             query {
               getOperationStatus (
-                network: Mainnet, 
+                network: mainnet, 
                 hash: "onkA3x4oUSjsqwKWSRJNsyKYMnKx2nNQqiYcjh13rrzyYtC9wks"
               )
             }
@@ -340,7 +340,7 @@ describe("Tezos Plugin", () => {
 
     describe("getTransferEstimate", () => {
       it("should estimate the cost to make a transfer operation", async () => {
-        const params: Schema.TransferParams = {
+        const params: Schema.SendParams = {
           to: 'tz1QQyn4VqqD9KGShaWDHPSVQnDuzq47tvSj',
           amount: 100
         }
@@ -372,7 +372,7 @@ describe("Tezos Plugin", () => {
       })
 
       it("should fail to estimate the cost to make a transfer if address is invalid", async () => {
-        const params: Schema.TransferParams = {
+        const params: Schema.SendParams = {
           to: 'invalid-address',
           amount: 100
         }
