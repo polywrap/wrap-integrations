@@ -54,7 +54,7 @@ export function getTokenMetadata(input: Input_getTokenMetadata): GetTokenMetadat
   const hash = <JSON.Obj>JSON.parse(getString(metadata, "token_info"));
   return {
       token_id: getString(metadata, "token_id"),
-      ipfs_hash: getString(hash, '""')
+      ipfs_hash: getString(hash, "")
   };
 }
 

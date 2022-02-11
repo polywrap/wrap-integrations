@@ -8,4 +8,4 @@ modules:
     module: ./src/query/index.ts
 import_redirects:
   - uri: w3://ens/tezos.web3api.eth
-    schema: ../../plugin-js/build/schema.graphql
+    schema: ../plugin-js/build/schema.graphql
