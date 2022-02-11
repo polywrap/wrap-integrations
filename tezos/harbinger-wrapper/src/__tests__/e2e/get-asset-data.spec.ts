@@ -38,7 +38,6 @@ describe("getAssetData", () => {
           `,
           variables: {
             assetCode: "XTZ-USD",
-            network: "granadanet",
           }
         })
 
@@ -55,7 +54,7 @@ describe("getAssetData", () => {
         expect(response.data?.getAssetData.startPeriod).toBeDefined()
     })
 
-    it("should get asset data for `XTZ-USD` on granadanet", async () => {
+    it.skip("should get asset data for `XTZ-USD` on granadanet", async () => {
       const response =  await client.query<{ getAssetData: QuerySchema.GetAssetResponse}>({
         uri: ensUri,
         query: `
@@ -68,10 +67,6 @@ describe("getAssetData", () => {
           `,
           variables: {
             assetCode: "XTZ-USD",
-            oracleContractAddress: "KT1Jr5t9UvGiqkvvsuUbPJHaYx24NzdUwNW9",
-            connection: {
-              networkNameOrChainId: "mainnet"
-            }
           }
         })
       
@@ -137,7 +132,6 @@ describe("getAssetData", () => {
           }
           `,
           variables: {
-            
             assetCode: "XTZ-USD",
           }
         })
