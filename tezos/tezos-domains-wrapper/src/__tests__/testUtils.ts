@@ -57,3 +57,7 @@ export const getPlugins = (ipfs: string, ensAddress: string, ethereum: string, s
         },
     ]
 }
+
+export const getRandomString = () => {
+    return (Math.random() * 1000000).toString()
+}

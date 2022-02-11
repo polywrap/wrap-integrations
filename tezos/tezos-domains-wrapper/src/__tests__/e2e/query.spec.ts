@@ -99,26 +99,4 @@ describe("Query", () => {
       expect(response.data?.resolveAddress?.Expiry).toBeDefined()
     })
   })
-
-  describe("generateNonce", () => {
-    it.only("should generate a random number", async () => {
-      const uniqueNums = new Set()
-      for (let i = 0; i < 5; i++) {
-        const response =  await client.query<{ generateNonce: number }>({
-          uri: ensUri,
-          query: `
-            query {
-              generateNonce
-            }
-          `
-        })
-
-        expect(response.errors).toBeUndefined()
-        expect(response.data).toBeDefined()
-        expect(uniqueNums).not.toContain(response.data?.generateNonce)
-        
-        uniqueNums.add(response.data?.generateNonce)
-      }
-    })
-  })
 })

@@ -4,7 +4,7 @@ import { initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js"
 
 import * as MutationSchema from "../../mutation/w3"
 import * as QuerySchema from "../../query/w3"
-import { getEnsUri, getPlugins } from "../testUtils"
+import { getEnsUri, getPlugins, getRandomString } from "../testUtils"
 import { randomInt} from 'crypto'
 
 jest.setTimeout(600000)
@@ -40,7 +40,7 @@ describe("Mutation", () => {
         `,
         variables: {
           params: {
-            label: "commit",
+            label: `commit-${getRandomString()}`,
             owner: "tz1VxMudmADssPp6FPDGRsvJXE41DD6i9g6n",
             nonce: 491919002
           },
@@ -56,7 +56,7 @@ describe("Mutation", () => {
   })
 
   describe("Buy", () => {
-    it.only("should be to purchase a domain", async () => {
+    it.skip("should be to purchase a domain", async () => {
       // @dev 
       // To be able to purchase a domain you need to make a commitment first
     
