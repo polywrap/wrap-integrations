@@ -1,23 +1,5 @@
 #import { Query, Connection } into Tezos from "w3://ens/tezos.web3api.eth"
-
-enum Network {
-  custom
-  mainnet
-  granadanet
-  hangzhounet
-}
-
-type CustomConnection {
-  connection: Tezos_Connection!
-  contractAddress: String!
-}
-
-type DomainInfo {
-  Name: String!
-  Address: String!
-  Data: String!
-  Expiry: String!
-}
+#import { Network, CustomConnection, DomainInfo } from "../common/schema.graphql"
 
 type Query {
   resolveAddress(

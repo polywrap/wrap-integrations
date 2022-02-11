@@ -1,0 +1,20 @@
+#import { Connection } into Tezos from "w3://ens/tezos.web3api.eth"
+
+enum Network {
+  custom
+  mainnet
+  granadanet
+  hangzhounet
+}
+
+type DomainInfo {
+  Name: String!
+  Address: String!
+  Data: String!
+  Expiry: String!
+}
+
+type CustomConnection {
+  connection: Tezos_Connection!
+  contractAddress: String!
+}

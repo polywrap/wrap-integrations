@@ -1,0 +1,34 @@
+enum Network {
+  mainnet
+  hangzhounet
+}
+
+enum AcquisitionState {
+  Unobtainable
+  Taken
+  CanBeBought
+  CanBeAuctioned
+  AuctionInProgress
+  CanBeSettled
+}
+
+type AcquisitionInfo {
+  cost: UInt32 
+  state: AcquisitionState!
+}
+
+type Query {
+  getAcquisitionInfo(
+    network: Network
+    domain: String!
+    duration: UInt32
+  ): AcquisitionInfo
+
+  bytesToHex(
+    bytes: String!
+  ): String!
+
+  char2Bytes(
+    text: String!
+  ): String!
+}

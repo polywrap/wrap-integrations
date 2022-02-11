@@ -1,0 +1,45 @@
+#import { Connection, Mutation, Query, SendParams, TxOperation } into Tezos from "w3://ens/tezos.web3api.eth"
+#import { Query } into TezosDomainsPlugin from "w3://ens/tezosDomainsPlugin.web3api.eth"
+#import { Network, CustomConnection } from "../common/schema.graphql"
+
+type CommitParams {
+  # domain name
+  label: String!
+  # address of owner
+  owner: String!
+  # Random number
+  nonce: UInt32!
+}
+
+type BuyParams {
+  # domain name
+  label: String!
+  # address of owner
+  owner: String!
+  # address of domain
+  address: String!
+  # Random number
+  nonce: UInt32!
+  # Duration of domain
+  duration: UInt32!
+  # metadata of domain
+  # Stringified JSON
+  # TODO(abdul): switch JSON when feasible
+  data: String!
+}
+
+type Mutation {
+  commit (
+    network: Network!
+    params: CommitParams!
+    sendParams: Tezos_SendParams
+    custom: CustomConnection
+  ): Tezos_TxOperation!
+
+  buy (
+    network: Network!
+    params: BuyParams!
+    sendParams: Tezos_SendParams
+    custom: CustomConnection
+  ): Tezos_TxOperation!
+}

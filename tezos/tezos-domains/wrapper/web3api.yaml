@@ -6,6 +6,11 @@ modules:
   query:
     schema: ./src/query/schema.graphql
     module: ./src/query/index.ts
+  mutation:
+    schema: ./src/mutation/schema.graphql
+    module: ./src/mutation/index.ts
 import_redirects:
   - uri: w3://ens/tezos.web3api.eth
     schema: ../../plugin-js/build/schema.graphql
+  - uri: w3://ens/tezosDomainsPlugin.web3api.eth
+    schema: ../plugin-js/build/schema.graphql
