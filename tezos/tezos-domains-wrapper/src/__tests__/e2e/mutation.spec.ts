@@ -132,7 +132,8 @@ describe("Mutation", () => {
           mutation {
             buy(
               network: hangzhounet,
-              params: $params
+              params: $params,
+              sendParams: $sendParams
             )
           }
         `,
