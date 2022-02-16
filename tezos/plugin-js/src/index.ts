@@ -192,11 +192,11 @@ export class TezosPlugin extends Plugin {
     const connection = await this.getConnection(input.connection);
     const wallet = new TempleWallet(input.appName);
     await wallet.connect(<TempleDAppNetwork>input.network);
-    connection.getProvider().setWalletProvider(wallet);
+    const provider = await connection.getProvider();
+    provider.setWalletProvider(wallet);
     if (!wallet.connected) {
       throw new Error('Failed to connect Temple wallet ')
     }
-    const provider = await connection.getProvider();
     const accountPkh = await provider.wallet.pkh();
     const accountBalance = await provider.tz.getBalance(accountPkh);
     return {
@@ -210,7 +210,8 @@ export class TezosPlugin extends Plugin {
   ): Promise<string> {
     const connection = await this.getConnection(input.connection);
     const contract = await connection.getProvider().wallet.at(input.address);
-    const walletOperation = await contract.methods[input.method](...this.parseArgs(input.args)).send();
+    const sendParams = input.params ? Mapping.fromSendParams(input.params) : {};
+    const walletOperation = await contract.methods[input.method](...this.parseArgs(input.args)).send(sendParams);
     return walletOperation.opHash;
   }
 
