@@ -54,7 +54,7 @@ describe("Mutation", () => {
   })
 
   describe("Buy", () => {
-    it.only("should be to purchase a domain", async () => {
+    it("should be to purchase a domain", async () => {
       // @dev 
       // To be able to purchase a domain you need to make a commitment first
       const MAX_32_BIT_INTEGER = 2147483648;
