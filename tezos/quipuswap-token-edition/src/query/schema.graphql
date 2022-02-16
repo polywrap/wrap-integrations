@@ -1,37 +1,18 @@
 #import { Query, Connection } into Tezos from "w3://ens/tezos.web3api.eth"
 
-type GetAssetResponse {
-  low: String!
-  open: String!
-  high: String!
-  asset: String!
-  close: String!
-  volume: String!
-  endPeriod: String!
-  startPeriod: String!
+
+type ListTokenPairsResponse {
+  token_list: String
 }
 
-type listProvidersResponse {
-  providers: String
+type GetTokenSupplyResponse{
+  token_a_pool: String!
+  token_b_pool: String!
+  total_supply: String!
 }
 
-type listAssetsResponse{
-  assets: String
-}
-
-type GetCandleResponse{
-  low: String!
-  open: String!
-  high: String!
-  asset: String!
-  close: String!
-  volume: String!
-  endPeriod: String!
-  startPeriod: String!
-}
-
-type GetNormalizedPriceResponse {
-  price: String!
+type GetLPTokenBalanceResponse {
+  balance: String!
 }
 
 
@@ -47,32 +28,23 @@ type CustomConnection {
 }
 
 type Query {
-  getAssetData(
-    network: Network!
-    assetCode: String!
-    custom: CustomConnection
-  ): GetAssetResponse!
-
-  listAssets(
+  
+  listTokenPairs(
     network: Network!
     custom: CustomConnection
-    providerAddress: String!
-  ): listAssetsResponse!
+  ): ListTokenPairsResponse!
 
-  getCandle(
+  getTokenSupply(
     network: Network!
     custom: CustomConnection
-    assetCode: String!
-    providerAddress: String!
-  ): GetCandleResponse!
+    pair_id: String!
+  ): GetTokenSupplyResponse!
 
-  listProviders: listProvidersResponse!
-
-  getNormalizedPrice(
+  getLPTokenBalance(
     network: Network!
     custom: CustomConnection
-    assetCode: String!
-    providerAddress: String!
-  ): GetNormalizedPriceResponse!
+    owner: String!
+    pair_id: String!
+  ): GetLPTokenBalanceResponse!
 
 }

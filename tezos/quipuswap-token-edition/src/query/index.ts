@@ -1,16 +1,13 @@
 import {
   Network,
   Tezos_Query,
-  GetAssetResponse,
-  GetCandleResponse,
-  GetNormalizedPriceResponse,
   Tezos_Connection,
-  Input_getAssetData,
-  Input_getCandle,
-  Input_listAssets,
-  Input_getNormalizedPrice,
-  listProvidersResponse,
-  listAssetsResponse,
+  Input_listTokenPairs,
+  Input_getTokenSupply,
+  Input_getLPTokenBalance,
+  ListTokenPairsResponse,
+  GetTokenSupplyResponse,
+  GetLPTokenBalanceResponse,
   CustomConnection
 } from "./w3";
 import { getString, normalizeValue } from "../utils/common"
@@ -30,8 +27,8 @@ class ConnectionDetails {
   contractAddress: string;
 }
 
-function getConnectionDetails(network: Network, custom: CustomConnection | null, providerAddress: string): ConnectionDetails {
-  let address: string = providerAddress;
+function getConnectionDetails(network: Network, custom: CustomConnection | null): ConnectionDetails {
+  let address: string = "KT1VNEzpf631BLsdPJjt2ZhgUitR392x6cSi";
 
   let connection: Tezos_Connection = {
     provider: "https://rpc.tzstats.com",
@@ -54,128 +51,86 @@ function getConnectionDetails(network: Network, custom: CustomConnection | null,
   }
 }
 
-
-
-export function listProviders(): listProvidersResponse {
-  
-  const storageValue = '{"MainNet":{"Coinbase":{"Storage": "KT1Jr5t9UvGiqkvvsuUbPJHaYx24NzdUwNW9","Normalizer": "KT1AdbYiPYb5hDuEuVrfxmFehtnBCXv4Np7r"},"Binance":{ "Storage": "KT1Mx5sFU4BZqnAaJRpMzqaPbd2qMCFmcqea","Normalizer": "KT1SpD9Xh3PcmBGwbZPhVmHUM8shTwYhQFBa"},"Gemini":{"Storage": "KT1Jud6STRGZs6hSfgZsaeztbkzfwC3JswJP","Normalizer": "KT1JywdJbaVW5HtsYh4XNNuHcVL2vE6sYh7W"},"OKEx":{"Storage": "KT1G3UMEkhxso5cdx2fvoJRJu5nUjBWKMrET","Normalizer": "KT1J623FNZ6an8NHkWFbtvm5bKXgFzhBc5Zf"}},"Florencenet":{"Coinbase":{"Storage": "KT1PuT2NwwNjnxKy5XZEDZGHQNgdtLgN69i9","Normalizer": "KT1SUP27JhX24Kvr11oUdWswk7FnCW78ZyUn"}},"Granadanet":{"Coinbase":{"Storage": "KT1ENR6CK7cBWCtZt1G3PovwTw3FgSW472mS","Normalizer": "KT1MwuujtBodVQFm1Jk1KTGNc49wygqoLvpe"}}}';
-
-  const assetData = <JSON.Obj>JSON.parse(storageValue);
-
-  return {
-    providers: storageValue
-  };
-}
-
-
-export function listAssets(input: Input_listAssets): listAssetsResponse {
+export function listTokenPairs(input: Input_listTokenPairs): ListTokenPairsResponse {
   if (input.network == Network.custom && input.custom === null) {
     throw new Error(`custom network should have a valid connection and oracle contract address `)
   }
 
-  const connectionDetails = getConnectionDetails(input.network, input.custom, input.providerAddress);
-  const storage = Tezos_Query.getContractStorage({
+  const connectionDetails = getConnectionDetails(input.network, input.custom);
+  const pairs_count = Tezos_Query.getContractStorage({
     address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
-    key: "assetCodes",
+    key: "pairs_count",
     field: ""
   });
   
-  const assetData = storage;
+  const assetData = pairs_count;
+  var token_list = "";
+
+  for (let i = 0, len = parseInt(pairs_count); i < len; i++) {
+    
+    const token = Tezos_Query.getContractStorage({
+      address: connectionDetails.contractAddress,
+      connection: connectionDetails.connection,
+      key: "tokens",
+      field: i.toString()
+    });
+    
+    const tokenData = <JSON.Obj>JSON.parse(token);
+    token_list = token_list + '{"pair_id":'+i.toString()+'"token_a": '+getString(tokenData, "token_a_type")+', "token_b":'+ getString(tokenData, "token_b_type")+'},'
+
+  }
+
+  // let token_response: JSON.Obj = <JSON.Obj>(JSON.parse(token_list));
+
+
   return {
-      assets:  assetData,
+    token_list:  token_list,
   };
 
 }
 
 
-export function getCandle(input: Input_getCandle): GetCandleResponse{
+export function getTokenSupply(input: Input_getTokenSupply): GetTokenSupplyResponse{
   if (input.network == Network.custom && input.custom === null) {
     throw new Error(`custom network should have a valid connection and oracle contract address `)
   }
 
-  const connectionDetails = getConnectionDetails(input.network, input.custom, input.providerAddress);
+  const connectionDetails = getConnectionDetails(input.network, input.custom);
   const storage = Tezos_Query.getContractStorage({
     address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
-    key: "oracleData",
-    field: input.assetCode
+    key: "pairs",
+    field: input.pair_id
   });
   
   const assetData = <JSON.Obj>JSON.parse(storage);
+
   return {
-      low:  normalizeValue(parseFloat(getString(assetData, "4"))),
-      open: normalizeValue(parseFloat(getString(assetData, "2"))),
-      high: normalizeValue(parseFloat(getString(assetData, "3"))),
-      asset: input.assetCode,
-      close: normalizeValue(parseFloat(getString(assetData, "5"))),
-      volume: normalizeValue(parseFloat(getString(assetData, "6"))),
-      endPeriod: getString(assetData, "1"),
-      startPeriod: getString(assetData, "0"),
+    token_a_pool: getString(assetData, "token_a_pool"),
+    token_b_pool: getString(assetData, "token_b_pool"),
+    total_supply: getString(assetData, "total_supply")
   };
 
 }
 
 
-export function getNormalizedPrice(input: Input_getNormalizedPrice): GetNormalizedPriceResponse{
+export function getLPTokenBalance(input: Input_getLPTokenBalance): GetLPTokenBalanceResponse{
   if (input.network == Network.custom && input.custom === null) {
     throw new Error(`custom network should have a valid connection and oracle contract address `)
   }
 
-  const connectionDetails = getConnectionDetails(input.network, input.custom, input.providerAddress);
+  const connectionDetails = getConnectionDetails(input.network, input.custom);
   const storage = Tezos_Query.getContractStorage({
     address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
     key: "assetMap",
-    field: input.assetCode
+    field: '["' + input.owner + '",' + input.pair_id + ']',
   });
   
   const assetData = <JSON.Obj>JSON.parse(storage);
   return {
-      price:  getString(assetData, "computedPrice"),
+      balance:  getString(assetData, "balance"),
   };
 
-}
-
-
-
-export function getAssetData(input: Input_getAssetData): GetAssetResponse {
-  if (input.network == Network.custom && input.custom === null) {
-    throw new Error(`custom network should have a valid connection and oracle contract address `)
-  }
-  let oracleContractAddress: string = "KT1Jr5t9UvGiqkvvsuUbPJHaYx24NzdUwNW9";
-  let connection: Tezos_Connection = {
-    provider: "https://rpc.tzstats.com",
-    networkNameOrChainId: "mainnet"
-  };
-  switch (input.network) {
-    case Network.granadanet:
-      connection = <Tezos_Connection> {
-        provider: "https://rpc.granada.tzstats.com",
-        networkNameOrChainId: "granadanet"  
-      }
-      oracleContractAddress = "KT1ENR6CK7cBWCtZt1G3PovwTw3FgSW472mS";
-      break;
-    case Network.custom:
-      connection = input.custom!.connection;
-      oracleContractAddress = input.custom!.oracleContractAddress;
-      break;
-  }
-  const storageValue = Tezos_Query.getContractStorage({
-    address: oracleContractAddress,
-    connection: connection,
-    key: "oracleData",
-    field: input.assetCode
-  });
-  const assetData = <JSON.Obj>JSON.parse(storageValue);
-  return {
-      low:  normalizeValue(parseFloat(getString(assetData, "4"))),
-      open: normalizeValue(parseFloat(getString(assetData, "2"))),
-      high: normalizeValue(parseFloat(getString(assetData, "3"))),
-      asset: input.assetCode,
-      close: normalizeValue(parseFloat(getString(assetData, "5"))),
-      volume: normalizeValue(parseFloat(getString(assetData, "6"))),
-      endPeriod: getString(assetData, "1"),
-      startPeriod: getString(assetData, "0"),
-  };
 }

@@ -1,15 +1,11 @@
 import {
-  Input_getAssetData,
-  Input_listAssets,
-  Input_getCandle,
-  Input_listProviders,
-  Input_getNormalizedPrice
+  Input_listTokenPairs,
+  Input_getTokenSupply,
+  Input_getLPTokenBalance
 } from "./serialization";
 
 export {
-  Input_getAssetData,
-  Input_listAssets,
-  Input_getCandle,
-  Input_listProviders,
-  Input_getNormalizedPrice
+  Input_listTokenPairs,
+  Input_getTokenSupply,
+  Input_getLPTokenBalance
 };

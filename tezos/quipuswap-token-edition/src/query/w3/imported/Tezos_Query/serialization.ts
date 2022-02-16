@@ -142,7 +142,7 @@ export function deserializegetRevealEstimateResult(buffer: ArrayBuffer): Types.T
 
 export class Input_getTransferEstimate {
   connection: Types.Tezos_Connection | null;
-  params: Types.Tezos_TransferParams;
+  params: Types.Tezos_SendParams;
 }
 
 export function serializegetTransferEstimateArgs(input: Input_getTransferEstimate): ArrayBuffer {
@@ -169,9 +169,9 @@ export function writegetTransferEstimateArgs(
     writer.writeNil();
   }
   writer.context().pop();
-  writer.context().push("params", "Types.Tezos_TransferParams", "writing property");
+  writer.context().push("params", "Types.Tezos_SendParams", "writing property");
   writer.writeString("params");
-  Types.Tezos_TransferParams.write(writer, input.params);
+  Types.Tezos_SendParams.write(writer, input.params);
   writer.context().pop();
 }
 
@@ -517,6 +517,48 @@ export function deserializegetOperationStatusResult(buffer: ArrayBuffer): Types.
   reader.context().push("getOperationStatus", "Types.Tezos_OperationStatus", "reading function output");
   const object = Types.Tezos_OperationStatus.read(reader);
   const res: Types.Tezos_OperationStatus =  object;
+  reader.context().pop();
+
+  return res;
+}
+
+export class Input_encodeMichelsonExpressionToBytes {
+  expression: string;
+  value: string;
+}
+
+export function serializeencodeMichelsonExpressionToBytesArgs(input: Input_encodeMichelsonExpressionToBytes): ArrayBuffer {
+  const sizerContext: Context = new Context("Serializing (sizing) imported query-type: encodeMichelsonExpressionToBytes");
+  const sizer = new WriteSizer(sizerContext);
+  writeencodeMichelsonExpressionToBytesArgs(sizer, input);
+  const buffer = new ArrayBuffer(sizer.length);
+  const encoderContext: Context = new Context("Serializing (encoding) imported query-type: encodeMichelsonExpressionToBytes");
+  const encoder = new WriteEncoder(buffer, encoderContext);
+  writeencodeMichelsonExpressionToBytesArgs(encoder, input);
+  return buffer;
+}
+
+export function writeencodeMichelsonExpressionToBytesArgs(
+  writer: Write,
+  input: Input_encodeMichelsonExpressionToBytes
+): void {
+  writer.writeMapLength(2);
+  writer.context().push("expression", "string", "writing property");
+  writer.writeString("expression");
+  writer.writeString(input.expression);
+  writer.context().pop();
+  writer.context().push("value", "string", "writing property");
+  writer.writeString("value");
+  writer.writeString(input.value);
+  writer.context().pop();
+}
+
+export function deserializeencodeMichelsonExpressionToBytesResult(buffer: ArrayBuffer): string {
+  const context: Context =  new Context("Deserializing imported query-type: encodeMichelsonExpressionToBytes");
+  const reader = new ReadDecoder(buffer, context);
+
+  reader.context().push("encodeMichelsonExpressionToBytes", "string", "reading function output");
+  const res: string = reader.readString();
   reader.context().pop();
 
   return res;

@@ -1,7 +1,7 @@
 export enum Tezos_GetOperationStatusSupportedNetworks {
-  Mainnet,
-  Hangzhounet,
-  Granadanet,
+  mainnet,
+  hangzhounet,
+  granadanet,
   _MAX_
 }
 
@@ -13,14 +13,14 @@ export function sanitizeTezos_GetOperationStatusSupportedNetworksValue(value: i3
 }
 
 export function getTezos_GetOperationStatusSupportedNetworksValue(key: string): Tezos_GetOperationStatusSupportedNetworks {
-  if (key == "Mainnet") {
-    return Tezos_GetOperationStatusSupportedNetworks.Mainnet;
+  if (key == "mainnet") {
+    return Tezos_GetOperationStatusSupportedNetworks.mainnet;
   }
-  if (key == "Hangzhounet") {
-    return Tezos_GetOperationStatusSupportedNetworks.Hangzhounet;
+  if (key == "hangzhounet") {
+    return Tezos_GetOperationStatusSupportedNetworks.hangzhounet;
   }
-  if (key == "Granadanet") {
-    return Tezos_GetOperationStatusSupportedNetworks.Granadanet;
+  if (key == "granadanet") {
+    return Tezos_GetOperationStatusSupportedNetworks.granadanet;
   }
 
   throw new Error("Invalid key for enum 'Tezos_GetOperationStatusSupportedNetworks': " + key);
@@ -30,9 +30,9 @@ export function getTezos_GetOperationStatusSupportedNetworksKey(value: Tezos_Get
   sanitizeTezos_GetOperationStatusSupportedNetworksValue(value);
 
   switch (value) {
-    case Tezos_GetOperationStatusSupportedNetworks.Mainnet: return "Mainnet";
-    case Tezos_GetOperationStatusSupportedNetworks.Hangzhounet: return "Hangzhounet";
-    case Tezos_GetOperationStatusSupportedNetworks.Granadanet: return "Granadanet";
+    case Tezos_GetOperationStatusSupportedNetworks.mainnet: return "mainnet";
+    case Tezos_GetOperationStatusSupportedNetworks.hangzhounet: return "hangzhounet";
+    case Tezos_GetOperationStatusSupportedNetworks.granadanet: return "granadanet";
     default:
       throw new Error("Invalid value for enum 'Tezos_GetOperationStatusSupportedNetworks': " + value.toString());
   }

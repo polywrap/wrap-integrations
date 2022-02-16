@@ -3,7 +3,7 @@ export * from "./Tezos_Connection";
 export * from "./Tezos_RevealParams";
 export * from "./Tezos_EstimateResult";
 export * from "./Tezos_Estimate";
-export * from "./Tezos_TransferParams";
+export * from "./Tezos_SendParams";
 export * from "./Tezos_OriginateParams";
 export * from "./Tezos_OperationStatus";
 export * from "./Tezos_GetOperationStatusSupportedNetworks";

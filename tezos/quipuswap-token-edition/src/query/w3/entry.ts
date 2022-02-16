@@ -8,11 +8,9 @@ import {
 } from "@web3api/wasm-as";
 
 import {
-  getAssetDataWrapped,
-  listAssetsWrapped,
-  getCandleWrapped,
-  listProvidersWrapped,
-  getNormalizedPriceWrapped
+  listTokenPairsWrapped,
+  getTokenSupplyWrapped,
+  getLPTokenBalanceWrapped
 } from "./Query/wrapped";
 
 export function _w3_invoke(method_size: u32, args_size: u32): bool {
@@ -21,20 +19,14 @@ export function _w3_invoke(method_size: u32, args_size: u32): bool {
     args_size
   );
 
-  if (args.method == "getAssetData") {
-    return w3_invoke(args, getAssetDataWrapped);
+  if (args.method == "listTokenPairs") {
+    return w3_invoke(args, listTokenPairsWrapped);
   }
-  else if (args.method == "listAssets") {
-    return w3_invoke(args, listAssetsWrapped);
+  else if (args.method == "getTokenSupply") {
+    return w3_invoke(args, getTokenSupplyWrapped);
   }
-  else if (args.method == "getCandle") {
-    return w3_invoke(args, getCandleWrapped);
-  }
-  else if (args.method == "listProviders") {
-    return w3_invoke(args, listProvidersWrapped);
-  }
-  else if (args.method == "getNormalizedPrice") {
-    return w3_invoke(args, getNormalizedPriceWrapped);
+  else if (args.method == "getLPTokenBalance") {
+    return w3_invoke(args, getLPTokenBalanceWrapped);
   }
   else {
     return w3_invoke(args, null);

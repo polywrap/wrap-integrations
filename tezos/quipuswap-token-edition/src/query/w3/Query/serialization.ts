@@ -11,21 +11,18 @@ import {
 } from "@web3api/wasm-as";
 import * as Types from "..";
 
-export class Input_getAssetData {
+export class Input_listTokenPairs {
   network: Types.Network;
-  assetCode: string;
   custom: Types.CustomConnection | null;
 }
 
-export function deserializegetAssetDataArgs(argsBuf: ArrayBuffer): Input_getAssetData {
-  const context: Context =  new Context("Deserializing query-type: getAssetData");
+export function deserializelistTokenPairsArgs(argsBuf: ArrayBuffer): Input_listTokenPairs {
+  const context: Context =  new Context("Deserializing query-type: listTokenPairs");
   const reader = new ReadDecoder(argsBuf, context);
   let numFields = reader.readMapLength();
 
   let _network: Types.Network = 0;
   let _networkSet: bool = false;
-  let _assetCode: string = "";
-  let _assetCodeSet: bool = false;
   let _custom: Types.CustomConnection | null = null;
 
   while (numFields > 0) {
@@ -46,12 +43,6 @@ export function deserializegetAssetDataArgs(argsBuf: ArrayBuffer): Input_getAsse
       _networkSet = true;
       reader.context().pop();
     }
-    else if (field == "assetCode") {
-      reader.context().push(field, "string", "type found, reading property");
-      _assetCode = reader.readString();
-      _assetCodeSet = true;
-      reader.context().pop();
-    }
     else if (field == "custom") {
       reader.context().push(field, "Types.CustomConnection | null", "type found, reading property");
       let object: Types.CustomConnection | null = null;
@@ -67,50 +58,46 @@ export function deserializegetAssetDataArgs(argsBuf: ArrayBuffer): Input_getAsse
   if (!_networkSet) {
     throw new Error(reader.context().printWithContext("Missing required argument: 'network: Network'"));
   }
-  if (!_assetCodeSet) {
-    throw new Error(reader.context().printWithContext("Missing required argument: 'assetCode: String'"));
-  }
 
   return {
     network: _network,
-    assetCode: _assetCode,
     custom: _custom
   };
 }
 
-export function serializegetAssetDataResult(result: Types.GetAssetResponse): ArrayBuffer {
-  const sizerContext: Context = new Context("Serializing (sizing) query-type: getAssetData");
+export function serializelistTokenPairsResult(result: Types.ListTokenPairsResponse): ArrayBuffer {
+  const sizerContext: Context = new Context("Serializing (sizing) query-type: listTokenPairs");
   const sizer = new WriteSizer(sizerContext);
-  writegetAssetDataResult(sizer, result);
+  writelistTokenPairsResult(sizer, result);
   const buffer = new ArrayBuffer(sizer.length);
-  const encoderContext: Context = new Context("Serializing (encoding) query-type: getAssetData");
+  const encoderContext: Context = new Context("Serializing (encoding) query-type: listTokenPairs");
   const encoder = new WriteEncoder(buffer, encoderContext);
-  writegetAssetDataResult(encoder, result);
+  writelistTokenPairsResult(encoder, result);
   return buffer;
 }
 
-export function writegetAssetDataResult(writer: Write, result: Types.GetAssetResponse): void {
-  writer.context().push("getAssetData", "Types.GetAssetResponse", "writing property");
-  Types.GetAssetResponse.write(writer, result);
+export function writelistTokenPairsResult(writer: Write, result: Types.ListTokenPairsResponse): void {
+  writer.context().push("listTokenPairs", "Types.ListTokenPairsResponse", "writing property");
+  Types.ListTokenPairsResponse.write(writer, result);
   writer.context().pop();
 }
 
-export class Input_listAssets {
+export class Input_getTokenSupply {
   network: Types.Network;
   custom: Types.CustomConnection | null;
-  providerAddress: string;
+  pair_id: string;
 }
 
-export function deserializelistAssetsArgs(argsBuf: ArrayBuffer): Input_listAssets {
-  const context: Context =  new Context("Deserializing query-type: listAssets");
+export function deserializegetTokenSupplyArgs(argsBuf: ArrayBuffer): Input_getTokenSupply {
+  const context: Context =  new Context("Deserializing query-type: getTokenSupply");
   const reader = new ReadDecoder(argsBuf, context);
   let numFields = reader.readMapLength();
 
   let _network: Types.Network = 0;
   let _networkSet: bool = false;
   let _custom: Types.CustomConnection | null = null;
-  let _providerAddress: string = "";
-  let _providerAddressSet: bool = false;
+  let _pair_id: string = "";
+  let _pair_idSet: bool = false;
 
   while (numFields > 0) {
     numFields--;
@@ -139,10 +126,10 @@ export function deserializelistAssetsArgs(argsBuf: ArrayBuffer): Input_listAsset
       _custom = object;
       reader.context().pop();
     }
-    else if (field == "providerAddress") {
+    else if (field == "pair_id") {
       reader.context().push(field, "string", "type found, reading property");
-      _providerAddress = reader.readString();
-      _providerAddressSet = true;
+      _pair_id = reader.readString();
+      _pair_idSet = true;
       reader.context().pop();
     }
     reader.context().pop();
@@ -151,53 +138,53 @@ export function deserializelistAssetsArgs(argsBuf: ArrayBuffer): Input_listAsset
   if (!_networkSet) {
     throw new Error(reader.context().printWithContext("Missing required argument: 'network: Network'"));
   }
-  if (!_providerAddressSet) {
-    throw new Error(reader.context().printWithContext("Missing required argument: 'providerAddress: String'"));
+  if (!_pair_idSet) {
+    throw new Error(reader.context().printWithContext("Missing required argument: 'pair_id: String'"));
   }
 
   return {
     network: _network,
     custom: _custom,
-    providerAddress: _providerAddress
+    pair_id: _pair_id
   };
 }
 
-export function serializelistAssetsResult(result: Types.listAssetsResponse): ArrayBuffer {
-  const sizerContext: Context = new Context("Serializing (sizing) query-type: listAssets");
+export function serializegetTokenSupplyResult(result: Types.GetTokenSupplyResponse): ArrayBuffer {
+  const sizerContext: Context = new Context("Serializing (sizing) query-type: getTokenSupply");
   const sizer = new WriteSizer(sizerContext);
-  writelistAssetsResult(sizer, result);
+  writegetTokenSupplyResult(sizer, result);
   const buffer = new ArrayBuffer(sizer.length);
-  const encoderContext: Context = new Context("Serializing (encoding) query-type: listAssets");
+  const encoderContext: Context = new Context("Serializing (encoding) query-type: getTokenSupply");
   const encoder = new WriteEncoder(buffer, encoderContext);
-  writelistAssetsResult(encoder, result);
+  writegetTokenSupplyResult(encoder, result);
   return buffer;
 }
 
-export function writelistAssetsResult(writer: Write, result: Types.listAssetsResponse): void {
-  writer.context().push("listAssets", "Types.listAssetsResponse", "writing property");
-  Types.listAssetsResponse.write(writer, result);
+export function writegetTokenSupplyResult(writer: Write, result: Types.GetTokenSupplyResponse): void {
+  writer.context().push("getTokenSupply", "Types.GetTokenSupplyResponse", "writing property");
+  Types.GetTokenSupplyResponse.write(writer, result);
   writer.context().pop();
 }
 
-export class Input_getCandle {
+export class Input_getLPTokenBalance {
   network: Types.Network;
   custom: Types.CustomConnection | null;
-  assetCode: string;
-  providerAddress: string;
+  owner: string;
+  pair_id: string;
 }
 
-export function deserializegetCandleArgs(argsBuf: ArrayBuffer): Input_getCandle {
-  const context: Context =  new Context("Deserializing query-type: getCandle");
+export function deserializegetLPTokenBalanceArgs(argsBuf: ArrayBuffer): Input_getLPTokenBalance {
+  const context: Context =  new Context("Deserializing query-type: getLPTokenBalance");
   const reader = new ReadDecoder(argsBuf, context);
   let numFields = reader.readMapLength();
 
   let _network: Types.Network = 0;
   let _networkSet: bool = false;
   let _custom: Types.CustomConnection | null = null;
-  let _assetCode: string = "";
-  let _assetCodeSet: bool = false;
-  let _providerAddress: string = "";
-  let _providerAddressSet: bool = false;
+  let _owner: string = "";
+  let _ownerSet: bool = false;
+  let _pair_id: string = "";
+  let _pair_idSet: bool = false;
 
   while (numFields > 0) {
     numFields--;
@@ -226,16 +213,16 @@ export function deserializegetCandleArgs(argsBuf: ArrayBuffer): Input_getCandle 
       _custom = object;
       reader.context().pop();
     }
-    else if (field == "assetCode") {
+    else if (field == "owner") {
       reader.context().push(field, "string", "type found, reading property");
-      _assetCode = reader.readString();
-      _assetCodeSet = true;
+      _owner = reader.readString();
+      _ownerSet = true;
       reader.context().pop();
     }
-    else if (field == "providerAddress") {
+    else if (field == "pair_id") {
       reader.context().push(field, "string", "type found, reading property");
-      _providerAddress = reader.readString();
-      _providerAddressSet = true;
+      _pair_id = reader.readString();
+      _pair_idSet = true;
       reader.context().pop();
     }
     reader.context().pop();
@@ -244,158 +231,34 @@ export function deserializegetCandleArgs(argsBuf: ArrayBuffer): Input_getCandle 
   if (!_networkSet) {
     throw new Error(reader.context().printWithContext("Missing required argument: 'network: Network'"));
   }
-  if (!_assetCodeSet) {
-    throw new Error(reader.context().printWithContext("Missing required argument: 'assetCode: String'"));
+  if (!_ownerSet) {
+    throw new Error(reader.context().printWithContext("Missing required argument: 'owner: String'"));
   }
-  if (!_providerAddressSet) {
-    throw new Error(reader.context().printWithContext("Missing required argument: 'providerAddress: String'"));
-  }
-
-  return {
-    network: _network,
-    custom: _custom,
-    assetCode: _assetCode,
-    providerAddress: _providerAddress
-  };
-}
-
-export function serializegetCandleResult(result: Types.GetCandleResponse): ArrayBuffer {
-  const sizerContext: Context = new Context("Serializing (sizing) query-type: getCandle");
-  const sizer = new WriteSizer(sizerContext);
-  writegetCandleResult(sizer, result);
-  const buffer = new ArrayBuffer(sizer.length);
-  const encoderContext: Context = new Context("Serializing (encoding) query-type: getCandle");
-  const encoder = new WriteEncoder(buffer, encoderContext);
-  writegetCandleResult(encoder, result);
-  return buffer;
-}
-
-export function writegetCandleResult(writer: Write, result: Types.GetCandleResponse): void {
-  writer.context().push("getCandle", "Types.GetCandleResponse", "writing property");
-  Types.GetCandleResponse.write(writer, result);
-  writer.context().pop();
-}
-
-export class Input_listProviders {
-}
-
-export function deserializelistProvidersArgs(argsBuf: ArrayBuffer): Input_listProviders {
-  const context: Context =  new Context("Deserializing query-type: listProviders");
-
-  return {
-  };
-}
-
-export function serializelistProvidersResult(result: Types.listProvidersResponse): ArrayBuffer {
-  const sizerContext: Context = new Context("Serializing (sizing) query-type: listProviders");
-  const sizer = new WriteSizer(sizerContext);
-  writelistProvidersResult(sizer, result);
-  const buffer = new ArrayBuffer(sizer.length);
-  const encoderContext: Context = new Context("Serializing (encoding) query-type: listProviders");
-  const encoder = new WriteEncoder(buffer, encoderContext);
-  writelistProvidersResult(encoder, result);
-  return buffer;
-}
-
-export function writelistProvidersResult(writer: Write, result: Types.listProvidersResponse): void {
-  writer.context().push("listProviders", "Types.listProvidersResponse", "writing property");
-  Types.listProvidersResponse.write(writer, result);
-  writer.context().pop();
-}
-
-export class Input_getNormalizedPrice {
-  network: Types.Network;
-  custom: Types.CustomConnection | null;
-  assetCode: string;
-  providerAddress: string;
-}
-
-export function deserializegetNormalizedPriceArgs(argsBuf: ArrayBuffer): Input_getNormalizedPrice {
-  const context: Context =  new Context("Deserializing query-type: getNormalizedPrice");
-  const reader = new ReadDecoder(argsBuf, context);
-  let numFields = reader.readMapLength();
-
-  let _network: Types.Network = 0;
-  let _networkSet: bool = false;
-  let _custom: Types.CustomConnection | null = null;
-  let _assetCode: string = "";
-  let _assetCodeSet: bool = false;
-  let _providerAddress: string = "";
-  let _providerAddressSet: bool = false;
-
-  while (numFields > 0) {
-    numFields--;
-    const field = reader.readString();
-
-    reader.context().push(field, "unknown", "searching for property type");
-    if (field == "network") {
-      reader.context().push(field, "Types.Network", "type found, reading property");
-      let value: Types.Network;
-      if (reader.isNextString()) {
-        value = Types.getNetworkValue(reader.readString());
-      } else {
-        value = reader.readInt32();
-        Types.sanitizeNetworkValue(value);
-      }
-      _network = value;
-      _networkSet = true;
-      reader.context().pop();
-    }
-    else if (field == "custom") {
-      reader.context().push(field, "Types.CustomConnection | null", "type found, reading property");
-      let object: Types.CustomConnection | null = null;
-      if (!reader.isNextNil()) {
-        object = Types.CustomConnection.read(reader);
-      }
-      _custom = object;
-      reader.context().pop();
-    }
-    else if (field == "assetCode") {
-      reader.context().push(field, "string", "type found, reading property");
-      _assetCode = reader.readString();
-      _assetCodeSet = true;
-      reader.context().pop();
-    }
-    else if (field == "providerAddress") {
-      reader.context().push(field, "string", "type found, reading property");
-      _providerAddress = reader.readString();
-      _providerAddressSet = true;
-      reader.context().pop();
-    }
-    reader.context().pop();
-  }
-
-  if (!_networkSet) {
-    throw new Error(reader.context().printWithContext("Missing required argument: 'network: Network'"));
-  }
-  if (!_assetCodeSet) {
-    throw new Error(reader.context().printWithContext("Missing required argument: 'assetCode: String'"));
-  }
-  if (!_providerAddressSet) {
-    throw new Error(reader.context().printWithContext("Missing required argument: 'providerAddress: String'"));
+  if (!_pair_idSet) {
+    throw new Error(reader.context().printWithContext("Missing required argument: 'pair_id: String'"));
   }
 
   return {
     network: _network,
     custom: _custom,
-    assetCode: _assetCode,
-    providerAddress: _providerAddress
+    owner: _owner,
+    pair_id: _pair_id
   };
 }
 
-export function serializegetNormalizedPriceResult(result: Types.GetNormalizedPriceResponse): ArrayBuffer {
-  const sizerContext: Context = new Context("Serializing (sizing) query-type: getNormalizedPrice");
+export function serializegetLPTokenBalanceResult(result: Types.GetLPTokenBalanceResponse): ArrayBuffer {
+  const sizerContext: Context = new Context("Serializing (sizing) query-type: getLPTokenBalance");
   const sizer = new WriteSizer(sizerContext);
-  writegetNormalizedPriceResult(sizer, result);
+  writegetLPTokenBalanceResult(sizer, result);
   const buffer = new ArrayBuffer(sizer.length);
-  const encoderContext: Context = new Context("Serializing (encoding) query-type: getNormalizedPrice");
+  const encoderContext: Context = new Context("Serializing (encoding) query-type: getLPTokenBalance");
   const encoder = new WriteEncoder(buffer, encoderContext);
-  writegetNormalizedPriceResult(encoder, result);
+  writegetLPTokenBalanceResult(encoder, result);
   return buffer;
 }
 
-export function writegetNormalizedPriceResult(writer: Write, result: Types.GetNormalizedPriceResponse): void {
-  writer.context().push("getNormalizedPrice", "Types.GetNormalizedPriceResponse", "writing property");
-  Types.GetNormalizedPriceResponse.write(writer, result);
+export function writegetLPTokenBalanceResult(writer: Write, result: Types.GetLPTokenBalanceResponse): void {
+  writer.context().push("getLPTokenBalance", "Types.GetLPTokenBalanceResponse", "writing property");
+  Types.GetLPTokenBalanceResponse.write(writer, result);
   writer.context().pop();
 }

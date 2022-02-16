@@ -37,7 +37,10 @@ import {
   Input_getWalletPKH,
   serializegetOperationStatusArgs,
   deserializegetOperationStatusResult,
-  Input_getOperationStatus
+  Input_getOperationStatus,
+  serializeencodeMichelsonExpressionToBytesArgs,
+  deserializeencodeMichelsonExpressionToBytesResult,
+  Input_encodeMichelsonExpressionToBytes
 } from "./serialization";
 import * as Types from "../..";
 
@@ -164,5 +167,16 @@ export class Tezos_Query {
       args
     );
     return deserializegetOperationStatusResult(result);
+  }
+
+  public static encodeMichelsonExpressionToBytes(input: Input_encodeMichelsonExpressionToBytes): string {
+    const args = serializeencodeMichelsonExpressionToBytesArgs(input);
+    const result = w3_subinvoke(
+      "w3://ens/tezos.web3api.eth",
+      "query",
+      "encodeMichelsonExpressionToBytes",
+      args
+    );
+    return deserializeencodeMichelsonExpressionToBytesResult(result);
   }
 }

@@ -1,22 +1,16 @@
 import {
-  Input_getAssetData,
-  Input_listAssets,
-  Input_getCandle,
-  Input_listProviders,
-  Input_getNormalizedPrice
+  Input_listTokenPairs,
+  Input_getTokenSupply,
+  Input_getLPTokenBalance
 } from "./Query";
 export {
-  Input_getAssetData,
-  Input_listAssets,
-  Input_getCandle,
-  Input_listProviders,
-  Input_getNormalizedPrice
+  Input_listTokenPairs,
+  Input_getTokenSupply,
+  Input_getLPTokenBalance
 };
-export { GetAssetResponse } from "./GetAssetResponse";
-export { listProvidersResponse } from "./listProvidersResponse";
-export { listAssetsResponse } from "./listAssetsResponse";
-export { GetCandleResponse } from "./GetCandleResponse";
-export { GetNormalizedPriceResponse } from "./GetNormalizedPriceResponse";
+export { ListTokenPairsResponse } from "./ListTokenPairsResponse";
+export { GetTokenSupplyResponse } from "./GetTokenSupplyResponse";
+export { GetLPTokenBalanceResponse } from "./GetLPTokenBalanceResponse";
 export { CustomConnection } from "./CustomConnection";
 export {
   Network,
@@ -29,7 +23,7 @@ export { Tezos_Connection } from "./imported/Tezos_Connection";
 export { Tezos_RevealParams } from "./imported/Tezos_RevealParams";
 export { Tezos_EstimateResult } from "./imported/Tezos_EstimateResult";
 export { Tezos_Estimate } from "./imported/Tezos_Estimate";
-export { Tezos_TransferParams } from "./imported/Tezos_TransferParams";
+export { Tezos_SendParams } from "./imported/Tezos_SendParams";
 export { Tezos_OriginateParams } from "./imported/Tezos_OriginateParams";
 export { Tezos_OperationStatus } from "./imported/Tezos_OperationStatus";
 export {

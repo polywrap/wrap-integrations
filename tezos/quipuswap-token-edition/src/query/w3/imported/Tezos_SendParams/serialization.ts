@@ -9,21 +9,21 @@ import {
   JSON,
   Context
 } from "@web3api/wasm-as";
-import { Tezos_TransferParams } from "./";
+import { Tezos_SendParams } from "./";
 import * as Types from "../..";
 
-export function serializeTezos_TransferParams(type: Tezos_TransferParams): ArrayBuffer {
-  const sizerContext: Context = new Context("Serializing (sizing)  imported object-type: Tezos_TransferParams");
+export function serializeTezos_SendParams(type: Tezos_SendParams): ArrayBuffer {
+  const sizerContext: Context = new Context("Serializing (sizing)  imported object-type: Tezos_SendParams");
   const sizer = new WriteSizer(sizerContext);
-  writeTezos_TransferParams(sizer, type);
+  writeTezos_SendParams(sizer, type);
   const buffer = new ArrayBuffer(sizer.length);
-  const encoderContext: Context = new Context("Serializing (encoding) import object-type: Tezos_TransferParams");
+  const encoderContext: Context = new Context("Serializing (encoding) import object-type: Tezos_SendParams");
   const encoder = new WriteEncoder(buffer, encoderContext);
-  writeTezos_TransferParams(encoder, type);
+  writeTezos_SendParams(encoder, type);
   return buffer;
 }
 
-export function writeTezos_TransferParams(writer: Write, type: Tezos_TransferParams): void {
+export function writeTezos_SendParams(writer: Write, type: Tezos_SendParams): void {
   writer.writeMapLength(7);
   writer.context().push("to", "string", "writing property");
   writer.writeString("to");
@@ -55,13 +55,13 @@ export function writeTezos_TransferParams(writer: Write, type: Tezos_TransferPar
   writer.context().pop();
 }
 
-export function deserializeTezos_TransferParams(buffer: ArrayBuffer): Tezos_TransferParams {
-  const context: Context = new Context("Deserializing imported object-type Tezos_TransferParams");
+export function deserializeTezos_SendParams(buffer: ArrayBuffer): Tezos_SendParams {
+  const context: Context = new Context("Deserializing imported object-type Tezos_SendParams");
   const reader = new ReadDecoder(buffer, context);
-  return readTezos_TransferParams(reader);
+  return readTezos_SendParams(reader);
 }
 
-export function readTezos_TransferParams(reader: Read): Tezos_TransferParams {
+export function readTezos_SendParams(reader: Read): Tezos_SendParams {
   let numFields = reader.readMapLength();
 
   let _to: string = "";

@@ -1,66 +1,43 @@
 import {
-  getAssetData,
-  listAssets,
-  getCandle,
-  listProviders,
-  getNormalizedPrice
+  listTokenPairs,
+  getTokenSupply,
+  getLPTokenBalance
 } from "../../index";
 import {
-  deserializegetAssetDataArgs,
-  serializegetAssetDataResult,
-  deserializelistAssetsArgs,
-  serializelistAssetsResult,
-  deserializegetCandleArgs,
-  serializegetCandleResult,
-  deserializelistProvidersArgs,
-  serializelistProvidersResult,
-  deserializegetNormalizedPriceArgs,
-  serializegetNormalizedPriceResult
+  deserializelistTokenPairsArgs,
+  serializelistTokenPairsResult,
+  deserializegetTokenSupplyArgs,
+  serializegetTokenSupplyResult,
+  deserializegetLPTokenBalanceArgs,
+  serializegetLPTokenBalanceResult
 } from "./serialization";
 
-export function getAssetDataWrapped(argsBuf: ArrayBuffer): ArrayBuffer {
-  const args = deserializegetAssetDataArgs(argsBuf);
-  const result = getAssetData({
+export function listTokenPairsWrapped(argsBuf: ArrayBuffer): ArrayBuffer {
+  const args = deserializelistTokenPairsArgs(argsBuf);
+  const result = listTokenPairs({
     network: args.network,
-    assetCode: args.assetCode,
     custom: args.custom
   });
-  return serializegetAssetDataResult(result);
+  return serializelistTokenPairsResult(result);
 }
 
-export function listAssetsWrapped(argsBuf: ArrayBuffer): ArrayBuffer {
-  const args = deserializelistAssetsArgs(argsBuf);
-  const result = listAssets({
+export function getTokenSupplyWrapped(argsBuf: ArrayBuffer): ArrayBuffer {
+  const args = deserializegetTokenSupplyArgs(argsBuf);
+  const result = getTokenSupply({
     network: args.network,
     custom: args.custom,
-    providerAddress: args.providerAddress
+    pair_id: args.pair_id
   });
-  return serializelistAssetsResult(result);
+  return serializegetTokenSupplyResult(result);
 }
 
-export function getCandleWrapped(argsBuf: ArrayBuffer): ArrayBuffer {
-  const args = deserializegetCandleArgs(argsBuf);
-  const result = getCandle({
+export function getLPTokenBalanceWrapped(argsBuf: ArrayBuffer): ArrayBuffer {
+  const args = deserializegetLPTokenBalanceArgs(argsBuf);
+  const result = getLPTokenBalance({
     network: args.network,
     custom: args.custom,
-    assetCode: args.assetCode,
-    providerAddress: args.providerAddress
+    owner: args.owner,
+    pair_id: args.pair_id
   });
-  return serializegetCandleResult(result);
-}
-
-export function listProvidersWrapped(argsBuf: ArrayBuffer): ArrayBuffer {
-  const result = listProviders();
-  return serializelistProvidersResult(result);
-}
-
-export function getNormalizedPriceWrapped(argsBuf: ArrayBuffer): ArrayBuffer {
-  const args = deserializegetNormalizedPriceArgs(argsBuf);
-  const result = getNormalizedPrice({
-    network: args.network,
-    custom: args.custom,
-    assetCode: args.assetCode,
-    providerAddress: args.providerAddress
-  });
-  return serializegetNormalizedPriceResult(result);
+  return serializegetLPTokenBalanceResult(result);
 }
