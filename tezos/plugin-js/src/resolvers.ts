@@ -45,7 +45,7 @@ export const mutation = (plugin: Plugin): Mutation.Module => ({
 
   connectTempleWallet: async (
     input: Mutation.Input_connectTempleWallet
-  ): Promise<boolean> => {
+  ): Promise<Types.AccountDetails> => {
     return plugin.connectTempleWallet(input);
   },
 

@@ -4,6 +4,11 @@ enum GetOperationStatusSupportedNetworks {
   granadanet
 }
 
+type AccountDetails {
+  pkh: String!
+  balance: String!
+}
+
 type OperationStatus {
     hash: String!
     type: String!
@@ -242,7 +247,7 @@ type Mutation {
     appName: String!
     network: String!
     connection: Connection
-  ): Boolean!
+  ): AccountDetails!
 
   walletContractCallMethod(
     address: String!

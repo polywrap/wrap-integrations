@@ -184,7 +184,7 @@ export class TezosPlugin extends Plugin {
 
   public async connectTempleWallet(
     input: Mutation.Input_connectTempleWallet
-  ): Promise<boolean> {
+  ): Promise<Types.AccountDetails> {
     const isAvailable = await TempleWallet.isAvailable();
     if (!isAvailable) {
       throw new Error('Temple Wallet is not available.');
@@ -193,7 +193,16 @@ export class TezosPlugin extends Plugin {
     const wallet = new TempleWallet(input.appName);
     await wallet.connect(<TempleDAppNetwork>input.network);
     connection.getProvider().setWalletProvider(wallet);
-    return wallet.connected;
+    if (!wallet.connected) {
+      throw new Error('Failed to connect Temple wallet ')
+    }
+    const provider = await connection.getProvider();
+    const accountPkh = await provider.wallet.pkh();
+    const accountBalance = await provider.tz.getBalance(accountPkh);
+    return {
+      pkh: accountPkh,
+      balance: accountBalance.toString()
+    };
   }
 
   public async walletContractCallMethod(
