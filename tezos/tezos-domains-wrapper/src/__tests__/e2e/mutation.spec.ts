@@ -48,21 +48,18 @@ describe("Mutation", () => {
       });
 
       expect(response.errors).toBeUndefined()
-      expect(response.data).toBeDefined()
-      expect(response.data?.commit.hash).toBeDefined()
-      expect(response.data?.commit.source).toBeDefined()
-      expect(response.data?.commit.destination).toBeDefined()
+      expect(response.data?.commit).toBeDefined()
+      expect(typeof response.data?.commit).toBe('string')
     })
   })
 
   describe("Buy", () => {
-    it.skip("should be to purchase a domain", async () => {
+    it.only("should be to purchase a domain", async () => {
       // @dev 
       // To be able to purchase a domain you need to make a commitment first
-    
       const MAX_32_BIT_INTEGER = 2147483648;
       const buyParams = {
-        label: 'zakager',
+        label: `zakager-${getRandomString()}`,
         nonce: randomInt(MAX_32_BIT_INTEGER),
         owner: 'tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z',
         duration: 365,
@@ -92,8 +89,8 @@ describe("Mutation", () => {
       });
 
       expect(commitResponse.errors).toBeUndefined()
-      expect(commitResponse.data).toBeDefined()
-      expect(commitResponse.data?.commit.hash).toBeDefined()
+      expect(commitResponse.data?.commit).toBeDefined()
+      expect(typeof commitResponse.data?.commit).toBe('string')
 
       // Wait till the commitment operation has more than 15 confirmations
       const getSubscription: Subscription<{
@@ -111,7 +108,7 @@ describe("Mutation", () => {
           }
         `,
         variables: {
-          hash: commitResponse.data?.commit.hash,
+          hash: commitResponse.data?.commit,
         },
         frequency: { ms: 4500 },
       });
@@ -129,7 +126,7 @@ describe("Mutation", () => {
         }
       }
       
-      const buyResponse = await client.query<{ commit: MutationSchema.Tezos_TxOperation }>({
+      const buyResponse = await client.query<{ buy: MutationSchema.Tezos_TxOperation }>({
         uri: ensUri,
         query: `
           mutation {
@@ -156,9 +153,8 @@ describe("Mutation", () => {
 
       expect(buyResponse.errors).toBeUndefined()
       expect(buyResponse.data).toBeDefined()
-      expect(buyResponse.data?.commit.hash).toBeDefined()
-      expect(buyResponse.data?.commit.source).toBeDefined()
-      expect(buyResponse.data?.commit.destination).toBeDefined()
+      expect(buyResponse.data?.buy).toBeDefined()
+      expect(typeof buyResponse.data?.buy).toBe('string')
     })
   })
 })

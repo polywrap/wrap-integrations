@@ -8,7 +8,7 @@ import {
 import { getConnection, parseDomainMetadata } from "../common/utils";
 import { encodeCommitment } from "../query";
 
-export function commit(input: Input_commit): Tezos_TxOperation {
+export function commit(input: Input_commit): string {
   const label = TezosDomainsPlugin_Query.char2Bytes({
     text: input.params.label
   });
@@ -17,22 +17,22 @@ export function commit(input: Input_commit): Tezos_TxOperation {
     bytes: commitmentBytes
   });
   const address = getConnection(input.network, "Commit", input.custom);
-  const operation = Tezos_Mutation.callContractMethod({
+  const hash = Tezos_Mutation.walletContractCallMethod({
     address: address.contractAddress,
     method: "commit",
     args: '["' + commitmentHash + '"]',
     params: input.sendParams,
     connection: address.connection
   })
-  return operation;
+  return hash;
 }
 
-export function buy(input: Input_buy): Tezos_TxOperation {
+export function buy(input: Input_buy): string {
   const label = TezosDomainsPlugin_Query.char2Bytes({
     text: input.params.label
   });
   const address = getConnection(input.network, "Buy", input.custom);
-  const operation = Tezos_Mutation.callContractMethod({
+  const hash = Tezos_Mutation.walletContractCallMethod({
     address: address.contractAddress,
     method: "buy",
     args: '["' + 
@@ -46,5 +46,5 @@ export function buy(input: Input_buy): Tezos_TxOperation {
     params: input.sendParams,
     connection: address.connection
   })
-  return operation;
+  return hash;
 }

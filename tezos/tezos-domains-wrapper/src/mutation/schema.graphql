@@ -1,4 +1,4 @@
-#import { Connection, Mutation, Query, SendParams, TxOperation } into Tezos from "w3://ens/tezos.web3api.eth"
+#import { Connection, Mutation, Query, SendParams } into Tezos from "w3://ens/tezos.web3api.eth"
 #import { Query } into TezosDomainsPlugin from "w3://ens/tezosDomainsPlugin.web3api.eth"
 #import { Network, CustomConnection } from "../common/schema.graphql"
 
@@ -34,12 +34,12 @@ type Mutation {
     params: CommitParams!
     sendParams: Tezos_SendParams
     custom: CustomConnection
-  ): Tezos_TxOperation!
+  ): String!
 
   buy (
     network: Network!
     params: BuyParams!
     sendParams: Tezos_SendParams
     custom: CustomConnection
-  ): Tezos_TxOperation!
+  ): String!
 }
