@@ -1,0 +1,78 @@
+#import { Query, Connection } into Tezos from "w3://ens/tezos.web3api.eth"
+
+type GetAssetResponse {
+  low: String!
+  open: String!
+  high: String!
+  asset: String!
+  close: String!
+  volume: String!
+  endPeriod: String!
+  startPeriod: String!
+}
+
+type listProvidersResponse {
+  providers: String
+}
+
+type listAssetsResponse{
+  assets: String
+}
+
+type GetCandleResponse{
+  low: String!
+  open: String!
+  high: String!
+  asset: String!
+  close: String!
+  volume: String!
+  endPeriod: String!
+  startPeriod: String!
+}
+
+type GetNormalizedPriceResponse {
+  price: String!
+}
+
+
+enum Network {
+  custom
+  mainnet
+  granadanet
+}
+
+type CustomConnection {
+  connection: Tezos_Connection!
+  oracleContractAddress: String!
+}
+
+type Query {
+  getAssetData(
+    network: Network!
+    assetCode: String!
+    custom: CustomConnection
+  ): GetAssetResponse!
+
+  listAssets(
+    network: Network!
+    custom: CustomConnection
+    providerAddress: String!
+  ): listAssetsResponse!
+
+  getCandle(
+    network: Network!
+    custom: CustomConnection
+    assetCode: String!
+    providerAddress: String!
+  ): GetCandleResponse!
+
+  listProviders: listProvidersResponse!
+
+  getNormalizedPrice(
+    network: Network!
+    custom: CustomConnection
+    assetCode: String!
+    providerAddress: String!
+  ): GetNormalizedPriceResponse!
+
+}
