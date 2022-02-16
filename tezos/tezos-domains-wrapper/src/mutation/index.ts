@@ -1,11 +1,10 @@
 import {
   Input_commit, 
   Tezos_Mutation,
-  Tezos_TxOperation,
   Input_buy,
   TezosDomainsPlugin_Query,
 } from "./w3"
-import { getConnection, parseDomainMetadata } from "../common/utils";
+import { getConnection, getSendParams } from "../common/utils";
 import { encodeCommitment } from "../query";
 
 export function commit(input: Input_commit): string {
@@ -21,7 +20,7 @@ export function commit(input: Input_commit): string {
     address: address.contractAddress,
     method: "commit",
     args: '["' + commitmentHash + '"]',
-    params: input.sendParams,
+    params: getSendParams(input.sendParams, address.contractAddress),
     connection: address.connection
   })
   return hash;
@@ -43,7 +42,7 @@ export function buy(input: Input_buy): string {
       input.params.data + ', "' + 
       input.params.nonce.toString() + 
     '"]',
-    params: input.sendParams,
+    params: getSendParams(input.sendParams, address.contractAddress),
     connection: address.connection
   })
   return hash;

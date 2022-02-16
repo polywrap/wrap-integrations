@@ -24,22 +24,32 @@ type BuyParams {
   duration: UInt32!
   # metadata of domain
   # Stringified JSON
-  # TODO(abdul): switch JSON when feasible
+  # TODO(abdul): switch to JSON when feasible
   data: String!
 }
+
+type SendParams {
+  amount: UInt32
+  source: String
+  fee: UInt32
+  gasLimit: UInt32
+  storageLimit: UInt32
+  mutez: Boolean
+}
+
 
 type Mutation {
   commit (
     network: Network!
     params: CommitParams!
-    sendParams: Tezos_SendParams
+    sendParams: SendParams
     custom: CustomConnection
   ): String!
 
   buy (
     network: Network!
     params: BuyParams!
-    sendParams: Tezos_SendParams
+    sendParams: SendParams
     custom: CustomConnection
   ): String!
 }

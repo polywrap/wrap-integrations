@@ -1,7 +1,7 @@
-import { JSON } from "@web3api/wasm-as"
+import { JSON, Nullable } from "@web3api/wasm-as"
 import { Address } from ".";
 import { CustomConnection, Network, Tezos_Connection } from "../query/w3";
-import { TezosDomainsPlugin_Query } from "../mutation/w3"
+import { TezosDomainsPlugin_Query, SendParams, Tezos_SendParams } from "../mutation/w3"
 
 export function getString(object: JSON.Obj, key: string): string {
     let initValue = <JSON.Str>object.getString(key)
@@ -63,4 +63,25 @@ export function parseDomainMetadata(value: JSON.Obj): JSON.Obj {
   parsed.set("isMichelsonMap", true);
   parsed.set("values", parsedValues);
   return parsed;
+}
+
+export function getSendParams(input: SendParams | null, address: string): Tezos_SendParams {
+  const params: Tezos_SendParams = {
+    to: address,
+    amount: 0,
+    source: "",
+    fee: new Nullable<u32>(),
+    gasLimit: new Nullable<u32>(),
+    storageLimit: new Nullable<u32>(),
+    mutez: new Nullable<boolean>()
+  };
+  if (!!input) {
+    params.amount = input.amount.isNull ? 0 : input.amount.value;
+    params.source = input.source ? input.source : "";
+    params.fee = input.fee;
+    params.gasLimit = input.gasLimit;
+    params.storageLimit = input.storageLimit;
+    params.mutez = input.mutez;
+  };
+  return params;
 }
