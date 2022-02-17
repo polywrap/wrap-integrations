@@ -13,7 +13,8 @@ enum AcquisitionState {
 }
 
 type AcquisitionInfo {
-  cost: UInt32 
+  cost: UInt32
+  duration: UInt32
   state: AcquisitionState!
 }
 

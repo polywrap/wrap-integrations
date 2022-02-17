@@ -50,16 +50,20 @@ export class TezosDomainPlugin extends Plugin {
   public async getAcquisitionInfo(
     input: Types.Query.Input_getAcquisitionInfo
   ): Promise<Types.AcquisitionInfo> {
-    let cost: number | undefined;
+    let duration = 365;
     const domainsClient = await this.getTezosDomainsClient(input.network)
     const info = await domainsClient.manager.getAcquisitionInfo(input.domain)
+    const acquisitionInfo = <Types.AcquisitionInfo>{
+      state: info.acquisitionState
+    }
     if (input.duration) {
-      cost = info.calculatePrice(input.duration)
+      duration = input.duration
     }
-    return {
-      state: info.acquisitionState,
-      cost
+    if (info.acquisitionState === 'CanBeBought') {
+      acquisitionInfo.cost = info.calculatePrice(duration)
+      acquisitionInfo.duration = duration
     }
+    return acquisitionInfo
   }
 
   public bytesToHex(

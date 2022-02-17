@@ -43,6 +43,24 @@ describe("Tezos Domains Plugin", () => {
         expect(response.data?.getAcquisitionInfo.state).toBe("Taken")
         expect(response.data?.getAcquisitionInfo.cost).toBeDefined()
       })
+
+      it("returns the acquisition state of the domain name", async () => {
+        const response  = await client.query<{ getAcquisitionInfo: Types.AcquisitionInfo }>({
+          uri,
+          query: `
+            query {
+              getAcquisitionInfo(
+                domain: "zillow-hopefully-no-one-creates-a-domain-long-as-this-1292.tez", 
+              )
+            }
+          `
+        })
+
+        expect(response.errors).toBeUndefined()
+        expect(response.data?.getAcquisitionInfo.state).toBe("CanBeBought")
+        expect(response.data?.getAcquisitionInfo.cost).toBeDefined()
+        expect(response.data?.getAcquisitionInfo.duration).toBeDefined()
+      })
     })
 
     describe("bytesToHex", () => {
