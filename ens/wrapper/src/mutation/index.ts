@@ -43,7 +43,7 @@ export function setResolver(input: Input_setResolver): Ethereum_TxResponse {
       gasPrice: txOverrides.gasPrice,
       gasLimit: txOverrides.gasLimit,
     },
-  });
+  }).unwrap();
 
   return setResolverTx;
 }
@@ -66,7 +66,7 @@ export function registerDomain(
       gasPrice: txOverrides.gasPrice,
       gasLimit: txOverrides.gasLimit,
     },
-  });
+  }).unwrap();
 
   return tx;
 }
@@ -86,7 +86,7 @@ export function setOwner(input: Input_setOwner): Ethereum_TxResponse {
       gasPrice: txOverrides.gasPrice,
       value: null,
     },
-  });
+  }).unwrap();
 
   return tx;
 }
@@ -113,7 +113,7 @@ export function setSubdomainOwner(
       gasPrice: txOverrides.gasPrice,
       value: null,
     },
-  });
+  }).unwrap();
 
   return tx;
 }
@@ -142,7 +142,7 @@ export function setSubdomainRecord(
       gasPrice: txOverrides.gasPrice,
       value: null,
     },
-  });
+  }).unwrap();
 
   return tx;
 }
@@ -169,7 +169,7 @@ export function setRecord(input: Input_setRecord): Ethereum_TxResponse {
       gasPrice: txOverrides.gasPrice,
       value: null,
     },
-  });
+  }).unwrap();
 
   return tx;
 }
@@ -189,7 +189,7 @@ export function setName(input: Input_setName): Ethereum_TxResponse {
       gasPrice: txOverrides.gasPrice,
       value: null,
     },
-  });
+  }).unwrap();
 
   return setNameTx;
 }
@@ -211,7 +211,7 @@ export function reverseRegisterDomain(
       gasPrice: txOverrides.gasPrice,
       value: null,
     },
-  });
+  }).unwrap();
 
   const setNameTx = setName({
     reverseRegistryAddress: input.reverseRegistryAddress,
@@ -241,7 +241,7 @@ export function setAddress(input: Input_setAddress): Ethereum_TxResponse {
       gasPrice: txOverrides.gasPrice,
       value: null,
     },
-  });
+  }).unwrap();
 
   return setAddrTx;
 }
@@ -263,7 +263,7 @@ export function setContentHash(
       gasPrice: txOverrides.gasPrice,
       value: null,
     },
-  });
+  }).unwrap();
 
   return setContentHash;
 }
@@ -291,7 +291,7 @@ export function setAddressFromDomain(
       gasPrice: txOverrides.gasPrice,
       value: null,
     },
-  });
+  }).unwrap();
 
   return setAddrTx;
 }
@@ -319,7 +319,7 @@ export function setContentHashFromDomain(
       gasPrice: txOverrides.gasPrice,
       value: null,
     },
-  });
+  }).unwrap();
 
   return setContentHash;
 }
@@ -330,7 +330,7 @@ export function deployFIFSRegistrar(input: Input_deployFIFSRegistrar): string {
     bytecode,
     args: [input.registryAddress, namehash(input.tld)],
     connection: input.connection,
-  });
+  }).unwrap();
 
   return address;
 }
@@ -352,7 +352,7 @@ export function registerSubnodeOwnerWithFIFSRegistrar(
       gasPrice: txOverrides.gasPrice,
       value: null,
     },
-  });
+  }).unwrap();
 
   return txHash;
 }
@@ -372,7 +372,7 @@ export function setTextRecord(input: Input_setTextRecord): Ethereum_TxResponse {
       gasPrice: txOverrides.gasPrice,
       value: null,
     },
-  });
+  }).unwrap();
 
   return txHash;
 }

@@ -13,8 +13,8 @@ export function namehash(inputName: string): string {
     const labels: string[] = name.split('.');
 
     for(let i = labels.length - 1; i >= 0; i--) {
-      let labelSha = SHA3_Query.keccak_256({ message: labels[i] })
-      node = SHA3_Query.hex_keccak_256({ message: node + labelSha })
+      let labelSha = SHA3_Query.keccak_256({ message: labels[i] }).unwrap()
+      node = SHA3_Query.hex_keccak_256({ message: node + labelSha }).unwrap()
     }
   }
 
@@ -24,9 +24,9 @@ export function namehash(inputName: string): string {
 export function normalize(name: string): string {
   return name ? UTS46_Query.toAscii({ 
     value: name
-  }) : name
+  }).unwrap() : name
 }
 
 export function keccak256 (value: string): string {
-  return "0x" + SHA3_Query.keccak_256({ message: value })
+  return "0x" + SHA3_Query.keccak_256({ message: value }).unwrap()
 }

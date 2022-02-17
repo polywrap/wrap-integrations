@@ -22,7 +22,7 @@ export function getResolver(input: Input_getResolver): string {
     method: "function resolver(bytes32 node) external view returns (address)",
     args: [domain],
     connection: input.connection,
-  });
+  }).unwrap();
 
   return resolverAddress;
 }
@@ -33,7 +33,7 @@ export function getOwner(input: Input_getOwner): string {
     method: "function owner(bytes32 node) external view returns (address)",
     args: [namehash(input.domain)],
     connection: input.connection,
-  });
+  }).unwrap();
 
   return owner;
 }
@@ -44,7 +44,7 @@ export function getAddress(input: Input_getAddress): string {
     method: "function addr(bytes32 node) external view returns (address)",
     args: [namehash(input.domain)],
     connection: input.connection,
-  });
+  }).unwrap();
 
   return address;
 }
@@ -55,7 +55,7 @@ export function getContentHash(input: Input_getContentHash): string {
     method: "function contenthash(bytes32 node) external view returns (bytes)",
     args: [namehash(input.domain)],
     connection: input.connection,
-  });
+  }).unwrap();
 
   return hash;
 }
@@ -74,7 +74,7 @@ export function getAddressFromDomain(
     method: "function addr(bytes32 node) external view returns (address)",
     args: [namehash(input.domain)],
     connection: input.connection,
-  });
+  }).unwrap();
 
   return address;
 }
@@ -93,7 +93,7 @@ export function getContentHashFromDomain(
     method: "function contenthash(bytes32 node) external view returns (bytes)",
     args: [namehash(input.domain)],
     connection: input.connection,
-  });
+  }).unwrap();
 
   return hash;
 }
@@ -107,7 +107,7 @@ export function getExpiryTimes(input: Input_getExpiryTimes): string {
       "function expiryTimes(bytes32 label) external view returns (uint256)",
     args: [keccak256(label)],
     connection: input.connection,
-  });
+  }).unwrap();
 
   return expiryTime;
 }
@@ -120,7 +120,7 @@ export function getReverseResolver(input: Input_getReverseResolver): string {
     method: "function resolver(bytes32 node) external view returns (address)",
     args: [address],
     connection: input.connection,
-  });
+  }).unwrap();
 
   return resolverAddress;
 }
@@ -139,7 +139,7 @@ export function getNameFromAddress(input: Input_getNameFromAddress): string {
     method: "function name(bytes32 node) external view returns (string)",
     args: [address],
     connection: input.connection,
-  });
+  }).unwrap();
 
   return name;
 }
@@ -154,7 +154,7 @@ export function getNameFromReverseResolver(
     method: "function name(bytes32 node) external view returns (string)",
     args: [address],
     connection: input.connection,
-  });
+  }).unwrap();
 
   return name;
 }
@@ -165,7 +165,7 @@ export function getTextRecord(input: Input_getTextRecord): string {
     method: "function text(bytes32 node, string value) external view returns (string)",
     args: [namehash(input.domain), input.key],
     connection: input.connection,
-  });
+  }).unwrap();
 
   return value;
 }
