@@ -1,4 +1,5 @@
-const { TezosToolkit, InMemorySigner } = require('@taquito/taquito')
+const { TezosToolkit } = require('@taquito/taquito')
+const { InMemorySigner } = require('@taquito/signer')
 
 const { PORT } = require('./config')
 
@@ -9,7 +10,6 @@ function getClient() {
 
 async function getSigner(secretKey) {
     return await InMemorySigner.fromSecretKey(secretKey)
-
 }
 
 module.exports = {
