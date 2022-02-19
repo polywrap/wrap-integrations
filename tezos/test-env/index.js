@@ -2,6 +2,7 @@ const { exec } = require('child_process')
 
 const cmds = require('./cmds')
 const { PORT, PROTOCOL } = require('./config')
+const { getClient, getSigner } = require('./taquito')
 
 async function runCommand(command, quiet) {
   if (!quiet) {
@@ -61,6 +62,29 @@ async function down(quiet = true) {
   await sleep()
 }
 
+async function deployContract(account, contractInfo, confirmation = 1) {
+  const { code, init, storage } = contractInfo
+  const client = getClient()
+  const signer = await getSigner(account.secretKey)
+  client.setSignerProvider(signer)
+  const operation = await client.contract.originate({
+    code,
+    init,
+    storage
+  });
+  await operation.confirmation(confirmation)
+  return {
+    storageLimit: operation.storageLimit,
+    gasLimit: operation.gasLimit,
+    contractAddress: operation.contractAddress,
+    storageSize: operation.storageSize,
+    consumedGas: operation.consumedGas,
+    fee: operation.fee,
+    hash: operation.hash,
+    revealStatus: operation.revealStatus
+  }
+}
+
 function parseAccounts(stream) {
   const seperatedAccountStream = stream.split(/\n/gi)
   const accounts = seperatedAccountStream.reduce((accumulator, account) => {
@@ -79,5 +103,6 @@ function parseAccounts(stream) {
 
 module.exports = {
   up,
-  down
+  down,
+  deployContract
 }
