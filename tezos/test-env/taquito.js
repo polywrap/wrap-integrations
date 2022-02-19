@@ -7,7 +7,7 @@ function getClient() {
     return Tezos
 }
 
-function getSigner(secretKey) {
+async function getSigner(secretKey) {
     return await InMemorySigner.fromSecretKey(secretKey)
 
 }
