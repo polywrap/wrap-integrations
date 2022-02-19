@@ -341,9 +341,26 @@ export class TezosPlugin extends Plugin {
   public async getContractStorage(input: Query.Input_getContractStorage): Promise<string> {
     const connection = await this.getConnection(input.connection);
     const contract = await connection.getProvider().contract.at(input.address);
-    const storage = await contract.storage();
-    // @ts-ignore
-    let data = storage[input.key];
+    const regex = /(\[[,a-zA-Z.0-9\s"]+\])|([a-zA-Z0-9]+)|([0-9]+)/g
+    let storage = await contract.storage();
+    let key = input.key.replaceAll("'", '"');
+    const keys = key.match(regex) || [];
+    for (let newKey of keys) {
+      try {
+        newKey = JSON.parse(newKey)
+      } catch (error) {
+        // pass
+      }
+      if (MichelsonMap.isMichelsonMap(storage) || storage instanceof BigMapAbstraction) {
+        storage = await storage.get(newKey);
+        // @ts-ignore
+      } else if (typeof storage === 'object' && storage[newKey]) {
+        // @ts-ignore
+        storage = storage[newKey]
+      } else {
+        throw new Error(`Unsupported type: '${typeof storage}' is supported`)
+      }
+    }
     if(!!input.field) {
       let field = input.field;
       try {
@@ -351,13 +368,14 @@ export class TezosPlugin extends Plugin {
       } catch (error) {
         // ignore if parsing string fails
       }
-      if (data instanceof BigMapAbstraction) {
-        data = await data.get(field);
+      if (storage instanceof BigMapAbstraction) {
+        storage = await storage.get(field);
       } else {
-        data = data[field];
+        // @ts-ignore
+        storage = storage[field];
       }
     }
-    return this.stringify(data);
+    return this.stringify(storage);
   }
 
   public async executeTzip16View(input: Query.Input_executeTzip16View): Promise<string> {

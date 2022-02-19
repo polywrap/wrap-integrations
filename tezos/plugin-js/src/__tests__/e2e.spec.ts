@@ -179,6 +179,35 @@ describe("Tezos Plugin", () => {
         expect(response.data?.getContractStorage).toBeDefined()
         expect(response.data?.getContractStorage).not.toBe("")
       })
+
+      it("should parse nested keys", async () => {
+        const response =  await client.query<{ getContractStorage: string }>({
+          uri,
+          query: `
+            query {
+              getContractStorage(
+                address: $address, 
+                connection: $connection, 
+                key: $key,
+                field: $field
+              )
+            }
+          `,
+          variables: {
+            address: "KT1VNEzpf631BLsdPJjt2ZhgUitR392x6cSi",
+            connection: {
+              networkNameOrChainId: "mainnet"
+            },
+            key: "storage.ledger.['tz1aNYc3qpEXp9da8Qf5iBmaNWwZXtcgXwQV', 19]",
+            field: "balance"
+          }
+        })
+
+        expect(response.errors).toBeUndefined()
+        expect(response.data).toBeDefined()
+        expect(response.data?.getContractStorage).toBeDefined()
+        expect(response.data?.getContractStorage).not.toBe("")
+      })
     })
 
     describe("executeTzip16View",() => {
