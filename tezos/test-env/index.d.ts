@@ -29,7 +29,7 @@ declare module '@web3api/tezos-test-env' {
     interface ContractInfo {
         code: string
         init?: string | object
-        storage?: object
+        storage?: unknown
     }
 
     function up(quiet?: boolean): Promise<UpResponse>
