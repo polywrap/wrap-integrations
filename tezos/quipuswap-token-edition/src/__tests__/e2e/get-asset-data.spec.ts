@@ -40,10 +40,11 @@ describe("listTokenPairs", () => {
       }
     })
 
+    
     expect(response.errors).toBeUndefined()
     expect(response.data).toBeDefined()
     expect(response.data?.listTokenPairs).toBeDefined()
-    // expect(response.data?.listTokenPairs.token_list).toBeDefined()
+    expect(response.data?.listTokenPairs.token_list).toBeDefined()
   })
   
 })
