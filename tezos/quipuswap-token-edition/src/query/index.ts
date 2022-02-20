@@ -10,7 +10,7 @@ import {
   GetLPTokenBalanceResponse,
   CustomConnection
 } from "./w3";
-import { getString, normalizeValue } from "../utils/common"
+import { getString } from "../utils/common"
 
 import { JSON } from "assemblyscript-json"; 
 
@@ -57,14 +57,14 @@ export function listTokenPairs(input: Input_listTokenPairs): ListTokenPairsRespo
   }
 
   const connectionDetails = getConnectionDetails(input.network, input.custom);
+  
   const pairs_count = Tezos_Query.getContractStorage({
     address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
-    key: "pairs_count",
-    field: ""
+    key: "storage",
+    field: "pairs_count"
   });
   
-  const assetData = pairs_count;
   var token_list = "";
 
   for (let i = 0, len = parseInt(pairs_count); i < len; i++) {
@@ -72,17 +72,16 @@ export function listTokenPairs(input: Input_listTokenPairs): ListTokenPairsRespo
     const token = Tezos_Query.getContractStorage({
       address: connectionDetails.contractAddress,
       connection: connectionDetails.connection,
-      key: "tokens",
+      key: "storage.tokens",
       field: i.toString()
     });
     
+    let comma = i == (parseInt(pairs_count) - 1) ? '' : ',';
+
     const tokenData = <JSON.Obj>JSON.parse(token);
-    token_list = token_list + '{"pair_id":'+i.toString()+'"token_a": '+getString(tokenData, "token_a_type")+', "token_b":'+ getString(tokenData, "token_b_type")+'},'
+    token_list = token_list + '{"pair_id":'+i.toString()+'"token_a": '+getString(tokenData, "token_a_type")+', "token_b":' + getString(tokenData, "token_b_type") + '}' + comma;
 
   }
-
-  // let token_response: JSON.Obj = <JSON.Obj>(JSON.parse(token_list));
-
 
   return {
     token_list:  token_list,
@@ -100,7 +99,7 @@ export function getTokenSupply(input: Input_getTokenSupply): GetTokenSupplyRespo
   const storage = Tezos_Query.getContractStorage({
     address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
-    key: "pairs",
+    key: "storage.pairs",
     field: input.pair_id
   });
   
@@ -124,13 +123,12 @@ export function getLPTokenBalance(input: Input_getLPTokenBalance): GetLPTokenBal
   const storage = Tezos_Query.getContractStorage({
     address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
-    key: "assetMap",
-    field: '["' + input.owner + '",' + input.pair_id + ']',
+    key: 'storage.ledger.["' + input.owner + '",' + input.pair_id + ']',
+    field: "balance"
   });
   
-  const assetData = <JSON.Obj>JSON.parse(storage);
   return {
-      balance:  getString(assetData, "balance"),
+      balance:  storage
   };
 
 }
