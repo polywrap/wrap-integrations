@@ -123,8 +123,8 @@ export function getLPTokenBalance(input: Input_getLPTokenBalance): GetLPTokenBal
   const storage = Tezos_Query.getContractStorage({
     address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
-    key: 'storage.ledger.["' + input.owner + '",' + input.pair_id + ']',
-    field: "balance"
+    key: 'storage.ledger.["' + input.owner + '",' + input.pair_id + '].balance',
+    field: ""
   });
   
   return {
