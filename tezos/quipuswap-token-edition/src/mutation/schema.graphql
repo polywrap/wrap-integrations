@@ -1,0 +1,107 @@
+#import { Mutation, SendParams } into Tezos from "w3://ens/tezos.web3api.eth"
+#import { Network, CustomConnection } from "../common/schema.graphql"
+
+type AddOperatorParams {
+    pair_id: Int!
+    owner: String!
+    operator: String!
+    allowance: UInt32!
+}
+
+type RemoveOperatorParams {
+    pair_id: Int!
+    owner: String!
+    operator: String!
+    allowance: UInt32!
+}
+
+type RemoveOperatorParams {
+    pair_id: Int!
+    to: String!
+    amount: UInt32!
+}
+
+type TransferFromParams {
+    pair_id: Int!
+    from: String!
+    to: String!
+    amount: UInt32!
+}
+
+type InvestParams {
+    pair_id: Int!
+    shares: UInt32!
+    token_a_in: UInt32! 
+    token_b_in: UInt32! 
+    deadline: String!
+}
+
+type DivestParams {
+    pair_id: Int!
+    min_token_a_out: UInt32!
+    min_token_b_out: UInt32!
+    shares: UInt32!
+    deadline: String!
+}
+
+type SwapDirectParams {
+    pair_id: Int!
+    direction: String!
+    amount_in: UInt32!
+    min_amount_out: UInt32!
+    receiver: String!
+    deadline: String!
+}
+
+
+type Mutation {
+
+    addOperator(
+        network: Network!
+        params: AddOperatorParams!
+        sendParams: SendParams
+        custom: CustomConnection
+    ): String!
+
+    removeOperator(
+        network: Network!
+        params: CommitParams!
+        sendParams: SendParams
+        custom: CustomConnection
+    ): String!
+    
+    transfer(
+        network: Network!
+        params: RemoveOperatorParams!
+        sendParams: SendParams
+        custom: CustomConnection
+    ): String!
+
+    transferFrom(
+        network: Network!
+        params: TransferFromParams!
+        sendParams: SendParams
+        custom: CustomConnection
+    ): String!
+
+    invest(
+        network: Network!
+        params: InvestParams!
+        sendParams: SendParams
+        custom: CustomConnection
+    ): String!
+
+    divest(
+        network: Network!
+        params: DivestParams!
+        sendParams: SendParams
+        custom: CustomConnection
+    ): String!
+
+    swapDirect(
+        network: Network!
+        params: SwapDirectParams!
+        sendParams: SendParams
+        custom: CustomConnection
+    ): String!
+}
