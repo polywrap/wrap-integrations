@@ -5,8 +5,8 @@ BLOCK_TIME=${TEZOS_POLYWRAP_BLOCK_TIME:-5}
 PROTOCOL="${TEZOS_POLYWRAP_PROTOCOL:-Hangzhou}"
 ROOT_PATH="${TEZOS_POLYWRAP_ROOT_PATH:-/tmp/mini-net}"
 
-export toby="$(flextesa key toby)"
-export suwe="$(flextesa key suwe)"
+export bob="$(flextesa key bob)"
+export alice="$(flextesa key alice)"
 
 # flextesa startup script 
 startup() {
@@ -17,10 +17,10 @@ startup() {
         --number-of-b 1 \
         --balance-of-bootstrap-accounts tez:100_000_000 \
         --time-b "$BLOCK_TIME" \
-        --add-bootstrap-account="$toby@2_000_000_000_000" \
-        --add-bootstrap-account="$suwe@2_000_000_000_000" \
-        --no-daemons-for=toby \
-        --no-daemons-for=suwe \
+        --add-bootstrap-account="$bob@2_000_000_000_000" \
+        --add-bootstrap-account="$alice@2_000_000_000_000" \
+        --no-daemons-for=bob \
+        --no-daemons-for=alice \
         --until-level 200_000_000 \
         --protocol-kind "$PROTOCOL"
 }
@@ -28,8 +28,8 @@ startup() {
 # get bootstrapped accounts
 accounts() {
     cat >&2 <<EOF
-$(echo $toby)
-$(echo $suwe)
+$(echo $bob)
+$(echo $alice)
 EOF
 }
 
