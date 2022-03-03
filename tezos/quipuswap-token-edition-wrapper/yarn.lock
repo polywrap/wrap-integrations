@@ -1650,11 +1650,6 @@ as-bigint@0.4.0:
   resolved "https://registry.yarnpkg.com/as-bigint/-/as-bigint-0.4.0.tgz#96f0efd549c1031df010ebd787e05fbfe140ab11"
   integrity sha512-oPJLz1EMeMHyFt+T9951i5PLHrekV9VsK05d26d2xO3h0NQbonBUveNwLj7IICa+3n0rvM/ZpWZ0k0LSJ7CMcw==
 
-assemblyscript-json@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/assemblyscript-json/-/assemblyscript-json-1.1.0.tgz#49d38bc21f1ac36f2887528a35de6cf7d59c17be"
-  integrity sha512-UbE8ts8csTWQgd5TnSPN7MRV9NveuHv1bVnKmDLoo/tzjqxkmsZb3lu59Uk8H7SGoqdkDSEE049alx/nHnSdFw==
-
 assemblyscript@0.19.1:
   version "0.19.1"
   resolved "https://registry.yarnpkg.com/assemblyscript/-/assemblyscript-0.19.1.tgz#8d52332b7cef88e03d15b633e70c5febddd1f444"

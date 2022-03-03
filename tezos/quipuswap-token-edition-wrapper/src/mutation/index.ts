@@ -1,0 +1,148 @@
+import {
+  Tezos_Mutation,
+  Input_addOperator,
+  Input_removeOperator,
+  Input_swapDirect,
+  Input_swapMultiHop,
+  Input_invest,
+  Input_divest,
+  Input_transfer,
+  Input_transferFrom,
+  Tezos_SendParams,
+  SwapPair,
+  SwapParams,
+  getSwapDirectionKey
+} from "./w3"
+import { Address, getConnection } from "../common";
+import { Tezos_Query } from "../query/w3"
+
+export function addOperator(input: Input_addOperator): string {
+  const address = getConnection(input.network, input.custom);
+  return Tezos_Mutation.walletContractCallMethod({
+    address: address.contractAddress,
+    method: "update_operators",
+    args: generateOperatorArg('add_operator', input.params.owner, input.params.operator, input.params.tokenId),
+    params: input.sendParams,
+    connection: address.connection
+  })
+}
+
+export function removeOperator(input: Input_removeOperator): string {
+  const address = getConnection(input.network, input.custom);
+  return Tezos_Mutation.walletContractCallMethod({
+    address: address.contractAddress,
+    method: "update_operators",
+    args: generateOperatorArg('remove_operator', input.params.owner, input.params.operator, input.params.tokenId),
+    params: input.sendParams,
+    connection: address.connection
+  })
+}
+
+export function swapDirect(input: Input_swapDirect): string {
+  const address = getConnection(input.network, input.custom);
+  return swap([{ pairId: input.params.pairId, direction: input.params.direction }], input.params.swapParams, address, input.sendParams);
+}
+
+export function swapMultiHop(input: Input_swapMultiHop): string {
+  const address = getConnection(input.network, input.custom);
+  return swap(input.params.hops, input.params.swapParams, address, input.sendParams);
+}
+
+export function invest(input: Input_invest): string {
+  const address = getConnection(input.network,  input.custom);
+  return Tezos_Mutation.walletContractCallMethod({
+    address: address.contractAddress,
+    method: "invest",
+    args: `[${input.params.pairId}, ${input.params.shares}, ${input.params.tokenAIn}, ${input.params.tokenBIn}, "${input.params.deadline}]"`,
+    params: input.sendParams,
+    connection: address.connection
+  })
+}
+
+export function divest(input: Input_divest): string {
+  const address = getConnection(input.network,  input.custom);
+  return Tezos_Mutation.walletContractCallMethod({
+    address: address.contractAddress,
+    method: "divest",
+    args: `[${input.params.pairId}, ${input.params.minTokenAOut}, ${input.params.minTokenBOut}, ${input.params.shares}, "${input.params.deadline}]"`,
+    params: input.sendParams,
+    connection: address.connection
+  })
+}
+
+export function transfer(input: Input_transfer): string {
+  const address = getConnection(input.network,  input.custom);
+  const pkh = Tezos_Query.getWalletPKH({
+    connection: address.connection
+  });
+  return Tezos_Mutation.walletContractCallMethod({
+    address: address.contractAddress,
+    method: "transfer",
+    args: `[{
+      "from_": "${pkh}",
+      "txs": [{
+        "to_": "${input.params.to}",
+        "tokenId": "${input.params.tokenId}",
+        "amount": ${input.params.amount.toString()}
+      }]  
+    }]`,
+    params: input.sendParams,
+    connection: address.connection
+  });
+}
+
+export function transferFrom(input: Input_transferFrom): string {
+  const address = getConnection(input.network,  input.custom);
+  return Tezos_Mutation.walletContractCallMethod({
+    address: address.contractAddress,
+    method: "transfer",
+    args: `[{
+      "from_": "${input.m_from}",
+      "txs": [{
+        "to_": "${input.params.to}",
+        "tokenId": "${input.params.tokenId}",
+        "amount": ${input.params.amount.toString()}
+      }]  
+    }]`,
+    params: input.sendParams,
+    connection: address.connection
+  });
+}
+
+
+
+function swap(hops: SwapPair[], swapParams: SwapParams, address: Address, sendParams: Tezos_SendParams | null): string {
+  return Tezos_Mutation.walletContractCallMethod({
+    address: address.contractAddress,
+    method: "swap",
+    args: generateSwapArg(hops, swapParams),
+    params: sendParams,
+    connection: address.connection
+  })
+}
+
+function generateOperatorArg(operation: string, owner: string, operator: string, tokenId: u32): string {
+  return '[{ "'+  operation +'": {"owner": "'+ owner +'","operator":"'+ operator +'", "token_id":'+ tokenId.toString() +' }}]';
+}
+
+function generateSwapArg(hops: SwapPair[], swapParams: SwapParams): string {
+  let arg = '[';
+  let stringifiedHops = '[';
+  for (let i = 0; i < hops.length; i++) {
+    let hop = '{';
+    hop +=  '"pair_id":' + hops[i].pairId.toString() + ',';
+    hop += '"operation": {' 
+    hop += '"' + getSwapDirectionKey(hops[i].direction) + '"' + ': {} } }'
+    stringifiedHops += hop
+    if (i != hops.length - 1) {
+      stringifiedHops += ',';
+    }
+  }
+  arg += stringifiedHops + '],';
+  arg += swapParams.amountIn.toString() + ','
+  arg += swapParams.minAmountOut.toString() + ','
+  arg += '"' + swapParams.receiver + '"' + ','
+  arg += '"' + swapParams.deadline + '"'
+  arg += ']';
+  return arg;
+}

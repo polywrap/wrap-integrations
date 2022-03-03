@@ -1,0 +1,117 @@
+#import { Mutation, SendParams } into Tezos from "w3://ens/tezos.web3api.eth"
+#import { Network, CustomConnection } from "../common/schema.graphql"
+
+enum SwapDirection {
+    a_to_b
+    b_to_a
+}
+
+type OperatorParams {
+    owner: String!
+    tokenId: UInt32!
+    operator: String!
+}
+
+type SwapPair {
+    pairId: UInt32!
+    direction: SwapDirection!
+}
+
+type SwapParams {
+    amountIn: BigInt!
+    minAmountOut: BigInt!
+    receiver: String!
+    deadline: String!
+}
+
+type SwapDirectParams {
+    pairId: UInt32!
+    direction: SwapDirection!
+    swapParams: SwapParams!
+}
+
+type SwapMultiHopParams {
+    hops: [SwapPair!]!
+    swapParams: SwapParams!
+}
+
+type InvestParams {
+    pairId: UInt32!
+    shares: BigInt!
+    tokenAIn: BigInt! 
+    tokenBIn: BigInt! 
+    deadline: String!
+}
+
+type DivestParams {
+    pairId: UInt32!
+    minTokenAOut: BigInt!
+    minTokenBOut: BigInt!
+    shares: BigInt!
+    deadline: String!
+}
+
+type TransferParams {
+    to: String!
+    tokenId: UInt32!
+    amount: BigInt!
+}
+
+type Mutation {
+    addOperator(
+        network: Network!
+        params: OperatorParams!
+        sendParams: Tezos_SendParams
+        custom: CustomConnection
+    ): String!
+
+    removeOperator(
+        network: Network!
+        params: OperatorParams!
+        sendParams: Tezos_SendParams
+        custom: CustomConnection
+    ): String!
+    
+    swapDirect(
+        network: Network!
+        params: SwapDirectParams!
+        sendParams: Tezos_SendParams
+        custom: CustomConnection
+    ): String!
+
+    swapMultiHop(
+        network: Network!
+        params: SwapMultiHopParams!
+        sendParams: Tezos_SendParams
+        custom: CustomConnection
+    ): String!
+
+    invest(
+        network: Network!
+        params: InvestParams!
+        sendParams: Tezos_SendParams
+        custom: CustomConnection
+    ): String!
+
+    divest(
+        network: Network!
+        params: DivestParams!
+        sendParams: Tezos_SendParams
+        custom: CustomConnection
+    ): String!
+
+    transfer(
+        network: Network!
+        params: TransferParams!
+        sendParams: Tezos_SendParams
+        custom: CustomConnection
+    ): String!
+  
+    transferFrom(
+        network: Network!
+        from: String!
+        params: TransferParams!
+        sendParams: Tezos_SendParams
+        custom: CustomConnection
+    ): String!
+}

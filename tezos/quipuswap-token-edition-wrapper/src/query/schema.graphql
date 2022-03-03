@@ -1,50 +1,28 @@
 #import { Query, Connection } into Tezos from "w3://ens/tezos.web3api.eth"
+#import { Network, CustomConnection } from "../common/schema.graphql"
 
-
-type ListTokenPairsResponse {
-  token_list: String
-}
-
-type GetTokenSupplyResponse{
+type GetTokenSupplyResponse {
   token_a_pool: String!
   token_b_pool: String!
   total_supply: String!
 }
 
-type GetLPTokenBalanceResponse {
-  balance: String!
-}
-
-
-enum Network {
-  custom
-  mainnet
-  granadanet
-}
-
-type CustomConnection {
-  connection: Tezos_Connection!
-  oracleContractAddress: String!
-}
-
-type Query {
-  
+type Query {  
   listTokenPairs(
     network: Network!
     custom: CustomConnection
-  ): ListTokenPairsResponse!
+  ): JSON!
 
   getTokenSupply(
     network: Network!
     custom: CustomConnection
-    pair_id: String!
+    pairId: String!
   ): GetTokenSupplyResponse!
 
   getLPTokenBalance(
     network: Network!
     custom: CustomConnection
     owner: String!
-    pair_id: String!
-  ): GetLPTokenBalanceResponse!
-
+    pairId: String!
+  ): String!
 }

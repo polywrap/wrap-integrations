@@ -3,15 +3,7 @@
 enum Network {
   custom
   mainnet
-  granadanet
   hangzhounet
-}
-
-type DomainInfo {
-  Name: String!
-  Address: String!
-  Data: String!
-  Expiry: String!
 }
 
 type CustomConnection {

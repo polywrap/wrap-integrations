@@ -1,6 +1,6 @@
 {
-  "name": "@web3api/harbinger-wrapper",
-  "description": "Polywrap Harbinger Wrapper",
+  "name": "@web3api/quipuswa-token-edition-wrapper",
+  "description": "Polywrap Quipuswap Wrapper",
   "private": true,
   "version": "0.0.1-prealpha.61",
   "scripts": {
@@ -30,8 +30,5 @@
     "ts-jest": "27.1.2",
     "ts-node": "10.4.0",
     "typescript": "4.5.4"
-  },
-  "dependencies": {
-    "assemblyscript-json": "^1.1.0"
   }
 }
