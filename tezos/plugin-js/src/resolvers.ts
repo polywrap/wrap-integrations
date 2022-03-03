@@ -64,6 +64,12 @@ export const mutation = (plugin: Plugin): Mutation.Module => ({
 });
 
 export const query = (plugin: Plugin): Query.Module => ({
+  callContractView: async (
+    input: Query.Input_callContractView
+  ): Promise<string> => {
+    return plugin.callContractView(input);
+  },
+
   encodeMichelsonExpressionToBytes: async (
     input: Query.Input_encodeMichelsonExpressionToBytes
   ): Promise<string> => {

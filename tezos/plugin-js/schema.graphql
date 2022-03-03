@@ -240,6 +240,14 @@ type Query {
     expression: String!
     value: String!
   ): String!
+
+  callContractView(
+    address: String!
+    view: String!
+    lambaAddress: String
+    args: String
+    connection: Connection
+  ): String!
 }
 
 type Mutation {

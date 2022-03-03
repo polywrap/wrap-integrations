@@ -228,6 +228,13 @@ export class TezosPlugin extends Plugin {
   }
 
   // Query
+  public async callContractView(
+    input: Query.Input_callContractView
+  ): Promise<string> {
+    const response = await this._callContractView(input);
+    return JSON.stringify(response);
+  }
+
   public async getWalletPKH(input: Query.Input_getWalletPKH): Promise<string> {
     const connection = await this.getConnection(input.connection);
     return await connection.getProvider().wallet.pkh();
@@ -471,6 +478,15 @@ export class TezosPlugin extends Plugin {
     const contract = await connection.getContract(input.address);
     const sendParams = input.params ? Mapping.fromSendParams(input.params) : {};
     return contract.methods[input.method](...this.parseArgs(input.args)).send(sendParams);
+  }
+
+  private async _callContractView(
+    input: Query.Input_callContractView
+  ): Promise<any> {
+    const lambaAddress = input.lambaAddress ? input.lambaAddress : undefined;
+    const connection = await this.getConnection(input.connection);
+    const contract = await connection.getContract(input.address);
+    return contract.views[input.view](...this.parseArgs(input.args)).read(lambaAddress);
   }
 
   private stringify(output: any): string {

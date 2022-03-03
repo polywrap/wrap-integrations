@@ -28,6 +28,9 @@ describe("Tezos Plugin", () => {
               mainnet: {
                 provider: "https://rpc.tzstats.com"
               },
+              hangzhou: {
+                provider: "https://rpc.hangzhou.tzstats.com"
+              },
               testnet: {
                 provider: node.url,
                 signer: await InMemorySigner.fromSecretKey(accounts[0].secretKey)
@@ -91,6 +94,36 @@ describe("Tezos Plugin", () => {
         expect(response.errors).toBeUndefined()
         expect(response.data).toBeDefined()
         expect(response.data?.encodeMichelsonExpressionToBytes).toBe('05070707070a00000006636f6d6d69740a0000001600007128c922351e2a0b591f36ce638880052891b9f6009ada90d503')
+      })
+    })
+
+    describe("callContractView", () => {
+      it("should call contract view to get balance of address", async () => {
+        const response = await client.query<{ callContractView: string }>({
+          uri,
+          query: `
+            query {
+              callContractView(
+                address: $address, 
+                view: $view,
+                args: $args,
+                connection: $connection
+              )
+            }
+          `,
+          variables: {
+            address: "KT1LNMrk8orMQ85zbwK25996dPhDxfSicvKh",
+            view: "getBalance",
+            args: '["tz1c1X8vD4pKV9TgV1cyosR7qdnkc8FTEyM1"]',
+            connection: {
+              networkNameOrChainId: "hangzhou"
+            }
+          }
+        })
+
+        expect(response.errors).toBeUndefined()
+        expect(response.data).toBeDefined()
+        expect(response.data?.callContractView).toBeDefined()
       })
     })
 
