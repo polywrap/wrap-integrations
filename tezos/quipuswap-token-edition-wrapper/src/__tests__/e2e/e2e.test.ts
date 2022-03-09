@@ -97,11 +97,59 @@ describe("e2e", () => {
 
   describe("Mutation", () => {
     describe("addOperator", () => {
-      it.todo("should add operator");
+      it("should add operator", async () => {
+        const response = await client.query<{ addOperator: QuerySchema.Tezos_TransferParams }>({
+          uri: ensUri,
+          query: `
+            mutation {
+              addOperator(
+                network: hangzhounet,
+                params: $params
+              )
+            }
+          `,
+          variables: {
+            params: {
+              owner: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
+              tokenId: 0,
+              operator: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC"
+            }
+          }
+        })
+
+        expect(response.errors).toBeUndefined()
+        expect(response.data?.addOperator).toBeDefined()
+        expect(response.data?.addOperator.to).toBeDefined()
+        expect(response.data?.addOperator.amount).toBeDefined()
+      });
     })
     
     describe("removeOperator", () => {
-      it.todo("should remove operator");
+      it("should remove operator", async () => {
+        const response = await client.query<{ removeOperator: QuerySchema.Tezos_TransferParams }>({
+          uri: ensUri,
+          query: `
+            mutation {
+              removeOperator(
+                network: hangzhounet,
+                params: $params
+              )
+            }
+          `,
+          variables: {
+            params: {
+              owner: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
+              tokenId: 0,
+              operator: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC"
+            }
+          }
+        })
+
+        expect(response.errors).toBeUndefined()
+        expect(response.data?.removeOperator).toBeDefined()
+        expect(response.data?.removeOperator.to).toBeDefined()
+        expect(response.data?.removeOperator.amount).toBeDefined()
+      });
     })
 
     describe("swapMultiHop", () => {
