@@ -74,6 +74,17 @@ type SendParams {
   mutez: Boolean
 }
 
+type TransferParams {
+  to: String!
+  amount: UInt32!
+  fee: UInt32
+  source: String
+  mutez: Boolean
+  parameter: JSON
+  gasLimit: UInt32
+  storageLimit: UInt32
+}
+
 type OriginateParams {
   code: String!
   storage: String!
@@ -255,17 +266,17 @@ type Query {
     args: String
     params: SendParams
     connection: Connection
-  ): SendParams!
+  ): TransferParams!
 }
 
 type Mutation {
   batchContractCalls(
-    params: [SendParams!]!
+    params: [TransferParams!]!
     connection: Connection
   ): String!
 
   batchWalletContractCalls(
-    params: [SendParams!]!
+    params: [TransferParams!]!
     connection:Connection
   ): String!
 

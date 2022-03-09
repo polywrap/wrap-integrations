@@ -13,6 +13,7 @@ import {
   OriginationOperation,
   OperationContentEntry,
   OperationStatus,
+  TransferParams
 } from "./w3";
 import * as Taquito from "./taquito-types";
 import * as Types from "./types"
@@ -21,10 +22,36 @@ import taquito from "@taquito/taquito";
 import taquitoRpc, { OpKind } from "@taquito/rpc";
 
 export const toTransferParamsWithTransactionKind = (
-  response: SendParams
+  response: TransferParams
 ): Taquito.TransferParamsWithTransactionKind => ({
-  ...fromSendParams(response),
+  ...fromTransferParams(response),
   kind: OpKind.TRANSACTION
+})
+
+export const fromTransferParams = (
+  receipt: TransferParams
+): Taquito.TransferParams => ({
+  to: receipt.to,
+  amount: receipt.amount,
+  source: receipt.source ? receipt.source : undefined,
+  fee: receipt.fee ? receipt.fee : undefined,
+  gasLimit: receipt.gasLimit ? receipt.gasLimit : undefined,
+  storageLimit: receipt.storageLimit ? receipt.storageLimit : undefined,
+  mutez: receipt.mutez ? receipt.mutez : undefined,
+  parameter: receipt.parameter ? receipt.parameter : undefined,
+});
+
+export const toTransferParams = (
+  receipt: Taquito.TransferParams
+): TransferParams => ({
+  to: receipt.to,
+  amount: receipt.amount,
+  source: receipt.source,
+  fee: receipt.fee,
+  gasLimit: receipt.gasLimit,
+  storageLimit: receipt.storageLimit,
+  mutez: receipt.mutez,
+  parameter: receipt.parameter
 })
 
 export const toOperationStatus = (
@@ -136,7 +163,7 @@ export const fromRevealParams = (
 });
 
 export const toSendParams = (
-  receipt: Taquito.TransferParams
+  receipt: Taquito.SendParams
 ): SendParams => ({
   to: receipt.to,
   amount: receipt.amount,
@@ -149,7 +176,7 @@ export const toSendParams = (
 
 export const fromSendParams = (
   receipt: SendParams
-): Taquito.TransferParams => ({
+): Taquito.SendParams => ({
   to: receipt.to,
   amount: receipt.amount,
   source: receipt.source ? receipt.source : undefined,

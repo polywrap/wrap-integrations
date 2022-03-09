@@ -115,11 +115,11 @@ export class TezosPlugin extends Plugin {
 
   public async transfer(input: Mutation.Input_transfer): Promise<string> {
     const connection = await this.getConnection(input.connection);
-    const transferParams = Mapping.fromSendParams(input.params);
+    const sendParams = Mapping.fromSendParams(input.params);
     const transferOperation = await connection
       .getProvider()
       .wallet
-      .transfer(transferParams);
+      .transfer(sendParams);
     const walletOperation = await transferOperation.send();
     return walletOperation.opHash;
   }
@@ -128,10 +128,10 @@ export class TezosPlugin extends Plugin {
     input: Mutation.Input_transferAndConfirm
   ): Promise<Types.TransferConfirmation> {
     const connection = await this.getConnection(input.connection);
-    const transferParams = Mapping.fromSendParams(input.params);
+    const sendParams = Mapping.fromSendParams(input.params);
     const transactionWalletOperation = await connection
       .getProvider()
-      .wallet.transfer(transferParams);
+      .wallet.transfer(sendParams);
     const confirmationResponse = await (
       await transactionWalletOperation.send()
     ).confirmation(input.confirmations);
@@ -250,12 +250,12 @@ export class TezosPlugin extends Plugin {
   // Query
   public async getContractCallTransferParams(
     input: Query.Input_getContractCallTransferParams
-  ): Promise<Types.SendParams> {
+  ): Promise<Types.TransferParams> {
     const connection = await this.getConnection(input.connection);
     const contract = await connection.getProvider().contract.at(input.address);
     const sendParams = input.params ? Mapping.fromSendParams(input.params) : {};
     const params = await contract.methods[input.method](...this.parseArgs(input.args)).toTransferParams(sendParams);
-    return Mapping.toSendParams(params);
+    return Mapping.toTransferParams(params);
   }
 
   public async callContractView(
@@ -317,10 +317,10 @@ export class TezosPlugin extends Plugin {
   ): Promise<Types.EstimateResult> {
     try {
       const connection = await this.getConnection(input.connection);
-      const transferParams = Mapping.fromSendParams(input.params);
+      const sendParams = Mapping.fromSendParams(input.params);
       const estimate = await connection
         .getProvider()
-        .estimate.transfer(transferParams);
+        .estimate.transfer(sendParams);
       return {
         error: false,
         estimate: Mapping.toEstimate(estimate),

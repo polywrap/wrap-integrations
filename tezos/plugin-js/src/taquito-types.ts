@@ -41,7 +41,7 @@ export interface RevealParams {
   storageLimit?: number;
 }
 
-export interface TransferParams {
+export interface SendParams {
   to: string;
   amount: number;
   source?: string;
@@ -49,6 +49,10 @@ export interface TransferParams {
   gasLimit?: number;
   storageLimit?: number;
   mutez?: boolean;
+}
+
+export interface TransferParams extends SendParams {
+  parameter?: any;
 }
 
 export interface OriginateParams {
