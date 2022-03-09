@@ -448,7 +448,11 @@ export class TezosPlugin extends Plugin {
       if (this._connections[networkStr]) {
         result = this._connections[networkStr];
       } else {
-        result = Connection.fromNetwork(networkStr);
+        try {
+          result = Connection.fromNetwork(networkStr);
+        } catch (error) {
+          // ignore if network is not supported by core
+        }
       }
     } 
     // If a custom node endpoint is provided, create a combined
