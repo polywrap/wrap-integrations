@@ -80,7 +80,9 @@ type TransferParams {
   fee: UInt32
   source: String
   mutez: Boolean
-  parameter: JSON
+  # stringify parameter 
+  # switch to JSON when nested object and maps are supported
+  parameter: String
   gasLimit: UInt32
   storageLimit: UInt32
 }

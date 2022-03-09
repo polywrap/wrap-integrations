@@ -38,7 +38,7 @@ export const fromTransferParams = (
   gasLimit: receipt.gasLimit ? receipt.gasLimit : undefined,
   storageLimit: receipt.storageLimit ? receipt.storageLimit : undefined,
   mutez: receipt.mutez ? receipt.mutez : undefined,
-  parameter: receipt.parameter ? receipt.parameter : undefined,
+  parameter: receipt.parameter ? JSON.parse(receipt.parameter) : undefined,
 });
 
 export const toTransferParams = (
@@ -51,7 +51,7 @@ export const toTransferParams = (
   gasLimit: receipt.gasLimit,
   storageLimit: receipt.storageLimit,
   mutez: receipt.mutez,
-  parameter: receipt.parameter
+  parameter: JSON.stringify(receipt.parameter)
 })
 
 export const toOperationStatus = (
