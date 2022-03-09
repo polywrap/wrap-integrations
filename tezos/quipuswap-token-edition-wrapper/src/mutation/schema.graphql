@@ -1,4 +1,4 @@
-#import { Mutation, SendParams } into Tezos from "w3://ens/tezos.web3api.eth"
+#import { Mutation, SendParams, TransferParams } into Tezos from "w3://ens/tezos.web3api.eth"
 #import { Network, CustomConnection } from "../common/schema.graphql"
 
 enum SwapDirection {
@@ -63,49 +63,49 @@ type Mutation {
         params: OperatorParams!
         sendParams: Tezos_SendParams
         custom: CustomConnection
-    ): String!
+    ): Tezos_TransferParams!
 
     removeOperator(
         network: Network!
         params: OperatorParams!
         sendParams: Tezos_SendParams
         custom: CustomConnection
-    ): String!
+    ): Tezos_TransferParams!
     
     swapDirect(
         network: Network!
         params: SwapDirectParams!
         sendParams: Tezos_SendParams
         custom: CustomConnection
-    ): String!
+    ): Tezos_TransferParams!
 
     swapMultiHop(
         network: Network!
         params: SwapMultiHopParams!
         sendParams: Tezos_SendParams
         custom: CustomConnection
-    ): String!
+    ): Tezos_TransferParams!
 
     invest(
         network: Network!
         params: InvestParams!
         sendParams: Tezos_SendParams
         custom: CustomConnection
-    ): String!
+    ): Tezos_TransferParams!
 
     divest(
         network: Network!
         params: DivestParams!
         sendParams: Tezos_SendParams
         custom: CustomConnection
-    ): String!
+    ): Tezos_TransferParams!
 
     transfer(
         network: Network!
         params: TransferParams!
         sendParams: Tezos_SendParams
         custom: CustomConnection
-    ): String!
+    ): Tezos_TransferParams!
   
     transferFrom(
         network: Network!
@@ -113,5 +113,5 @@ type Mutation {
         params: TransferParams!
         sendParams: Tezos_SendParams
         custom: CustomConnection
-    ): String!
+    ): Tezos_TransferParams!
 }

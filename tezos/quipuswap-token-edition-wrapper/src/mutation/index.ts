@@ -1,5 +1,5 @@
 import {
-  Tezos_Mutation,
+  Tezos_TransferParams,
   Input_addOperator,
   Input_removeOperator,
   Input_swapDirect,
@@ -16,9 +16,9 @@ import {
 import { Address, getConnection } from "../common";
 import { Tezos_Query } from "../query/w3"
 
-export function addOperator(input: Input_addOperator): string {
+export function addOperator(input: Input_addOperator): Tezos_TransferParams {
   const address = getConnection(input.network, input.custom);
-  return Tezos_Mutation.walletContractCallMethod({
+  return Tezos_Query.getContractCallTransferParams({
     address: address.contractAddress,
     method: "update_operators",
     args: generateOperatorArg('add_operator', input.params.owner, input.params.operator, input.params.tokenId),
@@ -27,9 +27,9 @@ export function addOperator(input: Input_addOperator): string {
   })
 }
 
-export function removeOperator(input: Input_removeOperator): string {
+export function removeOperator(input: Input_removeOperator): Tezos_TransferParams {
   const address = getConnection(input.network, input.custom);
-  return Tezos_Mutation.walletContractCallMethod({
+  return Tezos_Query.getContractCallTransferParams({
     address: address.contractAddress,
     method: "update_operators",
     args: generateOperatorArg('remove_operator', input.params.owner, input.params.operator, input.params.tokenId),
@@ -38,19 +38,19 @@ export function removeOperator(input: Input_removeOperator): string {
   })
 }
 
-export function swapDirect(input: Input_swapDirect): string {
+export function swapDirect(input: Input_swapDirect): Tezos_TransferParams {
   const address = getConnection(input.network, input.custom);
   return swap([{ pairId: input.params.pairId, direction: input.params.direction }], input.params.swapParams, address, input.sendParams);
 }
 
-export function swapMultiHop(input: Input_swapMultiHop): string {
+export function swapMultiHop(input: Input_swapMultiHop): Tezos_TransferParams {
   const address = getConnection(input.network, input.custom);
   return swap(input.params.hops, input.params.swapParams, address, input.sendParams);
 }
 
-export function invest(input: Input_invest): string {
+export function invest(input: Input_invest): Tezos_TransferParams {
   const address = getConnection(input.network,  input.custom);
-  return Tezos_Mutation.walletContractCallMethod({
+  return Tezos_Query.getContractCallTransferParams({
     address: address.contractAddress,
     method: "invest",
     args: `[${input.params.pairId}, ${input.params.shares}, ${input.params.tokenAIn}, ${input.params.tokenBIn}, "${input.params.deadline}]"`,
@@ -59,9 +59,9 @@ export function invest(input: Input_invest): string {
   })
 }
 
-export function divest(input: Input_divest): string {
+export function divest(input: Input_divest): Tezos_TransferParams {
   const address = getConnection(input.network,  input.custom);
-  return Tezos_Mutation.walletContractCallMethod({
+  return Tezos_Query.getContractCallTransferParams({
     address: address.contractAddress,
     method: "divest",
     args: `[${input.params.pairId}, ${input.params.minTokenAOut}, ${input.params.minTokenBOut}, ${input.params.shares}, "${input.params.deadline}]"`,
@@ -70,12 +70,12 @@ export function divest(input: Input_divest): string {
   })
 }
 
-export function transfer(input: Input_transfer): string {
+export function transfer(input: Input_transfer): Tezos_TransferParams {
   const address = getConnection(input.network,  input.custom);
   const pkh = Tezos_Query.getWalletPKH({
     connection: address.connection
   });
-  return Tezos_Mutation.walletContractCallMethod({
+  return Tezos_Query.getContractCallTransferParams({
     address: address.contractAddress,
     method: "transfer",
     args: `[{
@@ -91,9 +91,9 @@ export function transfer(input: Input_transfer): string {
   });
 }
 
-export function transferFrom(input: Input_transferFrom): string {
+export function transferFrom(input: Input_transferFrom): Tezos_TransferParams {
   const address = getConnection(input.network,  input.custom);
-  return Tezos_Mutation.walletContractCallMethod({
+  return Tezos_Query.getContractCallTransferParams({
     address: address.contractAddress,
     method: "transfer",
     args: `[{
@@ -109,10 +109,8 @@ export function transferFrom(input: Input_transferFrom): string {
   });
 }
 
-
-
-function swap(hops: SwapPair[], swapParams: SwapParams, address: Address, sendParams: Tezos_SendParams | null): string {
-  return Tezos_Mutation.walletContractCallMethod({
+function swap(hops: SwapPair[], swapParams: SwapParams, address: Address, sendParams: Tezos_SendParams | null): Tezos_TransferParams {
+  return Tezos_Query.getContractCallTransferParams({
     address: address.contractAddress,
     method: "swap",
     args: generateSwapArg(hops, swapParams),
