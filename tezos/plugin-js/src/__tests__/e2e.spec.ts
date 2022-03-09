@@ -6,6 +6,8 @@ import { up, down, Account, Node } from "@web3api/tezos-test-env"
 import { Web3ApiClient } from "@web3api/client-js";
 import { InMemorySigner } from "@taquito/signer";
 
+import * as Types from "../w3";
+
 jest.setTimeout(360000)
 
 describe("Tezos Plugin", () => {  
@@ -48,6 +50,43 @@ describe("Tezos Plugin", () => {
   })
 
   describe("Query", () => {
+    describe("getContractCallTransferParams", () => {
+      it("should get the transferParams of a contract call", async () => {
+        const contractAddress = "KT1QLqPN8us3LpgqSR9BgdF8bwJ8vJBjhfwV"
+        const response = await client.query<{ getContractCallTransferParams: Types.TransferParams }>({
+          uri,
+          query: `
+            query {
+              getContractCallTransferParams(
+                address: $address,
+                method: $method,
+                args: $args,
+                params: $params,
+                connection: $connection
+              )
+            }
+          `,
+          variables: {
+            address: contractAddress,
+            method: "increment",
+            args: "[10]",
+            params: {
+              mutez: true
+            },
+            connection: {
+              networkNameOrChainId: "hangzhou"
+            }
+          }
+        })
+
+        expect(response.errors).toBeUndefined()
+        expect(response.data?.getContractCallTransferParams).toBeDefined()
+        expect(response.data?.getContractCallTransferParams.to).toBe(contractAddress)
+        expect(response.data?.getContractCallTransferParams.mutez).toBe(true)
+        expect(response.data?.getContractCallTransferParams.parameter).toBeDefined()
+      })
+    })
+
     describe("encodeMichelsonExpressionToBytes", () => {
       it("should encode a michelson expression to bytes", async () => {
         const response = await client.query<{ encodeMichelsonExpressionToBytes: string }>({
@@ -544,6 +583,92 @@ describe("Tezos Plugin", () => {
   })
 
   describe("Mutation", () => {
+    describe("batchContractCalls and batchWalletContractCalls",  () => {
+      it("should batch multiple contract calls", async () => {
+        const contractAddress = await deployContract(node.url, accounts[0].secretKey, {
+          code: SIMPLE_CONTRACT, 
+          storage: SIMPLE_CONTRACT_STORAGE
+        })
+        const transferParamsResponse = await Promise.all([
+          client.query<{ getContractCallTransferParams: Types.TransferParams }>({
+            uri,
+            query: `
+              query {
+                getContractCallTransferParams(
+                  address: $address,
+                  method: $method,
+                  args: $args,
+                  params: $params
+                )
+              }
+            `,
+            variables: {
+              address: contractAddress,
+              method: "increment",
+              args: "[10]",
+              params: {
+                mutez: true
+              }
+            }
+          }),
+          client.query<{ getContractCallTransferParams: Types.TransferParams }>({
+            uri,
+            query: `
+              query {
+                getContractCallTransferParams(
+                  address: $address,
+                  method: $method,
+                  args: $args,
+                  params: $params
+                )
+              }
+            `,
+            variables: {
+              address: contractAddress,
+              method: "increment",
+              args: "[10]",
+              params: {
+                mutez: true
+              }
+            }
+          })
+        ])
+
+        transferParamsResponse.forEach((response) => {
+          expect(response.errors).toBeUndefined()
+          expect(response.data?.getContractCallTransferParams).toBeDefined()
+          expect(response.data?.getContractCallTransferParams.to).toBe(contractAddress)
+          expect(response.data?.getContractCallTransferParams.mutez).toBe(true)
+          expect(response.data?.getContractCallTransferParams.parameter).toBeDefined()
+        })
+
+        const transferParams = transferParamsResponse.map((response) => response.data?.getContractCallTransferParams);
+
+        // @note
+        // batchWalletContractCalls and batchContractCalls uses 
+        // the same internals only difference is the usage of the 
+        // wallet interface for external wallets to sign a transaction
+        // Thus, `batchContractCalls` below can be replaced with `batchWalletContractCalls`
+        const response = await client.query<{ batchContractCalls: string }>({
+          uri,
+          query: `
+            mutation {
+              batchContractCalls (
+                params: $params
+              )
+            }
+          `,
+          variables: {
+            params: transferParams
+          }
+        })
+
+        expect(response.errors).toBeUndefined()
+        expect(response.data?.batchContractCalls).toBeDefined()
+        expect(typeof response.data?.batchContractCalls).toBe('string')
+      })
+    })
+
     describe("callContractMethod", () => {
       it("should be able to call contract's method", async () => {
         const contractAddress = await deployContract(node.url, accounts[0].secretKey, {
