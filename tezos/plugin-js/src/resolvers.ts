@@ -15,6 +15,12 @@ export const mutation = (plugin: Plugin): Mutation.Module => ({
     return plugin.callContractMethodAndConfirmation(input);
   },
 
+  batchContractCalls: async (
+    input: Mutation.Input_batchContractCalls
+  ): Promise<string> => {
+    return plugin.batchContractCalls(input);
+  },
+
   transfer: async (input: Mutation.Input_transfer): Promise<string> => {
     return plugin.transfer(input);
   },
@@ -61,9 +67,19 @@ export const mutation = (plugin: Plugin): Mutation.Module => ({
     return plugin.walletOriginate(input);
   },
 
+  batchWalletContractCalls: async (
+    input: Mutation.Input_batchWalletContractCalls
+  ): Promise<string> => {
+    return plugin.batchWalletContractCalls(input);
+  }
 });
 
 export const query = (plugin: Plugin): Query.Module => ({
+  getContractCallTransferParams: async (
+    input: Query.Input_getContractCallTransferParams): Promise<Types.SendParams> => {
+    return plugin.getContractCallTransferParams(input);
+  },
+
   callContractView: async (
     input: Query.Input_callContractView
   ): Promise<string> => {

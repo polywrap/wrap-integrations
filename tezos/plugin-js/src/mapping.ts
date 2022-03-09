@@ -18,7 +18,14 @@ import * as Taquito from "./taquito-types";
 import * as Types from "./types"
 
 import taquito from "@taquito/taquito";
-import taquitoRpc from "@taquito/rpc";
+import taquitoRpc, { OpKind } from "@taquito/rpc";
+
+export const toTransferParamsWithTransactionKind = (
+  response: SendParams
+): Taquito.TransferParamsWithTransactionKind => ({
+  ...fromSendParams(response),
+  kind: OpKind.TRANSACTION
+})
 
 export const toOperationStatus = (
   response: Types.OperationStatus

@@ -103,6 +103,16 @@ export class TezosPlugin extends Plugin {
     };
   }
 
+  public async batchContractCalls(
+    input: Mutation.Input_batchWalletContractCalls
+  ): Promise<string> {
+    const connection = await this.getConnection(input.connection);
+    const paramsWithKind = input.params.map(Mapping.toTransferParamsWithTransactionKind)
+    const batchCalls = await connection.getProvider().contract.batch(paramsWithKind);
+    const operation = await batchCalls.send()
+    return operation.hash;
+  }
+
   public async transfer(input: Mutation.Input_transfer): Promise<string> {
     const connection = await this.getConnection(input.connection);
     const transferParams = Mapping.fromSendParams(input.params);
@@ -227,7 +237,27 @@ export class TezosPlugin extends Plugin {
     return originateWalletOperation.opHash;
   }
 
+  public async batchWalletContractCalls(
+    input: Mutation.Input_batchWalletContractCalls
+  ): Promise<string> {
+    const connection = await this.getConnection(input.connection);
+    const paramsWithKind = input.params.map(Mapping.toTransferParamsWithTransactionKind)
+    const batchCalls = await connection.getProvider().wallet.batch(paramsWithKind);
+    const operation = await batchCalls.send()
+    return operation.opHash;
+  }
+
   // Query
+  public async getContractCallTransferParams(
+    input: Query.Input_getContractCallTransferParams
+  ): Promise<Types.SendParams> {
+    const connection = await this.getConnection(input.connection);
+    const contract = await connection.getProvider().contract.at(input.address);
+    const sendParams = input.params ? Mapping.fromSendParams(input.params) : {};
+    const params = await contract.methods[input.method](...this.parseArgs(input.args)).toTransferParams(sendParams);
+    return Mapping.toSendParams(params);
+  }
+
   public async callContractView(
     input: Query.Input_callContractView
   ): Promise<string> {

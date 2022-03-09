@@ -10,28 +10,28 @@ type AccountDetails {
 }
 
 type OperationStatus {
-    hash: String!
-    type: String!
-    block: String!
-    time: String!
-    height: String!
-    cycle: UInt32!
-    counter: UInt32!
-    status: String!
-    is_success: Boolean!
-    is_contract: Boolean!
-    gas_limit: UInt32!
-    gas_used: UInt32!
-    gas_price: UInt32!
-    storage_limit: UInt32!
-    storage_size: UInt32!
-    storage_paid: UInt32!
-    volume: UInt32!
-    fee: UInt32!
-    days_destroyed: UInt32!
-    sender: String!
-    receiver: String!
-    confirmations: UInt32!
+  hash: String!
+  type: String!
+  block: String!
+  time: String!
+  height: String!
+  cycle: UInt32!
+  counter: UInt32!
+  status: String!
+  is_success: Boolean!
+  is_contract: Boolean!
+  gas_limit: UInt32!
+  gas_used: UInt32!
+  gas_price: UInt32!
+  storage_limit: UInt32!
+  storage_size: UInt32!
+  storage_paid: UInt32!
+  volume: UInt32!
+  fee: UInt32!
+  days_destroyed: UInt32!
+  sender: String!
+  receiver: String!
+  confirmations: UInt32!
 }
 
 type Block {
@@ -248,9 +248,27 @@ type Query {
     args: String
     connection: Connection
   ): String!
+
+  getContractCallTransferParams(
+    address: String!
+    method: String!
+    args: String
+    params: SendParams
+    connection: Connection
+  ): SendParams!
 }
 
 type Mutation {
+  batchContractCalls(
+    params: [SendParams!]!
+    connection: Connection
+  ): String!
+
+  batchWalletContractCalls(
+    params: [SendParams!]!
+    connection:Connection
+  ): String!
+
   connectTempleWallet(
     appName: String!
     network: String!

@@ -3,6 +3,12 @@
  * Contains internal types not exported by taquito
  */
 
+import { OpKind } from "@taquito/taquito";
+
+export interface TransferParamsWithTransactionKind extends TransferParams {
+  kind: OpKind.TRANSACTION
+}
+
 export interface BlockResponse {
   chain_id: string;
   hash: string;
