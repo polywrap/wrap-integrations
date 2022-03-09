@@ -440,7 +440,7 @@ export class TezosPlugin extends Plugin {
       return this._connections[this._defaultNetwork];
     }
     const { networkNameOrChainId, provider } = connection;
-    let result: Connection;
+    let result: Connection= this._connections[this._defaultNetwork];
     // If a custom network is provided, either get an already
     // established connection, or a create a new one
     if (networkNameOrChainId) {
@@ -461,8 +461,6 @@ export class TezosPlugin extends Plugin {
     else if (provider) {
       const nodeConnection = Connection.fromNode(provider);
       result = nodeConnection;
-    } else {
-      result = this._connections[this._defaultNetwork];
     }
     return result;
   }
