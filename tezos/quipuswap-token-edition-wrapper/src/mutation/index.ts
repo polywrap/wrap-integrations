@@ -120,7 +120,7 @@ function swap(hops: SwapPair[], swapParams: SwapParams, address: Address, sendPa
 }
 
 function generateOperatorArg(operation: string, owner: string, operator: string, tokenId: u32): string {
-  return '[{ "'+  operation +'": {"owner": "'+ owner +'","operator":"'+ operator +'", "token_id":'+ tokenId.toString() +' }}]';
+  return '[[{ "'+  operation +'": {"owner": "'+ owner +'","operator":"'+ operator +'", "token_id":'+ tokenId.toString() +' }}]]';
 }
 
 function generateSwapArg(hops: SwapPair[], swapParams: SwapParams): string {
