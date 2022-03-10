@@ -26,6 +26,7 @@
     "@web3api/test-env-js": "0.0.1-prealpha.61",
     "@web3api/wasm-as": "0.0.1-prealpha.61",
     "assemblyscript": "0.19.1",
+    "date-fns": "^2.28.0",
     "jest": "27.4.7",
     "ts-jest": "27.1.2",
     "ts-node": "10.4.0",

@@ -1,11 +1,14 @@
 import path from "path"
 import { Web3ApiClient } from "@web3api/client-js"
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js"
+import { InMemorySigner } from "@web3api/tezos-plugin-js"
+import add from "date-fns/add"
+
 
 import * as QuerySchema from "../../query/w3"
 import { getPlugins } from "../testUtils"
 
-jest.setTimeout(150000)
+jest.setTimeout(300000)
 
 describe("e2e", () => {
   let client: Web3ApiClient;
@@ -16,8 +19,13 @@ describe("e2e", () => {
     const apiPath = path.join(__dirname, "/../../..");
     const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
     ensUri = `ens/testnet/${api.ensDomain}`;
+    const tezosConnection = {
+      network: "hangzhounet",
+      provider: "https://rpc.hangzhou.tzstats.com",
+      signer: await InMemorySigner.fromSecretKey("")
+    }
     client = new Web3ApiClient({
-        plugins: getPlugins(ipfs, ensAddress, ethereum),
+        plugins: getPlugins(ipfs, ensAddress, ethereum, tezosConnection),
     })
   })
 
@@ -160,8 +168,112 @@ describe("e2e", () => {
       it.todo("should swap multiple tokens");
     })
 
-    describe("swap", () => {
-      it.todo("should swap tokens directly");
+    describe("swapDirect", () => {
+      it("should swap tokens directly", async() => {
+        const QUIPU_CONTRACT_ADDRESS = "KT1VowcKqZFGhdcDZA3UN1vrjBLmxV5bxgfJ";
+        const addQuipuResponse = await client.query<{ addOperator: QuerySchema.Tezos_TransferParams }>({
+          uri: ensUri,
+          query: `
+            mutation {
+              addOperator(
+                network: hangzhounet,
+                contractAddress: $contractAddress,
+                params: $params
+              )
+            }
+          `,
+          variables: {
+            contractAddress: QUIPU_CONTRACT_ADDRESS,
+            params: {
+              owner: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
+              tokenId: 0,
+              operator: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC"
+            }
+          }
+        })
+        expect(addQuipuResponse.errors).toBeUndefined()
+        expect(addQuipuResponse.data?.addOperator).toBeDefined()
+        expect(addQuipuResponse.data?.addOperator.to).toBe(QUIPU_CONTRACT_ADDRESS)
+        expect(addQuipuResponse.data?.addOperator.mutez).toBe(false)
+        expect(addQuipuResponse.data?.addOperator.parameter).toBeDefined()
+        
+        const swapResponse = await client.query<{ swapDirect: QuerySchema.Tezos_TransferParams }>({
+          uri: ensUri,
+          query: `
+            mutation {
+              swapDirect(
+                network: hangzhounet,
+                params: $params,
+                sendParams: $sendParams
+              )
+            }
+          `,
+          variables: {
+            params: {
+              pairId: 14,
+              direction: `b_to_a`,
+              swapParams: {
+                amountIn: "1",
+                minAmountOut: "26288",
+                deadline: add(new Date(), { minutes: 10 }).toISOString(),
+                receiver:  "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z"
+              }
+            },
+            sendParams: {
+              to: "",
+              amount: 0,
+              mutez: true
+            }
+          }
+        })
+        expect(swapResponse.errors).toBeUndefined()
+        expect(swapResponse.data?.swapDirect).toBeDefined()
+        expect(swapResponse.data?.swapDirect.mutez).toBe(true)
+        expect(swapResponse.data?.swapDirect.parameter).toBeDefined()
+
+        const removeQuipuResponse = await client.query<{ removeOperator: QuerySchema.Tezos_TransferParams }>({
+          uri: ensUri,
+          query: `
+            mutation {
+              removeOperator(
+                network: hangzhounet,
+                contractAddress: $contractAddress,
+                params: $params
+              )
+            }
+          `,
+          variables: {
+            contractAddress: QUIPU_CONTRACT_ADDRESS,
+            params: {
+              owner: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
+              tokenId: 0,
+              operator: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC"
+            }
+          }
+        })
+        expect(removeQuipuResponse.errors).toBeUndefined()
+        expect(removeQuipuResponse.data?.removeOperator).toBeDefined()
+        expect(removeQuipuResponse.data?.removeOperator.to).toBe(QUIPU_CONTRACT_ADDRESS)
+        expect(removeQuipuResponse.data?.removeOperator.mutez).toBe(false)
+        expect(removeQuipuResponse.data?.removeOperator.parameter).toBeDefined()
+        
+        const batchContractCallResponse = await client.query<{ batchContractCalls: string }>({
+          uri: "w3://ens/tezos.web3api.eth",
+          query: `
+            mutation {
+              batchContractCalls(
+                params: $params
+              )
+            }
+          `,
+          variables: {
+            params: [addQuipuResponse.data?.addOperator, swapResponse.data?.swapDirect, removeQuipuResponse.data?.removeOperator]
+          }
+        })
+
+        expect(batchContractCallResponse.errors).toBeUndefined()
+        expect(batchContractCallResponse.data?.batchContractCalls).toBeDefined()
+      });
     })
 
     describe("transfer", () => {
