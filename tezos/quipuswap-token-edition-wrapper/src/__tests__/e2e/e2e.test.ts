@@ -285,11 +285,161 @@ describe("e2e", () => {
     })
 
     describe("invest", () => {
-      it.todo("should invest into a token pair");
+      it("should invest into a token pair", async () => {
+        const QUIPU_CONTRACT_ADDRESS = "KT1VowcKqZFGhdcDZA3UN1vrjBLmxV5bxgfJ";
+        const RCT_CONTRACT_ADDRESS = "KT1QGgr6k1CDf4Svd18MtKNQukboz8JzRPd5";
+        // Add operator for Quipu
+        const addQuipuResponse = await client.query<{ addOperator: QuerySchema.Tezos_TransferParams }>({
+          uri: ensUri,
+          query: `
+            mutation {
+              addOperator(
+                network: hangzhounet,
+                contractAddress: $contractAddress,
+                params: $params
+              )
+            }
+          `,
+          variables: {
+            contractAddress: QUIPU_CONTRACT_ADDRESS,
+            params: {
+              owner: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
+              tokenId: 0,
+              operator: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC"
+            }
+          }
+        })
+        expect(addQuipuResponse.errors).toBeUndefined()
+        expect(addQuipuResponse.data?.addOperator).toBeDefined()
+        expect(addQuipuResponse.data?.addOperator.to).toBe(QUIPU_CONTRACT_ADDRESS)
+        expect(addQuipuResponse.data?.addOperator.mutez).toBe(false)
+        expect(addQuipuResponse.data?.addOperator.parameter).toBeDefined()
+        // Add operator for RCT
+        const addRctResponse = await client.query<{ addOperator: QuerySchema.Tezos_TransferParams }>({
+          uri: ensUri,
+          query: `
+            mutation {
+              addOperator(
+                network: hangzhounet,
+                contractAddress: $contractAddress,
+                params: $params
+              )
+            }
+          `,
+          variables: {
+            contractAddress: RCT_CONTRACT_ADDRESS,
+            params: {
+              owner: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
+              tokenId: 0,
+              operator: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC"
+            }
+          }
+        })
+        expect(addRctResponse.errors).toBeUndefined()
+        expect(addRctResponse.data?.addOperator).toBeDefined()
+        expect(addRctResponse.data?.addOperator.to).toBe(RCT_CONTRACT_ADDRESS)
+        expect(addRctResponse.data?.addOperator.mutez).toBe(false)
+        expect(addRctResponse.data?.addOperator.parameter).toBeDefined()
+        // invest
+        const investResponse = await client.query<{ invest: QuerySchema.Tezos_TransferParams }>({
+          uri: ensUri,
+          query: `
+            mutation {
+              invest(
+                network: hangzhounet,
+                params: $params,
+                sendParams: $sendParams
+              )
+            }
+          `,
+          variables: {
+            params: {
+              pairId: 14,
+              shares: "1",
+              tokenAIn: "26543",
+              tokenBIn: "1",
+              deadline: add(new Date(), { minutes: 10 }).toISOString(),
+            },
+            sendParams: {
+              to: "",
+              amount: 0,
+              mutez: true
+            }
+          }
+        })
+        expect(investResponse.errors).toBeUndefined()
+        expect(investResponse.data?.invest).toBeDefined()
+        expect(investResponse.data?.invest.mutez).toBe(true)
+        expect(investResponse.data?.invest.parameter).toBeDefined()
+        // batch contract calls
+        const batchContractCallResponse = await client.query<{ batchContractCalls: string }>({
+          uri: "w3://ens/tezos.web3api.eth",
+          query: `
+            mutation {
+              batchContractCalls(
+                params: $params
+              )
+            }
+          `,
+          variables: {
+            params: [addQuipuResponse.data?.addOperator, addRctResponse.data?.addOperator, investResponse.data?.invest]
+          }
+        })
+        expect(batchContractCallResponse.errors).toBeUndefined()
+        expect(batchContractCallResponse.data?.batchContractCalls).toBeDefined()
+      });
     })
 
     describe("divest", () => {
-      it.todo("should divest into a token pair");
+      it("should divest into a token pair", async () => {
+        // divest
+        const divestResponse = await client.query<{ divest: QuerySchema.Tezos_TransferParams }>({
+          uri: ensUri,
+          query: `
+            mutation {
+              divest(
+                network: hangzhounet,
+                params: $params,
+                sendParams: $sendParams
+              )
+            }
+          `,
+          variables: {
+            params: {
+              pairId: 14,
+              shares: "10",
+              minTokenAOut: "144587",
+              minTokenBOut: "4",
+              deadline: add(new Date(), { minutes: 10 }).toISOString(),
+            },
+            sendParams: {
+              to: "",
+              amount: 0,
+              mutez: true
+            }
+          }
+        })
+        expect(divestResponse.errors).toBeUndefined()
+        expect(divestResponse.data?.divest).toBeDefined()
+        expect(divestResponse.data?.divest.mutez).toBe(true)
+        expect(divestResponse.data?.divest.parameter).toBeDefined()
+        // batch contract calls
+        const batchContractCallResponse = await client.query<{ batchContractCalls: string }>({
+          uri: "w3://ens/tezos.web3api.eth",
+          query: `
+            mutation {
+              batchContractCalls(
+                params: $params
+              )
+            }
+          `,
+          variables: {
+            params: [divestResponse.data?.divest]
+          }
+        })
+        expect(batchContractCallResponse.errors).toBeUndefined()
+        expect(batchContractCallResponse.data?.batchContractCalls).toBeDefined()
+      });
     })
   })
 })
