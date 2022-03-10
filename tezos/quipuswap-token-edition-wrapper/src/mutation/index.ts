@@ -53,7 +53,7 @@ export function invest(input: Input_invest): Tezos_TransferParams {
   return Tezos_Query.getContractCallTransferParams({
     address: address.contractAddress,
     method: "invest",
-    args: `[${input.params.pairId}, ${input.params.shares}, ${input.params.tokenAIn}, ${input.params.tokenBIn}, "${input.params.deadline}]"`,
+    args: `[${input.params.pairId}, ${input.params.shares}, ${input.params.tokenAIn}, ${input.params.tokenBIn}, "${input.params.deadline}"]`,
     params: input.sendParams,
     connection: address.connection
   })
@@ -64,7 +64,7 @@ export function divest(input: Input_divest): Tezos_TransferParams {
   return Tezos_Query.getContractCallTransferParams({
     address: address.contractAddress,
     method: "divest",
-    args: `[${input.params.pairId}, ${input.params.minTokenAOut}, ${input.params.minTokenBOut}, ${input.params.shares}, "${input.params.deadline}]"`,
+    args: `[${input.params.pairId}, ${input.params.minTokenAOut}, ${input.params.minTokenBOut}, ${input.params.shares}, "${input.params.deadline}"]`,
     params: input.sendParams,
     connection: address.connection
   })
