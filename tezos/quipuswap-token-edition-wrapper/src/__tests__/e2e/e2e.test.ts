@@ -104,11 +104,13 @@ describe("e2e", () => {
             mutation {
               addOperator(
                 network: hangzhounet,
+                contractAddress: $contractAddress
                 params: $params
               )
             }
           `,
           variables: {
+            contractAddress: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC",
             params: {
               owner: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
               tokenId: 0,
@@ -132,11 +134,13 @@ describe("e2e", () => {
             mutation {
               removeOperator(
                 network: hangzhounet,
+                contractAddress: $contractAddress
                 params: $params
               )
             }
           `,
           variables: {
+            contractAddress: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC",
             params: {
               owner: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
               tokenId: 0,

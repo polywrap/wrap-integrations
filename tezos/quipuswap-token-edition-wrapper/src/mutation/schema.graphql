@@ -61,6 +61,7 @@ type Mutation {
     addOperator(
         network: Network!
         params: OperatorParams!
+        contractAddress: String
         sendParams: Tezos_SendParams
         custom: CustomConnection
     ): Tezos_TransferParams!
@@ -68,6 +69,7 @@ type Mutation {
     removeOperator(
         network: Network!
         params: OperatorParams!
+        contractAddress: String
         sendParams: Tezos_SendParams
         custom: CustomConnection
     ): Tezos_TransferParams!

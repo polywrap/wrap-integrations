@@ -19,7 +19,7 @@ import { Tezos_Query } from "../query/w3"
 export function addOperator(input: Input_addOperator): Tezos_TransferParams {
   const address = getConnection(input.network, input.custom);
   return Tezos_Query.getContractCallTransferParams({
-    address: address.contractAddress,
+    address: input.contractAddress ? input.contractAddress! : address.contractAddress,
     method: "update_operators",
     args: generateOperatorArg('add_operator', input.params.owner, input.params.operator, input.params.tokenId),
     params: input.sendParams,
@@ -30,7 +30,7 @@ export function addOperator(input: Input_addOperator): Tezos_TransferParams {
 export function removeOperator(input: Input_removeOperator): Tezos_TransferParams {
   const address = getConnection(input.network, input.custom);
   return Tezos_Query.getContractCallTransferParams({
-    address: address.contractAddress,
+    address: input.contractAddress ? input.contractAddress! : address.contractAddress,
     method: "update_operators",
     args: generateOperatorArg('remove_operator', input.params.owner, input.params.operator, input.params.tokenId),
     params: input.sendParams,
