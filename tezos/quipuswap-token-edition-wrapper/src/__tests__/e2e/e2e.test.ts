@@ -277,11 +277,105 @@ describe("e2e", () => {
     })
 
     describe("transfer", () => {
-      it.todo("should transfer token from caller/sender");
+      it.skip("should transfer token from caller/sender", async () => {
+         // transfer
+         const transferResponse = await client.query<{ transfer: QuerySchema.Tezos_TransferParams }>({
+          uri: ensUri,
+          query: `
+            mutation {
+              transfer(
+                network: hangzhounet,
+                params: $params,
+                sendParams: $sendParams
+              )
+            }
+          `,
+          variables: {
+            params: {
+              to: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
+              tokenId: 0,
+              amount: "1",
+            },
+            sendParams: {
+              to: "",
+              amount: 0,
+              mutez: true
+            }
+          }
+        })
+        expect(transferResponse.errors).toBeUndefined()
+        expect(transferResponse.data?.transfer).toBeDefined()
+        expect(transferResponse.data?.transfer.mutez).toBe(true)
+        expect(transferResponse.data?.transfer.parameter).toBeDefined()
+        // batch contract calls
+        const batchContractCallResponse = await client.query<{ batchContractCalls: string }>({
+          uri: "w3://ens/tezos.web3api.eth",
+          query: `
+            mutation {
+              batchContractCalls(
+                params: $params
+              )
+            }
+          `,
+          variables: {
+            params: [transferResponse.data?.transfer]
+          }
+        })
+        expect(batchContractCallResponse.errors).toBeUndefined()
+        expect(batchContractCallResponse.data?.batchContractCalls).toBeDefined()
+      });
     })
 
     describe("transferFrom", () => {
-      it.todo("should transfer token from address provided");
+      it.skip("should transfer token from address provided", async () => {
+         // transferFrom
+         const transferFromResponse = await client.query<{ transferFrom: QuerySchema.Tezos_TransferParams }>({
+          uri: ensUri,
+          query: `
+            mutation {
+              transferFrom(
+                network: hangzhounet,
+                from: $from,
+                params: $params,
+                sendParams: $sendParams
+              )
+            }
+          `,
+          variables: {
+            from: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC",
+            params: {
+              to: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
+              tokenId: 0,
+              amount: "1",
+            },
+            sendParams: {
+              to: "",
+              amount: 0,
+              mutez: true
+            }
+          }
+        })
+        expect(transferFromResponse.errors).toBeUndefined()
+        expect(transferFromResponse.data?.transferFrom).toBeDefined()
+        expect(transferFromResponse.data?.transferFrom.mutez).toBe(true)
+        expect(transferFromResponse.data?.transferFrom.parameter).toBeDefined()
+        // batch contract calls
+        const batchContractCallResponse = await client.query<{ batchContractCalls: string }>({
+          uri: "w3://ens/tezos.web3api.eth",
+          query: `
+            mutation {
+              batchContractCalls(
+                params: $params
+              )
+            }
+          `,
+          variables: {
+            params: [transferFromResponse.data?.transferFrom]
+          }
+        })
+        expect(batchContractCallResponse.errors).toBeUndefined()
+        expect(batchContractCallResponse.data?.batchContractCalls).toBeDefined()
+      });
     })
 
     describe("invest", () => {

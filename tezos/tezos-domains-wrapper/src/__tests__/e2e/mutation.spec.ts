@@ -16,7 +16,7 @@ describe("Mutation", () => {
   beforeAll(async () => {
     const { ensAddress, ethereum, ipfs } = await initTestEnvironment();
     ensUri = await getEnsUri(ipfs, ensAddress);
-    const signer = await InMemorySigner.fromSecretKey("edsk2yFJEeE2sTWdXjDZJjT6LY9JhCKyMZ9jwLqrRThLg7w2xLSfLD");
+    const signer = await InMemorySigner.fromSecretKey("");
     client = new Web3ApiClient({
       plugins: getPlugins(ipfs, ensAddress, ethereum, signer),
     })

@@ -16,6 +16,8 @@ import {
 import { Address, getConnection } from "../common";
 import { Tezos_Query } from "../query/w3"
 
+import { BigInt } from "@web3api/wasm-as"
+
 export function addOperator(input: Input_addOperator): Tezos_TransferParams {
   const address = getConnection(input.network, input.custom);
   return Tezos_Query.getContractCallTransferParams({
@@ -72,20 +74,10 @@ export function divest(input: Input_divest): Tezos_TransferParams {
 
 export function transfer(input: Input_transfer): Tezos_TransferParams {
   const address = getConnection(input.network,  input.custom);
-  const pkh = Tezos_Query.getWalletPKH({
-    connection: address.connection
-  });
   return Tezos_Query.getContractCallTransferParams({
     address: address.contractAddress,
     method: "transfer",
-    args: `[{
-      "from_": "${pkh}",
-      "txs": [{
-        "to_": "${input.params.to}",
-        "tokenId": "${input.params.tokenId}",
-        "amount": ${input.params.amount.toString()}
-      }]  
-    }]`,
+    args: generateTransferArg(address.contractAddress, input.params.to, input.params.tokenId, input.params.amount),
     params: input.sendParams,
     connection: address.connection
   });
@@ -96,14 +88,7 @@ export function transferFrom(input: Input_transferFrom): Tezos_TransferParams {
   return Tezos_Query.getContractCallTransferParams({
     address: address.contractAddress,
     method: "transfer",
-    args: `[{
-      "from_": "${input.m_from}",
-      "txs": [{
-        "to_": "${input.params.to}",
-        "tokenId": "${input.params.tokenId}",
-        "amount": ${input.params.amount.toString()}
-      }]  
-    }]`,
+    args: generateTransferArg(input.m_from, input.params.to, input.params.tokenId, input.params.amount),
     params: input.sendParams,
     connection: address.connection
   });
@@ -121,6 +106,17 @@ function swap(hops: SwapPair[], swapParams: SwapParams, address: Address, sendPa
 
 function generateOperatorArg(operation: string, owner: string, operator: string, tokenId: u32): string {
   return '[[{ "'+  operation +'": {"owner": "'+ owner +'","operator":"'+ operator +'", "token_id":'+ tokenId.toString() +' }}]]';
+}
+
+function generateTransferArg(from: string, to: string, tokenId: u32, amount: BigInt): string {
+  return `[[{
+    "from_": "${from}",
+    "txs": [{
+      "to_": "${to}",
+      "token_id": ${tokenId},
+      "amount": ${amount}
+    }]  
+  }]]`
 }
 
 function generateSwapArg(hops: SwapPair[], swapParams: SwapParams): string {
