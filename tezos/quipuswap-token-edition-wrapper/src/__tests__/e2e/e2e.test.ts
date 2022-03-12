@@ -4,9 +4,9 @@ import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@we
 import { InMemorySigner } from "@web3api/tezos-plugin-js"
 import add from "date-fns/add"
 
-
-import * as QuerySchema from "../../query/w3"
+import { Config } from "../config"
 import { getPlugins } from "../testUtils"
+import * as QuerySchema from "../../query/w3"
 
 jest.setTimeout(300000)
 
@@ -22,7 +22,7 @@ describe("e2e", () => {
     const tezosConnection = {
       network: "hangzhounet",
       provider: "https://rpc.hangzhou.tzstats.com",
-      signer: await InMemorySigner.fromSecretKey("")
+      signer: await InMemorySigner.fromSecretKey(Config.TZ_SECRET)
     }
     client = new Web3ApiClient({
         plugins: getPlugins(ipfs, ensAddress, ethereum, tezosConnection),
