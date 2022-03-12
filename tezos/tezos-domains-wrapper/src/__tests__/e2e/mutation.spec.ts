@@ -1,11 +1,12 @@
+import { randomInt} from 'crypto'
 import { Web3ApiClient, Subscription } from "@web3api/client-js"
 import { InMemorySigner } from "@web3api/tezos-plugin-js"
 import { initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js"
 
-import * as MutationSchema from "../../mutation/w3"
+import { Config } from "../config"
 import * as QuerySchema from "../../query/w3"
+import * as MutationSchema from "../../mutation/w3"
 import { getEnsUri, getPlugins, getRandomString } from "../testUtils"
-import { randomInt} from 'crypto'
 
 jest.setTimeout(600000)
 
@@ -16,7 +17,7 @@ describe("Mutation", () => {
   beforeAll(async () => {
     const { ensAddress, ethereum, ipfs } = await initTestEnvironment();
     ensUri = await getEnsUri(ipfs, ensAddress);
-    const signer = await InMemorySigner.fromSecretKey("");
+    const signer = await InMemorySigner.fromSecretKey(Config.TZ_SECRET_KEY);
     client = new Web3ApiClient({
       plugins: getPlugins(ipfs, ensAddress, ethereum, signer),
     })
