@@ -327,7 +327,34 @@ describe("e2e", () => {
     })
 
     describe("transferFrom", () => {
-      it.skip("should transfer token from address provided", async () => {
+      it("should transfer token from address provided", async () => {
+        const QUIPU_CONTRACT_ADDRESS = "KT1VtUHc9v4veaYiFHafTSzyR9GnTVnYQakQ";
+        // add operator
+        const addQuipuResponse = await client.query<{ addOperator: QuerySchema.Tezos_TransferParams }>({
+          uri: ensUri,
+          query: `
+            mutation {
+              addOperator(
+                network: hangzhounet,
+                contractAddress: $contractAddress,
+                params: $params
+              )
+            }
+          `,
+          variables: {
+            contractAddress: QUIPU_CONTRACT_ADDRESS,
+            params: {
+              owner: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
+              tokenId: 0,
+              operator: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC"
+            }
+          }
+        })
+        expect(addQuipuResponse.errors).toBeUndefined()
+        expect(addQuipuResponse.data?.addOperator).toBeDefined()
+        expect(addQuipuResponse.data?.addOperator.to).toBe(QUIPU_CONTRACT_ADDRESS)
+        expect(addQuipuResponse.data?.addOperator.mutez).toBe(false)
+        expect(addQuipuResponse.data?.addOperator.parameter).toBeDefined()
          // transferFrom
          const transferFromResponse = await client.query<{ transferFrom: QuerySchema.Tezos_TransferParams }>({
           uri: ensUri,
@@ -342,11 +369,11 @@ describe("e2e", () => {
             }
           `,
           variables: {
-            from: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC",
+            from: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
             params: {
-              to: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
+              to: "tz1dUru8MXTpHoXLmcHQrs2iPWmDP1Y9rDEY",
               tokenId: 0,
-              amount: "1",
+              amount: "0",
             },
             sendParams: {
               to: "",
@@ -359,6 +386,32 @@ describe("e2e", () => {
         expect(transferFromResponse.data?.transferFrom).toBeDefined()
         expect(transferFromResponse.data?.transferFrom.mutez).toBe(true)
         expect(transferFromResponse.data?.transferFrom.parameter).toBeDefined()
+        // remove operator
+        const removeQuipuResponse = await client.query<{ removeOperator: QuerySchema.Tezos_TransferParams }>({
+          uri: ensUri,
+          query: `
+            mutation {
+              removeOperator(
+                network: hangzhounet,
+                contractAddress: $contractAddress,
+                params: $params
+              )
+            }
+          `,
+          variables: {
+            contractAddress: QUIPU_CONTRACT_ADDRESS,
+            params: {
+              owner: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
+              tokenId: 0,
+              operator: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC"
+            }
+          }
+        })
+        expect(removeQuipuResponse.errors).toBeUndefined()
+        expect(removeQuipuResponse.data?.removeOperator).toBeDefined()
+        expect(removeQuipuResponse.data?.removeOperator.to).toBe(QUIPU_CONTRACT_ADDRESS)
+        expect(removeQuipuResponse.data?.removeOperator.mutez).toBe(false)
+        expect(removeQuipuResponse.data?.removeOperator.parameter).toBeDefined()
         // batch contract calls
         const batchContractCallResponse = await client.query<{ batchContractCalls: string }>({
           uri: "w3://ens/tezos.web3api.eth",
@@ -370,7 +423,7 @@ describe("e2e", () => {
             }
           `,
           variables: {
-            params: [transferFromResponse.data?.transferFrom]
+            params: [addQuipuResponse.data?.addOperator, transferFromResponse.data?.transferFrom, removeQuipuResponse.data?.removeOperator]
           }
         })
         expect(batchContractCallResponse.errors).toBeUndefined()
