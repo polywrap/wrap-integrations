@@ -1,11 +1,12 @@
-# SimpleStorage Demo Web3API
-A simple starter template that uses a SimpleStorage.sol contract ethereum. For more information on how this project works, and a step by step on how to extend its behavior, see the documentation [here](https://docs.web3api.dev/developers/create-as-web3api).
+# Demo wrapper using http plugin
+A simple wrapper that uses web3's http plugin to contact external websites. 
 
 # How To Run
 
 ## Install Dependencies
 `nvm install && nvm use`  
 `yarn`  
+`yarn build` 
 
 ## Start Test Environment
 `yarn test:env:up`  
