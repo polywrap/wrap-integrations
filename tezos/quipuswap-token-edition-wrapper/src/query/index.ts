@@ -13,17 +13,11 @@ import { JSON } from "@web3api/wasm-as";
 import { Address } from "../common";
 
 export function getTokenPair(input: Input_getTokenPair): JSON.Obj {
-  if (input.network == Network.custom && input.custom === null) {
-    throw new Error(`custom network should have a valid connection and oracle contract address `)
-  }
   const connection = getConnection(input.network, input.custom);
   return getPair(input.pairId, connection);
 }
 
 export function listTokenPairs(input: Input_listTokenPairs): JSON.Arr {
-  if (input.network == Network.custom && input.custom === null) {
-    throw new Error(`custom network should have a valid connection and oracle contract address `)
-  }
   const connection = getConnection(input.network, input.custom);
   const pairsCount = Tezos_Query.getContractStorage({
     address: connection.contractAddress,
@@ -40,9 +34,6 @@ export function listTokenPairs(input: Input_listTokenPairs): JSON.Arr {
 }
 
 export function getTokenSupply(input: Input_getTokenSupply): GetTokenSupplyResponse{
-  if (input.network == Network.custom && input.custom === null) {
-    throw new Error(`custom network should have a valid connection and oracle contract address `)
-  }
   const connection = getConnection(input.network, input.custom);
   const storage = Tezos_Query.getContractStorage({
     address: connection.contractAddress,
@@ -60,9 +51,6 @@ export function getTokenSupply(input: Input_getTokenSupply): GetTokenSupplyRespo
 
 
 export function getLPTokenBalance(input: Input_getLPTokenBalance): string {
-  if (input.network == Network.custom && input.custom === null) {
-    throw new Error(`custom network should have a valid connection and oracle contract address `)
-  }
   const connection = getConnection(input.network, input.custom);
   return Tezos_Query.getContractStorage({
     address: connection.contractAddress,

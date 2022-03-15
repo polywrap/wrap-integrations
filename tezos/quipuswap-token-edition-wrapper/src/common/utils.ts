@@ -21,6 +21,9 @@ export function parseTokenType(token: JSON.Obj, field: string): JSON.Obj {
 }
 
 export function getConnection(network: Network, custom: CustomConnection | null): Address {
+  if (network == Network.custom && custom == null) {
+    throw new Error(`custom network should have a valid connection and contract address.`)
+  }
   if (network == Network.custom) {
     return new Address(<Tezos_Connection>custom!.connection, custom!.contractAddress);
   }
