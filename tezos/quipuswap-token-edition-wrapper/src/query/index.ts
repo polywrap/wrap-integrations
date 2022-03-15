@@ -4,11 +4,21 @@ import {
   Input_listTokenPairs,
   Input_getTokenSupply,
   Input_getLPTokenBalance,
+  Input_getTokenPair,
   GetTokenSupplyResponse
 } from "./w3";
 import { getString, getConnection, parseTokenType } from "../common/utils";
 
 import { JSON } from "@web3api/wasm-as"; 
+import { Address } from "../common";
+
+export function getTokenPair(input: Input_getTokenPair): JSON.Obj {
+  if (input.network == Network.custom && input.custom === null) {
+    throw new Error(`custom network should have a valid connection and oracle contract address `)
+  }
+  const connection = getConnection(input.network, input.custom);
+  return getPair(input.pairId, connection);
+}
 
 export function listTokenPairs(input: Input_listTokenPairs): JSON.Arr {
   if (input.network == Network.custom && input.custom === null) {
@@ -23,20 +33,8 @@ export function listTokenPairs(input: Input_listTokenPairs): JSON.Arr {
   });
   const tokenPairs = JSON.Value.Array();
   for (let i = 0; i < parseInt(pairsCount); i++) {
-    const token = Tezos_Query.getContractStorage({
-      address: connection.contractAddress,
-      connection: connection.connection,
-      key: `storage.tokens`,
-      field: i.toString()
-    });
-    const parsedToken = <JSON.Obj>JSON.parse(token);
-    const parsedTokenA = parseTokenType(parsedToken, "token_a_type");
-    const parsedTokenB = parseTokenType(parsedToken, "token_b_type");
-    const tokenObj = JSON.Value.Object();
-    tokenObj.set("pair_id", i);
-    tokenObj.set("token_a", parsedTokenA);
-    tokenObj.set("token_b", parsedTokenB);
-    tokenPairs.push(tokenObj);
+    const tokenPair = getPair(i.toString(), connection);
+    tokenPairs.push(tokenPair);
   }
   return tokenPairs;
 }
@@ -72,4 +70,24 @@ export function getLPTokenBalance(input: Input_getLPTokenBalance): string {
     key: 'storage.ledger.["' + input.owner + '",' + input.pairId + '].balance',
     field: ""
   });
+}
+
+export function getPair(pairId: string, connection: Address): JSON.Obj {
+  const token = Tezos_Query.getContractStorage({
+    address: connection.contractAddress,
+    connection: connection.connection,
+    key: `storage.tokens`,
+    field: pairId
+  });
+  if (token == "") {
+    throw new Error(`invalid pair id "${pairId}"`);
+  }
+  const parsedToken = <JSON.Obj>JSON.parse(token);
+  const parsedTokenA = parseTokenType(parsedToken, "token_a_type");
+  const parsedTokenB = parseTokenType(parsedToken, "token_b_type");
+  const tokenObj = JSON.Value.Object();
+  tokenObj.set("pair_id", pairId);
+  tokenObj.set("token_a", parsedTokenA);
+  tokenObj.set("token_b", parsedTokenB);
+  return tokenObj;
 }

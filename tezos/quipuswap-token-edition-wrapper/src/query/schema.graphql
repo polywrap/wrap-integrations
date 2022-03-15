@@ -7,7 +7,13 @@ type GetTokenSupplyResponse {
   total_supply: String!
 }
 
-type Query {  
+type Query {
+  getTokenPair(
+    network: Network!
+    pairId: String!
+    custom: CustomConnection
+  ): JSON! 
+  
   listTokenPairs(
     network: Network!
     custom: CustomConnection

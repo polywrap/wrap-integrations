@@ -34,6 +34,44 @@ describe("e2e", () => {
   })
 
   describe("Query", () => {
+    describe("getTokenPair", () => {
+      it("should get a token pair", async () => {
+        const response =  await client.query<{ getTokenPair: object }>({
+          uri: ensUri,
+          query: `
+            query {
+              getTokenPair(
+                network: hangzhounet,
+                pairId: "4"
+              )
+            }
+          `,
+        });
+
+        expect(response.errors).toBeUndefined()
+        expect(response.data).toBeDefined()
+        expect(response.data?.getTokenPair).toBeDefined()
+      })
+
+      it("throws an error when paidId is invalid", async () => {
+        const response =  await client.query<{ getTokenPair: object }>({
+          uri: ensUri,
+          query: `
+            query {
+              getTokenPair(
+                network: hangzhounet,
+                pairId: "1000"
+              )
+            }
+          `,
+        });
+
+        expect(response.data?.getTokenPair).toBeUndefined()
+        expect(response.errors).toBeDefined()
+        expect(response.errors?.[0].message).toMatch(/invalid pair id/)   
+      })
+    })
+
     describe("listTokenPairs", () => {
       it("should get a list of token pairs from storage", async () => {
         const response =  await client.query<{ listTokenPairs: object }>({
