@@ -11,12 +11,14 @@ import {
   Tezos_SendParams,
   SwapPair,
   SwapParams,
-  getSwapDirectionKey
+  getSwapDirectionKey,
+  SwapDirection
 } from "./w3"
-import { Address, getConnection } from "../common";
+import { Address, getConnection, getString } from "../common";
 import { Tezos_Query } from "../query/w3"
 
-import { BigInt } from "@web3api/wasm-as"
+import { BigInt, JSON } from "@web3api/wasm-as"
+import { getPair } from "../query";
 
 export function addOperator(input: Input_addOperator): Tezos_TransferParams {
   const address = getConnection(input.network, input.custom);
@@ -40,9 +42,37 @@ export function removeOperator(input: Input_removeOperator): Tezos_TransferParam
   })
 }
 
-export function swapDirect(input: Input_swapDirect): Tezos_TransferParams {
+export function swapDirect(input: Input_swapDirect): Tezos_TransferParams[] {
   const address = getConnection(input.network, input.custom);
-  return swap([{ pairId: input.params.pairId, direction: input.params.direction }], input.params.swapParams, address, input.sendParams);
+  const pkh = Tezos_Query.getWalletPKH({
+    connection: address.connection,
+  })
+  const tokenPair = getPair(input.params.pairId.toString(), address);
+  let token = tokenPair.get("token_a");
+  if (input.params.direction === SwapDirection.b_to_a) {
+    token = tokenPair.get("token_b");
+  }
+  const tokenAddress = getParsedAddress(token!);
+  const addTokenOperator = Tezos_Query.getContractCallTransferParams({
+    address: tokenAddress,
+    method: "update_operators",
+    args: generateOperatorArg('add_operator', pkh, address.contractAddress, input.params.pairId),
+    params: input.sendParams,
+    connection: address.connection
+  });
+  const removeTokenOperator = Tezos_Query.getContractCallTransferParams({
+    address: tokenAddress,
+    method: "update_operators",
+    args: generateOperatorArg('remove_operator', pkh, address.contractAddress, input.params.pairId),
+    params: input.sendParams,
+    connection: address.connection
+  });
+  const swapInvestParams = swap([{ pairId: input.params.pairId, direction: input.params.direction }], input.params.swapParams, address, input.sendParams);
+  return [
+    addTokenOperator,
+    swapInvestParams,
+    removeTokenOperator
+  ]
 }
 
 export function swapMultiHop(input: Input_swapMultiHop): Tezos_TransferParams {
@@ -50,15 +80,58 @@ export function swapMultiHop(input: Input_swapMultiHop): Tezos_TransferParams {
   return swap(input.params.hops, input.params.swapParams, address, input.sendParams);
 }
 
-export function invest(input: Input_invest): Tezos_TransferParams {
+export function invest(input: Input_invest): Tezos_TransferParams[] {
   const address = getConnection(input.network,  input.custom);
-  return Tezos_Query.getContractCallTransferParams({
+  const pkh = Tezos_Query.getWalletPKH({
+    connection: address.connection,
+  })
+  const tokenPair = getPair(input.params.pairId.toString(), address);
+  const tokenA = tokenPair.get("token_a");
+  const tokenAAddress = getParsedAddress(tokenA!);
+  const tokenB = tokenPair.get("token_b");
+  const tokenBAddress = getParsedAddress(tokenB!);
+  const addOperatorTokenA = Tezos_Query.getContractCallTransferParams({
+    address: tokenAAddress,
+    method: "update_operators",
+    args: generateOperatorArg('add_operator', pkh, address.contractAddress, input.params.pairId),
+    params: input.sendParams,
+    connection: address.connection
+  });
+  const addOperatorTokenB = Tezos_Query.getContractCallTransferParams({
+    address: tokenBAddress,
+    method: "update_operators",
+    args: generateOperatorArg('add_operator', pkh, address.contractAddress, input.params.pairId),
+    params: input.sendParams,
+    connection: address.connection
+  });
+  const removeOperatorTokenA = Tezos_Query.getContractCallTransferParams({
+    address: tokenAAddress,
+    method: "update_operators",
+    args: generateOperatorArg('remove_operator', pkh, address.contractAddress, input.params.pairId),
+    params: input.sendParams,
+    connection: address.connection
+  });
+  const removeOperatorTokenB = Tezos_Query.getContractCallTransferParams({
+    address: tokenBAddress,
+    method: "update_operators",
+    args: generateOperatorArg('remove_operator', pkh, address.contractAddress, input.params.pairId),
+    params: input.sendParams,
+    connection: address.connection
+  });
+  const investTransferParams = Tezos_Query.getContractCallTransferParams({
     address: address.contractAddress,
     method: "invest",
     args: `[${input.params.pairId}, ${input.params.shares}, ${input.params.tokenAIn}, ${input.params.tokenBIn}, "${input.params.deadline}"]`,
     params: input.sendParams,
     connection: address.connection
   })
+  return [
+    addOperatorTokenA,
+    addOperatorTokenB,
+    investTransferParams,
+    removeOperatorTokenA,
+    removeOperatorTokenB
+  ]
 }
 
 export function divest(input: Input_divest): Tezos_TransferParams {
@@ -139,4 +212,22 @@ function generateSwapArg(hops: SwapPair[], swapParams: SwapParams): string {
   arg += '"' + swapParams.deadline + '"'
   arg += ']';
   return arg;
+}
+
+function getParsedAddress(parsedToken: JSON.Value): string {
+  let address: string;
+  if (parsedToken.isString) {
+    address = parsedToken.toString();
+  }
+  else if (parsedToken.isObj) {
+    const parsedObjToken = <JSON.Obj>parsedToken;
+    if (parsedObjToken.has("fa2")) {
+      const fa2 = <JSON.Obj>(<JSON.Obj>parsedToken).get("fa2");
+      address = getString(fa2, "token_address");
+    }
+  }
+  if(!address) {
+    throw new Error(`unknown address for token '${parsedToken.stringify()}'`)
+  }
+  return address;
 }

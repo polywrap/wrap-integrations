@@ -79,7 +79,7 @@ type Mutation {
         params: SwapDirectParams!
         sendParams: Tezos_SendParams
         custom: CustomConnection
-    ): Tezos_TransferParams!
+    ): [Tezos_TransferParams!]!
 
     swapMultiHop(
         network: Network!
@@ -93,7 +93,7 @@ type Mutation {
         params: InvestParams!
         sendParams: Tezos_SendParams
         custom: CustomConnection
-    ): Tezos_TransferParams!
+    ): [Tezos_TransferParams!]!
 
     divest(
         network: Network!

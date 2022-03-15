@@ -208,34 +208,7 @@ describe("e2e", () => {
 
     describe("swapDirect", () => {
       it("should swap tokens directly", async() => {
-        const QUIPU_CONTRACT_ADDRESS = "KT1VowcKqZFGhdcDZA3UN1vrjBLmxV5bxgfJ";
-        const addQuipuResponse = await client.query<{ addOperator: QuerySchema.Tezos_TransferParams }>({
-          uri: ensUri,
-          query: `
-            mutation {
-              addOperator(
-                network: hangzhounet,
-                contractAddress: $contractAddress,
-                params: $params
-              )
-            }
-          `,
-          variables: {
-            contractAddress: QUIPU_CONTRACT_ADDRESS,
-            params: {
-              owner: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
-              tokenId: 0,
-              operator: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC"
-            }
-          }
-        })
-        expect(addQuipuResponse.errors).toBeUndefined()
-        expect(addQuipuResponse.data?.addOperator).toBeDefined()
-        expect(addQuipuResponse.data?.addOperator.to).toBe(QUIPU_CONTRACT_ADDRESS)
-        expect(addQuipuResponse.data?.addOperator.mutez).toBe(false)
-        expect(addQuipuResponse.data?.addOperator.parameter).toBeDefined()
-        
-        const swapResponse = await client.query<{ swapDirect: QuerySchema.Tezos_TransferParams }>({
+        const swapResponse = await client.query<{ swapDirect: QuerySchema.Tezos_TransferParams[] }>({
           uri: ensUri,
           query: `
             mutation {
@@ -266,34 +239,7 @@ describe("e2e", () => {
         })
         expect(swapResponse.errors).toBeUndefined()
         expect(swapResponse.data?.swapDirect).toBeDefined()
-        expect(swapResponse.data?.swapDirect.mutez).toBe(true)
-        expect(swapResponse.data?.swapDirect.parameter).toBeDefined()
-
-        const removeQuipuResponse = await client.query<{ removeOperator: QuerySchema.Tezos_TransferParams }>({
-          uri: ensUri,
-          query: `
-            mutation {
-              removeOperator(
-                network: hangzhounet,
-                contractAddress: $contractAddress,
-                params: $params
-              )
-            }
-          `,
-          variables: {
-            contractAddress: QUIPU_CONTRACT_ADDRESS,
-            params: {
-              owner: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
-              tokenId: 0,
-              operator: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC"
-            }
-          }
-        })
-        expect(removeQuipuResponse.errors).toBeUndefined()
-        expect(removeQuipuResponse.data?.removeOperator).toBeDefined()
-        expect(removeQuipuResponse.data?.removeOperator.to).toBe(QUIPU_CONTRACT_ADDRESS)
-        expect(removeQuipuResponse.data?.removeOperator.mutez).toBe(false)
-        expect(removeQuipuResponse.data?.removeOperator.parameter).toBeDefined()
+        expect(swapResponse.data?.swapDirect).toHaveLength(3)
         
         const batchContractCallResponse = await client.query<{ batchContractCalls: string }>({
           uri: "w3://ens/tezos.web3api.eth",
@@ -305,7 +251,7 @@ describe("e2e", () => {
             }
           `,
           variables: {
-            params: [addQuipuResponse.data?.addOperator, swapResponse.data?.swapDirect, removeQuipuResponse.data?.removeOperator]
+            params: swapResponse.data?.swapDirect
           }
         })
 
@@ -471,62 +417,8 @@ describe("e2e", () => {
 
     describe("invest", () => {
       it("should invest into a token pair", async () => {
-        const QUIPU_CONTRACT_ADDRESS = "KT1VowcKqZFGhdcDZA3UN1vrjBLmxV5bxgfJ";
-        const RCT_CONTRACT_ADDRESS = "KT1QGgr6k1CDf4Svd18MtKNQukboz8JzRPd5";
-        // Add operator for Quipu
-        const addQuipuResponse = await client.query<{ addOperator: QuerySchema.Tezos_TransferParams }>({
-          uri: ensUri,
-          query: `
-            mutation {
-              addOperator(
-                network: hangzhounet,
-                contractAddress: $contractAddress,
-                params: $params
-              )
-            }
-          `,
-          variables: {
-            contractAddress: QUIPU_CONTRACT_ADDRESS,
-            params: {
-              owner: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
-              tokenId: 0,
-              operator: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC"
-            }
-          }
-        })
-        expect(addQuipuResponse.errors).toBeUndefined()
-        expect(addQuipuResponse.data?.addOperator).toBeDefined()
-        expect(addQuipuResponse.data?.addOperator.to).toBe(QUIPU_CONTRACT_ADDRESS)
-        expect(addQuipuResponse.data?.addOperator.mutez).toBe(false)
-        expect(addQuipuResponse.data?.addOperator.parameter).toBeDefined()
-        // Add operator for RCT
-        const addRctResponse = await client.query<{ addOperator: QuerySchema.Tezos_TransferParams }>({
-          uri: ensUri,
-          query: `
-            mutation {
-              addOperator(
-                network: hangzhounet,
-                contractAddress: $contractAddress,
-                params: $params
-              )
-            }
-          `,
-          variables: {
-            contractAddress: RCT_CONTRACT_ADDRESS,
-            params: {
-              owner: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
-              tokenId: 0,
-              operator: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC"
-            }
-          }
-        })
-        expect(addRctResponse.errors).toBeUndefined()
-        expect(addRctResponse.data?.addOperator).toBeDefined()
-        expect(addRctResponse.data?.addOperator.to).toBe(RCT_CONTRACT_ADDRESS)
-        expect(addRctResponse.data?.addOperator.mutez).toBe(false)
-        expect(addRctResponse.data?.addOperator.parameter).toBeDefined()
         // invest
-        const investResponse = await client.query<{ invest: QuerySchema.Tezos_TransferParams }>({
+        const investResponse = await client.query<{ invest: QuerySchema.Tezos_TransferParams[] }>({
           uri: ensUri,
           query: `
             mutation {
@@ -554,8 +446,7 @@ describe("e2e", () => {
         })
         expect(investResponse.errors).toBeUndefined()
         expect(investResponse.data?.invest).toBeDefined()
-        expect(investResponse.data?.invest.mutez).toBe(true)
-        expect(investResponse.data?.invest.parameter).toBeDefined()
+        expect(investResponse.data?.invest).toHaveLength(5)
         // batch contract calls
         const batchContractCallResponse = await client.query<{ batchContractCalls: string }>({
           uri: "w3://ens/tezos.web3api.eth",
@@ -567,7 +458,7 @@ describe("e2e", () => {
             }
           `,
           variables: {
-            params: [addQuipuResponse.data?.addOperator, addRctResponse.data?.addOperator, investResponse.data?.invest]
+            params: investResponse.data?.invest
           }
         })
         expect(batchContractCallResponse.errors).toBeUndefined()
