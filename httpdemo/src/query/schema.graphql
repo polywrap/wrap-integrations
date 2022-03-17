@@ -7,5 +7,5 @@
  } into Http from "w3://ens/http.web3api.eth"
 
 type Query {
-  doOperation(url: String!): String
+  doOperation: String
 }

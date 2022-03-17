@@ -1,5 +1,3 @@
 query GetData {
-  doOperation(
-    url: $url
-  )
+  doOperation
 }
