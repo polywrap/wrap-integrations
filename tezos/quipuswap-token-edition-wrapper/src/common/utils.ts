@@ -1,6 +1,7 @@
-import { JSON, Nullable } from "@web3api/wasm-as"
 import { Address } from ".";
 import { CustomConnection, Network, Tezos_Connection } from "../query/w3";
+
+import { JSON } from "@web3api/wasm-as";
 
 export function getString(object: JSON.Obj, key: string): string {
   let value = ""

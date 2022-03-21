@@ -158,7 +158,6 @@ describe("e2e", () => {
           variables: {
             contractAddress: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC",
             params: {
-              owner: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
               tokenId: 0,
               operator: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC"
             }
@@ -188,7 +187,6 @@ describe("e2e", () => {
           variables: {
             contractAddress: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC",
             params: {
-              owner: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
               tokenId: 0,
               operator: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC"
             }
@@ -494,7 +492,7 @@ describe("e2e", () => {
               mutez: true
             }
           }
-        })
+        });
         expect(divestResponse.errors).toBeUndefined()
         expect(divestResponse.data?.divest).toBeDefined()
         expect(divestResponse.data?.divest.mutez).toBe(true)

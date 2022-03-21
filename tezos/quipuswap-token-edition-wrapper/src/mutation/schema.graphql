@@ -7,7 +7,6 @@ enum SwapDirection {
 }
 
 type OperatorParams {
-    owner: String!
     tokenId: UInt32!
     operator: String!
 }
@@ -86,7 +85,7 @@ type Mutation {
         params: SwapMultiHopParams!
         sendParams: Tezos_SendParams
         custom: CustomConnection
-    ): Tezos_TransferParams!
+    ): [Tezos_TransferParams!]!
 
     invest(
         network: Network!
