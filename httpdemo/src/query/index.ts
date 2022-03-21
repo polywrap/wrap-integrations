@@ -11,7 +11,7 @@ export function doOperation(): string {
   const photoUrl:string =  fetchPhotoUrl();
   const photoContent:string = fetchPhotoContent(photoUrl);
   const newPostResponse:string = createNewPost();
-  return "Done";
+  return newPostResponse;
 
 }
 
@@ -34,7 +34,7 @@ function createNewPost() : string {
     userId: newPostUserId,
   }).toString();
  */ 
-  const postPayload:string = `{ title: '${newPostTitle}',    body: '${newPostBody}',   userId: 1    }` 
+  const postPayload:string = `{ title: "${newPostTitle}",    body: "${newPostBody}",   userId: 1    }` 
 
   const response = Http_Query.post({
     url: "https://jsonplaceholder.typicode.com/posts",
@@ -52,10 +52,13 @@ function createNewPost() : string {
     }
   }).unwrap();
 
-  // Verify we got correct values for new post in response payload. 
-  // we expect id, title, body, userId 
+  // Extract values from response json body.
+  // We expect id, title, body, userId 
   const jsonResponse = JSON.parse(response!.body!) as JSON.Obj;
   const id = jsonResponse.getInteger("id")!.valueOf();
+  // const responseUserId = jsonResponse.getInteger("userId")!.valueOf();
+  // const responseBody = jsonResponse.getString("body")!.valueOf();
+  // const responseTitle = jsonResponse.getString("title")!.valueOf();
   return jsonResponse.toString();
 }
 
