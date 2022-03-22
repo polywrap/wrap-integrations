@@ -8,8 +8,8 @@ import {
 } from "./w3";
 
 export function doOperation(): string {
-  const photoUrl:string =  fetchPhotoUrl();
-  const photoContent:string = fetchPhotoContent(photoUrl);
+  // const photoUrl:string =  fetchPhotoUrl();
+  // const photoContent:string = fetchPhotoContent(photoUrl);
   const newPostResponse:string = createNewPost();
   return newPostResponse;
 
@@ -26,15 +26,10 @@ function createNewPost() : string {
   const newPostBody = "NewPostBody  line1 line2";
   const newPostUserId = 1;
 
-  /*
-  TODO JSON.from does not support JSON.Obj. Use it once support is added in wasm-as core module. 
-  const postPayload = JSON.from<JSON.Obj>({
-    title: newPostTitle,
-    body: newPostBody,
-    userId: newPostUserId,
-  }).toString();
- */ 
-  const postPayload:string = `{ title: "${newPostTitle}",    body: "${newPostBody}",   userId: 1    }` 
+  const postPayload = JSON.Value.Object();
+  postPayload.set("title", newPostTitle);
+  postPayload.set("body", newPostBody);
+  postPayload.set("userId", newPostUserId);
 
   const response = Http_Query.post({
     url: "https://jsonplaceholder.typicode.com/posts",
@@ -43,23 +38,36 @@ function createNewPost() : string {
       headers:[{
         key: "user-agent",
         value: "HttpDemo"
+      }, {
+        key: 'Content-type',
+        value: 'application/json; charset=UTF-8'
       }],
       urlParams: [{
         key: "dummyQueryParam",
         value: "20"
       }],
-      body: postPayload
+      body: postPayload.toString()
     }
   }).unwrap();
 
+  if (!response) {
+    return "ERROR_NO_RESPONSE: createNewPost";
+  }
+
   // Extract values from response json body.
   // We expect id, title, body, userId 
-  const jsonResponse = JSON.parse(response!.body!) as JSON.Obj;
-  const id = jsonResponse.getInteger("id")!.valueOf();
-  // const responseUserId = jsonResponse.getInteger("userId")!.valueOf();
-  // const responseBody = jsonResponse.getString("body")!.valueOf();
-  // const responseTitle = jsonResponse.getString("title")!.valueOf();
-  return jsonResponse.toString();
+  const result = JSON.parse(response.body || "");
+
+  if (!result.isObj) {
+    return "ERROR_BAD_RESP_BODY: createNewPost";
+  }
+
+  const obj = result as JSON.Obj;
+  const title = obj.getString("title")!.valueOf();
+  const body = obj.getString("body")!.valueOf();
+  const id = obj.getInteger("id")!.valueOf().toString();
+
+  return `createNewPost: { title: "${title}", body: "${body}", id: ${id}}`;
 }
 
 /**
