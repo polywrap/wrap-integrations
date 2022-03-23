@@ -1,15 +1,20 @@
 #import { Query, Connection } into Tezos from "w3://ens/tezos.web3api.eth"
 
+""" Wrapper supported networks """
 enum Network {
   custom
   mainnet
 }
 
+""" Custom connection """
 type CustomConnection {
+  """ Connection """
   connection: Tezos_Connection!
+  """ Contract address """
   contractAddress: String!
 }
 
+"""  """
 type GetBalanceResponse {
   owner: String!
   token_id: String! 

@@ -2,6 +2,7 @@
 #import { Query } into TezosDomainsPlugin from "w3://ens/tezosDomainsPlugin.web3api.eth"
 #import { Network, CustomConnection } from "../common/schema.graphql"
 
+""" Describes commit parameters """
 type CommitParams {
   # domain name
   label: String!
@@ -11,6 +12,7 @@ type CommitParams {
   nonce: UInt32!
 }
 
+""" Describes buy parameters """
 type BuyParams {
   # domain name
   label: String!
@@ -23,33 +25,48 @@ type BuyParams {
   # Duration of domain
   duration: UInt32!
   # metadata of domain
-  # Stringified JSON
-  # TODO(abdul): switch to JSON when feasible
+  # TODO(): switch to JSON when possible. Stringified JSON
   data: String!
 }
 
+""" SendParams """
 type SendParams {
+  """ Amount to send """
   amount: UInt32
+  """ Tezos account making transfer """
   source: String
+  """ Called-defined fee limit to be paid """
   fee: UInt32
+  """ Caller-defined gas limit """
   gasLimit: UInt32
+  """ Caller-defined storage limit """
   storageLimit: UInt32
+  """ Flag indicating Amount is express in micro tez """
   mutez: Boolean
 }
 
-
 type Mutation {
+  """ Commit domain name """
   commit (
+    """ Supported network """
     network: Network!
+    """ CommitParams """
     params: CommitParams!
+    """ SendParams """
     sendParams: SendParams
+    """ CustomConnection """
     custom: CustomConnection
   ): String!
 
+  """ Buy domain name """
   buy (
+    """ Supported network """
     network: Network!
+    """ BuyParams """
     params: BuyParams!
+    """ SendParams """
     sendParams: SendParams
+    """ CustomConnection """
     custom: CustomConnection
   ): String!
 }
