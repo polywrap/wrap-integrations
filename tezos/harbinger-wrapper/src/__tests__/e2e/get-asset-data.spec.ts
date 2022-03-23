@@ -7,38 +7,40 @@ import { getPlugins } from "../testUtils"
 
 jest.setTimeout(150000)
 
-describe("getAssetData", () => {
-    let client: Web3ApiClient;
-    let ensUri: string;
+describe("Query", () => {
+  let client: Web3ApiClient;
+  let ensUri: string;
+  
+  beforeAll(async () => {
+      const { ensAddress, ethereum, ipfs } = await initTestEnvironment();
+      const apiPath = path.join(__dirname, "/../../../");
+      const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
+      ensUri = `ens/testnet/${api.ensDomain}`;
+      client = new Web3ApiClient({
+          plugins: getPlugins(ipfs, ensAddress, ethereum),
+      })
+  })
+  
+  afterAll(async () => {
+      await stopTestEnvironment()
+  })
 
-    beforeAll(async () => {
-        const { ensAddress, ethereum, ipfs } = await initTestEnvironment();
-        const apiPath = path.join(__dirname, "/../../../");
-        const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
-        ensUri = `ens/testnet/${api.ensDomain}`;
-        client = new Web3ApiClient({
-            plugins: getPlugins(ipfs, ensAddress, ethereum),
-        })
-    })
-
-    afterAll(async () => {
-        await stopTestEnvironment()
-    })
-
+  describe("getAssetData", () => {
     it("should get asset data for `XTZ-USD` on mainnet", async () => {
-        const response =  await client.query<{ getAssetData: QuerySchema.GetAssetResponse}>({
+        const response =  await client.query<{ getAssetData: QuerySchema.AssetCandle}>({
           uri: ensUri,
           query: `
             query {
               getAssetData(
                 assetCode: $assetCode,
-                network: mainnet
+                network: mainnet,
+                providerAddress: $providerAddress
               )
             }
           `,
           variables: {
             assetCode: "XTZ-USD",
-            network: "granadanet",
+            providerAddress: "KT1Jr5t9UvGiqkvvsuUbPJHaYx24NzdUwNW9"
           }
         })
 
@@ -55,26 +57,21 @@ describe("getAssetData", () => {
         expect(response.data?.getAssetData.startPeriod).toBeDefined()
     })
 
-    it("should get asset data for `XTZ-USD` on granadanet", async () => {
-      const response =  await client.query<{ getAssetData: QuerySchema.GetAssetResponse}>({
+    it.skip("should get asset data for `XTZ-USD` on granadanet", async () => {
+      const response =  await client.query<{ getAssetData: QuerySchema.AssetCandle}>({
         uri: ensUri,
         query: `
         query {
           getAssetData(
             assetCode: $assetCode,
             network: granadanet,
-            custom: $custom
+            providerAddress: $providerAddress
             )
           }
           `,
           variables: {
             assetCode: "XTZ-USD",
-            custom: {
-              oracleContractAddress: "KT1ENR6CK7cBWCtZt1G3PovwTw3FgSW472mS",
-            },
-            connection: {
-              networkNameOrChainId: "mainnet"
-            }
+            providerAddress: "KT1ENR6CK7cBWCtZt1G3PovwTw3FgSW472mS"
           }
         })
       
@@ -92,12 +89,13 @@ describe("getAssetData", () => {
     })
 
     it("should get asset data for `XTZ-USD` on custom network", async () => {
-      const response =  await client.query<{ getAssetData: QuerySchema.GetAssetResponse}>({
+      const response =  await client.query<{ getAssetData: QuerySchema.AssetCandle}>({
         uri: ensUri,
         query: `
         query {
             getAssetData(
               assetCode: $assetCode,
+              providerAddress: $providerAddress
               network: custom,
               custom: $custom
             )
@@ -105,12 +103,12 @@ describe("getAssetData", () => {
           `,
           variables: {
             custom: {
-              oracleContractAddress: "KT1Jr5t9UvGiqkvvsuUbPJHaYx24NzdUwNW9",
               connection: {
                 provider: "https://rpc.tzstats.com",
                 networkNameOrChainId: "mainnet"
               },
             },
+            providerAddress: "KT1Jr5t9UvGiqkvvsuUbPJHaYx24NzdUwNW9",
             assetCode: "XTZ-USD",
           }
         })
@@ -129,12 +127,13 @@ describe("getAssetData", () => {
     })
 
     it("should fail if get connection and oracle address is not provided when using custom network", async () => {
-      const response =  await client.query<{ getAssetData: QuerySchema.GetAssetResponse}>({
+      const response =  await client.query<{ getAssetData: QuerySchema.AssetCandle}>({
         uri: ensUri,
         query: `
         query {
             getAssetData(
               assetCode: $assetCode,
+              providerAddress: ""
               network: custom
             )
           }
@@ -147,179 +146,109 @@ describe("getAssetData", () => {
       expect(response.errors).toBeDefined()
       expect(response.data?.getAssetData).toBeUndefined()
     })
-})
-
-describe("listProviders", () => {
-  let client: Web3ApiClient;
-  let ensUri: string;
-
-  beforeAll(async () => {
-      const { ensAddress, ethereum, ipfs } = await initTestEnvironment();
-      const apiPath = path.join(__dirname, "/../../../");
-      const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
-      ensUri = `ens/testnet/${api.ensDomain}`;
-      client = new Web3ApiClient({
-          plugins: getPlugins(ipfs, ensAddress, ethereum),
-      })
   })
 
-  afterAll(async () => {
-      await stopTestEnvironment()
-  })
-    
-  it("should get a list of Assets fron a Provider", async () => {
-    const response =  await client.query<{ listProviders: QuerySchema.listProvidersResponse}>({
-      uri: ensUri,
-      query: `
-        query {
-          listProviders
+  describe("listProviders", () => {
+    it("should get a list of Assets fron a Provider", async () => {
+      const response =  await client.query<{ listProviders: QuerySchema.Providers[]}>({
+        uri: ensUri,
+        query: `
+          query {
+            listProviders
+          }
+        `,
+        variables: {
         }
-      `,
-      variables: {
-      }
+      })
+  
+      expect(response.errors).toBeUndefined()
+      expect(response.data).toBeDefined()
+      expect(response.data?.listProviders).toBeDefined()
     })
-
-    expect(response.errors).toBeUndefined()
-    expect(response.data).toBeDefined()
-    expect(response.data?.listProviders.providers).toBeDefined()
   })
+
+  describe("listAssets", () => {
+    it("should get a list of Assets from a Provider", async () => {
+      const response =  await client.query<{ listAssets: string }>({
+        uri: ensUri,
+          query: `
+            query {
+              listAssets(
+                providerAddress: $providerAddress,
+                network: mainnet
+              )
+            }
+            `,
+            variables: {
+              providerAddress: "KT1AdbYiPYb5hDuEuVrfxmFehtnBCXv4Np7r",
+              network: "granadanet",
+            }
+          })
   
-})
-
-describe("listAssets", () => {
-  let client: Web3ApiClient;
-  let ensUri: string;
-
-  beforeAll(async () => {
-      const { ensAddress, ethereum, ipfs } = await initTestEnvironment();
-      const apiPath = path.join(__dirname, "/../../../");
-      const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
-      ensUri = `ens/testnet/${api.ensDomain}`;
-      client = new Web3ApiClient({
-          plugins: getPlugins(ipfs, ensAddress, ethereum),
-      })
+      expect(response.errors).toBeUndefined()
+      expect(response.data).toBeDefined()
+      expect(response.data?.listAssets).toBeDefined()
+    })
   })
 
-  afterAll(async () => {
-      await stopTestEnvironment()
-  })
-    
-  it("should get a list of Assets from a Provider", async () => {
-    const response =  await client.query<{ listAssets: QuerySchema.listAssetsResponse}>({
-      uri: ensUri,
-        query: `
-          query {
-            listAssets(
-              providerAddress: $providerAddress,
-              network: mainnet
-            )
-          }
-          `,
-          variables: {
-            providerAddress: "KT1AdbYiPYb5hDuEuVrfxmFehtnBCXv4Np7r",
-            network: "granadanet",
-          }
-        })
-
-    expect(response.errors).toBeUndefined()
-    expect(response.data).toBeDefined()
-    expect(response.data?.listAssets.assets).toBeDefined()
-  })
+  describe("getCandle", () => {
+    it("should get Candle data from a Provider", async () => {
+      const response =  await client.query<{ getCandle: QuerySchema.AssetCandle}>({
+        uri: ensUri,
+          query: `
+            query {
+              getCandle(
+                providerAddress: $providerAddress,
+                network: mainnet
+                assetCode: $assetCode
+              )
+            }
+            `,
+            variables: {
+              providerAddress: "KT1Jr5t9UvGiqkvvsuUbPJHaYx24NzdUwNW9",
+              assetCode: "XTZ-USD",
+              network: "granadanet",
+            }
+          })
   
-})
-
-describe("getCandle", () => {
-  let client: Web3ApiClient;
-  let ensUri: string;
-
-  beforeAll(async () => {
-      const { ensAddress, ethereum, ipfs } = await initTestEnvironment();
-      const apiPath = path.join(__dirname, "/../../../");
-      const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
-      ensUri = `ens/testnet/${api.ensDomain}`;
-      client = new Web3ApiClient({
-          plugins: getPlugins(ipfs, ensAddress, ethereum),
-      })
+      expect(response.errors).toBeUndefined()
+      expect(response.data).toBeDefined()
+      expect(response.data?.getCandle).toBeDefined()
+      expect(response.data?.getCandle.low).toBeDefined()
+      expect(response.data?.getCandle.open).toBeDefined()
+      expect(response.data?.getCandle.high).toBeDefined()
+      expect(response.data?.getCandle.asset).toBeDefined()
+      expect(response.data?.getCandle.close).toBeDefined()
+      expect(response.data?.getCandle.volume).toBeDefined()
+      expect(response.data?.getCandle.endPeriod).toBeDefined()
+      expect(response.data?.getCandle.startPeriod).toBeDefined()
+    })
   })
 
-  afterAll(async () => {
-      await stopTestEnvironment()
-  })
-    
-  it("should get Candle data from a Provider", async () => {
-    const response =  await client.query<{ getCandle: QuerySchema.GetCandleResponse}>({
-      uri: ensUri,
-        query: `
-          query {
-            getCandle(
-              providerAddress: $providerAddress,
-              network: mainnet
-              assetCode: $assetCode
-            )
-          }
-          `,
-          variables: {
-            providerAddress: "KT1Jr5t9UvGiqkvvsuUbPJHaYx24NzdUwNW9",
-            assetCode: "XTZ-USD",
-            network: "granadanet",
-          }
-        })
-
-    expect(response.errors).toBeUndefined()
-    expect(response.data).toBeDefined()
-    expect(response.data?.getCandle).toBeDefined()
-    expect(response.data?.getCandle.low).toBeDefined()
-    expect(response.data?.getCandle.open).toBeDefined()
-    expect(response.data?.getCandle.high).toBeDefined()
-    expect(response.data?.getCandle.asset).toBeDefined()
-    expect(response.data?.getCandle.close).toBeDefined()
-    expect(response.data?.getCandle.volume).toBeDefined()
-    expect(response.data?.getCandle.endPeriod).toBeDefined()
-    expect(response.data?.getCandle.startPeriod).toBeDefined()
-  })
+  describe("getNormalizedPrice", () => {
+    it("should get Normalized Price of a crypto pair from a Provider", async () => {
+      const response =  await client.query<{ getNormalizedPrice: string }>({
+        uri: ensUri,
+          query: `
+            query {
+              getNormalizedPrice(
+                providerAddress: $providerAddress,
+                network: mainnet
+                assetCode: $assetCode
+              )
+            }
+            `,
+            variables: {
+              providerAddress: "KT1AdbYiPYb5hDuEuVrfxmFehtnBCXv4Np7r",
+              assetCode: "XTZ-USD",
+              network: "granadanet",
+            }
+          })
   
-})
-
-describe("getNormalizedPrice", () => {
-  let client: Web3ApiClient;
-  let ensUri: string;
-
-  beforeAll(async () => {
-      const { ensAddress, ethereum, ipfs } = await initTestEnvironment();
-      const apiPath = path.join(__dirname, "/../../../");
-      const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
-      ensUri = `ens/testnet/${api.ensDomain}`;
-      client = new Web3ApiClient({
-          plugins: getPlugins(ipfs, ensAddress, ethereum),
-      })
+      expect(response.errors).toBeUndefined()
+      expect(response.data).toBeDefined()
+      expect(response.data?.getNormalizedPrice).toBeDefined()
+    })
   })
 
-  afterAll(async () => {
-      await stopTestEnvironment()
-  })
-    
-  it("should get Normalized Price of a crypto pair from a Provider", async () => {
-    const response =  await client.query<{ getNormalizedPrice: QuerySchema.GetNormalizedPriceResponse}>({
-      uri: ensUri,
-        query: `
-          query {
-            getNormalizedPrice(
-              providerAddress: $providerAddress,
-              network: mainnet
-              assetCode: $assetCode
-            )
-          }
-          `,
-          variables: {
-            providerAddress: "KT1AdbYiPYb5hDuEuVrfxmFehtnBCXv4Np7r",
-            assetCode: "XTZ-USD",
-            network: "granadanet",
-          }
-        })
-
-    expect(response.errors).toBeUndefined()
-    expect(response.data).toBeDefined()
-    expect(response.data?.getNormalizedPrice).toBeDefined()
-  })
-  
 })

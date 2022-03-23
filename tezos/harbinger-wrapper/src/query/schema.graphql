@@ -1,6 +1,7 @@
 #import { Query, Connection } into Tezos from "w3://ens/tezos.web3api.eth"
 
-type GetAssetResponse {
+""" Describes asset candle """
+type AssetCandle {
   low: String!
   open: String!
   high: String!
@@ -11,68 +12,81 @@ type GetAssetResponse {
   startPeriod: String!
 }
 
-type listProvidersResponse {
-  providers: String
+""" Describes provider network where contract is deployed """
+type ProviderNetworks {
+  """ Network contract is originated """
+  Network: String!
+  """ Kind of contract (Storage or Normalizer )"""
+  Kind: String!
+  """ Address of contract """
+  ContractAddress: String!
 }
 
-type listAssetsResponse{
-  assets: String
+""" Supported providers  """
+type Providers {
+  """ Provider of token data eg. Coinbase, Binance """
+  Provider: String!
+  """ ProviderNetworks """
+  ProviderNetworks: [ProviderNetworks]!
 }
 
-type GetCandleResponse{
-  low: String!
-  open: String!
-  high: String!
-  asset: String!
-  close: String!
-  volume: String!
-  endPeriod: String!
-  startPeriod: String!
-}
-
-type GetNormalizedPriceResponse {
-  price: String!
-}
-
-
+""" Wrapper supported networks """
 enum Network {
   custom
   mainnet
-  granadanet
+  hangzhounet
 }
 
+""" Custom Connection """
 type CustomConnection {
+  """ Connection """
   connection: Tezos_Connection!
-  oracleContractAddress: String!
 }
 
 type Query {
+  """ Get asset data """
   getAssetData(
+    """ Network """
     network: Network!
+    """ Asset code for token """
     assetCode: String!
+    """ Deployed provider address """
+    providerAddress: String!
+    """ CustomConnection """
     custom: CustomConnection
-  ): GetAssetResponse!
+  ): AssetCandle!
 
+  """ List Assets available with provider """
   listAssets(
+    """ Network """
     network: Network!
+    """ CustomConnection """
     custom: CustomConnection
+    """ Deployed provider address """
     providerAddress: String!
-  ): listAssetsResponse!
+  ): String!
 
+  """ Get market data of asset """
   getCandle(
+    """ Network """
     network: Network!
+    """ CustomConnection """
     custom: CustomConnection
+    """ Asset's code """
     assetCode: String!
+    """ Deployed provider address """
     providerAddress: String!
-  ): GetCandleResponse!
+  ): AssetCandle!
 
-  listProviders: listProvidersResponse!
+  """ List providers """
+  listProviders: [Providers!]!
 
+  """ Get normalized price of asset """ 
   getNormalizedPrice(
     network: Network!
     custom: CustomConnection
     assetCode: String!
     providerAddress: String!
-  ): GetNormalizedPriceResponse!
+  ): String!
 
 }
