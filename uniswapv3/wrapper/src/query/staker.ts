@@ -42,7 +42,7 @@ export function collectRewards(input: Input_collectRewards): MethodParameters {
           encodeIncentiveKey(incentiveKey),
           toHex({ value: options.tokenId }),
         ],
-      })
+      }).unwrap()
     );
   }
   return {
@@ -81,7 +81,7 @@ export function withdrawToken(input: Input_withdrawToken): MethodParameters {
         owner,
         options.data === null ? ZERO_HEX : options.data!,
       ],
-    })
+    }).unwrap()
   );
   return {
     calldata: encodeMulticall({ calldatas }),
@@ -106,12 +106,12 @@ export function encodeDeposit(input: Input_encodeDeposit): string {
     data = Ethereum_Query.encodeParams({
       types: [`${stakerAbi("INCENTIVE_KEY_ABI")}[]`],
       values: ["[" + keys.join(", ") + "]"],
-    });
+    }).unwrap();
   } else {
     data = Ethereum_Query.encodeParams({
       types: [stakerAbi("INCENTIVE_KEY_ABI")],
       values: [encodeIncentiveKey(incentiveKeys[0])],
-    });
+    }).unwrap();
   }
   return data;
 }
@@ -134,7 +134,7 @@ function encodeClaim(
         encodeIncentiveKey(incentiveKey),
         toHex({ value: options.tokenId }),
       ],
-    })
+    }).unwrap()
   );
   const recipient: string = getChecksumAddress(options.recipient);
   const amount: BigInt =
@@ -147,7 +147,7 @@ function encodeClaim(
         recipient,
         toHex({ value: amount }),
       ],
-    })
+    }).unwrap()
   );
   return calldatas;
 }

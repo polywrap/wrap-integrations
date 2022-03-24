@@ -87,8 +87,8 @@ export function computePoolAddress(input: Input_computePoolAddress): string {
     message: Ethereum_Query.encodeParams({
       types: ["address", "address", "uint24"],
       values: [tokens[0].address, tokens[1].address, fee.toString()],
-    }),
-  });
+    }).unwrap(),
+  }).unwrap();
   const concatenatedItems: Uint8Array = concat([
     "0xff",
     getChecksumAddress(factoryAddress),
@@ -97,7 +97,7 @@ export function computePoolAddress(input: Input_computePoolAddress): string {
   ]);
   const concatenationHash: string = SHA3_Query.buffer_keccak_256({
     message: concatenatedItems.buffer,
-  });
+  }).unwrap();
   return getChecksumAddress(concatenationHash.substring(24));
 }
 

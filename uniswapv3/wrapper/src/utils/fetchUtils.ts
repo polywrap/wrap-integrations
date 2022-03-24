@@ -73,7 +73,7 @@ export function ethCallView(
       node: null,
       networkNameOrChainId: getChainIdKey(chainId),
     },
-  });
+  }).unwrap();
 }
 
 export function fetchPoolImmutables(
@@ -117,7 +117,7 @@ export function fetchPoolTicksSubgraph(
           liquidityNet
         }
       }`,
-  });
+  }).unwrap();
   return (<JSON.Obj>query)
     .getArr("ticks")!
     .valueOf()

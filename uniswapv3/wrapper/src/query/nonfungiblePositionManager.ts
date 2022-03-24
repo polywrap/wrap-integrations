@@ -157,7 +157,7 @@ export function addCallParameters(
       Ethereum_Query.encodeFunction({
         method: nfpmAbi("mint"),
         args: [paramsToJsonString(args)],
-      })
+      }).unwrap()
     );
   } else {
     // increase
@@ -173,7 +173,7 @@ export function addCallParameters(
       Ethereum_Query.encodeFunction({
         method: nfpmAbi("increaseLiquidity"),
         args: [paramsToJsonString(args)],
-      })
+      }).unwrap()
     );
   }
 
@@ -268,7 +268,7 @@ export function removeCallParameters(
           options.permit!.r,
           options.permit!.s,
         ],
-      })
+      }).unwrap()
     );
   }
 
@@ -284,7 +284,7 @@ export function removeCallParameters(
     Ethereum_Query.encodeFunction({
       method: nfpmAbi("decreaseLiquidity"),
       args: [paramsToJsonString(decreaseLiqArgs)],
-    })
+    }).unwrap()
   );
 
   const expectedCurrencyOwed0: TokenAmount =
@@ -314,7 +314,7 @@ export function removeCallParameters(
         Ethereum_Query.encodeFunction({
           method: nfpmAbi("burn"),
           args: [tokenId],
-        })
+        }).unwrap()
       );
     }
   } else {
@@ -347,12 +347,12 @@ export function safeTransferFromParameters(
         toHex({ value: options.tokenId }),
         options.data!,
       ],
-    });
+    }).unwrap();
   } else {
     calldata = Ethereum_Query.encodeFunction({
       method: nfpmAbi("_safeTransferFrom"),
       args: [sender, recipient, toHex({ value: options.tokenId })],
-    });
+    }).unwrap();
   }
 
   return {
@@ -374,7 +374,7 @@ function encodeCreate(pool: Pool): string {
       _getFeeAmount(pool.fee).toString(),
       toHex({ value: pool.sqrtRatioX96 }),
     ],
-  });
+  }).unwrap();
 }
 
 function encodeCollect(options: CollectOptions): string[] {
@@ -397,7 +397,7 @@ function encodeCollect(options: CollectOptions): string[] {
     Ethereum_Query.encodeFunction({
       method: nfpmAbi("collect"),
       args: [paramsToJsonString(collectArgs)],
-    })
+    }).unwrap()
   );
 
   if (involvesETH) {

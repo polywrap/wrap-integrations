@@ -44,7 +44,7 @@ export function quoteCallParameters(
             ? toHex({ value: options.sqrtPriceLimitX96! })
             : ZERO_HEX,
         ],
-      });
+      }).unwrap();
     } else {
       calldata = Ethereum_Query.encodeFunction({
         method: quoterAbi("quoteExactOutputSingle"),
@@ -57,7 +57,7 @@ export function quoteCallParameters(
             ? toHex({ value: options.sqrtPriceLimitX96! })
             : ZERO_HEX,
         ],
-      });
+      }).unwrap();
     }
   } else {
     if (options !== null && options.sqrtPriceLimitX96 !== null) {
@@ -75,12 +75,12 @@ export function quoteCallParameters(
       calldata = calldata = Ethereum_Query.encodeFunction({
         method: quoterAbi("quoteExactInput"),
         args: [path, quoteAmount],
-      });
+      }).unwrap();
     } else {
       calldata = calldata = Ethereum_Query.encodeFunction({
         method: quoterAbi("quoteExactOutput"),
         args: [path, quoteAmount],
-      });
+      }).unwrap();
     }
   }
   return {

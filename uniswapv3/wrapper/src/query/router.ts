@@ -204,7 +204,7 @@ export function swapCallParameters(
             Ethereum_Query.encodeFunction({
               method: routerAbi("exactInputSingle"),
               args: [paramsToJsonString(exactInputSingleParams)],
-            })
+            }).unwrap()
           );
         } else {
           const exactOutputSingleParams: ExactOutputSingleParams = {
@@ -225,7 +225,7 @@ export function swapCallParameters(
             Ethereum_Query.encodeFunction({
               method: routerAbi("exactOutputSingle"),
               args: [paramsToJsonString(exactOutputSingleParams)],
-            })
+            }).unwrap()
           );
         }
       } else {
@@ -253,7 +253,7 @@ export function swapCallParameters(
             Ethereum_Query.encodeFunction({
               method: routerAbi("exactInput"),
               args: [paramsToJsonString(exactInputParams)],
-            })
+            }).unwrap()
           );
         } else {
           const exactOutputParams: ExactOutputParams = {
@@ -268,7 +268,7 @@ export function swapCallParameters(
             Ethereum_Query.encodeFunction({
               method: routerAbi("exactOutput"),
               args: [paramsToJsonString(exactOutputParams)],
-            })
+            }).unwrap()
           );
         }
       }

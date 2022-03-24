@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   Ethereum_Query,
-  EthersSolidity_Query,
   FeeOptions,
   Input_encodeMulticall,
   Input_encodePermit,
@@ -81,10 +80,10 @@ export function encodeRouteToPath(input: Input_encodeRouteToPath): string {
     finalStep.path.reverse();
   }
 
-  return EthersSolidity_Query.pack({
+  return Ethereum_Query.solidityPack({
     types: finalStep.types,
     values: finalStep.path,
-  });
+  }).unwrap();
 }
 
 export function encodePermit(input: Input_encodePermit): string {
@@ -103,7 +102,7 @@ export function encodePermit(input: Input_encodePermit): string {
           options.r,
           options.s,
         ],
-      })
+      }).unwrap()
     : Ethereum_Query.encodeFunction({
         method: selfPermitAbi("selfPermit"),
         args: [
@@ -114,7 +113,7 @@ export function encodePermit(input: Input_encodePermit): string {
           options.r,
           options.s,
         ],
-      });
+      }).unwrap();
 }
 
 export function encodeUnwrapWETH9(input: Input_encodeUnwrapWETH9): string {
@@ -129,12 +128,12 @@ export function encodeUnwrapWETH9(input: Input_encodeUnwrapWETH9): string {
     return Ethereum_Query.encodeFunction({
       method: paymentsAbi("unwrapWETH9WithFee"),
       args: [toHex({ value: amountMinimum }), recipient, feeBips, feeRecipient],
-    });
+    }).unwrap();
   } else {
     return Ethereum_Query.encodeFunction({
       method: paymentsAbi("unwrapWETH9"),
       args: [toHex({ value: amountMinimum }), recipient],
-    });
+    }).unwrap();
   }
 }
 
@@ -157,12 +156,12 @@ export function encodeSweepToken(input: Input_encodeSweepToken): string {
         feeBips,
         feeRecipient,
       ],
-    });
+    }).unwrap();
   } else {
     return Ethereum_Query.encodeFunction({
       method: paymentsAbi("sweepToken"),
       args: [token.address, toHex({ value: amountMinimum }), recipient],
-    });
+    }).unwrap();
   }
 }
 
@@ -170,7 +169,7 @@ export function encodeRefundETH(): string {
   return Ethereum_Query.encodeFunction({
     method: paymentsAbi("refundETH"),
     args: null,
-  });
+  }).unwrap();
 }
 
 export function encodeMulticall(input: Input_encodeMulticall): string {
@@ -181,7 +180,7 @@ export function encodeMulticall(input: Input_encodeMulticall): string {
         method:
           "function multicall(bytes[] calldata data) external payable returns (bytes[] memory results)",
         args: ['["' + calldatas.join('", "') + '"]'],
-      });
+      }).unwrap();
 }
 
 function selfPermitAbi(methodName: string): string {
