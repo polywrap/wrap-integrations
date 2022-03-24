@@ -144,3 +144,27 @@ jobs:
       - name: (Uniswap V3 Wrapper) Test
         run: yarn test
     #
+
+    # Tezos
+      - name: (Tezos Test Env Wrapper) Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: tezos-nvm
+        working-directory: ./tezos/wrapper
+
+      - name: (Tezos) Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: '${{ steps.tezos-nvm.outputs.NVMRC }}'
+        working-directory: ./tezos/test-env
+
+      - name: (Tezos) Install dependencies
+        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+        working-directory: ./tezos/test-env
+
+      - name: (Tezoz) Build
+        run: yarn
+        working-directory: ./tezos/test-env
+
+      - name: (Tezos) Test
+        run: npm run test:env:up
+    #
