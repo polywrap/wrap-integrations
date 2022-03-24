@@ -6,7 +6,7 @@ enum Network {
   mainnet
 }
 
-""" Custom connection """
+""" Describes custom connection """
 type CustomConnection {
   """ Connection """
   connection: Tezos_Connection!
@@ -14,53 +14,77 @@ type CustomConnection {
   contractAddress: String!
 }
 
-"""  """
-type GetBalanceResponse {
+""" Describes balance of owner """
+type TokenBalance {
+  """ Address of owner """
   owner: String!
-  token_id: String! 
+  """ Token id """
+  tokenId: String!
+  """ Balance """ 
   balance: String!
 }
 
-type GetTokenMetadataResponse {
-  token_id: String! 
-  ipfs_hash: String!
+""" Describes token metadata """
+type TokenMetadata {
+  """ Id of token """
+  tokenId: String! 
+  """ Ipfs hash for uploaded metadata file """ 
+  ipfsHash: String!
 }
 
-type GetTokenCountResponse {
-  tokenCount: String! 
-}
-
-type GetSwapsResponse {
+""" SwapData """
+type SwapData {
+  """ Address of creator """
   creator: String! 
+  """ Address of issuer """
   issuer: String!
-  objkt_amount: String!
-  objkt_id: String!
+  """ Amount of objkt """
+  objktAmount: String!
+  """ Id of objkt """
+  objktId: String!
+  """ Royalties to be paid to issuer """
   royalties: String!
 }
 
 type Query {
+  """ Read the number of NFTs of a specific token id owned by an address """
   getBalanceOf(
+    """ Network to query """
     network: Network!
+    """ Address of owner """
     owner: String! 
-    token_id: String! 
+    """ Token id  """
+    tokenId: String!
+    """ CustomConnection """ 
     custom: CustomConnection
-  ): GetBalanceResponse!
+  ): TokenBalance!
 
+  """ Read the IPFS metadata hash for one or multiple NFT """
   getTokenMetadata(
+    """ Network to query """
     network: Network!
-    token_id: String!
+    """ Token id """
+    tokenId: String!
+    """ CustomConnection """
     custom: CustomConnection
-  ): GetTokenMetadataResponse!
+  ): TokenMetadata!
 
+  """ Read number of NFTs minted """
   getTokenCountData(
+    """ Network to query """
     network: Network!
+    """ CustomConnection """
     custom: CustomConnection
-  ): GetTokenCountResponse!
+  ): String!
   
-  getSwapsData(
+  """ Read active sell offers """
+  getSwapData(
+    """ Network to query """
     network: Network!
-    swap_id: String!
+    """ Swap id """
+    swapId: String!
+    """ CustomConnection """
     custom: CustomConnection
-  ): GetSwapsResponse!
+  ): SwapData!
 }
 
