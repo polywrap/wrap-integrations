@@ -378,7 +378,7 @@ export class TezosPlugin extends Plugin {
   public async getContractStorage(input: Query.Input_getContractStorage): Promise<string> {
     const connection = await this.getConnection(input.connection);
     const contract = await connection.getProvider().contract.at(input.address);
-    const regex = /(\[[,a-zA-Z.0-9\s"]+\])|([a-zA-Z0-9]+)|([0-9]+)/g
+    const regex = /(\[[_,a-zA-Z.0-9\s"]+\])|([_a-zA-Z0-9]+)|([0-9]+)/g
     let storage = await contract.storage();
     let key = input.key.replaceAll("'", '"');
     const keys = key.match(regex) || [];
