@@ -1,4 +1,4 @@
-# Ethereum chain supported by the wrapper
+"""Ethereum chain supported by the wrapper"""
 enum ChainId {
   MAINNET
   ROPSTEN
@@ -11,7 +11,7 @@ enum ChainId {
   ARBITRUM_ONE_RINKEBY
 }
 
-# Pool swap fee amount
+"""Pool swap fee amount"""
 enum FeeAmount {
   LOWEST
   LOW
@@ -19,13 +19,13 @@ enum FeeAmount {
   HIGH
 }
 
-# Type of trade, either exact input or exact output
+"""Type of trade, either exact input or exact output"""
 enum TradeType {
   EXACT_INPUT
   EXACT_OUTPUT
 }
 
-# valid v value of Permit
+"""Valid v value of Permit"""
 enum PermitV {
   v_0
   v_1
@@ -33,111 +33,166 @@ enum PermitV {
   v_28
 }
 
-# ERC20-compliant token or Ether
+"""ERC20-compliant token or Ether"""
 type Token {
-  chainId: ChainId! # Id of chain where token exists
-  address: String! # Address of token's ERC20 contract
-  currency: Currency! # Token description
+  """Id of chain where token exists"""
+  chainId: ChainId!
+  """Address of token's ERC20 contract"""
+  address: String!
+  """Token description"""
+  currency: Currency!
 }
 
-# Describes a token
+"""Describes a token"""
 type Currency {
-  decimals: UInt8! # Token decimals; i.e. how many on-chain units of a token are used to represent one full token
-  symbol: String # Token symbol
-  name: String # Token name
+  """Token decimals"""
+  decimals: UInt8!
+  """Token symbol"""
+  symbol: String
+  """Token name"""
+  name: String
 }
 
-# Represents price of a token in terms of another token. When used as a function argument, the 'price' property is ignored.
+"""Represents price of a token in terms of another token. When used as a function argument, the 'price' property is ignored."""
 type Price {
-  baseToken: Token! # The base token of the price
-  quoteToken: Token! # The quote token of the price
-  denominator: BigInt! # Amount of base token used to calculate price
-  numerator: BigInt! # Amount of quote token used to calculate price
-  price: String! # A decimal string representation of the price
+  """The base token of the price"""
+  baseToken: Token!
+  """The quote token of the price"""
+  quoteToken: Token!
+  """Amount of base token used to calculate price"""
+  denominator: BigInt!
+  """Amount of quote token used to calculate price"""
+  numerator: BigInt!
+  """A decimal string representation of the price"""
+  price: String!
 }
 
-# Represents fraction, typically a percent.
+"""Represents fraction, typically a percent."""
 type Fraction {
-  numerator: BigInt! # Numerator of fraction
-  denominator: BigInt! # Denominator of fraction
-  quotient: String! # A decimal string representation of the fraction
+  """Numerator of fraction"""
+  numerator: BigInt!
+  """Denominator of fraction"""
+  denominator: BigInt!
+  """A decimal string representation of the fraction"""
+  quotient: String!
 }
 
-# An amount of a token
+"""An amount of a token"""
 type TokenAmount {
-  token: Token! # Token
-  amount: BigInt! # Amount of the token
+  """Token"""
+  token: Token!
+  """Raw amount of the token, not adjusted for the token's decimals"""
+  amount: BigInt!
 }
 
-# A pool tick marks a section of the price curve. A liquidity provider may hold a position on a tick, rather than the full curve.
+"""A pool tick marks a section of the price curve. A liquidity provider may hold a position on a tick, rather than the full curve."""
 type Tick {
-  index: Int32! # Tick index
-  liquidityGross: BigInt! # Gross liquidity in Pool at tick position
-  liquidityNet: BigInt! # Net liquidity in Pool at tick position
+  """Tick index"""
+  index: Int32!
+  """Gross liquidity in Pool at tick position"""
+  liquidityGross: BigInt!
+  """Net liquidity in Pool at tick position"""
+  liquidityNet: BigInt!
 }
 
-# A liquidity pool involving two tokens which can be exchanged for a price determined by a price curve and market dynamics
+"""A liquidity pool involving two tokens which can be exchanged for a price determined by a price curve and market dynamics"""
 type Pool {
-  token0: Token! # The first token of the pool
-  token1: Token! # The second token of the pool
-  fee: FeeAmount! # The fee amount liquidity providers receive as a share of swaps made in the pool
-  sqrtRatioX96: BigInt! # An encoded representation of the current swap price
-  liquidity: BigInt! # The total liquidity available in the pool
-  tickCurrent: Int32! # The current tick
-  tickDataProvider: [Tick!]! # A list of all ticks in the pool
-  token0Price: Price! # The current mid price of the pool in terms of token0, i.e. the ratio of token1 over token0
-  token1Price: Price! # The current mid price of the pool in terms of token1, i.e. the ratio of token0 over token1
+  """The first token of the pool"""
+  token0: Token!
+  """The second token of the pool"""
+  token1: Token!
+  """The fee amount liquidity providers receive as a share of swaps made in the pool"""
+  fee: FeeAmount!
+  """An encoded representation of the current swap price"""
+  sqrtRatioX96: BigInt!
+  """The total liquidity available in the pool"""
+  liquidity: BigInt!
+  """The current tick"""
+  tickCurrent: Int32!
+  """A list of all ticks in the pool"""
+  tickDataProvider: [Tick!]!
+  """The current mid price of the pool in terms of token0, i.e. the ratio of token1 over token0"""
+  token0Price: Price!
+  """The current mid price of the pool in terms of token1, i.e. the ratio of token0 over token1"""
+  token1Price: Price!
 }
 
-# An ordered path of pools through which a swap can occur
+"""An ordered path of pools through which a swap can occur"""
 type Route {
-  pools: [Pool!]! # A list of pools, wherein each pool in the list has a token in common with its adjacent pool(s)
-  path: [Token!]! # The path of tokens that are swapped through the pools
-  input: Token! # The input token, where the route begins
-  output: Token! # The output token, where the route ends
-  midPrice: Price! # The mid price of the output token, in terms of the input token, for this route
+  """A list of pools, wherein each pool in the list has a token in common with its adjacent pool(s)"""
+  pools: [Pool!]!
+  """The path of tokens that are swapped through the pools"""
+  path: [Token!]!
+  """The input token, where the route begins"""
+  input: Token!
+  """The output token, where the route ends"""
+  output: Token!
+  """The mid price of the output token, in terms of the input token, for this route"""
+  midPrice: Price!
 }
 
-# Options used when determining the best trade in bestTradeExactIn(...) and bestTradeExactOut(...)
+"""Options used when determining the best trade in bestTradeExactIn(...) and bestTradeExactOut(...)"""
 type BestTradeOptions {
-  maxNumResults: UInt32 # Maximum number of results to return
-  maxHops: UInt32 # Maximum number of hops a returned trade can make, e.g. 1 hop goes through a single pool
+  """Maximum number of results to return"""
+  maxNumResults: UInt32
+  """Maximum number of hops a returned trade can make, e.g. 1 hop goes through a single pool"""
+  maxHops: UInt32
 }
 
-# A route, input, and output amount that compose the core elements of a trade
+"""A route, input, and output amount that compose the core elements of a trade"""
 type TradeSwap {
-  route: Route! # The route of the trade
-  inputAmount: TokenAmount! # The amount being passed in
-  outputAmount: TokenAmount! # The amount returned by the trade when executed
+  """The route of the trade"""
+  route: Route!
+  """The amount being passed in"""
+  inputAmount: TokenAmount!
+  """The amount returned by the trade when executed"""
+  outputAmount: TokenAmount!
 }
 
-# A trade contains the information necessary to create an on-chain exchange of tokens
+"""A trade contains the information necessary to create an on-chain exchange of tokens"""
 type Trade {
-  swaps: [TradeSwap!]! # A list of swaps to be executed atomically, all of which must have the same input and output tokens
-  tradeType: TradeType! # Type of trade, either exact input or exact output
-  inputAmount: TokenAmount! # The total input amount (sum of input amounts in swaps)
-  outputAmount: TokenAmount! # The total output amount (sum of output amounts in swaps)
-  executionPrice: Price! # The price of the trade, in terms of the input token
-  priceImpact: Fraction! # The percent difference between the route's mid price and the price impact
+  """A list of swaps to be executed atomically, all of which must have the same input and output tokens"""
+  swaps: [TradeSwap!]!
+  """Type of trade, either exact input or exact output"""
+  tradeType: TradeType!
+  """The total input amount (sum of input amounts in swaps)"""
+  inputAmount: TokenAmount!
+  """The total output amount (sum of output amounts in swaps)"""
+  outputAmount: TokenAmount!
+  """The price of the trade, in terms of the input token"""
+  executionPrice: Price!
+  """The percent difference between the route's mid price and the price impact"""
+  priceImpact: Fraction!
 }
 
-# The minimum amounts that must be sent in order to mint the amount of liquidity held by the position at the current price for the pool
+"""The minimum amounts that must be sent in order to mint the amount of liquidity held by the position at the current price for the pool"""
 type MintAmounts {
-  amount0: BigInt! # Amount of the first token in the pool
-  amount1: BigInt! # Amount of the second token in the pool
+  """Amount of the first token in the pool"""
+  amount0: BigInt!
+  """Amount of the second token in the pool"""
+  amount1: BigInt!
 }
 
-# A liquidity position between two ticks in a pool
+"""A liquidity position between two ticks in a pool"""
 type Position {
-  pool: Pool! # The pool on which the position is held
-  tickLower: Int32! # The lower tick, marking the lower boundary of the position
-  tickUpper: Int32! # The upper tick, marking the upper boundary of the position
-  liquidity: BigInt! # The maximum amount of liquidity received for a given amount of token0, token1, and the prices at the tick boundaries
-  token0Amount: TokenAmount! # The amount in this position of the first token of the pool
-  token1Amount: TokenAmount! # The amount in this position of the second token of the pool
-  mintAmounts: MintAmounts! # The minimum amounts that must be sent in order to mint the amount of liquidity held by the position at the current price for the pool
-  token0PriceLower: Price! # The price of token0 at the lower tick
-  token0PriceUpper: Price! # The price of token0 at the upper tick
+  """The pool on which the position is held"""
+  pool: Pool!
+  """The lower tick, marking the lower boundary of the position"""
+  tickLower: Int32!
+  """The upper tick, marking the upper boundary of the position"""
+  tickUpper: Int32!
+  """The maximum amount of liquidity received for a given amount of token0, token1, and the prices at the tick boundaries"""
+  liquidity: BigInt!
+  """The amount in this position of the first token of the pool"""
+  token0Amount: TokenAmount!
+  """The amount in this position of the second token of the pool"""
+  token1Amount: TokenAmount!
+  """The minimum amounts that must be sent in order to mint the amount of liquidity held by the position at the current price for the pool"""
+  mintAmounts: MintAmounts!
+  """The price of token0 at the lower tick"""
+  token0PriceLower: Price!
+  """The price of token0 at the upper tick"""
+  token0PriceUpper: Price!
 }
 
 #type StandardPermitArguments {
@@ -157,7 +212,7 @@ type Position {
 #}
 
 # TODO: Use a union type once union type support is merged
-# Parameters for a permit allowing the transfer of tokens. Either amount and deadline OR nonce and expiry are required.
+"""Parameters for a permit allowing the transfer of tokens. Either amount and deadline OR nonce and expiry are required."""
 type PermitOptions {
   v: PermitV!
   r: String!
@@ -168,24 +223,34 @@ type PermitOptions {
   expiry: BigInt
 }
 
-# Fee configuration for encodeUnwrapWETH9(...) and encodeSweepToken(...)
+"""Fee configuration for encodeUnwrapWETH9(...) and encodeSweepToken(...)"""
 type FeeOptions {
-  fee: String! # The percent of the output that will be taken as a fee.
-  recipient: String! # The recipient of the fee.
+  """The percent of the output that will be taken as a fee."""
+  fee: String!
+  """The recipient of the fee."""
+  recipient: String!
 }
 
-# Configuration for creating swap transaction calldata using swapCallParameters(...)
+"""Configuration for creating swap transaction calldata using swapCallParameters(...)"""
 type SwapOptions {
-  slippageTolerance: String! # How much the execution price is allowed to move unfavorably from the trade execution price.
-  recipient: String! # The account that should receive the output.
-  deadline: BigInt! # When the transaction expires, in epoch seconds.
-  inputTokenPermit: PermitOptions # The optional permit parameters for spending the input.
-  sqrtPriceLimitX96: BigInt # The optional price limit for the trade.
-  fee: FeeOptions # Optional information for taking a fee on output.
+  """How much the execution price is allowed to move unfavorably from the trade execution price."""
+  slippageTolerance: String!
+  """The account that should receive the output."""
+  recipient: String!
+  """When the transaction expires, in epoch seconds."""
+  deadline: BigInt!
+  """The optional permit parameters for spending the input."""
+  inputTokenPermit: PermitOptions
+  """The optional price limit for the trade."""
+  sqrtPriceLimitX96: BigInt
+  """Optional information for taking a fee on output."""
+  fee: FeeOptions
 }
 
-# Transaction calldata and an ether value to be sent with the transaction
+"""Transaction calldata and an ether value to be sent with the transaction"""
 type MethodParameters {
-  calldata: String! # The hex encoded calldata to perform the given operation
-  value: String! # The amount of ether (wei) to send in hex.
+  """The hex encoded calldata to perform the given operation"""
+  calldata: String!
+  """The amount of ether (wei) to send in hex."""
+  value: String!
 }

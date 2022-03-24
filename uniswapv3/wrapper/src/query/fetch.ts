@@ -36,21 +36,21 @@ export function fetchToken(input: Input_fetchToken): Token {
       node: null,
       networkNameOrChainId: getChainIdKey(chainId),
     },
-  });
+  }).unwrap();
   const name: string = ERC20_Query.name({
     address: address,
     connection: {
       node: null,
       networkNameOrChainId: getChainIdKey(chainId),
     },
-  });
+  }).unwrap();
   const decimals: i32 = ERC20_Query.decimals({
     address: address,
     connection: {
       node: null,
       networkNameOrChainId: getChainIdKey(chainId),
     },
-  });
+  }).unwrap();
   return {
     chainId: chainId,
     address: address,
