@@ -48,6 +48,7 @@
     "solc": "0.8.3",
     "ts-jest": "26.5.6",
     "ts-node": "8.10.2",
-    "typescript": "4.0.7"
+    "typescript": "4.0.7",
+    "@nerfzael/wrappers": "^0.2.2"
   }
 }
