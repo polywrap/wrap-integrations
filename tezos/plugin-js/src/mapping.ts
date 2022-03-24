@@ -2,7 +2,6 @@
 import {
   TxOperation,
   OperationError,
-  TxOperationEntry,
   Estimate,
   RevealParams,
   SendParams,
@@ -11,7 +10,6 @@ import {
   TransferConfirmation,
   Block,
   OriginationOperation,
-  OperationContentEntry,
   OperationStatus,
   TransferParams
 } from "./w3";
@@ -243,17 +241,6 @@ export const fromTxOperation = (
     (undefined as unknown) as taquito.Context
   );
 
-export const toTxOperationEntry = (
-  receipt: taquitoRpc.OperationEntry
-): TxOperationEntry => ({
-  branch: receipt.branch,
-  chainId: receipt.chain_id,
-  hash: receipt.hash,
-  protocol: receipt.protocol,
-  signature: receipt.signature,
-  contents: receipt.contents.map(toOperationContentEntry),
-});
-
 export const toRPCTransferOperation = (
   receipt: TxOperation
 ): taquito.RPCTransferOperation => ({
@@ -280,8 +267,3 @@ export const fromOperationError = (
   kind: error.kind,
 });
 
-export const toOperationContentEntry = (
-  content: taquitoRpc.OperationContentsAndResult | taquitoRpc.OperationContents
-): OperationContentEntry => ({
-  kind: content.kind,
-});
