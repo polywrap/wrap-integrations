@@ -243,7 +243,7 @@ type TxOperation {
   amount: BigInt
   """ Gas consumed """
   consumedGas: BigInt
-  """ """
+  """ Transaction destination """
   destination: String!
   """ Error transaction """
   errors: [OperationError!]
