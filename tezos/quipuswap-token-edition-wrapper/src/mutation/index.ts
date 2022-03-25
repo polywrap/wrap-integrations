@@ -78,10 +78,13 @@ export function divest(input: Input_divest): Tezos_TransferParams {
 
 export function transfer(input: Input_transfer): Tezos_TransferParams {
   const address = getConnection(input.network,  input.custom);
+  const owner = Tezos_Query.getWalletPKH({
+    connection: address.connection,
+  });
   return Tezos_Query.getContractCallTransferParams({
     address: address.contractAddress,
     method: "transfer",
-    args: generateTransferArg(address.contractAddress, input.params.to, input.params.tokenId, input.params.amount),
+    args: generateTransferArg(owner, input.params.to, input.params.tokenId, input.params.amount),
     params: input.sendParams,
     connection: address.connection
   });
