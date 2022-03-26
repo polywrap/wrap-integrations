@@ -16,3 +16,4 @@ Each project below is a different Polywrap wrapper (API) or plugin implementatio
 | [Tezos Domains Wrapper](./tezos/tezos-domains-wrapper/wrapper)     | Complete | To be deployed.    |
 | [Tezos Harbinger Wrapper](./tezos/harbinger/wrapper)       | Complete | To be deployed.    |
 | [Tezos Hicetnunc Wrapper](./tezos/hicetnunc/wrapper)       | Complete | To be deployed.    |
+| [Tezos QuipuSwap Wrapper](./tezos/quipuswap/wrapper)       | Complete | To be deployed.    |

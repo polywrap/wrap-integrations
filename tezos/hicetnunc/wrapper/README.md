@@ -1,10 +1,7 @@
-# TODO
+# Tezos Hicetnunc Wrapper
 
+Tezos Polywrapper for Hic et Nunc.
 
-yarn 
+[Hicetnunc](https://github.com/hicetnunc2000/hicetnunc) is an NFT marketplace on Tezos.
 
-yarn link @web3api/tezos-test-env
-
-yarn link @web3api/tezos-plugin-js
-
-yarn build
+Documentation: https://blockwatch.gitbook.io/polywrap-tezos/using-polywrap/hic-et-nunc-wrapper

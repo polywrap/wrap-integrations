@@ -1,12 +1,9 @@
-# TODO
+# Tezos Harbinger Wrapper
 
+Tezos Polywrapper for Harbinger.
 
-Remove this line "@web3api/tezos-plugin-js": "0.0.1-prealpha.61" from package.json
+[Harbinger](https://github.com/tacoinfra/harbinger) is an on-chain oracle on tezos that provides a signed price feed for digital assets. 
 
-yarn 
+Documentation: https://blockwatch.gitbook.io/polywrap-tezos/using-polywrap/harbinger-wrapper
 
-yarn link @web3api/tezos-test-env
-
-yarn link @web3api/tezos-plugin-js
-
-yarn build
+Demo: https://blockwatch-cc.github.io/polywrap-tezos-demo/harbinger
