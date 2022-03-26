@@ -12,7 +12,7 @@ Each project below is a different Polywrap wrapper (API) or plugin implementatio
 | [Uniswap V2 dApp](./uniswapv2)               | Complete | Live: [dApp](https://demo.uniswap.polywrap.io/)                            |
 | [Near Wrapper (limited)](./near/wrapper)     | Complete | NPM: [near-polywrap-js](https://www.npmjs.com/package/near-polywrap-js)    |
 | [Near JS Plugin (limited)](./near/plugin-js) | Complete | Not deployed. See the [full Near wrapper specification](near/Near%20Polywrapper%20Specification.md) |
-| [Tezos Core Plugin](./tezos/plugin-js)     		   | WIP | WIP    |
-| [Tezos Domains Wrapper](./tezos/tezos-domains)     | WIP | WIP    |
-| [Tezos Harbinger Wrapper](./tezos/harbinger)       | WIP | WIP    |
-| [Tezos Hicetnunc Wrapper](./tezos/hicetnunc)       | WIP | WIP    |
+| [Tezos Core Plugin](./tezos/plugin-js)     		   | Complete | To be deployed.    |
+| [Tezos Domains Wrapper](./tezos/tezos-domains-wrapper/wrapper)     | Complete | To be deployed.    |
+| [Tezos Harbinger Wrapper](./tezos/harbinger/wrapper)       | Complete | To be deployed.    |
+| [Tezos Hicetnunc Wrapper](./tezos/hicetnunc/wrapper)       | Complete | To be deployed.    |
