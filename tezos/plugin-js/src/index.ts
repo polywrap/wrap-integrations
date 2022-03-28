@@ -94,9 +94,8 @@ export class TezosPlugin extends Plugin {
   ): Promise<Types.CallContractMethodConfirmationResponse> {
     const res = await this._callContractMethod(input);
     const initialConfirmation = input.confirmations ? input.confirmations : 0;
-    const interval = input.interval ? input.interval : 10;
     const timeout = input.timeout ? input.timeout : 180;
-    const finalConfirmation = await res.confirmation(initialConfirmation, interval, timeout);
+    const finalConfirmation = await res.confirmation(initialConfirmation, timeout);
     return {
       confirmation: finalConfirmation,
       operation: Mapping.toTxOperation(res),
@@ -179,11 +178,9 @@ export class TezosPlugin extends Plugin {
     const initialConfirmation = input.confirmations
       ? input.confirmations
       : 0;
-    const interval = input.interval ? input.interval : 10;
     const timeout = input.timeout ? input.timeout : 180;
     const finalConfirmation = await originationOperation.confirmation(
       initialConfirmation,
-      interval,
       timeout
     );
     return {
@@ -515,10 +512,9 @@ export class TezosPlugin extends Plugin {
   private async _callContractView(
     input: Query.Input_callContractView
   ): Promise<any> {
-    const lambaAddress = input.lambaAddress ? input.lambaAddress : undefined;
     const connection = await this.getConnection(input.connection);
     const contract = await connection.getContract(input.address);
-    return contract.views[input.view](...this.parseArgs(input.args)).read(lambaAddress);
+    return contract.views[input.view](...this.parseArgs(input.args)).read();
   }
 
   private stringify(output: any): string {

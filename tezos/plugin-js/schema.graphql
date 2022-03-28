@@ -397,8 +397,6 @@ type Query {
     address: String!
     """ Handler """
     view: String!
-    """ lambda address """
-    lambaAddress: String
     """ Arguments """
     args: String
     """ Connection """
@@ -497,8 +495,6 @@ type Mutation {
     params: SendParams
     """ Confirmations to wait for """
     confirmations: UInt32!
-    """ Interval to check for confirmation """
-    interval: UInt32
     """ Timeout to wait for confirmation """
     timeout: UInt32
   ): CallContractMethodConfirmationResponse!
@@ -545,8 +541,6 @@ type Mutation {
     params: OriginateParams!
     """ Confirmations to wait for """
     confirmations: UInt32!
-    """ Interval to check for confirmation """
-    interval: UInt32
     """ Timeout to wait for confirmation """
     timeout: UInt32
   ): OriginationConfirmationResponse!
