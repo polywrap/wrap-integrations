@@ -273,13 +273,13 @@ type Connection {
 
 """ Describes a signed message """
 type SignResult {
-  """ Message"""
+  """ Input Bytes"""
   bytes: String!
-  """ Signature """
+  """ 'sig' prefixed signature """
   sig: String!
-  """ Prefix signature """
+  """ 'edsig' prefixed signature """
   prefixSig: String!
-  """ Signed message """
+  """ raw bytes of the signature """
   sbytes: String!
 }
 
