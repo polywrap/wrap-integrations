@@ -100,33 +100,33 @@ describe("Tezos Plugin", () => {
             }
           `,
           variables: {
-            expression: {
-              prim: 'pair',
-              args: [
+            expression: `{
+              "prim": "pair",
+              "args": [
                   {
-                      prim: 'pair',
-                      args: [
+                      "prim": "pair",
+                      "args": [
                           {
-                              annots: ['%label'],
-                              prim: 'bytes',
+                              "annots": ["%label"],
+                              "prim": "bytes"
                           },
                           {
-                              annots: ['%owner'],
-                              prim: 'address',
-                          },
-                      ],
+                              "annots": ["%owner"],
+                              "prim": "address"
+                          }
+                      ]
                   },
                   {
-                      annots: ['%nonce'],
-                      prim: 'nat',
+                      "annots": ["%nonce"],
+                      "prim": "nat"
                   }
-              ],
-            },
-            value: {
-              label: '636f6d6d6974', 
-              owner: 'tz1VxMudmADssPp6FPDGRsvJXE41DD6i9g6n', 
-              nonce: 491919002 
-            },
+              ]
+            }`,
+            value: `{
+              "label": "636f6d6d6974", 
+              "owner": "tz1VxMudmADssPp6FPDGRsvJXE41DD6i9g6n", 
+              "nonce": 491919002 
+            }`,
           }
         })
 
@@ -712,7 +712,6 @@ describe("Tezos Plugin", () => {
                 method: $method,
                 args: $args,
                 confirmations: $confirmations,
-                interval: $interval,
                 timeout: $timeout
               )
             }
@@ -722,7 +721,6 @@ describe("Tezos Plugin", () => {
             method: "increment",
             args: JSON.stringify([2]),
             confirmations: 1,
-            interval: 10,
             timeout: 200
           }
         })
@@ -920,7 +918,6 @@ describe("Tezos Plugin", () => {
               originateAndConfirm(
                 params: $params,
                 confirmations: $confirmations,
-                interval: $interval,
                 timeout: $timeout
               )
             }
@@ -960,7 +957,6 @@ describe("Tezos Plugin", () => {
               init: `0`,
             },
             confirmations: 1,
-            interval: 10,
             timeout: 200
           }
         })
