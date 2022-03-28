@@ -1,9 +1,5 @@
-# TEZOS-TEST-ENV
-A tezos node sandbox for running test.
+# Tezos Test Env
 
-yarn
+Tezos Test Environment for testing Polywrappers.
 
-npm run test:env:up
-
-yarn link
--> @web3api/tezos-test-env
+Documentation: https://blockwatch.gitbook.io/polywrap-tezos/creating-wrappers/test-environment

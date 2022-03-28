@@ -1,10 +1,5 @@
-TODO
+# Tezos Plugin JS
 
-yarn
+Tezos Plugin JS is the core for writing Polywrappers on the Tezos blockchain. It contains the core queries and mutations.
 
-yarn link @web3api/tezos-test-env
-
-yarn link 
--> @web3api/tezos-plugin-js
-
-yarn build
+Documentation: https://blockwatch.gitbook.io/polywrap-tezos/using-polywrap/plugin-js
