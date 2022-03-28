@@ -1,0 +1,11 @@
+[
+  {
+    "api": "ens/testnet/httpdemo.eth",
+    "constants": "./constants.json"
+  },
+  {
+    "query": "./get.graphql",
+    "variables": {
+    }
+  }
+]
