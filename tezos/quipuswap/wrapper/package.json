@@ -1,5 +1,5 @@
 {
-  "name": "@web3api/quipuswa-token-edition-wrapper",
+  "name": "@web3api/quipuswap-wrapper",
   "description": "Polywrap Quipuswap Wrapper",
   "private": true,
   "version": "0.0.1-prealpha.61",
