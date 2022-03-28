@@ -1,0 +1,5 @@
+#import { Query, Request, Header, UrlParam, Response, } into Http from "w3://ens/http.web3api.eth"
+
+type Query {
+  testHttpPlugin: String
+}

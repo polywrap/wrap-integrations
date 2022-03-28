@@ -1,5 +1,5 @@
 # Demo wrapper using http plugin
-A simple wrapper that uses web3's http plugin to contact external websites. 
+A simple wrapper that uses Polywrap's http plugin to contact external websites. 
 
 # How To Run
 

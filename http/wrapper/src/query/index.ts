@@ -1,18 +1,15 @@
-import { JSON, Result } from "@web3api/wasm-as";
+import { JSON } from "@web3api/wasm-as";
 import {
-  Http_Header,
-  Http_Query,  
-  Http_Request,
-  Http_ResponseType,
-  Http_UrlParam
+  Http_Query,
+  Http_ResponseType
 } from "./w3";
 
-export function doOperation(): string {
-  // const photoUrl:string =  fetchPhotoUrl();
-  // const photoContent:string = fetchPhotoContent(photoUrl);
-  const newPostResponse:string = createNewPost();
-  return newPostResponse;
+export function testHttpPlugin(): string {
+  const photoUrl =  fetchPhotoUrl();
+  const photoContent = fetchPhotoContent(photoUrl);
+  const newPost = createNewPost();
 
+  return `createNewPost: ${newPost} fetchPhotoUrl: ${photoUrl} fetchPhotoContent: ${photoContent}`;
 }
 
 /**
@@ -67,7 +64,7 @@ function createNewPost() : string {
   const body = obj.getString("body")!.valueOf();
   const id = obj.getInteger("id")!.valueOf().toString();
 
-  return `createNewPost: { title: "${title}", body: "${body}", id: ${id}}`;
+  return `{ title: "${title}", body: "${body}", id: ${id}}`;
 }
 
 /**
@@ -93,10 +90,7 @@ function fetchPhotoContent(photoUrl: string) : string {
   }).unwrap();
 
   // Binary response is base64 encoded and represented in this string. 
-  const photoContent = response!.body!;
-  // const photoBuffer:Buffer = Buffer.from(photoContent, 'base64');
-
-  return photoContent.toString();
+  return response!.body!;
 }
 
 /**

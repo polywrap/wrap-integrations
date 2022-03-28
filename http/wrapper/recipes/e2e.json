@@ -1,0 +1,8 @@
+[
+  {
+    "api": "ens/testnet/httpdemo.eth"
+  },
+  {
+    "query": "./testHttpPlugin.graphql"
+  }
+]
