@@ -1,12 +1,15 @@
 {
-  "name": "@web3api/tezos-test-env",
+  "name": "@blockwatch-cc/tezos-test-env",
   "version": "0.0.1-prealpha.61",
   "description": "Web3Api tezos test environment",
   "main": "index.js",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/web3-api/monorepo.git"
+    "url": "https://github.com/blockwatch-cc/poly.git"
+  },
+  "publishConfig": {
+    "registry":"https://npm.pkg.github.com"
   },
   "scripts": {
     "test:env:up": "node script.js up",

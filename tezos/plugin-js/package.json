@@ -1,11 +1,14 @@
 {
-  "name": "@web3api/tezos-plugin-js",
+  "name": "@blockwatch-cc/tezos-plugin-js",
   "description": "Web3API Tezos Javascript Plugin",
   "version": "0.0.1-prealpha.61",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/web3-api/monorepo.git"
+    "url": "https://github.com/blockwatch-cc/poly.git"
+  },
+  "publishConfig": {
+    "registry":"https://npm.pkg.github.com"
   },
   "main": "build/index.js",
   "files": [
