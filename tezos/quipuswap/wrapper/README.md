@@ -1,7 +1,7 @@
-# Tezos Quipuswap Wrapper
+# Tezos QuipuSwap Wrapper
 
-Tezos Polywrapper for Quipuswap.
+Tezos Polywrapper for QuipuSwap.
 
-[Quipuswap](https://quipuswap.com) is a decentralized cryto exchange for tokens on the Tezos blockchain.
+[QuipuSwap](https://quipuswap.com) is a decentralized exchange on Tezos.
 
 Documentation: https://blockwatch.gitbook.io/polywrap-tezos/using-polywrap/quipuswap-wrapper
