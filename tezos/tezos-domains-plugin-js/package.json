@@ -5,10 +5,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/blockwatch-cc/poly.git"
-  },
-  "publishConfig": {
-    "registry":"https://npm.pkg.github.com"
+    "url": "https://github.com/blockwatch-cc/polywrap-tezos"
   },
   "main": "build/index.js",
   "files": [

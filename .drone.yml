@@ -57,9 +57,10 @@ steps:
 - name: npm
   image: plugins/npm
   settings:
-    username: blockwatch-cc
+    username: 3sky
     token:
       from_secret: npm_token
+    email: devops@blockwatch.cc
     folder: tezos/plugin-js
     registry: "https://npm.pkg.github.com"
 
@@ -79,9 +80,10 @@ steps:
 - name: npm
   image: plugins/npm
   settings:
-    username: blockwatch-cc
+    username: 3sky
     token:
       from_secret: npm_token
+    email: devops@blockwatch.cc
     folder: tezos/test-env
     registry: "https://npm.pkg.github.com"
 
@@ -101,8 +103,9 @@ steps:
 - name: npm
   image: plugins/npm
   settings:
-    username: blockwatch-cc
+    username: 3sky
     token:
       from_secret: npm_token
+    email: devops@blockwatch.cc
     folder: tezos/tezos-domains-plugin-js
     registry: "https://npm.pkg.github.com"
