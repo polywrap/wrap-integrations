@@ -54,7 +54,14 @@ trigger:
       - refs/tags/publish-tezos-plugin-js-**
 
 steps:
-- name: npm
+- name: yarn build
+  image: node:lts-alpine3.14
+  commands:
+    - cd tezos/plugin-js
+    - yarn install
+    - yarn build
+
+- name: npm publish
   image: plugins/npm
   settings:
     username: 3sky
@@ -62,7 +69,6 @@ steps:
       from_secret: npm_token
     email: devops@blockwatch.cc
     folder: tezos/plugin-js
-    registry: "https://npm.pkg.github.com"
 
 ---
 kind: pipeline
@@ -77,7 +83,13 @@ trigger:
       - refs/tags/publish-tezos-test-env-**
 
 steps:
-- name: npm
+- name: yarn build
+  image: node:lts-alpine3.14
+  commands:
+    - cd tezos/test-env
+    - yarn install
+
+- name: npm publish
   image: plugins/npm
   settings:
     username: 3sky
@@ -85,7 +97,6 @@ steps:
       from_secret: npm_token
     email: devops@blockwatch.cc
     folder: tezos/test-env
-    registry: "https://npm.pkg.github.com"
 
 ---
 kind: pipeline
@@ -100,7 +111,14 @@ trigger:
       - refs/tags/publish-tezos-domains-plugin-js-**
 
 steps:
-- name: npm
+- name: yarn build
+  image: node:lts-alpine3.14
+  commands:
+    - cd tezos/tezos-domains-plugin-js
+    - yarn install
+    - yarn build
+
+- name: npm publish
   image: plugins/npm
   settings:
     username: 3sky
@@ -108,4 +126,3 @@ steps:
       from_secret: npm_token
     email: devops@blockwatch.cc
     folder: tezos/tezos-domains-plugin-js
-    registry: "https://npm.pkg.github.com"

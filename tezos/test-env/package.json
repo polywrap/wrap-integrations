@@ -1,6 +1,6 @@
 {
   "name": "@blockwatch-cc/tezos-test-env",
-  "version": "0.0.1-prealpha.61",
+  "version": "0.0.1-prealpha.62",
   "description": "Web3Api tezos test environment",
   "main": "index.js",
   "license": "MIT",
