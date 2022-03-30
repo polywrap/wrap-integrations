@@ -1,6 +1,6 @@
 import { ensPlugin } from "@web3api/ens-plugin-js"
 import { ipfsPlugin } from "@web3api/ipfs-plugin-js"
-import { tezosPlugin, InMemorySigner, ConnectionConfigs } from "@web3api/tezos-plugin-js"
+import { tezosPlugin, InMemorySigner, ConnectionConfigs } from "@blockwatch-cc/tezos-plugin-js"
 import { ethereumPlugin  } from "@web3api/ethereum-plugin-js"
 import { PluginRegistration } from "@web3api/client-js"
 

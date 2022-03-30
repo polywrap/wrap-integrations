@@ -1,7 +1,7 @@
 import path from "path"
 import { Web3ApiClient } from "@web3api/client-js"
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js"
-import { InMemorySigner } from "@web3api/tezos-plugin-js"
+import { InMemorySigner } from "@blockwatch-cc/tezos-plugin-js"
 import add from "date-fns/add"
 
 import { Config } from "../config"

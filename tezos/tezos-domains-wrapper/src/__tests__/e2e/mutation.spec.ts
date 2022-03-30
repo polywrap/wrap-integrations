@@ -1,6 +1,6 @@
 import { randomInt} from 'crypto'
 import { Web3ApiClient, Subscription } from "@web3api/client-js"
-import { InMemorySigner } from "@web3api/tezos-plugin-js"
+import { InMemorySigner } from "@blockwatch-cc/tezos-plugin-js"
 import { initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js"
 
 import { Config } from "../config"

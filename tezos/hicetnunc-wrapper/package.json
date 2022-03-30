@@ -1,8 +1,9 @@
 {
-  "name": "templates-api-assemblyscript",
-  "description": "Web3API Assemblyscript Template",
+  "name": "@blockwatch/hicetnunc-wrapper",
+  "description": "Hicetnunc Polywrapper",
   "private": true,
-  "version": "0.0.1-prealpha.61",
+  "version": "0.0.1-prealpha.1",
+  "license": "MIT",
   "scripts": {
     "reset": "yarn clean && yarn build",
     "clean": "npx rimraf ./node_modules ./build ./coverage ./.w3 ./**/w3",
@@ -17,6 +18,7 @@
     "deploy:web3api": "npx w3 build --ipfs http://localhost:5001 --test-ens harbinger.web3api.eth"
   },
   "devDependencies": {
+    "@blockwatch-cc/tezos-plugin-js": "0.0.1-prealpha.62",
     "@types/jest": "27.4.0",
     "@types/node": "17.0.8",
     "@web3api/cli": "0.0.1-prealpha.61",
