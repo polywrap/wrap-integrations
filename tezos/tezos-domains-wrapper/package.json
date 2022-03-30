@@ -1,6 +1,6 @@
 {
   "name": "@blockwatch-cc/tezos-domains-wrapper",
-  "description": "Tezos domains polywrapper",
+  "description": "Tezos Domains Polywrapper",
   "private": true,
   "version": "0.0.1-prealpha.1",
   "scripts": {

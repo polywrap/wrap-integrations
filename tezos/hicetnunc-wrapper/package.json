@@ -1,6 +1,6 @@
 {
   "name": "@blockwatch/hicetnunc-wrapper",
-  "description": "Hicetnunc Polywrapper",
+  "description": "Tezos Hicetnunc Polywrapper",
   "private": true,
   "version": "0.0.1-prealpha.1",
   "license": "MIT",

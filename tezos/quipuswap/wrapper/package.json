@@ -1,6 +1,6 @@
 {
   "name": "@blockwatch-cc/quipuswap-wrapper",
-  "description": "Quipuswap Polywrapper",
+  "description": "Tezos Quipuswap Polywrapper",
   "private": true,
   "version": "0.0.1-prealpha.1",
   "license": "MIT",

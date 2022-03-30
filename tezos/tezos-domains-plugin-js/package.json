@@ -1,6 +1,6 @@
 {
   "name": "@blockwatch-cc/tezos-domains-plugin-js",
-  "description": "Tezos Domains Javascript Plugin",
+  "description": "Tezos Domains Polywrapper JS Plugin",
   "version": "0.0.1-prealpha.58",
   "license": "MIT",
   "repository": {
