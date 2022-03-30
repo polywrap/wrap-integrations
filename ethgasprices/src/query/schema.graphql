@@ -1,0 +1,23 @@
+#import { 
+  Query,
+  Request,
+  Header,
+  UrlParam,
+  Response,
+ } into Http from "w3://ens/http.web3api.eth"
+
+
+
+type HistoricalEthereumGasPrice {
+  date : String!
+  gasPriceInWei : BigInt!
+}
+
+type Request {
+  date : String!
+}
+
+
+type Query {
+  getGasData(request: Request!) :  HistoricalEthereumGasPrice,
+}
