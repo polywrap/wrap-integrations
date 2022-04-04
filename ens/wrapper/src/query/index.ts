@@ -24,7 +24,7 @@ export function getResolver(input: Input_getResolver): string {
     connection: input.connection,
   });
 
-  return resolverAddress;
+  return resolverAddress.unwrap();
 }
 
 export function getOwner(input: Input_getOwner): string {
@@ -35,7 +35,7 @@ export function getOwner(input: Input_getOwner): string {
     connection: input.connection,
   });
 
-  return owner;
+  return owner.unwrap();
 }
 
 export function getAddress(input: Input_getAddress): string {
@@ -46,7 +46,7 @@ export function getAddress(input: Input_getAddress): string {
     connection: input.connection,
   });
 
-  return address;
+  return address.unwrap();
 }
 
 export function getContentHash(input: Input_getContentHash): string {
@@ -57,7 +57,7 @@ export function getContentHash(input: Input_getContentHash): string {
     connection: input.connection,
   });
 
-  return hash;
+  return hash.unwrap();
 }
 
 export function getAddressFromDomain(
@@ -76,7 +76,7 @@ export function getAddressFromDomain(
     connection: input.connection,
   });
 
-  return address;
+  return address.unwrap();
 }
 
 export function getContentHashFromDomain(
@@ -95,7 +95,7 @@ export function getContentHashFromDomain(
     connection: input.connection,
   });
 
-  return hash;
+  return hash.unwrap();
 }
 
 export function getExpiryTimes(input: Input_getExpiryTimes): string {
@@ -109,7 +109,7 @@ export function getExpiryTimes(input: Input_getExpiryTimes): string {
     connection: input.connection,
   });
 
-  return expiryTime;
+  return expiryTime.unwrap();
 }
 
 export function getReverseResolver(input: Input_getReverseResolver): string {
@@ -122,7 +122,7 @@ export function getReverseResolver(input: Input_getReverseResolver): string {
     connection: input.connection,
   });
 
-  return resolverAddress;
+  return resolverAddress.unwrap();
 }
 
 export function getNameFromAddress(input: Input_getNameFromAddress): string {
@@ -141,7 +141,7 @@ export function getNameFromAddress(input: Input_getNameFromAddress): string {
     connection: input.connection,
   });
 
-  return name;
+  return name.unwrap();
 }
 
 export function getNameFromReverseResolver(
@@ -156,7 +156,7 @@ export function getNameFromReverseResolver(
     connection: input.connection,
   });
 
-  return name;
+  return name.unwrap();
 }
 
 export function getTextRecord(input: Input_getTextRecord): string {
@@ -167,5 +167,5 @@ export function getTextRecord(input: Input_getTextRecord): string {
     connection: input.connection,
   });
 
-  return value;
+  return value.unwrap();
 }
