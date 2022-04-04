@@ -5,6 +5,7 @@ enum GetOperationStatusSupportedNetworks {
   mainnet
   hangzhounet
   granadanet
+  ithacanet
 }
 
 """ Describes the status of a transaction """

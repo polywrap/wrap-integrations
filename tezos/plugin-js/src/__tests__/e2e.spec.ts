@@ -329,6 +329,45 @@ describe("Tezos Plugin", () => {
         expect(response.errors).toBeUndefined()
         expect(response.data).toBeDefined()
         expect(response.data?.getOperationStatus).toBeDefined()
+        expect(response.data?.getOperationStatus).toBeDefined()
+        expect(response.data?.getOperationStatus.hash).toBeDefined()
+        expect(response.data?.getOperationStatus.type).toBeDefined()
+        expect(response.data?.getOperationStatus.block).toBeDefined()
+        expect(response.data?.getOperationStatus.time).toBeDefined()
+        expect(response.data?.getOperationStatus.height).toBeDefined()
+        expect(response.data?.getOperationStatus.cycle).toBeDefined()
+        expect(response.data?.getOperationStatus.counter).toBeDefined()
+        expect(response.data?.getOperationStatus.status).toBeDefined()
+        expect(response.data?.getOperationStatus.is_success).toBeDefined()
+        expect(response.data?.getOperationStatus.confirmations).toBeDefined()
+      })
+
+      it("should get operation status on ithaca", async () => {
+        const response =  await client.query<{ getOperationStatus: Schema.OperationStatus }>({
+          uri,
+          query: `
+            query {
+              getOperationStatus (
+                network: ithacanet, 
+                hash: "oot97Ak6cYpb3eofhQaTKpZLBoyeaYrb7xZSd2SoCv8GUXZT7sc"
+              )
+            }
+          `,
+        })
+
+        expect(response.errors).toBeUndefined()
+        expect(response.data).toBeDefined()
+        expect(response.data?.getOperationStatus).toBeDefined()
+        expect(response.data?.getOperationStatus.hash).toBeDefined()
+        expect(response.data?.getOperationStatus.type).toBeDefined()
+        expect(response.data?.getOperationStatus.block).toBeDefined()
+        expect(response.data?.getOperationStatus.time).toBeDefined()
+        expect(response.data?.getOperationStatus.height).toBeDefined()
+        expect(response.data?.getOperationStatus.cycle).toBeDefined()
+        expect(response.data?.getOperationStatus.counter).toBeDefined()
+        expect(response.data?.getOperationStatus.status).toBeDefined()
+        expect(response.data?.getOperationStatus.is_success).toBeDefined()
+        expect(response.data?.getOperationStatus.confirmations).toBeDefined()
       })
     })
 
