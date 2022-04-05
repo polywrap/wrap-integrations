@@ -7,7 +7,7 @@
     "reset": "yarn clean && yarn && yarn build",
     "clean": "npx rimraf ./node_modules ./build ./coverage ./.w3 ./**/w3",
     "build": "npx w3 build",
-    "deploy": "w3 build --ipfs http://127.0.0.1:5001 --test-ens uniswap.v3.eth",
+    "deploy": "w3 build --ipfs http://127.0.0.1:45005 && wrappers ipfs ./build",
     "codegen": "w3 codegen",
     "codegen:meta": "w3 codegen -s ./scripts/meta.ts -c ./w3/meta/queries",
     "test:e2e": "jest --passWithNoTests --runInBand --verbose",
