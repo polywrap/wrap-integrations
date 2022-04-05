@@ -1,6 +1,0 @@
-query {
-  createUncheckedTrade(
-    swap: $swap
-    tradeType: $tradeType
-  )
-}

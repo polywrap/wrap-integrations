@@ -1,6 +1,0 @@
-query {
-  createUncheckedTradeWithMultipleRoutes(
-    swaps: $swaps
-    tradeType: $tradeType
-  )
-}

@@ -1,6 +1,0 @@
-query {
-  encodePermit(
-    token: $token
-    options: $options
-  )
-}

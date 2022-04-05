@@ -1,4 +1,0 @@
-query {
-  POOL_INIT_CODE_HASH(
-  )
-}

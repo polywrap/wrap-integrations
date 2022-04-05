@@ -1,0 +1,11 @@
+mutation {
+  swap(
+    inToken: $inToken
+    outToken: $outToken
+    fee: $fee
+    amount: $amount
+    tradeType: $tradeType
+    swapOptions: $swapOptions
+    gasOptions: $gasOptions
+  )
+}

@@ -1,5 +1,0 @@
-query {
-  routeChainId(
-    route: $route
-  )
-}

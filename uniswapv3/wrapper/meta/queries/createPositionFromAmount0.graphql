@@ -1,9 +1,0 @@
-query {
-  createPositionFromAmount0(
-    pool: $pool
-    tickLower: $tickLower
-    tickUpper: $tickUpper
-    amount0: $amount0
-    useFullPrecision: $useFullPrecision
-  )
-}

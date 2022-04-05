@@ -1,8 +1,0 @@
-query {
-  fetchPoolFromTokens(
-    tokenA: $tokenA
-    tokenB: $tokenB
-    fee: $fee
-    fetchTicks: $fetchTicks
-  )
-}

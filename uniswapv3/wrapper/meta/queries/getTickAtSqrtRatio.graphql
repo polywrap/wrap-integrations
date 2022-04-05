@@ -1,5 +1,0 @@
-query {
-  getTickAtSqrtRatio(
-    sqrtRatioX96: $sqrtRatioX96
-  )
-}

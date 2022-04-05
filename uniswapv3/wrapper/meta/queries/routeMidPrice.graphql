@@ -1,7 +1,0 @@
-query {
-  routeMidPrice(
-    pools: $pools
-    inToken: $inToken
-    outToken: $outToken
-  )
-}

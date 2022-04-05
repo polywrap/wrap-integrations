@@ -1,8 +1,0 @@
-query {
-  getPoolAddress(
-    tokenA: $tokenA
-    tokenB: $tokenB
-    fee: $fee
-    initCodeHashManualOverride: $initCodeHashManualOverride
-  )
-}

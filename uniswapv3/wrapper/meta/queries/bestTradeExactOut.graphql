@@ -1,8 +1,0 @@
-query {
-  bestTradeExactOut(
-    pools: $pools
-    tokenIn: $tokenIn
-    amountOut: $amountOut
-    options: $options
-  )
-}

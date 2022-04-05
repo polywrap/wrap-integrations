@@ -1,7 +1,0 @@
-query {
-  mulDivRoundingUp(
-    a: $a
-    b: $b
-    denominator: $denominator
-  )
-}

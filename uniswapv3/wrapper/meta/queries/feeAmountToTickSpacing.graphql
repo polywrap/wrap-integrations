@@ -1,5 +1,0 @@
-query {
-  feeAmountToTickSpacing(
-    feeAmount: $feeAmount
-  )
-}

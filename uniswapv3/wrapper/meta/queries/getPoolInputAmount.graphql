@@ -1,7 +1,0 @@
-query {
-  getPoolInputAmount(
-    pool: $pool
-    outputAmount: $outputAmount
-    sqrtPriceLimitX96: $sqrtPriceLimitX96
-  )
-}

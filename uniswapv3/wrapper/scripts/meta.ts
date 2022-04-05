@@ -90,21 +90,23 @@ function generateModuleBindings(module: BindModuleOptions): BindModuleOutput {
   renderTemplate("./meta-manifest.mustache", rootContext, "./../../web3api.meta.yaml");
 
   // generate queries
-  for (const method of typeInfo.moduleTypes[0].methods) {
-    const methodContext = {
-      ...method,
-      schema,
-    };
-    renderTemplate(
-      "./meta-query.mustache",
-      methodContext,
-      `${method.name}.graphql`
-    );
-    renderTemplate(
-      "./meta-vars.mustache",
-      methodContext,
-      `${method.name}.json`
-    );
+  for (const moduleType of typeInfo.moduleTypes) {
+    for (const method of moduleType.methods) {
+      const methodContext = {
+        ...method,
+        schema,
+      };
+      renderTemplate(
+        "./meta-query.mustache",
+        methodContext,
+        `${method.name}.graphql`
+      );
+      renderTemplate(
+        "./meta-vars.mustache",
+        methodContext,
+        `${method.name}.json`
+      );
+    }
   }
 
   return result;

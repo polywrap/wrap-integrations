@@ -1,6 +1,0 @@
-query {
-  tradePriceImpact(
-    swaps: $swaps
-    outputAmount: $outputAmount
-  )
-}

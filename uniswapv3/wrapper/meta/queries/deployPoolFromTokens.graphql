@@ -1,0 +1,8 @@
+mutation {
+  deployPoolFromTokens(
+    tokenA: $tokenA
+    tokenB: $tokenB
+    fee: $fee
+    gasOptions: $gasOptions
+  )
+}

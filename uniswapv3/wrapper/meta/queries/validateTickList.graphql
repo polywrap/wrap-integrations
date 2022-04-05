@@ -1,6 +1,0 @@
-query {
-  validateTickList(
-    ticks: $ticks
-    tickSpacing: $tickSpacing
-  )
-}

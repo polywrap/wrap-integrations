@@ -1,5 +1,0 @@
-query {
-  tickListIsSorted(
-    ticks: $ticks
-  )
-}

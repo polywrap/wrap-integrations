@@ -1,5 +1,0 @@
-query {
-  createTradeExactOut(
-    tradeRoute: $tradeRoute
-  )
-}

@@ -1,0 +1,9 @@
+mutation {
+  swapWithPool(
+    address: $address
+    amount: $amount
+    tradeType: $tradeType
+    swapOptions: $swapOptions
+    gasOptions: $gasOptions
+  )
+}

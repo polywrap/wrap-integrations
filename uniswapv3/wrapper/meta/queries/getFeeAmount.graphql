@@ -1,5 +1,0 @@
-query {
-  getFeeAmount(
-    feeAmount: $feeAmount
-  )
-}

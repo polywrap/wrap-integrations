@@ -1,6 +1,0 @@
-query {
-  swapCallParameters(
-    trades: $trades
-    options: $options
-  )
-}

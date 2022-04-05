@@ -1,5 +1,0 @@
-query {
-  getPermitV(
-    permitV: $permitV
-  )
-}

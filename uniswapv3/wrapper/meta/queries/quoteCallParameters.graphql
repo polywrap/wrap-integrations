@@ -1,8 +1,0 @@
-query {
-  quoteCallParameters(
-    route: $route
-    amount: $amount
-    tradeType: $tradeType
-    options: $options
-  )
-}

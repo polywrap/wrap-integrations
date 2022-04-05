@@ -1,6 +1,0 @@
-query {
-  collectRewards(
-    incentiveKeys: $incentiveKeys
-    options: $options
-  )
-}

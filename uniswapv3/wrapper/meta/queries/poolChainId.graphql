@@ -1,5 +1,0 @@
-query {
-  poolChainId(
-    pool: $pool
-  )
-}

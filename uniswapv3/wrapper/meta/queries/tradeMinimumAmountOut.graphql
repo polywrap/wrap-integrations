@@ -1,7 +1,0 @@
-query {
-  tradeMinimumAmountOut(
-    slippageTolerance: $slippageTolerance
-    amountOut: $amountOut
-    tradeType: $tradeType
-  )
-}

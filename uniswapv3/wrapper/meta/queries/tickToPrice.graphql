@@ -1,7 +1,0 @@
-query {
-  tickToPrice(
-    baseToken: $baseToken
-    quoteToken: $quoteToken
-    tick: $tick
-  )
-}

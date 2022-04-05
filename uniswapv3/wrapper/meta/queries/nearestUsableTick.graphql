@@ -1,6 +1,0 @@
-query {
-  nearestUsableTick(
-    tick: $tick
-    tickSpacing: $tickSpacing
-  )
-}

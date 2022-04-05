@@ -1,0 +1,7 @@
+mutation {
+  approve(
+    token: $token
+    amount: $amount
+    gasOptions: $gasOptions
+  )
+}

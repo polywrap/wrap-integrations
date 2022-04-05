@@ -1,6 +1,0 @@
-query {
-  encodeRouteToPath(
-    route: $route
-    exactOutput: $exactOutput
-  )
-}

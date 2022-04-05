@@ -1,8 +1,0 @@
-query {
-  getNextSqrtPriceFromOutput(
-    sqrtPX96: $sqrtPX96
-    liquidity: $liquidity
-    amountOut: $amountOut
-    zeroForOne: $zeroForOne
-  )
-}

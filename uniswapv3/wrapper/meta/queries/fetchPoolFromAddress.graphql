@@ -1,7 +1,0 @@
-query {
-  fetchPoolFromAddress(
-    address: $address
-    chainId: $chainId
-    fetchTicks: $fetchTicks
-  )
-}

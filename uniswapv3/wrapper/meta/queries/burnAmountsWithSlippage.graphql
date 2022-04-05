@@ -1,6 +1,0 @@
-query {
-  burnAmountsWithSlippage(
-    position: $position
-    slippageTolerance: $slippageTolerance
-  )
-}

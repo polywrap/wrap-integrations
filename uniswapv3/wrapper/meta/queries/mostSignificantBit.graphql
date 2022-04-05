@@ -1,5 +1,0 @@
-query {
-  mostSignificantBit(
-    x: $x
-  )
-}
