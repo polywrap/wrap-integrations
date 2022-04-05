@@ -7,6 +7,12 @@ queries:
   - name: Approve
     query: ./meta/queries/approve.graphql
     vars: ./meta/queries/approve.json
+  - name: Fetch Token
+    query: ./meta/queries/fetchToken.graphql
+    vars: ./meta/queries/fetchToken.json
   - name: Swap
     query: ./meta/queries/swap.graphql
     vars: ./meta/queries/swap.json
+  - name: To Hex
+    query: ./meta/queries/toHex.graphql
+    vars: ./meta/queries/toHex.json
