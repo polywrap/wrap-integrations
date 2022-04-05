@@ -45,7 +45,7 @@ export function setResolver(input: Input_setResolver): Ethereum_TxResponse {
     },
   });
 
-  return setResolverTx;
+  return setResolverTx.unwrap();
 }
 
 export function registerDomain(
@@ -68,7 +68,7 @@ export function registerDomain(
     },
   });
 
-  return tx;
+  return tx.unwrap();
 }
 
 export function setOwner(input: Input_setOwner): Ethereum_TxResponse {
@@ -88,7 +88,7 @@ export function setOwner(input: Input_setOwner): Ethereum_TxResponse {
     },
   });
 
-  return tx;
+  return tx.unwrap();
 }
 
 export function setSubdomainOwner(
@@ -115,7 +115,7 @@ export function setSubdomainOwner(
     },
   });
 
-  return tx;
+  return tx.unwrap();
 }
 
 export function setSubdomainRecord(
@@ -144,7 +144,7 @@ export function setSubdomainRecord(
     },
   });
 
-  return tx;
+  return tx.unwrap();
 }
 
 //TODO: Where could this be used on mainnet?
@@ -171,7 +171,7 @@ export function setRecord(input: Input_setRecord): Ethereum_TxResponse {
     },
   });
 
-  return tx;
+  return tx.unwrap();
 }
 
 export function setName(input: Input_setName): Ethereum_TxResponse {
@@ -191,7 +191,7 @@ export function setName(input: Input_setName): Ethereum_TxResponse {
     },
   });
 
-  return setNameTx;
+  return setNameTx.unwrap();
 }
 
 export function reverseRegisterDomain(
@@ -243,7 +243,7 @@ export function setAddress(input: Input_setAddress): Ethereum_TxResponse {
     },
   });
 
-  return setAddrTx;
+  return setAddrTx.unwrap();
 }
 
 export function setContentHash(
@@ -265,7 +265,7 @@ export function setContentHash(
     },
   });
 
-  return setContentHash;
+  return setContentHash.unwrap();
 }
 
 export function setAddressFromDomain(
@@ -293,7 +293,7 @@ export function setAddressFromDomain(
     },
   });
 
-  return setAddrTx;
+  return setAddrTx.unwrap();
 }
 
 export function setContentHashFromDomain(
@@ -321,7 +321,7 @@ export function setContentHashFromDomain(
     },
   });
 
-  return setContentHash;
+  return setContentHash.unwrap();
 }
 
 export function deployFIFSRegistrar(input: Input_deployFIFSRegistrar): string {
@@ -332,7 +332,7 @@ export function deployFIFSRegistrar(input: Input_deployFIFSRegistrar): string {
     connection: input.connection,
   });
 
-  return address;
+  return address.unwrap();
 }
 
 export function registerSubnodeOwnerWithFIFSRegistrar(
@@ -354,7 +354,7 @@ export function registerSubnodeOwnerWithFIFSRegistrar(
     },
   });
 
-  return txHash;
+  return txHash.unwrap();
 }
 
 export function setTextRecord(input: Input_setTextRecord): Ethereum_TxResponse {
@@ -374,7 +374,7 @@ export function setTextRecord(input: Input_setTextRecord): Ethereum_TxResponse {
     },
   });
 
-  return txHash;
+  return txHash.unwrap();
 }
 
 export function configureOpenDomain(
