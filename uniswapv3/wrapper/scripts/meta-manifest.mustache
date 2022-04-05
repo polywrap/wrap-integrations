@@ -1,0 +1,13 @@
+format: 0.0.1-prealpha.1
+name: Example wrapper
+subtext: Example subtext
+description: Example description
+icon: ./meta/imgs/logo.png
+queries:
+{{#moduleTypes}}
+  {{#methods}}
+  - name: {{#toSentence}}{{name}}{{/toSentence}}
+    query: ./meta/queries/{{name}}.graphql
+    vars: ./meta/queries/{{name}}.json
+  {{/methods}}
+{{/moduleTypes}}
