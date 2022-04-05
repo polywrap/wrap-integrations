@@ -1,0 +1,6 @@
+query {
+  removeCallParameters(
+    position: $position
+    options: $options
+  )
+}

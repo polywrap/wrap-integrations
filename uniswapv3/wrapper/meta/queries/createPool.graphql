@@ -1,0 +1,11 @@
+query {
+  createPool(
+    tokenA: $tokenA
+    tokenB: $tokenB
+    fee: $fee
+    sqrtRatioX96: $sqrtRatioX96
+    liquidity: $liquidity
+    tickCurrent: $tickCurrent
+    ticks: $ticks
+  )
+}

@@ -1,0 +1,9 @@
+query {
+  computePoolAddress(
+    factoryAddress: $factoryAddress
+    tokenA: $tokenA
+    tokenB: $tokenB
+    fee: $fee
+    initCodeHashManualOverride: $initCodeHashManualOverride
+  )
+}

@@ -1,0 +1,6 @@
+query {
+  tokenSortsBefore(
+    tokenA: $tokenA
+    tokenB: $tokenB
+  )
+}

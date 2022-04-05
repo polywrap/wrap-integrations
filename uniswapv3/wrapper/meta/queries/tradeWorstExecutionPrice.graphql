@@ -1,0 +1,6 @@
+query {
+  tradeWorstExecutionPrice(
+    trade: $trade
+    slippageTolerance: $slippageTolerance
+  )
+}

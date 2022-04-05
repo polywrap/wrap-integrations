@@ -1,0 +1,6 @@
+query {
+  tokenEquals(
+    tokenA: $tokenA
+    tokenB: $tokenB
+  )
+}

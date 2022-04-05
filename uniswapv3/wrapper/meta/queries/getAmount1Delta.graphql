@@ -1,0 +1,8 @@
+query {
+  getAmount1Delta(
+    sqrtRatioAX96: $sqrtRatioAX96
+    sqrtRatioBX96: $sqrtRatioBX96
+    liquidity: $liquidity
+    roundUp: $roundUp
+  )
+}

@@ -1,0 +1,333 @@
+format: 0.0.1-prealpha.1
+name: Uniswap v3
+subtext: Uniswap v3 SDK->Wrapper
+description: Wrapper that provides all the functionality of the Uniswap v3 JavaScript SDK, and more!
+icon: ./meta/imgs/logo_pink.svg
+queries:
+  - name: Currency Equals
+    query: ./meta/queries/currencyEquals.graphql
+    vars: ./meta/queries/currencyEquals.json
+  - name: Token Equals
+    query: ./meta/queries/tokenEquals.graphql
+    vars: ./meta/queries/tokenEquals.json
+  - name: Token Amount Equals
+    query: ./meta/queries/tokenAmountEquals.graphql
+    vars: ./meta/queries/tokenAmountEquals.json
+  - name: Token Sorts Before
+    query: ./meta/queries/tokenSortsBefore.graphql
+    vars: ./meta/queries/tokenSortsBefore.json
+  - name: Get Ether
+    query: ./meta/queries/getEther.graphql
+    vars: ./meta/queries/getEther.json
+  - name: Get WETH
+    query: ./meta/queries/getWETH.graphql
+    vars: ./meta/queries/getWETH.json
+  - name: Is Ether
+    query: ./meta/queries/isEther.graphql
+    vars: ./meta/queries/isEther.json
+  - name: Wrap Token
+    query: ./meta/queries/wrapToken.graphql
+    vars: ./meta/queries/wrapToken.json
+  - name: Wrap Amount
+    query: ./meta/queries/wrapAmount.graphql
+    vars: ./meta/queries/wrapAmount.json
+  - name: Validate Tick List
+    query: ./meta/queries/validateTickList.graphql
+    vars: ./meta/queries/validateTickList.json
+  - name: Get Tick
+    query: ./meta/queries/getTick.graphql
+    vars: ./meta/queries/getTick.json
+  - name: Next Initialized Tick Within One Word
+    query: ./meta/queries/nextInitializedTickWithinOneWord.graphql
+    vars: ./meta/queries/nextInitializedTickWithinOneWord.json
+  - name: Create Pool
+    query: ./meta/queries/createPool.graphql
+    vars: ./meta/queries/createPool.json
+  - name: Get Pool Address
+    query: ./meta/queries/getPoolAddress.graphql
+    vars: ./meta/queries/getPoolAddress.json
+  - name: Pool Involves Token
+    query: ./meta/queries/poolInvolvesToken.graphql
+    vars: ./meta/queries/poolInvolvesToken.json
+  - name: Pool Token0Price
+    query: ./meta/queries/poolToken0Price.graphql
+    vars: ./meta/queries/poolToken0Price.json
+  - name: Pool Token1Price
+    query: ./meta/queries/poolToken1Price.graphql
+    vars: ./meta/queries/poolToken1Price.json
+  - name: Pool Price Of
+    query: ./meta/queries/poolPriceOf.graphql
+    vars: ./meta/queries/poolPriceOf.json
+  - name: Pool Chain Id
+    query: ./meta/queries/poolChainId.graphql
+    vars: ./meta/queries/poolChainId.json
+  - name: Get Pool Output Amount
+    query: ./meta/queries/getPoolOutputAmount.graphql
+    vars: ./meta/queries/getPoolOutputAmount.json
+  - name: Get Pool Input Amount
+    query: ./meta/queries/getPoolInputAmount.graphql
+    vars: ./meta/queries/getPoolInputAmount.json
+  - name: Get Pool Tick Spacing
+    query: ./meta/queries/getPoolTickSpacing.graphql
+    vars: ./meta/queries/getPoolTickSpacing.json
+  - name: Create Route
+    query: ./meta/queries/createRoute.graphql
+    vars: ./meta/queries/createRoute.json
+  - name: Route Chain Id
+    query: ./meta/queries/routeChainId.graphql
+    vars: ./meta/queries/routeChainId.json
+  - name: Route Mid Price
+    query: ./meta/queries/routeMidPrice.graphql
+    vars: ./meta/queries/routeMidPrice.json
+  - name: Create Trade Exact In
+    query: ./meta/queries/createTradeExactIn.graphql
+    vars: ./meta/queries/createTradeExactIn.json
+  - name: Create Trade Exact Out
+    query: ./meta/queries/createTradeExactOut.graphql
+    vars: ./meta/queries/createTradeExactOut.json
+  - name: Create Trade From Route
+    query: ./meta/queries/createTradeFromRoute.graphql
+    vars: ./meta/queries/createTradeFromRoute.json
+  - name: Create Trade From Routes
+    query: ./meta/queries/createTradeFromRoutes.graphql
+    vars: ./meta/queries/createTradeFromRoutes.json
+  - name: Create Unchecked Trade
+    query: ./meta/queries/createUncheckedTrade.graphql
+    vars: ./meta/queries/createUncheckedTrade.json
+  - name: Create Unchecked Trade With Multiple Routes
+    query: ./meta/queries/createUncheckedTradeWithMultipleRoutes.graphql
+    vars: ./meta/queries/createUncheckedTradeWithMultipleRoutes.json
+  - name: Trade Input Amount
+    query: ./meta/queries/tradeInputAmount.graphql
+    vars: ./meta/queries/tradeInputAmount.json
+  - name: Trade Output Amount
+    query: ./meta/queries/tradeOutputAmount.graphql
+    vars: ./meta/queries/tradeOutputAmount.json
+  - name: Trade Execution Price
+    query: ./meta/queries/tradeExecutionPrice.graphql
+    vars: ./meta/queries/tradeExecutionPrice.json
+  - name: Trade Price Impact
+    query: ./meta/queries/tradePriceImpact.graphql
+    vars: ./meta/queries/tradePriceImpact.json
+  - name: Trade Minimum Amount Out
+    query: ./meta/queries/tradeMinimumAmountOut.graphql
+    vars: ./meta/queries/tradeMinimumAmountOut.json
+  - name: Trade Maximum Amount In
+    query: ./meta/queries/tradeMaximumAmountIn.graphql
+    vars: ./meta/queries/tradeMaximumAmountIn.json
+  - name: Trade Worst Execution Price
+    query: ./meta/queries/tradeWorstExecutionPrice.graphql
+    vars: ./meta/queries/tradeWorstExecutionPrice.json
+  - name: Best Trade Exact In
+    query: ./meta/queries/bestTradeExactIn.graphql
+    vars: ./meta/queries/bestTradeExactIn.json
+  - name: Best Trade Exact Out
+    query: ./meta/queries/bestTradeExactOut.graphql
+    vars: ./meta/queries/bestTradeExactOut.json
+  - name: Create Position
+    query: ./meta/queries/createPosition.graphql
+    vars: ./meta/queries/createPosition.json
+  - name: Create Position From Amounts
+    query: ./meta/queries/createPositionFromAmounts.graphql
+    vars: ./meta/queries/createPositionFromAmounts.json
+  - name: Create Position From Amount0
+    query: ./meta/queries/createPositionFromAmount0.graphql
+    vars: ./meta/queries/createPositionFromAmount0.json
+  - name: Create Position From Amount1
+    query: ./meta/queries/createPositionFromAmount1.graphql
+    vars: ./meta/queries/createPositionFromAmount1.json
+  - name: Position Token0Price Lower
+    query: ./meta/queries/positionToken0PriceLower.graphql
+    vars: ./meta/queries/positionToken0PriceLower.json
+  - name: Position Token0Price Upper
+    query: ./meta/queries/positionToken0PriceUpper.graphql
+    vars: ./meta/queries/positionToken0PriceUpper.json
+  - name: Position Amount0
+    query: ./meta/queries/positionAmount0.graphql
+    vars: ./meta/queries/positionAmount0.json
+  - name: Position Amount1
+    query: ./meta/queries/positionAmount1.graphql
+    vars: ./meta/queries/positionAmount1.json
+  - name: Mint Amounts
+    query: ./meta/queries/mintAmounts.graphql
+    vars: ./meta/queries/mintAmounts.json
+  - name: Mint Amounts With Slippage
+    query: ./meta/queries/mintAmountsWithSlippage.graphql
+    vars: ./meta/queries/mintAmountsWithSlippage.json
+  - name: Burn Amounts With Slippage
+    query: ./meta/queries/burnAmountsWithSlippage.graphql
+    vars: ./meta/queries/burnAmountsWithSlippage.json
+  - name: Swap Call Parameters
+    query: ./meta/queries/swapCallParameters.graphql
+    vars: ./meta/queries/swapCallParameters.json
+  - name: Encode Route To Path
+    query: ./meta/queries/encodeRouteToPath.graphql
+    vars: ./meta/queries/encodeRouteToPath.json
+  - name: Encode Permit
+    query: ./meta/queries/encodePermit.graphql
+    vars: ./meta/queries/encodePermit.json
+  - name: Encode Unwrap WETH9
+    query: ./meta/queries/encodeUnwrapWETH9.graphql
+    vars: ./meta/queries/encodeUnwrapWETH9.json
+  - name: Encode Sweep Token
+    query: ./meta/queries/encodeSweepToken.graphql
+    vars: ./meta/queries/encodeSweepToken.json
+  - name: Encode Refund ETH
+    query: ./meta/queries/encodeRefundETH.graphql
+    vars: ./meta/queries/encodeRefundETH.json
+  - name: Encode Multicall
+    query: ./meta/queries/encodeMulticall.graphql
+    vars: ./meta/queries/encodeMulticall.json
+  - name: Collect Rewards
+    query: ./meta/queries/collectRewards.graphql
+    vars: ./meta/queries/collectRewards.json
+  - name: Withdraw Token
+    query: ./meta/queries/withdrawToken.graphql
+    vars: ./meta/queries/withdrawToken.json
+  - name: Encode Deposit
+    query: ./meta/queries/encodeDeposit.graphql
+    vars: ./meta/queries/encodeDeposit.json
+  - name: Quote Call Parameters
+    query: ./meta/queries/quoteCallParameters.graphql
+    vars: ./meta/queries/quoteCallParameters.json
+  - name: Create Call Parameters
+    query: ./meta/queries/createCallParameters.graphql
+    vars: ./meta/queries/createCallParameters.json
+  - name: Add Call Parameters
+    query: ./meta/queries/addCallParameters.graphql
+    vars: ./meta/queries/addCallParameters.json
+  - name: Collect Call Parameters
+    query: ./meta/queries/collectCallParameters.graphql
+    vars: ./meta/queries/collectCallParameters.json
+  - name: Remove Call Parameters
+    query: ./meta/queries/removeCallParameters.graphql
+    vars: ./meta/queries/removeCallParameters.json
+  - name: Safe Transfer From Parameters
+    query: ./meta/queries/safeTransferFromParameters.graphql
+    vars: ./meta/queries/safeTransferFromParameters.json
+  - name: To Hex
+    query: ./meta/queries/toHex.graphql
+    vars: ./meta/queries/toHex.json
+  - name: Compute Pool Address
+    query: ./meta/queries/computePoolAddress.graphql
+    vars: ./meta/queries/computePoolAddress.json
+  - name: Encode Sqrt Ratio X96
+    query: ./meta/queries/encodeSqrtRatioX96.graphql
+    vars: ./meta/queries/encodeSqrtRatioX96.json
+  - name: Mul Div Rounding Up
+    query: ./meta/queries/mulDivRoundingUp.graphql
+    vars: ./meta/queries/mulDivRoundingUp.json
+  - name: Add Delta
+    query: ./meta/queries/addDelta.graphql
+    vars: ./meta/queries/addDelta.json
+  - name: Max Liquidity For Amounts
+    query: ./meta/queries/maxLiquidityForAmounts.graphql
+    vars: ./meta/queries/maxLiquidityForAmounts.json
+  - name: Most Significant Bit
+    query: ./meta/queries/mostSignificantBit.graphql
+    vars: ./meta/queries/mostSignificantBit.json
+  - name: Nearest Usable Tick
+    query: ./meta/queries/nearestUsableTick.graphql
+    vars: ./meta/queries/nearestUsableTick.json
+  - name: Tick To Price
+    query: ./meta/queries/tickToPrice.graphql
+    vars: ./meta/queries/tickToPrice.json
+  - name: Price To Closest Tick
+    query: ./meta/queries/priceToClosestTick.graphql
+    vars: ./meta/queries/priceToClosestTick.json
+  - name: Get Amount0Delta
+    query: ./meta/queries/getAmount0Delta.graphql
+    vars: ./meta/queries/getAmount0Delta.json
+  - name: Get Amount1Delta
+    query: ./meta/queries/getAmount1Delta.graphql
+    vars: ./meta/queries/getAmount1Delta.json
+  - name: Get Next Sqrt Price From Input
+    query: ./meta/queries/getNextSqrtPriceFromInput.graphql
+    vars: ./meta/queries/getNextSqrtPriceFromInput.json
+  - name: Get Next Sqrt Price From Output
+    query: ./meta/queries/getNextSqrtPriceFromOutput.graphql
+    vars: ./meta/queries/getNextSqrtPriceFromOutput.json
+  - name: Tick Is Below Smallest
+    query: ./meta/queries/tickIsBelowSmallest.graphql
+    vars: ./meta/queries/tickIsBelowSmallest.json
+  - name: Tick Is At Or Above Largest
+    query: ./meta/queries/tickIsAtOrAboveLargest.graphql
+    vars: ./meta/queries/tickIsAtOrAboveLargest.json
+  - name: Next Initialized Tick
+    query: ./meta/queries/nextInitializedTick.graphql
+    vars: ./meta/queries/nextInitializedTick.json
+  - name: Tick List Is Sorted
+    query: ./meta/queries/tickListIsSorted.graphql
+    vars: ./meta/queries/tickListIsSorted.json
+  - name: Get Sqrt Ratio At Tick
+    query: ./meta/queries/getSqrtRatioAtTick.graphql
+    vars: ./meta/queries/getSqrtRatioAtTick.json
+  - name: Get Tick At Sqrt Ratio
+    query: ./meta/queries/getTickAtSqrtRatio.graphql
+    vars: ./meta/queries/getTickAtSqrtRatio.json
+  - name: Fetch Token
+    query: ./meta/queries/fetchToken.graphql
+    vars: ./meta/queries/fetchToken.json
+  - name: Fetch Pool From Tokens
+    query: ./meta/queries/fetchPoolFromTokens.graphql
+    vars: ./meta/queries/fetchPoolFromTokens.json
+  - name: Fetch Pool From Address
+    query: ./meta/queries/fetchPoolFromAddress.graphql
+    vars: ./meta/queries/fetchPoolFromAddress.json
+  - name: Fetch Tick List
+    query: ./meta/queries/fetchTickList.graphql
+    vars: ./meta/queries/fetchTickList.json
+  - name: Fee Amount To Tick Spacing
+    query: ./meta/queries/feeAmountToTickSpacing.graphql
+    vars: ./meta/queries/feeAmountToTickSpacing.json
+  - name: Get Fee Amount
+    query: ./meta/queries/getFeeAmount.graphql
+    vars: ./meta/queries/getFeeAmount.json
+  - name: Get Permit V
+    query: ./meta/queries/getPermitV.graphql
+    vars: ./meta/queries/getPermitV.json
+  - name: FACTORY_ADDRESS
+    query: ./meta/queries/FACTORY_ADDRESS.graphql
+    vars: ./meta/queries/FACTORY_ADDRESS.json
+  - name: POOL_INIT_CODE_HASH
+    query: ./meta/queries/POOL_INIT_CODE_HASH.graphql
+    vars: ./meta/queries/POOL_INIT_CODE_HASH.json
+  - name: POOL_INIT_CODE_HASH_OPTIMISM
+    query: ./meta/queries/POOL_INIT_CODE_HASH_OPTIMISM.graphql
+    vars: ./meta/queries/POOL_INIT_CODE_HASH_OPTIMISM.json
+  - name: POOL_INIT_CODE_HASH_OPTIMISM_KOVAN
+    query: ./meta/queries/POOL_INIT_CODE_HASH_OPTIMISM_KOVAN.graphql
+    vars: ./meta/queries/POOL_INIT_CODE_HASH_OPTIMISM_KOVAN.json
+  - name: MIN_TICK
+    query: ./meta/queries/MIN_TICK.graphql
+    vars: ./meta/queries/MIN_TICK.json
+  - name: MAX_TICK
+    query: ./meta/queries/MAX_TICK.graphql
+    vars: ./meta/queries/MAX_TICK.json
+  - name: MIN_SQRT_RATIO
+    query: ./meta/queries/MIN_SQRT_RATIO.graphql
+    vars: ./meta/queries/MIN_SQRT_RATIO.json
+  - name: MAX_SQRT_RATIO
+    query: ./meta/queries/MAX_SQRT_RATIO.graphql
+    vars: ./meta/queries/MAX_SQRT_RATIO.json
+  - name: Approve
+    query: ./meta/queries/approve.graphql
+    vars: ./meta/queries/approve.json
+  - name: Exec Call
+    query: ./meta/queries/execCall.graphql
+    vars: ./meta/queries/execCall.json
+  - name: Exec Swap
+    query: ./meta/queries/execSwap.graphql
+    vars: ./meta/queries/execSwap.json
+  - name: Swap
+    query: ./meta/queries/swap.graphql
+    vars: ./meta/queries/swap.json
+  - name: Swap With Pool
+    query: ./meta/queries/swapWithPool.graphql
+    vars: ./meta/queries/swapWithPool.json
+  - name: Deploy Pool
+    query: ./meta/queries/deployPool.graphql
+    vars: ./meta/queries/deployPool.json
+  - name: Deploy Pool From Tokens
+    query: ./meta/queries/deployPoolFromTokens.graphql
+    vars: ./meta/queries/deployPoolFromTokens.json

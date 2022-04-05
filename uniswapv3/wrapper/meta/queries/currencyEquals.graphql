@@ -1,0 +1,6 @@
+query {
+  currencyEquals(
+    currencyA: $currencyA
+    currencyB: $currencyB
+  )
+}

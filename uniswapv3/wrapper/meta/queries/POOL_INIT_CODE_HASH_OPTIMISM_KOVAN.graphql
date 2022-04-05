@@ -1,0 +1,4 @@
+query {
+  POOL_INIT_CODE_HASH_OPTIMISM_KOVAN(
+  )
+}

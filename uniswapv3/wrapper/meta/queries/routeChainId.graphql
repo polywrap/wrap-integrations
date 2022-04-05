@@ -1,0 +1,5 @@
+query {
+  routeChainId(
+    route: $route
+  )
+}

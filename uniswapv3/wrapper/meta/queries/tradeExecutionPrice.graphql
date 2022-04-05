@@ -1,0 +1,6 @@
+query {
+  tradeExecutionPrice(
+    inputAmount: $inputAmount
+    outputAmount: $outputAmount
+  )
+}

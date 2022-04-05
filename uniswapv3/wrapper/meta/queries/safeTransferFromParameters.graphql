@@ -1,0 +1,5 @@
+query {
+  safeTransferFromParameters(
+    options: $options
+  )
+}

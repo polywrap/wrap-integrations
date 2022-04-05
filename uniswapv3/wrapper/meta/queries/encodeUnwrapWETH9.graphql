@@ -1,0 +1,7 @@
+query {
+  encodeUnwrapWETH9(
+    amountMinimum: $amountMinimum
+    recipient: $recipient
+    feeOptions: $feeOptions
+  )
+}

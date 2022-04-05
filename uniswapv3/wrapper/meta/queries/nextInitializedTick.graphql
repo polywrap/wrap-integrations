@@ -1,0 +1,7 @@
+query {
+  nextInitializedTick(
+    ticks: $ticks
+    tick: $tick
+    lte: $lte
+  )
+}

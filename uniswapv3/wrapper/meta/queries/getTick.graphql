@@ -1,0 +1,6 @@
+query {
+  getTick(
+    tickDataProvider: $tickDataProvider
+    tickIndex: $tickIndex
+  )
+}

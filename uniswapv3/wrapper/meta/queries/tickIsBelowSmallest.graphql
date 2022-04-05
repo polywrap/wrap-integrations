@@ -1,0 +1,6 @@
+query {
+  tickIsBelowSmallest(
+    ticks: $ticks
+    tick: $tick
+  )
+}

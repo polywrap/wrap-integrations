@@ -1,0 +1,10 @@
+query {
+  maxLiquidityForAmounts(
+    sqrtRatioCurrentX96: $sqrtRatioCurrentX96
+    sqrtRatioAX96: $sqrtRatioAX96
+    sqrtRatioBX96: $sqrtRatioBX96
+    amount0: $amount0
+    amount1: $amount1
+    useFullPrecision: $useFullPrecision
+  )
+}

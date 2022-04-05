@@ -1,0 +1,4 @@
+query {
+  MIN_TICK(
+  )
+}

@@ -1,0 +1,6 @@
+query {
+  createTradeFromRoutes(
+    tradeRoutes: $tradeRoutes
+    tradeType: $tradeType
+  )
+}

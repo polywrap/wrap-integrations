@@ -1,0 +1,8 @@
+query {
+  createPositionFromAmount1(
+    pool: $pool
+    tickLower: $tickLower
+    tickUpper: $tickUpper
+    amount1: $amount1
+  )
+}

@@ -1,0 +1,6 @@
+query {
+  tickIsAtOrAboveLargest(
+    ticks: $ticks
+    tick: $tick
+  )
+}

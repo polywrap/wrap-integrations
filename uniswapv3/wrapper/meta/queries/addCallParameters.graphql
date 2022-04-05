@@ -1,0 +1,6 @@
+query {
+  addCallParameters(
+    position: $position
+    options: $options
+  )
+}

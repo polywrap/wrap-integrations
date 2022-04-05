@@ -1,0 +1,6 @@
+query {
+  addDelta(
+    x: $x
+    y: $y
+  )
+}

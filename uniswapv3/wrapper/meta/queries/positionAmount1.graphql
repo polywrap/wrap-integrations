@@ -1,0 +1,8 @@
+query {
+  positionAmount1(
+    pool: $pool
+    tickLower: $tickLower
+    tickUpper: $tickUpper
+    liquidity: $liquidity
+  )
+}

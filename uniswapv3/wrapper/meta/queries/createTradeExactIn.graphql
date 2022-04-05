@@ -1,0 +1,5 @@
+query {
+  createTradeExactIn(
+    tradeRoute: $tradeRoute
+  )
+}

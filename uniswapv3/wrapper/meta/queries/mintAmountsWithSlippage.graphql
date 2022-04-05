@@ -1,0 +1,6 @@
+query {
+  mintAmountsWithSlippage(
+    position: $position
+    slippageTolerance: $slippageTolerance
+  )
+}

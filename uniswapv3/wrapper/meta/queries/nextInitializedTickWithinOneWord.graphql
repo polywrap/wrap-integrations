@@ -1,0 +1,8 @@
+query {
+  nextInitializedTickWithinOneWord(
+    tickDataProvider: $tickDataProvider
+    tick: $tick
+    lte: $lte
+    tickSpacing: $tickSpacing
+  )
+}

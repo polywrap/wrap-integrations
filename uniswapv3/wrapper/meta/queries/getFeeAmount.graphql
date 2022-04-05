@@ -1,0 +1,5 @@
+query {
+  getFeeAmount(
+    feeAmount: $feeAmount
+  )
+}

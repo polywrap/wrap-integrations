@@ -1,0 +1,8 @@
+query {
+  encodeSweepToken(
+    token: $token
+    amountMinimum: $amountMinimum
+    recipient: $recipient
+    feeOptions: $feeOptions
+  )
+}

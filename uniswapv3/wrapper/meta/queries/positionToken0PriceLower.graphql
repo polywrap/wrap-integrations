@@ -1,0 +1,6 @@
+query {
+  positionToken0PriceLower(
+    pool: $pool
+    tickLower: $tickLower
+  )
+}

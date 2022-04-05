@@ -1,0 +1,5 @@
+query {
+  mostSignificantBit(
+    x: $x
+  )
+}

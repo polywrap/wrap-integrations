@@ -1,11 +1,13 @@
 format: 0.0.1-prealpha.1
-name: Uniswap v3
-subtext: Uniswap v3 wrapper
-description: Wrapper that mimics the functionality of the Uniswap v3 JavaScript SDK
+name: Example wrapper
+subtext: Example subtext
+description: Example description
 icon: ./meta/imgs/logo.png
 queries:
-{{#methods}}
+{{#moduleTypes}}
+  {{#methods}}
   - name: {{#toSentence}}{{name}}{{/toSentence}}
     query: ./meta/queries/{{name}}.graphql
     vars: ./meta/queries/{{name}}.json
-{{/methods}}
+  {{/methods}}
+{{/moduleTypes}}

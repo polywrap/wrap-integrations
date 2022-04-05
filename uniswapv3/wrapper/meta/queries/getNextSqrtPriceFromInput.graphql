@@ -1,0 +1,8 @@
+query {
+  getNextSqrtPriceFromInput(
+    sqrtPX96: $sqrtPX96
+    liquidity: $liquidity
+    amountIn: $amountIn
+    zeroForOne: $zeroForOne
+  )
+}

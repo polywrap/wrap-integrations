@@ -1,0 +1,6 @@
+query {
+  poolPriceOf(
+    pool: $pool
+    token: $token
+  )
+}

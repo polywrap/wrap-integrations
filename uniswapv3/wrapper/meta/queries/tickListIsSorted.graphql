@@ -1,0 +1,5 @@
+query {
+  tickListIsSorted(
+    ticks: $ticks
+  )
+}

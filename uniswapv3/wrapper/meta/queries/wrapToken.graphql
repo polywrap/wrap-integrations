@@ -1,0 +1,5 @@
+query {
+  wrapToken(
+    token: $token
+  )
+}

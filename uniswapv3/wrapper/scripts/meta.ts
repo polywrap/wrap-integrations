@@ -35,13 +35,15 @@ export const generateBinding: GenerateBindingFn = (
 export const toSentence = () => {
   return (text: string, render: (template: string) => string): string => {
     const rendered: string = render(text);
-    return rendered.replace(/([A-Z])/g, " $1").replace(/(^[a-z])/, "$1");
+    return rendered
+      .replace(/([a-z][A-Z])/g, (m) => m.charAt(0) + " " + m.charAt(1))
+      .replace(/^[a-z]/, (m) => m.toUpperCase());
   };
 };
 
 function applyTransforms(typeInfo: TypeInfo): TypeInfo {
   const transforms = [
-    extendType(toSentence),
+    extendType({ toSentence }),
     addFirstLast,
     toPrefixedGraphQLType,
     methodParentPointers(),
@@ -85,7 +87,7 @@ function generateModuleBindings(module: BindModuleOptions): BindModuleOutput {
     ...typeInfo,
     schema,
   };
-  renderTemplate("./meta-manifest.mustache", rootContext, "web3api.meta.yaml");
+  renderTemplate("./meta-manifest.mustache", rootContext, "./../../web3api.meta.yaml");
 
   // generate queries
   for (const method of typeInfo.moduleTypes[0].methods) {
@@ -94,12 +96,12 @@ function generateModuleBindings(module: BindModuleOptions): BindModuleOutput {
       schema,
     };
     renderTemplate(
-      "./queries/meta-query.mustache",
+      "./meta-query.mustache",
       methodContext,
       `${method.name}.graphql`
     );
     renderTemplate(
-      "./queries/meta-vars.mustache",
+      "./meta-vars.mustache",
       methodContext,
       `${method.name}.json`
     );

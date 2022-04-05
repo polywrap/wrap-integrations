@@ -1,0 +1,6 @@
+query {
+  fetchTickList(
+    address: $address
+    chainId: $chainId
+  )
+}

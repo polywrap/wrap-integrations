@@ -1,0 +1,7 @@
+query {
+  tradeMaximumAmountIn(
+    slippageTolerance: $slippageTolerance
+    amountIn: $amountIn
+    tradeType: $tradeType
+  )
+}

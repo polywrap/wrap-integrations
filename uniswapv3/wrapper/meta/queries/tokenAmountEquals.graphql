@@ -1,0 +1,6 @@
+query {
+  tokenAmountEquals(
+    tokenAmountA: $tokenAmountA
+    tokenAmountB: $tokenAmountB
+  )
+}

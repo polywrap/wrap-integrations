@@ -1,0 +1,7 @@
+query {
+  getPoolOutputAmount(
+    pool: $pool
+    inputAmount: $inputAmount
+    sqrtPriceLimitX96: $sqrtPriceLimitX96
+  )
+}

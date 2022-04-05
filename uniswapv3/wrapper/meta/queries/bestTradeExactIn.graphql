@@ -1,0 +1,8 @@
+query {
+  bestTradeExactIn(
+    pools: $pools
+    amountIn: $amountIn
+    tokenOut: $tokenOut
+    options: $options
+  )
+}
