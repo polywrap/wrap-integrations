@@ -29,7 +29,7 @@ export function execCall(input: Input_execCall): Ethereum_TxResponse {
       gasPrice: gasOptions === null ? null : gasOptions.gasPrice,
       data: methodParameters.calldata,
       value: BigInt.fromString(methodParameters.value, 16),
-      chainId: Nullable.fromNull<u32>(),
+      chainId: null,
       m_type: Nullable.fromNull<u32>(),
     },
     connection: {
