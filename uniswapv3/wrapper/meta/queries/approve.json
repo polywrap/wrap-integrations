@@ -1,5 +1,8 @@
 {
-    "token": "",
+    "chainId": "",
+    "tokenAddress": "",
+    "tokenDecimals": "",
     "amount": "",
-    "gasOptions": ""
+    "gasPrice": "",
+    "gasLimit": ""
 }

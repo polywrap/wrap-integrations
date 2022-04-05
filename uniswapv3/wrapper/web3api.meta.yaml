@@ -10,9 +10,3 @@ queries:
   - name: Swap
     query: ./meta/queries/swap.graphql
     vars: ./meta/queries/swap.json
-  - name: Swap With Pool
-    query: ./meta/queries/swapWithPool.graphql
-    vars: ./meta/queries/swapWithPool.json
-  - name: Deploy Pool From Tokens
-    query: ./meta/queries/deployPoolFromTokens.graphql
-    vars: ./meta/queries/deployPoolFromTokens.json

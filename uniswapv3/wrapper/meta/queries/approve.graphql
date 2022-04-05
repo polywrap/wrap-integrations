@@ -1,7 +1,18 @@
 mutation {
   approve(
-    token: $token
+    token: {
+      chainId: $chainId
+      address: $tokenAddress
+      currency: {
+        decimals: $tokenDecimals
+        symbol: null
+        name: null
+      }
+    }
     amount: $amount
-    gasOptions: $gasOptions
+    gasOptions: {
+      gasPrice: $gasPrice
+      gasLimit: $gasLimit
+    }
   )
 }
