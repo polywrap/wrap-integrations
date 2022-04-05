@@ -94,12 +94,12 @@ function generateModuleBindings(module: BindModuleOptions): BindModuleOutput {
       schema,
     };
     renderTemplate(
-      "./meta-query.mustache",
+      "./queries/meta-query.mustache",
       methodContext,
       `${method.name}.graphql`
     );
     renderTemplate(
-      "./meta-vars.mustache",
+      "./queries/meta-vars.mustache",
       methodContext,
       `${method.name}.json`
     );
