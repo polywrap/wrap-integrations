@@ -6,7 +6,7 @@ Each project below is a different Polywrap wrapper (API) or plugin implementatio
 
 | Name                                         | Status   | Deployment                                                                 |
 | -------------------------------------------- | -------- | -------------------------------------------------------------------------- |
-| [ENS Wrapper](./ens/wrapper)                 | Complete | TODO (w3://ens/ens.web3api.eth)                                            |
+| [ENS Wrapper](./ens/wrapper)                 | Complete | w3://ens/ens.web3api.eth                                                   |
 | [Console Wrapper](./console/wrapper)         | Complete | w3://ens/logger.core.web3api.eth                                           |
 | [Uniswap V2 Wrapper](./uniswapv2/wrapper)    | Complete | w3://ens/v2.uniswap.web3api.eth                                            |
 | [Uniswap V2 dApp](./uniswapv2)               | Complete | Live: [dApp](https://demo.uniswap.polywrap.io/)                            |
