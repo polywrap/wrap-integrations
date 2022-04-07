@@ -2,11 +2,11 @@ module.exports = {
   /**
    * A set of globs passed to the glob package that qualify typescript files for testing.
    */
-  include: ["src/__tests__/**/*.spec.ts"],
+  include: ["src/__tests__/unit/**/*.spec.ts"],
   /**
    * A set of globs passed to the glob package that qualify files to be added to each test.
    */
-  add: ["src/__tests__/**/*.include.ts"],
+  add: ["src/__tests__/unit/**/*.include.ts"],
   /**
    * A set of regexp that will disclude source files from testing.
    */
@@ -28,7 +28,19 @@ module.exports = {
   /**
    * Add your required AssemblyScript imports here.
    */
-  imports: {},
+  imports: {
+    w3: {
+      __w3_invoke_args: () => {},
+      __w3_invoke_result: () => {},
+      __w3_invoke_error: () => {},
+      __w3_subinvoke: () => {},
+      __w3_subinvoke_result: () => {},
+      __w3_subinvoke_result_len: () => {},
+      __w3_subinvoke_error: () => {},
+      __w3_subinvoke_error_len: () => {},
+      __w3_abort: () => {},
+    }
+  },
   /**
    * All performance statistics reporting can be configured here.
    */
@@ -58,4 +70,5 @@ module.exports = {
    * To create your own custom reporter, please check out the Core API.
    */
   // reporter: new CustomReporter(),
+  coverage: ['src/mutation/*.ts', 'src/query/*.ts', 'src/utils/*.ts'],
 };

@@ -19,9 +19,14 @@ export class PriorityQueue<Key> {
   }
 
   public toArray(): Key[] {
-    return this._pq
-      .filter((v: Key | null) => v != null)
-      .map<Key>((v: Key | null) => v!); // eslint-disable-line @typescript-eslint/no-non-null-assertion
+    const result: Key[] = new Array<Key>(this._n);
+    let i: i32 = 0;
+    let val: Key | null = this.delMax();
+    while (val !== null) {
+      result[i++] = val;
+      val = this.delMax();
+    }
+    return result;
   }
 
   public isEmpty(): boolean {
