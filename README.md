@@ -6,6 +6,7 @@ Each project below is a different Polywrap wrapper (API) or plugin implementatio
 
 | Name                                         | Status   | Deployment                                                                 |
 | -------------------------------------------- | -------- | -------------------------------------------------------------------------- |
+| [Uniswap V3 Wrapper](./uniswapv3/wrapper)                 | Complete | /ipfs/QmX4NrKM9RqLKB5Cd1VRbSdMx83jgSsQET8gVw8S6ozgC5                                                   |
 | [ENS Wrapper](./ens/wrapper)                 | Complete | w3://ens/ens.web3api.eth                                                   |
 | [Console Wrapper](./console/wrapper)         | Complete | w3://ens/logger.core.web3api.eth                                           |
 | [Uniswap V2 Wrapper](./uniswapv2/wrapper)    | Complete | w3://ens/v2.uniswap.web3api.eth                                            |
