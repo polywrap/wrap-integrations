@@ -9,8 +9,8 @@ enum ChainId {
   OPTIMISTIC_KOVAN
   ARBITRUM_ONE
   ARBITRUM_RINKEBY
-  POLYGON,
-  POLYGON_MUMBAI,
+  POLYGON
+  POLYGON_MUMBAI
 }
 
 """Pool swap fee amount"""
