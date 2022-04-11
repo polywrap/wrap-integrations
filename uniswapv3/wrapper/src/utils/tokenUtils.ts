@@ -14,7 +14,7 @@ export const wethCurrency: Currency = {
 };
 
 export function _getEther(chainId: ChainId): Token {
-  if (chainId < ChainId.MAINNET || chainId > ChainId.ARBITRUM_ONE_RINKEBY) {
+  if (chainId < ChainId.MAINNET || chainId >= ChainId._MAX_) {
     throw new Error("Unknown chain ID");
   }
   return {
@@ -41,14 +41,20 @@ export function _getWETH(chainId: ChainId): Token {
       address = "0xd0A1E359811322d97991E03f863a0C30C2cF029C";
       break;
     case ChainId.OPTIMISM:
-    case ChainId.OPTIMISM_KOVAN:
+    case ChainId.OPTIMISTIC_KOVAN:
       address = "0x4200000000000000000000000000000000000006";
       break;
     case ChainId.ARBITRUM_ONE:
       address = "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1";
       break;
-    case ChainId.ARBITRUM_ONE_RINKEBY:
+    case ChainId.ARBITRUM_RINKEBY:
       address = "0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681";
+      break;
+    case ChainId.POLYGON:
+      address = "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619";
+      break;
+    case ChainId.POLYGON_MUMBAI:
+      address = "0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa";
       break;
     default:
       throw new Error("Unknown chain ID");

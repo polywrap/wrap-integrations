@@ -25,7 +25,7 @@ const USDC: Token = {
 describe('Token utils', () => {
 
   it('getEther', () => {
-    for (let i = ChainId.MAINNET; i <= ChainId.ARBITRUM_ONE_RINKEBY; i++) {
+    for (let i = ChainId.MAINNET; i < ChainId._MAX_; i++) {
       expect(getEther({ chainId: i as ChainId })).toStrictEqual({
         chainId: i as ChainId,
         address: "",
@@ -68,8 +68,8 @@ describe('Token utils', () => {
       address: "0x4200000000000000000000000000000000000006",
       currency: WETH,
     });
-    expect(getWETH({ chainId: ChainId.OPTIMISM_KOVAN })).toStrictEqual({
-      chainId: ChainId.OPTIMISM_KOVAN,
+    expect(getWETH({ chainId: ChainId.OPTIMISTIC_KOVAN })).toStrictEqual({
+      chainId: ChainId.OPTIMISTIC_KOVAN,
       address: "0x4200000000000000000000000000000000000006",
       currency: WETH,
     });
@@ -78,9 +78,20 @@ describe('Token utils', () => {
       address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
       currency: WETH,
     });
-    expect(getWETH({ chainId: ChainId.ARBITRUM_ONE_RINKEBY })).toStrictEqual({
-      chainId: ChainId.ARBITRUM_ONE_RINKEBY,
+    expect(getWETH({ chainId: ChainId.ARBITRUM_RINKEBY })).toStrictEqual({
+      chainId: ChainId.ARBITRUM_RINKEBY,
       address: "0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681",
+      currency: WETH,
+    });
+
+    expect(getWETH({ chainId: ChainId.POLYGON })).toStrictEqual({
+      chainId: ChainId.POLYGON,
+      address: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+      currency: WETH,
+    });
+    expect(getWETH({ chainId: ChainId.POLYGON_MUMBAI })).toStrictEqual({
+      chainId: ChainId.POLYGON_MUMBAI,
+      address: "0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa",
       currency: WETH,
     });
 
