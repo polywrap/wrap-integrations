@@ -10,7 +10,7 @@ import {
   Trade,
   TradeType,
 } from "./w3";
-import { _isEther, _wrapToken } from "../utils/tokenUtils";
+import { _isNative, _wrapToken } from "../utils/tokenUtils";
 import { tokenEquals } from "./token";
 import { tradeMaximumAmountIn, tradeMinimumAmountOut } from "./trade";
 import { getChecksumAddress } from "../utils/addressUtils";
@@ -118,11 +118,11 @@ export function swapCallParameters(
 
   // flag for whether a refund needs to happen
   const mustRefund: boolean =
-    _isEther(sampleTrade.inputAmount.token) &&
+    _isNative(sampleTrade.inputAmount.token) &&
     sampleTrade.tradeType == TradeType.EXACT_OUTPUT;
-  const inputIsNative: boolean = _isEther(sampleTrade.inputAmount.token);
+  const inputIsNative: boolean = _isNative(sampleTrade.inputAmount.token);
   // flags for whether funds should be sent first to the router
-  const outputIsNative: boolean = _isEther(sampleTrade.outputAmount.token);
+  const outputIsNative: boolean = _isNative(sampleTrade.outputAmount.token);
   const routerMustCustody: boolean = outputIsNative || options.fee !== null;
 
   let sumValue: BigInt = BigInt.ZERO;
@@ -143,7 +143,7 @@ export function swapCallParameters(
 
   // encode permit if necessary
   if (options.inputTokenPermit !== null) {
-    if (_isEther(sampleTrade.inputAmount.token)) {
+    if (_isNative(sampleTrade.inputAmount.token)) {
       throw new Error(
         "NON_TOKEN_PERMIT: cannot encode permit of native currency (e.g. Ether)"
       );

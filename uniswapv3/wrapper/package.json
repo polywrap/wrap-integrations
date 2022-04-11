@@ -2,7 +2,7 @@
   "name": "uniswapV3-wrapper",
   "description": "Polywrap Uniswap V3 API",
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "scripts": {
     "reset": "yarn clean && yarn && yarn build",
     "clean": "npx rimraf ./node_modules ./build ./coverage ./.w3 ./**/w3",
