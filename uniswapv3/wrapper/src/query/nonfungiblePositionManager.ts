@@ -34,7 +34,7 @@ import {
   mintAmountsWithSlippage,
 } from "./position";
 import { getChecksumAddress } from "../utils/addressUtils";
-import { _isEther, _wrapToken } from "../utils/tokenUtils";
+import { _isNative, _wrapToken } from "../utils/tokenUtils";
 import { tokenEquals } from "./token";
 import Fraction from "../utils/Fraction";
 
@@ -383,8 +383,8 @@ function encodeCollect(options: CollectOptions): string[] {
   const tokenId: string = toHex({ value: options.tokenId });
   const recipient: string = getChecksumAddress(options.recipient);
   const involvesETH: boolean =
-    _isEther(options.expectedCurrencyOwed0.token) ||
-    _isEther(options.expectedCurrencyOwed1.token);
+    _isNative(options.expectedCurrencyOwed0.token) ||
+    _isNative(options.expectedCurrencyOwed1.token);
 
   // collect
   const collectArgs: CollectArgs = {
@@ -401,13 +401,13 @@ function encodeCollect(options: CollectOptions): string[] {
   );
 
   if (involvesETH) {
-    const ethAmount: BigInt = _isEther(options.expectedCurrencyOwed0.token)
+    const ethAmount: BigInt = _isNative(options.expectedCurrencyOwed0.token)
       ? options.expectedCurrencyOwed0.amount
       : options.expectedCurrencyOwed1.amount;
-    const token: Token = _isEther(options.expectedCurrencyOwed0.token)
+    const token: Token = _isNative(options.expectedCurrencyOwed0.token)
       ? options.expectedCurrencyOwed1.token
       : options.expectedCurrencyOwed0.token;
-    const tokenAmount: BigInt = _isEther(options.expectedCurrencyOwed0.token)
+    const tokenAmount: BigInt = _isNative(options.expectedCurrencyOwed0.token)
       ? options.expectedCurrencyOwed1.amount
       : options.expectedCurrencyOwed0.amount;
 

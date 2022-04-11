@@ -13,9 +13,23 @@ export const wethCurrency: Currency = {
   name: "Wrapped Ether",
 };
 
-export function _getEther(chainId: ChainId): Token {
+export const MATIC: Currency = {
+  decimals: 18,
+  name: "Matic",
+  symbol: "MATIC",
+};
+const MATIC_ADDRESS = "0x0000000000000000000000000000000000001010";
+
+export function _getNative(chainId: ChainId): Token {
   if (chainId < ChainId.MAINNET || chainId >= ChainId._MAX_) {
     throw new Error("Unknown chain ID");
+  }
+  if (chainId == ChainId.POLYGON || chainId == ChainId.POLYGON_MUMBAI) {
+    return {
+      chainId: chainId,
+      address: MATIC_ADDRESS,
+      currency: copyCurrency(MATIC),
+    };
   }
   return {
     chainId: chainId,
@@ -66,7 +80,16 @@ export function _getWETH(chainId: ChainId): Token {
   };
 }
 
-export function _isEther(token: Token): boolean {
+export function _isNative(token: Token): boolean {
+  if (
+    token.chainId == ChainId.POLYGON ||
+    token.chainId == ChainId.POLYGON_MUMBAI
+  ) {
+    return (
+      currencyEquals({ currencyA: token.currency, currencyB: MATIC }) &&
+      token.address == MATIC_ADDRESS
+    );
+  }
   return (
     currencyEquals({ currencyA: token.currency, currencyB: ETHER }) &&
     token.address == ""
@@ -75,7 +98,7 @@ export function _isEther(token: Token): boolean {
 
 // check if need to wrap ether
 export function _wrapToken(token: Token): Token {
-  if (_isEther(token)) {
+  if (_isNative(token)) {
     return _getWETH(token.chainId);
   }
   return token;

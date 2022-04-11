@@ -1,5 +1,5 @@
 import { ChainId, Currency, Token, TokenAmount } from "../../../query/w3";
-import { getEther, getWETH, isEther, wrapAmount, wrapToken } from "../../../query";
+import { getNative, getWETH, isNative, wrapAmount, wrapToken } from "../../../query";
 import { BigInt } from "@web3api/wasm-as";
 
 const Eth: Currency = {
@@ -12,6 +12,13 @@ const WETH: Currency = {
   symbol: "WETH",
   name: "Wrapped Ether",
 };
+export const MATIC: Currency = {
+  decimals: 18,
+  name: "Matic",
+  symbol: "MATIC",
+};
+const MATIC_ADDRESS = "0x0000000000000000000000000000000000001010";
+
 const USDC: Token = {
   chainId: ChainId.MAINNET,
   address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
@@ -24,16 +31,21 @@ const USDC: Token = {
 
 describe('Token utils', () => {
 
-  it('getEther', () => {
+  it('getNative', () => {
     for (let i = ChainId.MAINNET; i < ChainId._MAX_; i++) {
-      expect(getEther({ chainId: i as ChainId })).toStrictEqual({
+      const result: Token = i > 8 ? {
+          chainId: i as ChainId,
+          address: MATIC_ADDRESS,
+          currency: MATIC,
+        } : {
         chainId: i as ChainId,
         address: "",
         currency: Eth,
-      });
+      }
+      expect(getNative({ chainId: i as ChainId })).toStrictEqual(result);
     }
 
-    const error = (): void => { getEther({ chainId: 999 }) };
+    const error = (): void => { getNative({ chainId: 999 }) };
     expect(error).toThrow("Unknown chain ID");
   });
 
@@ -99,21 +111,21 @@ describe('Token utils', () => {
     expect(error).toThrow("Unknown chain ID");
   });
 
-  it('isEther', () => {
-    const ethToken: Token = getEther({ chainId: ChainId.MAINNET });
-    expect(isEther({ token: ethToken })).toStrictEqual(true);
-    expect(isEther({ token: USDC })).toStrictEqual(false);
+  it('isNative', () => {
+    const ethToken: Token = getNative({ chainId: ChainId.MAINNET });
+    expect(isNative({ token: ethToken })).toStrictEqual(true);
+    expect(isNative({ token: USDC })).toStrictEqual(false);
   });
 
   it('wrapToken', () => {
-    const ethToken: Token = getEther({ chainId: ChainId.MAINNET });
+    const ethToken: Token = getNative({ chainId: ChainId.MAINNET });
     expect(wrapToken({ token: ethToken })).toStrictEqual(getWETH({ chainId: ethToken.chainId }));
     expect(wrapToken({ token: USDC })).toStrictEqual(USDC);
   });
 
   it('wrapAmount', () => {
     const ethAmount: TokenAmount = {
-      token: getEther({ chainId: ChainId.MAINNET }),
+      token: getNative({ chainId: ChainId.MAINNET }),
       amount: BigInt.fromUInt16(100),
     };
     const wethAmount: TokenAmount = {
