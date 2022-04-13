@@ -46,6 +46,7 @@ jobs:
 
       - name: (Console) Test
         run: yarn test:ci
+        working-directory: ./console/wrapper
     #
 
     # ENS
@@ -69,6 +70,7 @@ jobs:
 
       - name: (ENS) Test
         run: yarn test
+        working-directory: ./ens/wrapper
     #
 
     # NEAR
@@ -92,6 +94,7 @@ jobs:
 
       - name: (NEAR Wrapper) Test
         run: yarn test
+        working-directory: ./near/wrapper
     #
 
     # Uniswap V2
@@ -115,6 +118,7 @@ jobs:
 
       - name: (Uniswap V2 Wrapper) Test
         run: yarn test
+        working-directory: ./uniswapv2/wrapper
     #
 
     # Uniswap V3
@@ -138,4 +142,5 @@ jobs:
 
       - name: (Uniswap V3 Wrapper) Test
         run: yarn test
+        working-directory: ./uniswapv3/wrapper
     #
