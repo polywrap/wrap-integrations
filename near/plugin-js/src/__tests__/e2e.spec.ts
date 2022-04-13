@@ -1,6 +1,6 @@
 import { Web3ApiClient } from "@web3api/client-js";
 import { nearPlugin, NearPluginConfig } from "..";
-import { Action } from "../w3";
+import { Action, Transaction, SignTransactionResult, FinalExecutionOutcome, ExecutionStatus, ExecutionOutcomeWithId } from "../w3";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
 import BN from "bn.js";
@@ -54,7 +54,7 @@ describe("e2e", () => {
     workingAccount = await testUtils.createAccount(near);
     await testUtils.deployContract(workingAccount, contractId);
     // set up access key
-    const keyPair = KeyPair.fromRandom("ed25519");
+    const keyPair = nearApi.KeyPair.fromRandom("ed25519");
     await workingAccount.addKey(
       keyPair.getPublicKey(),
       contractId,
