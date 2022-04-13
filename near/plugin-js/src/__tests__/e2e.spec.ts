@@ -56,7 +56,7 @@ describe("e2e", () => {
     workingAccount = await testUtils.createAccount(near);
     await testUtils.deployContract(workingAccount, contractId);
     // set up access key
-    const keyPair = KeyPair.fromRandom("ed25519");
+    const keyPair = nearApi.KeyPair.fromRandom("ed25519");
     await workingAccount.addKey(
       keyPair.getPublicKey(),
       contractId,
