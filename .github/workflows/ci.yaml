@@ -82,7 +82,7 @@ jobs:
       - name: (NEAR Plugin) Setup Node.js
         uses: actions/setup-node@master
         with:
-          node-version: '${{ steps.near-nvm.outputs.NVMRC }}'
+          node-version: '${{ steps.near-plugin-nvm.outputs.NVMRC }}'
 
       - name: (NEAR Plugin) Install dependencies
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
@@ -100,13 +100,13 @@ jobs:
       # NEAR wrapper
       - name: (NEAR Wrapper) Read .nvmrc
         run: echo ::set-output name=NVMRC::$(cat .nvmrc)
-        id: near-nvm
+        id: near-wrapper-nvm
         working-directory: ./near/wrapper
 
       - name: (NEAR Wrapper) Setup Node.js
         uses: actions/setup-node@master
         with:
-          node-version: '${{ steps.near-nvm.outputs.NVMRC }}'
+          node-version: '${{ steps.near-wrapper-nvm.outputs.NVMRC }}'
 
       - name: (NEAR Wrapper) Install dependencies
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
