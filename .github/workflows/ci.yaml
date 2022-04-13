@@ -21,7 +21,6 @@ jobs:
         uses: actions/setup-node@master
         with:
           node-version: '${{ steps.console-nvm.outputs.NVMRC }}'
-        working-directory: ./console/wrapper
 
       ## Yarn Caching:
       ## Only needs to happen once
@@ -59,7 +58,6 @@ jobs:
         uses: actions/setup-node@master
         with:
           node-version: '${{ steps.ens-nvm.outputs.NVMRC }}'
-        working-directory: ./ens/wrapper
 
       - name: (ENS) Install dependencies
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
@@ -83,7 +81,6 @@ jobs:
         uses: actions/setup-node@master
         with:
           node-version: '${{ steps.near-nvm.outputs.NVMRC }}'
-        working-directory: ./near/wrapper
 
       - name: (NEAR Wrapper) Install dependencies
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
@@ -107,7 +104,6 @@ jobs:
         uses: actions/setup-node@master
         with:
           node-version: '${{ steps.uniswapv2-nvm.outputs.NVMRC }}'
-        working-directory: ./uniswapv2/wrapper
 
       - name: (Uniswap V2 Wrapper) Install dependencies
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
@@ -131,7 +127,6 @@ jobs:
         uses: actions/setup-node@master
         with:
           node-version: '${{ steps.uniswapv3-nvm.outputs.NVMRC }}'
-        working-directory: ./uniswapv3/wrapper
 
       - name: (Uniswap V3 Wrapper) Install dependencies
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
