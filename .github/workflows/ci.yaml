@@ -73,7 +73,31 @@ jobs:
         working-directory: ./ens/wrapper
     #
 
-    # NEAR
+    # NEAR plugin
+      - name: (NEAR Plugin) Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: near-plugin-nvm
+        working-directory: ./near/plugin-js
+
+      - name: (NEAR Plugin) Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: '${{ steps.near-nvm.outputs.NVMRC }}'
+
+      - name: (NEAR Plugin) Install dependencies
+        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+        working-directory: ./near/plugin-js
+
+      - name: (NEAR Plugin) Build
+        run: yarn build
+        working-directory: ./near/plugin-js
+
+      - name: (NEAR Plugin) Test
+        run: yarn test
+        working-directory: ./near/plugin-js
+      #
+
+      # NEAR wrapper
       - name: (NEAR Wrapper) Read .nvmrc
         run: echo ::set-output name=NVMRC::$(cat .nvmrc)
         id: near-nvm
