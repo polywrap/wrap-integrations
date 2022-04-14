@@ -1,4 +1,4 @@
-import { ChainId, Currency, Token, TokenAmount } from "../query/w3";
+import { ChainId, Currency, Token, TokenAmount } from "../w3";
 import { currencyEquals } from "../query";
 
 export const ETHER: Currency = {
@@ -24,7 +24,7 @@ export function _getNative(chainId: ChainId): Token {
   if (chainId < ChainId.MAINNET || chainId >= ChainId._MAX_) {
     throw new Error("Unknown chain ID");
   }
-  if (chainId == ChainId.POLYGON || chainId == ChainId.POLYGON_MUMBAI) {
+  if (chainId >= ChainId.POLYGON) {
     return {
       chainId: chainId,
       address: MATIC_ADDRESS,
@@ -81,10 +81,7 @@ export function _getWETH(chainId: ChainId): Token {
 }
 
 export function _isNative(token: Token): boolean {
-  if (
-    token.chainId == ChainId.POLYGON ||
-    token.chainId == ChainId.POLYGON_MUMBAI
-  ) {
+  if (token.chainId >= ChainId.POLYGON) {
     return (
       currencyEquals({ currencyA: token.currency, currencyB: MATIC }) &&
       token.address == MATIC_ADDRESS
@@ -98,7 +95,7 @@ export function _isNative(token: Token): boolean {
 
 // check if need to wrap ether
 export function _wrapToken(token: Token): Token {
-  if (_isNative(token)) {
+  if (_isNative(token) && token.chainId < ChainId.POLYGON) {
     return _getWETH(token.chainId);
   }
   return token;
