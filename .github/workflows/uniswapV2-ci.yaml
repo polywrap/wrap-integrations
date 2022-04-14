@@ -1,0 +1,34 @@
+name: CI
+
+on: [pull_request]
+
+jobs:
+  CI:
+    name: Uniswap V2 CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: uniswapv2-nvm
+        working-directory: ./uniswapv2/wrapper
+
+      - name: Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: '${{ steps.uniswapv2-nvm.outputs.NVMRC }}'
+
+      - name: Install dependencies
+        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+        working-directory: ./uniswapv2/wrapper
+
+      - name: Build
+        run: yarn build
+        working-directory: ./uniswapv2/wrapper
+
+      - name: Test
+        run: yarn test:ci
+        working-directory: ./uniswapv2/wrapper
