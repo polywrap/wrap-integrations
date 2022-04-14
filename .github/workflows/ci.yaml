@@ -11,6 +11,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+    # Console:
+      - name: (Console) Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: console-nvm
+        working-directory: ./console/wrapper
+
+      - name: (Console) Setup Node.js
+        uses: actions/setup-node@master
+        run: echo
+        with:
+          node-version: '${{ steps.console-nvm.outputs.NVMRC }}'
+        working-directory: ./console/wrapper
+
       ## Yarn Caching:
       ## Only needs to happen once
       - name: Get yarn cache directory path
@@ -25,19 +38,9 @@ jobs:
             ${{ runner.os }}-yarn-
       ##
 
-    # Console:
-      - name: (Console) Read .nvmrc
-        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
-        id: console-nvm
-        working-directory: ./console/wrapper
-
       - name: (Console) Install dependencies
-        uses: actions/setup-node@master
-        with:
-          node-version: '${{ steps.console-nvm.outputs.NVMRC }}'
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
         working-directory: ./console/wrapper
-
 
       - name: (Console) Build
         run: yarn build
@@ -54,10 +57,14 @@ jobs:
         id: ens-nvm
         working-directory: ./ens/wrapper
 
-      - name: (ENS) Install dependencies
+      - name: (ENS) Setup Node.js
         uses: actions/setup-node@master
+        run: echo
         with:
           node-version: '${{ steps.ens-nvm.outputs.NVMRC }}'
+        working-directory: ./ens/wrapper
+
+      - name: (ENS) Install dependencies
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
         working-directory: ./ens/wrapper
 
@@ -76,10 +83,14 @@ jobs:
         id: near-plugin-nvm
         working-directory: ./near/plugin-js
 
-      - name: (NEAR Plugin) Install dependencies
+      - name: (NEAR Plugin) Setup Node.js
         uses: actions/setup-node@master
+        run: echo
         with:
           node-version: '${{ steps.near-plugin-nvm.outputs.NVMRC }}'
+        working-directory: ./near/plugin-js
+
+      - name: (NEAR Plugin) Install dependencies
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
         working-directory: ./near/plugin-js
 
@@ -98,10 +109,14 @@ jobs:
         id: near-wrapper-nvm
         working-directory: ./near/wrapper
 
-      - name: (NEAR Wrapper) Install dependencies
+      - name: (NEAR Wrapper) Setup Node.js
         uses: actions/setup-node@master
+        run: echo
         with:
           node-version: '${{ steps.near-wrapper-nvm.outputs.NVMRC }}'
+        working-directory: ./near/wrapper
+
+      - name: (NEAR Wrapper) Install dependencies
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
         working-directory: ./near/wrapper
 
@@ -120,10 +135,14 @@ jobs:
         id: uniswapv2-nvm
         working-directory: ./uniswapv2/wrapper
 
-      - name: (Uniswap V2 Wrapper) Install dependencies
+      - name: (Uniswap V2 Wrapper) Setup Node.js
         uses: actions/setup-node@master
+        run: echo
         with:
           node-version: '${{ steps.uniswapv2-nvm.outputs.NVMRC }}'
+        working-directory: ./uniswapv2/wrapper
+
+      - name: (Uniswap V2 Wrapper) Install dependencies
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
         working-directory: ./uniswapv2/wrapper
 
@@ -142,10 +161,14 @@ jobs:
         id: uniswapv3-nvm
         working-directory: ./uniswapv3/wrapper
 
-      - name: (Uniswap V3 Wrapper) Install dependencies
+      - name: (Uniswap V3 Wrapper) Setup Node.js
         uses: actions/setup-node@master
+        run: echo
         with:
           node-version: '${{ steps.uniswapv3-nvm.outputs.NVMRC }}'
+        working-directory: ./uniswapv3/wrapper
+
+      - name: (Uniswap V3 Wrapper) Install dependencies
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
         working-directory: ./uniswapv3/wrapper
 
