@@ -24,7 +24,7 @@ export function _getNative(chainId: ChainId): Token {
   if (chainId < ChainId.MAINNET || chainId >= ChainId._MAX_) {
     throw new Error("Unknown chain ID");
   }
-  if (chainId >= ChainId.POLYGON) {
+  if (chainId == ChainId.POLYGON || chainId == ChainId.POLYGON_MUMBAI) {
     return {
       chainId: chainId,
       address: MATIC_ADDRESS,
@@ -81,7 +81,10 @@ export function _getWETH(chainId: ChainId): Token {
 }
 
 export function _isNative(token: Token): boolean {
-  if (token.chainId >= ChainId.POLYGON) {
+  if (
+    token.chainId == ChainId.POLYGON ||
+    token.chainId == ChainId.POLYGON_MUMBAI
+  ) {
     return (
       currencyEquals({ currencyA: token.currency, currencyB: MATIC }) &&
       token.address == MATIC_ADDRESS
@@ -95,7 +98,11 @@ export function _isNative(token: Token): boolean {
 
 // check if need to wrap ether
 export function _wrapToken(token: Token): Token {
-  if (_isNative(token) && token.chainId < ChainId.POLYGON) {
+  if (
+    _isNative(token) &&
+    token.chainId != ChainId.POLYGON &&
+    token.chainId != ChainId.POLYGON_MUMBAI
+  ) {
     return _getWETH(token.chainId);
   }
   return token;
