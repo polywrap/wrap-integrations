@@ -155,7 +155,7 @@ describe("Swap", () => {
         pairs: [etherDaiData.data!.fetchPairData],
         amountOut: {
           token: dai,
-          amount: "100000000"
+          amount: "10000000000000000000000"
         },
         tokenIn: eth,
       },
@@ -197,7 +197,7 @@ describe("Swap", () => {
 
     const daiContract = new Contract(dai.address, erc20ABI, ethersProvider);
     const daiBalance = await daiContract.balanceOf(recipient);
-    expect(daiBalance.gte("100000000")).toBeTruthy();
+    expect(daiBalance.gte("10000000000000000000000")).toBeTruthy();
 
     // EXEC dai -> link
     const daiLinkTradeData = await client.query<{bestTradeExactIn: Trade[]}>({
@@ -215,7 +215,7 @@ describe("Swap", () => {
         pairs: [daiLinkData.data!.fetchPairData],
         amountIn: {
           token: dai,
-          amount: "100000"
+          amount: "1000000000000000000000"
         },
         tokenOut: link,
       },
@@ -249,7 +249,7 @@ describe("Swap", () => {
     const daiLinkTxHash: string = daiLinkTxResponse.data?.exec.hash ?? "";
     const daiLinkTx = await ethersProvider.getTransaction(daiLinkTxHash);
     await daiLinkTx.wait();
-    expect((await daiContract.balanceOf(recipient)).toString()).toBe("99900000");
+    expect((await daiContract.balanceOf(recipient)).toString()).toBe("9000000000000000000000");
     expect(linkBalance.gt("0")).toBeTruthy();
 
     // EXEC link -> eth exec
@@ -268,7 +268,7 @@ describe("Swap", () => {
         pairs: [linkEtherData.data!.fetchPairData],
         amountIn: {
           token: link,
-          amount: "200"
+          amount: "10000000000000000000"
         },
         tokenOut: eth,
       },
@@ -323,7 +323,7 @@ describe("Swap", () => {
       variables: {
         token0: dai,
         token1: link,
-        amount: "100",
+        amount: "1000000000000000000000",
         tradeType: "EXACT_INPUT",
         tradeOptions: {
           allowedSlippage: "0.1",
@@ -339,7 +339,7 @@ describe("Swap", () => {
     const daiLinkSwapHash: string = daiLinkSwap.data?.swap.hash ?? "";
     const daiLinkSwapTx = await ethersProvider.getTransaction(daiLinkSwapHash);
     await daiLinkSwapTx.wait();
-    expect((await daiContract.balanceOf(recipient)).toString()).toBe("99899900");
+    expect((await daiContract.balanceOf(recipient)).toString()).toBe("8000000000000000000000");
 
     // SWAP link -> dai
     const linkDaiSwap = await client.query<{ swap: TxResponse}>({
@@ -358,7 +358,7 @@ describe("Swap", () => {
       variables: {
         token0: link,
         token1: dai,
-        amount: "100",
+        amount: "1000000000000000000000",
         tradeType: "EXACT_OUTPUT",
         tradeOptions: {
           allowedSlippage: "0.1",
@@ -373,6 +373,6 @@ describe("Swap", () => {
     const linkDaiSwapHash: string = linkDaiSwap.data?.swap.hash ?? "";
     const linkDaiSwapTx = await ethersProvider.getTransaction(linkDaiSwapHash);
     await linkDaiSwapTx.wait();
-    expect((await daiContract.balanceOf(recipient)).toString()).toEqual("99900000");
+    expect((await daiContract.balanceOf(recipient)).toString()).toEqual("9000000000000000000000");
   });
 });
