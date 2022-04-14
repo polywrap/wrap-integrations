@@ -55,5 +55,5 @@ jobs:
         working-directory: ./near/wrapper
 
       - name: Test
-        run: yarn test:ci
+        run: yarn test
         working-directory: ./near/wrapper
