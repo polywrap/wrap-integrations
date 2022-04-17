@@ -358,7 +358,7 @@ describe("Swap", () => {
       variables: {
         token0: link,
         token1: dai,
-        amount: "1000000000000000000000",
+        amount: "100000000000000000000",
         tradeType: "EXACT_OUTPUT",
         tradeOptions: {
           allowedSlippage: "0.1",
@@ -373,6 +373,6 @@ describe("Swap", () => {
     const linkDaiSwapHash: string = linkDaiSwap.data?.swap.hash ?? "";
     const linkDaiSwapTx = await ethersProvider.getTransaction(linkDaiSwapHash);
     await linkDaiSwapTx.wait();
-    expect((await daiContract.balanceOf(recipient)).toString()).toEqual("9000000000000000000000");
+    expect((await daiContract.balanceOf(recipient)).toString()).toEqual("8100000000000000000000");
   });
 });
