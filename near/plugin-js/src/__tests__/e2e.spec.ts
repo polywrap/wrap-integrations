@@ -5,7 +5,7 @@ import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
 import { KeyPair } from "near-api-js";
 import BN from "bn.js";
-import { HELLO_WASM_METHODS } from "./testUtils";
+import { HELLO_WASM_METHODS, generateUniqueString } from "./testUtils";
 import { Signature } from "../w3";
 
 jest.setTimeout(360000);
@@ -71,7 +71,17 @@ describe("e2e", () => {
   });
 
   it("Sign a message", async () => {
-    const message = Buffer.from("hello");
+    const message = Buffer.from(generateUniqueString("msg"));
+
+    const keyPair = await config.keyStore.getKey(
+      config.networkId,
+      workingAccount.accountId
+    );
+
+    const { signature: signatureToVerify } = keyPair.sign(message);
+
+    const isValid = keyPair.verify(message, signatureToVerify);
+
     const result = await client.query<{ signMessage: Signature }>({
       uri,
       query: `query {
@@ -85,6 +95,8 @@ describe("e2e", () => {
         signerId: workingAccount.accountId,
       },
     });
+
+    expect(isValid).toBeTruthy();
 
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
