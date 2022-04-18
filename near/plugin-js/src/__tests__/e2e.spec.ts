@@ -56,7 +56,7 @@ describe("e2e", () => {
     workingAccount = await testUtils.createAccount(near);
     await testUtils.deployContract(workingAccount, contractId);
     // set up access key
-    const keyPair = nearApi.KeyPair.fromRandom("ed25519");
+    const keyPair = KeyPair.fromRandom("ed25519");
     await workingAccount.addKey(
       keyPair.getPublicKey(),
       contractId,
@@ -126,7 +126,6 @@ describe("e2e", () => {
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
-
     const transaction: Transaction = result.data!.createTransaction;
     expect(transaction.signerId).toEqual(workingAccount.accountId);
     expect(transaction.publicKey).toBeTruthy();
@@ -157,7 +156,6 @@ describe("e2e", () => {
     expect(txQuery.errors).toBeFalsy();
     expect(txQuery.data).toBeTruthy();
     const transaction: Transaction = txQuery.data!.createTransaction;
-
     const result = await client.query<{
       signTransaction: SignTransactionResult;
     }>({
@@ -173,7 +171,6 @@ describe("e2e", () => {
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
-
     const signedTx = result.data!.signTransaction.signedTx;
     const txHash = result.data!.signTransaction.hash;
     expect(signedTx.transaction.signerId).toEqual(workingAccount.accountId);
