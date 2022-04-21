@@ -10,6 +10,9 @@ jest.setTimeout(360000);
 
 describe("Swap", () => {
 
+  // time until a swap transaction expires, in seconds
+  const ttl = 30000;
+
   let client: Web3ApiClient;
   let recipient: string;
   let ensUri: string;
@@ -178,10 +181,10 @@ describe("Swap", () => {
       variables: {
         trade: etherDaiTrade,
         tradeOptions: {
-          allowedSlippage: "0.1",
+          allowedSlippage: "0.5",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: 1800
+          ttl: ttl
         }
       },
     });
@@ -234,10 +237,10 @@ describe("Swap", () => {
       variables: {
         trade: daiLinkTrade,
         tradeOptions: {
-          allowedSlippage: "0.1",
+          allowedSlippage: "0.5",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: 1800
+          ttl: ttl
         }
       },
     });
@@ -291,10 +294,10 @@ describe("Swap", () => {
       variables: {
         trade: linkEthTrade,
         tradeOptions: {
-          allowedSlippage: "0.1",
+          allowedSlippage: "0.5",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: 1800
+          ttl: ttl
         }
       },
     });
@@ -323,13 +326,13 @@ describe("Swap", () => {
       variables: {
         token0: dai,
         token1: link,
-        amount: "1000000000000000000000",
+        amount: "100000000000000000000",
         tradeType: "EXACT_INPUT",
         tradeOptions: {
-          allowedSlippage: "0.1",
+          allowedSlippage: "0.5",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: 1800
+          ttl: ttl
         }
       },
     });
@@ -339,7 +342,7 @@ describe("Swap", () => {
     const daiLinkSwapHash: string = daiLinkSwap.data?.swap.hash ?? "";
     const daiLinkSwapTx = await ethersProvider.getTransaction(daiLinkSwapHash);
     await daiLinkSwapTx.wait();
-    expect((await daiContract.balanceOf(recipient)).toString()).toBe("8000000000000000000000");
+    expect((await daiContract.balanceOf(recipient)).toString()).toBe("8900000000000000000000");
 
     // SWAP link -> dai
     const linkDaiSwap = await client.query<{ swap: TxResponse}>({
@@ -358,13 +361,13 @@ describe("Swap", () => {
       variables: {
         token0: link,
         token1: dai,
-        amount: "100000000000000000000",
+        amount: "10000000000000000000",
         tradeType: "EXACT_OUTPUT",
         tradeOptions: {
-          allowedSlippage: "0.1",
+          allowedSlippage: "0.5",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: 1800
+          ttl: ttl
         }
       },
     });
@@ -373,6 +376,6 @@ describe("Swap", () => {
     const linkDaiSwapHash: string = linkDaiSwap.data?.swap.hash ?? "";
     const linkDaiSwapTx = await ethersProvider.getTransaction(linkDaiSwapHash);
     await linkDaiSwapTx.wait();
-    expect((await daiContract.balanceOf(recipient)).toString()).toEqual("8100000000000000000000");
+    expect((await daiContract.balanceOf(recipient)).toString()).toEqual("8910000000000000000000");
   });
 });
