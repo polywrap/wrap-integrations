@@ -1,6 +1,7 @@
+// import url from "url";
 import { Web3ApiClient } from "@web3api/client-js";
 import { nearPlugin, NearPluginConfig } from "..";
-//import { Action, Transaction } from "../w3";
+// import { LocalStorage } from "ts-localstorage";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
 import { KeyPair } from "near-api-js";
@@ -14,28 +15,42 @@ describe("e2e", () => {
   // @ts-ignore
   let client: Web3ApiClient;
   const uri = "w3://ens/near.web3api.eth";
-
+  // let localStorage: any = LocalStorage;
   let config: NearPluginConfig;
+  // let history: [any, any, any];
+  // let nearFake: any;
   // @ts-ignore
+  // global.document = {
+  //   title: "documentTitle",
+  // };
+  // @ts-ignore
+  // global.window = {
+  //   localStorage,
+  // };
+
+  let lastRedirectUrl: any;
+  // @ts-ignore
+  // !!!
+  let walletConnection: any;
   let near: nearApi.Near;
   let workingAccount: nearApi.Account;
+  // let keyStore = new nearApi.keyStores.InMemoryKeyStore();
   let contractId: string;
   //let contract: nearApi.Contract;
-
-  /*  const prepActions = (): Action[] => {
-    const setCallValue = testUtils.generateUniqueString("setCallPrefix");
-    const args = { value: setCallValue };
-    const stringify = (obj: unknown): Buffer =>
-      Buffer.from(JSON.stringify(obj));
-    return [
-      {
-        methodName: "setValue",
-        args: stringify(args),
-        gas: "3000000000000",
-        deposit: "0",
-      },
-    ];
-  }; */
+  // const prepActions = (): Action[] => {
+  //   const setCallValue = testUtils.generateUniqueString("setCallPrefix");
+  //   const args = { value: setCallValue };
+  //   const stringify = (obj: unknown): Buffer =>
+  //     Buffer.from(JSON.stringify(obj));
+  //   return [
+  //     {
+  //       methodName: "setValue",
+  //       args: stringify(args),
+  //       gas: "3000000000000",
+  //       deposit: "0",
+  //     },
+  //   ];
+  // };
 
   beforeAll(async () => {
     config = await testUtils.setUpTestConfig();
@@ -68,7 +83,74 @@ describe("e2e", () => {
       workingAccount.accountId,
       keyPair
     );
+    //in near-api-js give away nearFake
+    // nearFake = {
+    //   config: {
+    //     networkId: "networkId",
+    //     contractName: "contractId",
+    //     walletUrl: "http://example.com/wallet",
+    //   },
+    //   connection: {
+    //     networkId: "networkId",
+    //     signer: new nearApi.InMemorySigner(keyStore),
+    //   },
+    //   account() {
+    //     return {
+    //       state() {},
+    //     };
+    //   },
+    // };
+    // lastRedirectUrl = null;
+
+    // Object.assign(global.window, {
+    //   location: {
+    //     href: "http://example.com/location",
+    //     assign(url: any) {
+    //       lastRedirectUrl = url;
+    //     },
+    //   },
+    //   history: {
+    //     replaceState: (state: any, title: any, url: any) =>
+    //       history.push([state, title, url]),
+    //   },
+    // });
+    // wallet-connection
+    // walletConnection = new nearApi.WalletConnection(nearFake, null);
   });
+  // requestSignTransactions
+  // it("Request sign transactions", async () => {
+  //   console.log("walletConnection", walletConnection); // undefined
+  //   const BLOCK_HASH = "244ZQ9cgj3CQ6bWBdytfrJMuMQ1jdXLFGnr4HhvtCTnM";
+  //   const blockHash = nearApi.utils.serialize.base_decode(BLOCK_HASH);
+  //   function createTransferTx() {
+  //     const actions = [nearApi.transactions.transfer(new BN("0.000001"))];
+  //     return nearApi.transactions.createTransaction(
+  //       "test.near",
+  //       nearApi.utils.PublicKey.fromString(
+  //         "Anu7LYDfpLtkP7E16LT9imXF694BdQaa9ufVkQiwTQxC"
+  //       ),
+  //       "whatever.near",
+  //       1,
+  //       actions,
+  //       blockHash
+  //     );
+  //   }
+  //   await walletConnection.requestSignTransactions({
+  //     transactions: [createTransferTx()],
+  //     meta: "something",
+  //     callbackUrl: "http://example.com/after",
+  //   });
+  //   expect(url.parse(lastRedirectUrl, true)).toMatchObject({
+  //     protocol: "http:",
+  //     host: "example.com",
+  //     query: {
+  //       meta: "something",
+  //       callbackUrl: "http://example.com/after",
+  //       transactions:
+  //         "CQAAAHRlc3QubmVhcgCRez0mjUtY9/7BsVC9aNab4+5dTMOYVeNBU4Rlu3eGDQEAAAAAAAAADQAAAHdoYXRldmVyLm5lYXIPpHP9JpAd8pa+atxMxN800EDvokNSJLaYaRDmMML+9gEAAAADAQAAAAAAAAAAAAAAAAAAAA==",
+  //     },
+  //   });
+  // });
 
   it("Sign a message", async () => {
     const message = Buffer.from(generateUniqueString("msg"));
