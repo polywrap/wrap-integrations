@@ -10,6 +10,8 @@ jest.setTimeout(360000);
 
 describe("Swap", () => {
 
+  const ttl = 30 * 60 * 1000;
+
   let client: Web3ApiClient;
   let recipient: string;
   let ensUri: string;
@@ -181,7 +183,7 @@ describe("Swap", () => {
           allowedSlippage: "0.5",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: 1800
+          ttl: ttl
         }
       },
     });
@@ -237,7 +239,7 @@ describe("Swap", () => {
           allowedSlippage: "0.5",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: 1800
+          ttl: ttl
         }
       },
     });
@@ -294,7 +296,7 @@ describe("Swap", () => {
           allowedSlippage: "0.5",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: 1800
+          ttl: ttl
         }
       },
     });
@@ -329,7 +331,7 @@ describe("Swap", () => {
           allowedSlippage: "0.5",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: 1800
+          ttl: ttl
         }
       },
     });
@@ -364,7 +366,7 @@ describe("Swap", () => {
           allowedSlippage: "0.5",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: 1800
+          ttl: ttl
         }
       },
     });
