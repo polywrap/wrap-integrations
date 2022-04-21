@@ -10,9 +10,6 @@ jest.setTimeout(360000);
 
 describe("Swap", () => {
 
-  // time until a swap transaction expires, in seconds
-  const ttl = 30000;
-
   let client: Web3ApiClient;
   let recipient: string;
   let ensUri: string;
@@ -184,7 +181,7 @@ describe("Swap", () => {
           allowedSlippage: "0.5",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: ttl
+          ttl: 1800
         }
       },
     });
@@ -240,7 +237,7 @@ describe("Swap", () => {
           allowedSlippage: "0.5",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: ttl
+          ttl: 1800
         }
       },
     });
@@ -297,7 +294,7 @@ describe("Swap", () => {
           allowedSlippage: "0.5",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: ttl
+          ttl: 1800
         }
       },
     });
@@ -332,7 +329,7 @@ describe("Swap", () => {
           allowedSlippage: "0.5",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: ttl
+          ttl: 1800
         }
       },
     });
@@ -367,7 +364,7 @@ describe("Swap", () => {
           allowedSlippage: "0.5",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: ttl
+          ttl: 1800
         }
       },
     });
