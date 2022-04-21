@@ -6,8 +6,8 @@ import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
 import { KeyPair } from "near-api-js";
 import BN from "bn.js";
-import { HELLO_WASM_METHODS, generateUniqueString } from "./testUtils";
-import { Signature } from "../w3";
+import { HELLO_WASM_METHODS } from "./testUtils";
+//import { Signature } from "../w3";
 
 jest.setTimeout(360000);
 
@@ -31,7 +31,7 @@ describe("e2e", () => {
   let lastRedirectUrl: any;
   // @ts-ignore
   // !!!
-  let walletConnection: any;
+  let walletConnection: nearApi.WalletConnection;
   let near: nearApi.Near;
   let workingAccount: nearApi.Account;
   // let keyStore = new nearApi.keyStores.InMemoryKeyStore();
@@ -83,76 +83,84 @@ describe("e2e", () => {
       workingAccount.accountId,
       keyPair
     );
-    //in near-api-js give away nearFake
-    // nearFake = {
-    //   config: {
-    //     networkId: "networkId",
-    //     contractName: "contractId",
-    //     walletUrl: "http://example.com/wallet",
-    //   },
-    //   connection: {
-    //     networkId: "networkId",
-    //     signer: new nearApi.InMemorySigner(keyStore),
-    //   },
-    //   account() {
-    //     return {
-    //       state() {},
-    //     };
-    //   },
-    // };
-    // lastRedirectUrl = null;
+    lastRedirectUrl = null;
 
-    // Object.assign(global.window, {
-    //   location: {
-    //     href: "http://example.com/location",
-    //     assign(url: any) {
-    //       lastRedirectUrl = url;
-    //     },
-    //   },
-    //   history: {
-    //     replaceState: (state: any, title: any, url: any) =>
-    //       history.push([state, title, url]),
-    //   },
-    // });
-    // wallet-connection
-    // walletConnection = new nearApi.WalletConnection(nearFake, null);
+/*     Object.assign(global.window, {
+      location: {
+        href: "http://example.com/location",
+        assign(url: any) {
+          lastRedirectUrl = url;
+        },
+      },
+      history: {
+        replaceState: (state: any, title: any, url: any) =>
+          history.push([state, title, url]),
+      },
+    }); */
   });
-  // requestSignTransactions
-  // it("Request sign transactions", async () => {
-  //   console.log("walletConnection", walletConnection); // undefined
-  //   const BLOCK_HASH = "244ZQ9cgj3CQ6bWBdytfrJMuMQ1jdXLFGnr4HhvtCTnM";
-  //   const blockHash = nearApi.utils.serialize.base_decode(BLOCK_HASH);
-  //   function createTransferTx() {
-  //     const actions = [nearApi.transactions.transfer(new BN("0.000001"))];
-  //     return nearApi.transactions.createTransaction(
-  //       "test.near",
-  //       nearApi.utils.PublicKey.fromString(
-  //         "Anu7LYDfpLtkP7E16LT9imXF694BdQaa9ufVkQiwTQxC"
-  //       ),
-  //       "whatever.near",
-  //       1,
-  //       actions,
-  //       blockHash
-  //     );
-  //   }
-  //   await walletConnection.requestSignTransactions({
-  //     transactions: [createTransferTx()],
-  //     meta: "something",
-  //     callbackUrl: "http://example.com/after",
-  //   });
-  //   expect(url.parse(lastRedirectUrl, true)).toMatchObject({
-  //     protocol: "http:",
-  //     host: "example.com",
-  //     query: {
-  //       meta: "something",
-  //       callbackUrl: "http://example.com/after",
-  //       transactions:
-  //         "CQAAAHRlc3QubmVhcgCRez0mjUtY9/7BsVC9aNab4+5dTMOYVeNBU4Rlu3eGDQEAAAAAAAAADQAAAHdoYXRldmVyLm5lYXIPpHP9JpAd8pa+atxMxN800EDvokNSJLaYaRDmMML+9gEAAAADAQAAAAAAAAAAAAAAAAAAAA==",
-  //     },
-  //   });
-  // });
 
-  it("Sign a message", async () => {
+  it("Request sign transactions", async () => {
+    walletConnection = new nearApi.WalletConnection(near, null);
+
+    console.log("walletConnection", walletConnection); // undefined
+
+    const BLOCK_HASH = "244ZQ9cgj3CQ6bWBdytfrJMuMQ1jdXLFGnr4HhvtCTnM";
+    const blockHash = nearApi.utils.serialize.base_decode(BLOCK_HASH);
+
+    function createTransferTx() {
+      const actions = [nearApi.transactions.transfer(new BN("0.000001"))];
+      return nearApi.transactions.createTransaction(
+        "test.near",
+        nearApi.utils.PublicKey.fromString(
+          "Anu7LYDfpLtkP7E16LT9imXF694BdQaa9ufVkQiwTQxC"
+        ),
+        "whatever.near",
+        1,
+        actions,
+        blockHash
+      );
+    }
+    const transfer = createTransferTx();
+
+    await walletConnection.requestSignTransactions({
+      transactions: [transfer],
+      meta: "something",
+      callbackUrl: "http://example.com/after",
+    });
+
+    const result = await client.query<{ requestSignTransactions: Boolean }>({
+      uri,
+      query: `query {
+      requestSignTransactions(
+        transactions:$transactions
+        callbackUrl:$callbackUrl
+        meta:$meta
+      )
+    }`,
+      variables: {
+        transactions: [transfer],
+        callbackUrl: "",
+        meta: "",
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const requsetSuccess: Boolean = result.data!.requestSignTransactions;
+    expect(requsetSuccess).toEqual(true);
+    /*   expect(url.parse(lastRedirectUrl, true)).toMatchObject({
+      protocol: "http:",
+      host: "example.com",
+      query: {
+        meta: "something",
+        callbackUrl: "http://example.com/after",
+        transactions:
+          "CQAAAHRlc3QubmVhcgCRez0mjUtY9/7BsVC9aNab4+5dTMOYVeNBU4Rlu3eGDQEAAAAAAAAADQAAAHdoYXRldmVyLm5lYXIPpHP9JpAd8pa+atxMxN800EDvokNSJLaYaRDmMML+9gEAAAADAQAAAAAAAAAAAAAAAAAAAA==",
+      },
+    }); */
+  });
+
+  /*   it("Sign a message", async () => {
     const message = Buffer.from(generateUniqueString("msg"));
 
     const keyPair = await config.keyStore.getKey(
@@ -187,7 +195,7 @@ describe("e2e", () => {
     expect(signature.data).toBeTruthy();
     expect(signature.data).toBeInstanceOf(Uint8Array);
     expect(signature.keyType).toBeDefined();
-  });
+  }); */
 
   /*  it("Creates a transaction without wallet", async () => {
     const actions: Action[] = prepActions();
