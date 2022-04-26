@@ -178,7 +178,7 @@ describe("Swap", () => {
       variables: {
         trade: etherDaiTrade,
         tradeOptions: {
-          allowedSlippage: "0.1",
+          allowedSlippage: "0.9",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
           ttl: 1800
@@ -234,7 +234,7 @@ describe("Swap", () => {
       variables: {
         trade: daiUsdcTrade,
         tradeOptions: {
-          allowedSlippage: "0.1",
+          allowedSlippage: "0.9",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
           ttl: 1800
@@ -291,7 +291,7 @@ describe("Swap", () => {
       variables: {
         trade: usdcEthTrade,
         tradeOptions: {
-          allowedSlippage: "0.1",
+          allowedSlippage: "0.9",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
           ttl: 1800
@@ -326,7 +326,7 @@ describe("Swap", () => {
         amount: "100000000000000000000", // $100
         tradeType: "EXACT_INPUT",
         tradeOptions: {
-          allowedSlippage: "0.1",
+          allowedSlippage: "0.9",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
           ttl: 1800
@@ -358,10 +358,10 @@ describe("Swap", () => {
       variables: {
         token0: usdc,
         token1: dai,
-        amount: "100000000", // $100
-        tradeType: "EXACT_INPUT",
+        amount: "100000000000000000000", // $100
+        tradeType: "EXACT_OUTPUT",
         tradeOptions: {
-          allowedSlippage: "0.1",
+          allowedSlippage: "0.9",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
           ttl: 1800
@@ -373,7 +373,6 @@ describe("Swap", () => {
     const usdcDaiSwapHash: string = usdcDaiSwap.data?.swap.hash ?? "";
     const usdcDaiSwapTx = await ethersProvider.getTransaction(usdcDaiSwapHash);
     await usdcDaiSwapTx.wait();
-    const finalDaiBalance: ethers.BigNumber = await daiContract.balanceOf(recipient);
-    expect(finalDaiBalance.gte("890000000000000000000")).toEqual(true);
+    expect((await daiContract.balanceOf(recipient)).toString()).toEqual("900000000000000000000");
   });
 });
