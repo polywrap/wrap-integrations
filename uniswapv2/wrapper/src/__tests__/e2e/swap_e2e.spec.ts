@@ -10,8 +10,6 @@ jest.setTimeout(360000);
 
 describe("Swap", () => {
 
-  const ttl = 1800;
-
   let client: Web3ApiClient;
   let recipient: string;
   let ensUri: string;
@@ -157,7 +155,7 @@ describe("Swap", () => {
         pairs: [etherDaiData.data!.fetchPairData],
         amountOut: {
           token: dai,
-          amount: "10000000000000000000000" // $10,000
+          amount: "1000000000000000000000" // $1,000
         },
         tokenIn: eth,
       },
@@ -180,10 +178,10 @@ describe("Swap", () => {
       variables: {
         trade: etherDaiTrade,
         tradeOptions: {
-          allowedSlippage: "1",
+          allowedSlippage: "0.1",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: ttl
+          ttl: 1800
         }
       },
     });
@@ -199,7 +197,7 @@ describe("Swap", () => {
 
     const daiContract = new Contract(dai.address, erc20ABI, ethersProvider);
     const daiBalance = await daiContract.balanceOf(recipient);
-    expect(daiBalance.gte("10000000000000000000000")).toBeTruthy();
+    expect(daiBalance.gte("1000000000000000000000")).toBeTruthy();
 
     // EXEC dai -> usdc
     const daiUsdcTradeData = await client.query<{bestTradeExactIn: Trade[]}>({
@@ -217,7 +215,7 @@ describe("Swap", () => {
         pairs: [daiUsdcData.data!.fetchPairData],
         amountIn: {
           token: dai,
-          amount: "1000000000000000000000" // $1,000
+          amount: "100000000000000000000" // $100
         },
         tokenOut: usdc,
       },
@@ -236,10 +234,10 @@ describe("Swap", () => {
       variables: {
         trade: daiUsdcTrade,
         tradeOptions: {
-          allowedSlippage: "1",
+          allowedSlippage: "0.1",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: ttl
+          ttl: 1800
         }
       },
     });
@@ -251,7 +249,7 @@ describe("Swap", () => {
     const daiUsdcTxHash: string = daiUsdcTxResponse.data?.exec.hash ?? "";
     const daiUsdcTx = await ethersProvider.getTransaction(daiUsdcTxHash);
     await daiUsdcTx.wait();
-    expect((await daiContract.balanceOf(recipient)).toString()).toBe("9000000000000000000000");
+    expect((await daiContract.balanceOf(recipient)).toString()).toBe("900000000000000000000");
     expect(usdcBalance.gt("0")).toBeTruthy();
 
     // EXEC usdc -> eth exec
@@ -270,7 +268,7 @@ describe("Swap", () => {
         pairs: [usdcEtherData.data!.fetchPairData],
         amountIn: {
           token: usdc,
-          amount: "100000000" // $100
+          amount: "10000000" // $10
         },
         tokenOut: eth,
       },
@@ -293,10 +291,10 @@ describe("Swap", () => {
       variables: {
         trade: usdcEthTrade,
         tradeOptions: {
-          allowedSlippage: "1",
+          allowedSlippage: "0.1",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: ttl
+          ttl: 1800
         }
       },
     });
@@ -325,13 +323,13 @@ describe("Swap", () => {
       variables: {
         token0: dai,
         token1: usdc,
-        amount: "1000000000000000000000", // $1,000
+        amount: "100000000000000000000", // $100
         tradeType: "EXACT_INPUT",
         tradeOptions: {
-          allowedSlippage: "1",
+          allowedSlippage: "0.1",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: ttl
+          ttl: 1800
         }
       },
     });
@@ -341,7 +339,7 @@ describe("Swap", () => {
     const daiUsdcSwapHash: string = daiUsdcSwap.data?.swap.hash ?? "";
     const daiUsdcSwapTx = await ethersProvider.getTransaction(daiUsdcSwapHash);
     await daiUsdcSwapTx.wait();
-    expect((await daiContract.balanceOf(recipient)).toString()).toBe("8000000000000000000000");
+    expect((await daiContract.balanceOf(recipient)).toString()).toBe("800000000000000000000");
 
     // SWAP usdc -> dai
     const usdcDaiSwap = await client.query<{ swap: TxResponse}>({
@@ -360,13 +358,13 @@ describe("Swap", () => {
       variables: {
         token0: usdc,
         token1: dai,
-        amount: "1000000000000000000000",
-        tradeType: "EXACT_OUTPUT",
+        amount: "100000000", // $100
+        tradeType: "EXACT_INPUT",
         tradeOptions: {
-          allowedSlippage: "1",
+          allowedSlippage: "0.1",
           recipient: recipient,
           unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: ttl
+          ttl: 1800
         }
       },
     });
@@ -375,6 +373,7 @@ describe("Swap", () => {
     const usdcDaiSwapHash: string = usdcDaiSwap.data?.swap.hash ?? "";
     const usdcDaiSwapTx = await ethersProvider.getTransaction(usdcDaiSwapHash);
     await usdcDaiSwapTx.wait();
-    expect((await daiContract.balanceOf(recipient)).toString()).toEqual("9000000000000000000000");
+    const finalDaiBalance: ethers.BigNumber = await daiContract.balanceOf(recipient);
+    expect(finalDaiBalance.gte("890000000000000000000")).toEqual(true);
   });
 });
