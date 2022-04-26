@@ -1,0 +1,34 @@
+name: CI
+
+on: [pull_request]
+
+jobs:
+  CI:
+    name: Console CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: (Tezos Test Env Wrapper) Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: tezos-nvm
+        working-directory: ./tezos/wrapper
+
+      - name: (Tezos) Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: '${{ steps.tezos-nvm.outputs.NVMRC }}'
+
+      - name: (Tezos) Install dependencies
+        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+        working-directory: ./tezos/test-env
+
+      - name: (Tezoz) Build
+        run: yarn
+        working-directory: ./tezos/test-env
+
+      - name: (Tezos) Test
+        run: npm run test:env:up
+      #
