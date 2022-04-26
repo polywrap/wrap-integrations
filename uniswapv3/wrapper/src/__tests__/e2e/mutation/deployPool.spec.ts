@@ -6,7 +6,7 @@ import { getPlugins, getPoolFromAddress } from "../testUtils";
 import * as ethers from "ethers";
 import { getWETH } from "../wrappedQueries";
 
-jest.setTimeout(180000);
+jest.setTimeout(360000);
 
 describe("Deploy pool (mainnet fork)", () => {
 
