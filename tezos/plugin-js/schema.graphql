@@ -1,0 +1,547 @@
+""" Supported networks for getting operation status """
+enum GetOperationStatusSupportedNetworks {
+  mainnet
+  hangzhounet
+  granadanet
+}
+
+""" Describes a tezos account """
+type AccountDetails {
+  """ Public key hash of account """
+  pkh: String!
+  """ Balance of account """
+  balance: String!
+}
+
+""" Describes the status of a transaction """
+type OperationStatus {
+  """ hash of operation"""
+  hash: String!
+  """ type of transaction """
+  type: String!
+  """ Block hash at which the operation was included on-chain """
+  block: String!
+  """ Block time at which the operation was included on-chain """
+  time: String!
+  """ Block height at which the operation was included on-chain """
+  height: String!
+  """ Cycle in which the operation was included on-chain """
+  cycle: UInt32!
+  """ Unique sender account ‘nonce’ value """
+  counter: UInt32!
+  """ Operation status applied, failed, backtracked, skipped. """
+  status: String!
+  """ Flag indicating operation was successfully applied """
+  is_success: Boolean!
+  """ Flag indicating smart-contract calls """
+  is_contract: Boolean!
+  """ Caller-defined gas limit """
+  gas_limit: UInt32!
+  """ Gas used by the operation """
+  gas_used: UInt32!
+  """ Effective price per gas unit in mutez """
+  gas_price: UInt32!
+  """ Caller-defined storage limit """
+  storage_limit: UInt32!
+  """ Actual storage size allocated """
+  storage_size: UInt32!
+  """ Part of the storage the operation paid for """
+  storage_paid: UInt32!
+  """ Amount of tokens transferred in tz """
+  volume: UInt32!
+  """ Fees paid in tez """
+  fee: UInt32!
+  """ Token days destroyed by this operation (tokens transferred * token idle time) """
+  days_destroyed: UInt32!
+  """ Operation sender """
+  sender: String!
+  """ Transaction receiver, may be empty """
+  receiver: String!
+  """ Number of blocks following the inclusion of this operation """
+  confirmations: UInt32!
+}
+
+""" Describes a block """
+type Block {
+  """ Chain hash"""
+  chainId: String!
+  """ Block hash """
+  hash: String!
+  """ Protocol hash """
+  protocol: String!
+}
+
+""" Describes a transfer transaction confirmation """
+type TransferConfirmation {
+  """ Flag indicating operation is completed """
+  completed: Boolean!
+  """ Total number of current confirmations """
+  currentConfirmation: UInt32!
+  """ Total expected confirmation """
+  expectedConfirmation: UInt32!
+  """ Block for confirmation"""
+  block: Block!
+}
+
+""" Describes operation error """
+type OperationError {
+  """ Operation type """
+  kind: String!
+  """ Id of operation """
+  id: String!
+}
+
+""" Estimate transaction result """
+type EstimateResult {
+  """ Flag indicating error occurred """
+  error: Boolean!
+  """ Reason for error """
+  reason: String
+  """ Estimate transaction """
+  estimate: Estimate
+}
+
+""" Describes reveal parameters """
+type RevealParams {
+  """ Called-defined fee limit to be paid """
+  fee: UInt32
+  """ Caller-defined gas limit """
+  gasLimit: UInt32
+  """ Caller-defined storage limit """
+  storageLimit: UInt32
+}
+
+""" Describes send parameters """
+type SendParams {
+  """ Tezos account to send """
+  to: String!
+  """ Amount to send """
+  amount: UInt32!
+  """ Tezos account making transfer """
+  source: String
+  """ Called-defined fee limit to be paid """
+  fee: UInt32
+  """ Caller-defined gas limit """
+  gasLimit: UInt32
+  """ Caller-defined storage limit """
+  storageLimit: UInt32
+  """ Flag indicating Amount is express in micro tez """
+  mutez: Boolean
+}
+
+""" Describes transfer params of a transaction operation """
+type TransferParams {
+  """ Tezos account to send """
+  to: String!
+  """ Amount to send """
+  amount: UInt32!
+  """ Called-defined fee limit to be paid"""
+  fee: UInt32
+  source: String
+  """ Flag indicating Amount is express in micro tez"""
+  mutez: Boolean
+  """
+  Michelson expression expressed in a string
+  TODO(): switch to JSON when nested object and maps are supported
+  """
+  parameter: String
+  """ Caller-defined gas limit """
+  gasLimit: UInt32
+  """ Flag indicating Amount is express in micro tez"""
+  storageLimit: UInt32
+}
+
+""" Describes originate parameters """
+type OriginateParams {
+  """ Contract code """
+  code: String!
+  """ Initial storage """
+  storage: String!
+  """ Initial balance  """
+  balance: String
+  """ """
+  delegate: String
+  """ Called-defined fee limit to be paid"""
+  fee: UInt32
+  """ Caller-defined gas limit """
+  gasLimit: UInt32
+  """ Flag indicating Amount is express in micro tez"""
+  storageLimit: UInt32
+  """ Flag indicating Amount is express in micro tez"""
+  mutez: Boolean
+  """ Initial storage """
+  init: String
+}
+
+""" Describes estimate """
+type Estimate {
+  """ Burn fee paid in mutez"""
+  burnFeeMutez: UInt32!
+  """ Caller-defined gas limit """
+  gasLimit: UInt32!
+  """ Minimal fee paid in mutez """
+  minimalFeeMutez: UInt32!
+  """ Operation size """
+  opSize: String!
+  """ Caller-defined storage limit """
+  storageLimit: UInt32!
+  """ Suggested fee paid in mutez """
+  suggestedFeeMutez: UInt32!
+  """ Total cost transaction """
+  totalCost: UInt32!
+  """ Using base fee paid in mutez """
+  usingBaseFeeMutez: UInt32!
+  """ Gas consumed """
+  consumedMilligas: UInt32!
+}
+
+""" Describes origination transaction """
+type OriginationOperation {
+  """ Originated contract address """
+  contractAddress: String
+  """ Contract hash """
+  hash: String!
+  """ Gas consumed """
+  consumedGas: String
+  """ Transaction errors """
+  errors: [OperationError!]
+  """ Fee paid in tez """
+  fee: UInt32!
+  """ Caller-defined gas limit """
+  gasLimit: UInt32!
+  """ Block number origination transaction was included """
+  includedInBlock: UInt32!
+  """ Revealed Status of contract """
+  revealStatus: String
+  """ Status of contract """
+  status: String
+  """ Difference in storage after origination """
+  storageDiff: String
+  """ Called-Defined Storage limit """
+  storageLimit: UInt32!
+  """ Storage size used """
+  storageSize: String
+}
+
+""" Describes origination response """
+type OriginationResponse {
+  """ Flag indicating an error occurred """
+  error: Boolean!
+  """ Reason for the error """
+  reason: String
+  """ Origination operation response """
+  origination: OriginationOperation
+}
+
+""" Describes Transaction operation """
+type TxOperation {
+  """ Transaction hash """
+  hash: String!
+  """ Source of transaction """
+  source: String
+  """ Balance of transaction """
+  amount: BigInt
+  """ Gas consumed """
+  consumedGas: BigInt
+  """ Transaction destination """
+  destination: String!
+  """ Error transaction """
+  errors: [OperationError!]
+  """ Fee paid in tez """
+  fee: UInt32!
+  """ Called-Defined gas limit """
+  gasLimit: UInt32!
+  """ Block number transaction is included """
+  includedInBlock: String!
+  """ Status of transaction  """
+  status: String!
+  """ Difference of storage """
+  storageDiff: String
+  """ Called-Defined storage limit  """
+  storageLimit: UInt32!
+  """ Storage size """
+  storageSize: BigInt
+}
+
+""" Describes connection """
+type Connection {
+  """ RPC Node url """
+  provider: String
+  """ Network name """
+  networkNameOrChainId: String
+}
+
+""" Describes a signed message """
+type SignResult {
+  """ Input Bytes"""
+  bytes: String!
+  """ 'sig' prefixed signature """
+  sig: String!
+  """ 'edsig' prefixed signature """
+  prefixSig: String!
+  """ raw bytes of the signature """
+  sbytes: String!
+}
+
+""" Describes origination with confirmation """
+type OriginationConfirmationResponse {
+  """ Total confirmation """
+  confirmation: UInt32!
+  """ Origination operation """
+  origination: OriginationOperation!
+}
+
+""" Response to call contract and await confirmation """
+type CallContractMethodConfirmationResponse {
+  """ Confirmation """
+  confirmation: UInt32!
+  """ Transaction operation response """
+  operation: TxOperation!
+}
+
+type Query {
+  """ Public key """
+  getPublicKey(
+    connection: Connection
+  ): String!
+
+  """ Public key hash """
+  getPublicKeyHash(
+    connection: Connection
+  ): String!
+
+  """ Reveal transaction estimate """
+  getRevealEstimate(
+    connection: Connection
+    params: RevealParams!
+  ): EstimateResult!
+
+  """ Transfer transaction estimate """
+  getTransferEstimate(
+    connection: Connection
+    params: SendParams!
+  ): EstimateResult!
+
+ """ Originate transaction estimate """
+  getOriginateEstimate(
+    """ Connection """
+    connection: Connection
+    params: OriginateParams!
+  ): EstimateResult! 
+
+  """ Check validity of address """
+  checkAddress(
+    """ Connection """
+    connection: Connection
+    """ Tezos address """
+    address: String!
+  ): Boolean!
+
+  """ Balance of tezos account """
+  getBalance(
+    """ Connection """
+    connection: Connection
+    """ Tezos address """
+    address: String!
+  ): String!
+
+  """ Read storage of contract """
+  getContractStorage(
+    """ Tezos address """
+    address: String!
+    """ Storage key """
+    key: String!
+    """ Nested key of key value. Can be empty """
+    field: String
+    """ Connection """
+    connection: Connection
+  ): String!
+
+  """ Execute Tzip16View """
+  executeTzip16View(
+    """ Address of tezos account """
+    address: String!
+    """ View handler """
+    viewName: String!
+    """ Arguments """
+    args: String!
+    """ Connection """
+    connection: Connection
+  ): String!
+
+  """ Get wallet account public key hash """
+  getWalletPKH(
+    """ Connection """
+    connection: Connection
+  ): String!
+
+  """ Get operation status """
+  getOperationStatus(
+    """ Hash of operation """
+    hash: String!
+    """ Supported network for getting operation status that wrapper supports """
+    network: GetOperationStatusSupportedNetworks!
+  ): OperationStatus!
+
+  """ Encode michelson express to bytes """
+  encodeMichelsonExpressionToBytes(
+    """ Michelson expression """
+    expression: String!
+    """ Value expression """
+    value: String!
+  ): String!
+
+  """ Call contract view """
+  callContractView(
+    """ Contract address """
+    address: String!
+    """ Handler """
+    view: String!
+    """ Arguments """
+    args: String
+    """ Connection """
+    connection: Connection
+  ): String!
+
+  """ Get Transfer Params """
+  getContractCallTransferParams(
+    """ Address of contract """
+    address: String!
+    """ Method to call """
+    method: String!
+    """ Arguments """
+    args: String
+    """ Send parameters """
+    params: SendParams
+    """ Connection """
+    connection: Connection
+  ): TransferParams!
+}
+
+type Mutation {
+  """ Make a batch contract call """
+  batchContractCalls(
+    """ Transfer Params """
+    params: [TransferParams!]!
+    """ Connection """
+    connection: Connection
+  ): String!
+
+  """ Make a batch wallet call """
+  batchWalletContractCalls(
+    """ Transfer Params """
+    params: [TransferParams!]!
+    """ Connection """
+    connection:Connection
+  ): String!
+
+  """ Connect temple wallet """
+  connectTempleWallet(
+    """ App name """
+    appName: String!
+    """ Network to connection """
+    network: String!
+    """ Connection """
+    connection: Connection
+  ): AccountDetails!
+
+  """ Wallet contract call method """
+  walletContractCallMethod(
+    """ Address of contract """
+    address: String!
+    """ Method to call """
+    method: String!
+    """ Arguments """
+    args: String
+    """ SendParams """
+    params: SendParams
+    """ Connection """
+    connection: Connection
+  ): String!
+
+  """ Wallet originate """
+  walletOriginate(
+    """ Originate params """
+    params: OriginateParams!
+    """ Connection """
+    connection: Connection
+  ): String!
+
+  """ Call contract method """
+  callContractMethod(
+    """ Address of contract """
+    address: String!
+    """ Method to call """
+    method: String!
+    """ Arguments """
+    args: String
+    """ SendParams """
+    params: SendParams
+    """ Connection """
+    connection: Connection
+  ): TxOperation!
+
+  """ Call contract and wait for confirmation """
+  callContractMethodAndConfirmation(
+    """ Address of a contract """
+    address: String!
+    """ Method to contract """
+    method: String!
+    """ Arguments """
+    args: String
+    """ Connection """
+    connection: Connection
+    """ SendParams """
+    params: SendParams
+    """ Confirmations to wait for """
+    confirmations: UInt32!
+    """ Timeout to wait for confirmation """
+    timeout: UInt32
+  ): CallContractMethodConfirmationResponse!
+
+  """ Transfer tez """
+  transfer(
+    """ Connection """
+    connection: Connection
+    """ Sendparams """
+    params: SendParams!
+  ): String!
+
+  """ Transfer tez and wait for confirmation """
+  transferAndConfirm(
+    """ Connection """
+    connection: Connection
+    """ SendParams """
+    params: SendParams!
+    """ Confirmations to wait for """
+    confirmations: UInt32!
+  ): TransferConfirmation!
+
+  """ Sign message """
+  signMessage(
+    """ Connection """
+    connection: Connection
+    """ Message to sign """
+    message: String!
+  ): SignResult!
+
+  """ Originate a contract """
+  originate(
+    """ Connection """
+    connection: Connection
+    """ OriginateParams """
+    params: OriginateParams!
+  ): OriginationResponse!
+
+  """" Originate and wait for confirmation """
+  originateAndConfirm(
+    """ Connection """
+    connection: Connection
+    """ OriginateParams """
+    params: OriginateParams!
+    """ Confirmations to wait for """
+    confirmations: UInt32!
+    """ Timeout to wait for confirmation """
+    timeout: UInt32
+  ): OriginationConfirmationResponse!
+}

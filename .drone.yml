@@ -1,0 +1,128 @@
+kind: pipeline
+type: docker
+name: Basic poly tests
+platform:
+  os: linux
+  arch: amd64
+
+trigger:
+  ref:
+    exclude:
+      - refs/tags/publish-**
+
+steps:
+- name: scan the files
+  image: aquasec/trivy:0.24.3
+  commands:
+    - trivy fs --security-checks vuln,config ./
+    - trivy config ./
+
+- name: run compose tests
+  image: docker/compose:1.29.2
+  volumes:
+    - name: docker_socket
+      path: /var/run/docker.sock
+  commands:
+    - apk add yarn npm
+    - cd tezos/test-env
+    - yarn
+    - npm run test:env:up
+    - npm run test:env:down
+  environment:
+    TEZOS_POLYWRAP_PORT: 20000
+    TEZOS_POLYWRAP_BLOCK_TIME: 5
+    TEZOS_POLYWRAP_PROTOCOL: Hangzhou
+    TEZOS_POLYWRAP_PLATFORM: linux/amd64
+    TEZOS_POLYWRAP_ROOT_PATH: /
+
+volumes:
+  - name: docker_socket
+    host:
+      path: /var/run/docker.sock
+
+---
+kind: pipeline
+type: docker
+name: Publish tezos-plugin-js
+platform:
+  os: linux
+  arch: amd64
+
+trigger:
+  ref:
+    include:
+      - refs/tags/publish-tezos-plugin-js-**
+
+steps:
+- name: yarn build
+  image: node:lts-alpine3.14
+  commands:
+    - cd tezos/plugin-js
+    - yarn install
+    - yarn build
+
+- name: npm publish
+  image: plugins/npm
+  settings:
+    username: 3sky
+    token:
+      from_secret: npm_token
+    email: devops@blockwatch.cc
+    folder: tezos/plugin-js
+
+---
+kind: pipeline
+name: Publish tezos-test-env
+platform:
+  os: linux
+  arch: amd64
+
+trigger:
+  ref:
+    include:
+      - refs/tags/publish-tezos-test-env-**
+
+steps:
+- name: yarn build
+  image: node:lts-alpine3.14
+  commands:
+    - cd tezos/test-env
+    - yarn install
+
+- name: npm publish
+  image: plugins/npm
+  settings:
+    username: 3sky
+    token:
+      from_secret: npm_token
+    email: devops@blockwatch.cc
+    folder: tezos/test-env
+
+---
+kind: pipeline
+name: Publish tezos-domains-plugin-js
+platform:
+  os: linux
+  arch: amd64
+
+trigger:
+  ref:
+    include:
+      - refs/tags/publish-tezos-domains-plugin-js-**
+
+steps:
+- name: yarn build
+  image: node:lts-alpine3.14
+  commands:
+    - cd tezos/tezos-domains-plugin-js
+    - yarn install
+    - yarn build
+
+- name: npm publish
+  image: plugins/npm
+  settings:
+    username: 3sky
+    token:
+      from_secret: npm_token
+    email: devops@blockwatch.cc
+    folder: tezos/tezos-domains-plugin-js
