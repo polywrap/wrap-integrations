@@ -1,12 +1,26 @@
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
-import { Currency, Pair, Token, Trade, TxResponse } from "./types";
+import { Currency, Pair, Token, TokenAmount, Trade, TxResponse } from "./types";
 import path from "path";
-import { getPlugins, getTokenList } from "../testUtils";
+import {
+  approveToken, execSwap, execTrade,
+  getBestTradeExactIn,
+  getBestTradeExactOut,
+  getPairData,
+  getPlugins,
+  getTokenList
+} from "../testUtils";
 import { Contract, ethers, providers } from "ethers";
 import erc20ABI from "./testData/erc20ABI.json";
 
 jest.setTimeout(360000);
+
+const getTradeOptions = (recipient: string) => ({
+  allowedSlippage: "0.1",
+  recipient: recipient,
+  unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
+  ttl: 1800
+});
 
 describe("Swap", () => {
 
@@ -17,7 +31,7 @@ describe("Swap", () => {
   let ethersProvider: providers.JsonRpcProvider;
   let ethCurrency: Currency;
   let dai: Token;
-  let eth: Token;
+  let weth: Token;
   let usdc: Token;
 
   beforeAll(async () => {
@@ -35,46 +49,18 @@ describe("Swap", () => {
 
     // set up test case data -> pairs
     tokens = await getTokenList();
+
     dai = tokens.filter(token => token.currency.symbol === "DAI")[0];
-    const daiTxResponse = await client.query<{approve: TxResponse}>({
-      uri: ensUri,
-      query: `
-        mutation {
-          approve(
-            token: $token
-          )
-        }
-      `,
-      variables: {
-        token: dai,
-      },
-    });
-    if (daiTxResponse.errors) {
-      daiTxResponse.errors.forEach(console.log)
-    }
-    const daiApprove: string = daiTxResponse.data?.approve?.hash ?? "";
-    const daiApproveTx = await ethersProvider.getTransaction(daiApprove);
+    const daiTxResponse: TxResponse = await approveToken(dai, client, ensUri);
+    const daiApproveTx = await ethersProvider.getTransaction(daiTxResponse.hash);
     await daiApproveTx.wait();
 
     usdc = tokens.filter(token => token.currency.symbol === "USDC")[0];
-    const usdcTxResponse = await client.query<{approve: TxResponse}>({
-      uri: ensUri,
-      query: `
-        mutation {
-          approve(
-            token: $token
-          )
-        }
-      `,
-      variables: {
-        token: usdc,
-      },
-    });
-    const usdcApprove: string = usdcTxResponse.data?.approve.hash ?? "";
-    const usdcApproveTx = await ethersProvider.getTransaction(usdcApprove);
+    const usdcTxResponse = await approveToken(usdc, client, ensUri);
+    const usdcApproveTx = await ethersProvider.getTransaction(usdcTxResponse.hash);
     await usdcApproveTx.wait();
 
-    eth = tokens.filter(token => token.currency.symbol === "WETH")[0];
+    weth = tokens.filter(token => token.currency.symbol === "WETH")[0];
     ethCurrency = {
       decimals: 18,
       name: "Ether",
@@ -86,293 +72,88 @@ describe("Swap", () => {
     await stopTestEnvironment();
   });
 
-  it("Should successfully exec ether -> dai -> usdc -> ether trades", async () => {
-    const etherDaiData = await client.query<{
-      fetchPairData: Pair;
-    }>({
-      uri: ensUri,
-      query: `
-        query {
-          fetchPairData(
-            token0: $token0
-            token1: $token1
-          )
-        }
-      `,
-      variables: {
-        token0: eth,
-        token1: dai,
-      },
-    });
-    const daiUsdcData = await client.query<{
-      fetchPairData: Pair;
-    }>({
-      uri: ensUri,
-      query: `
-        query {
-          fetchPairData(
-            token0: $token0
-            token1: $token1
-          )
-        }
-      `,
-      variables: {
-        token0: dai,
-        token1: usdc,
-      },
-    });
-    const usdcEtherData = await client.query<{
-      fetchPairData: Pair;
-    }>({
-      uri: ensUri,
-      query: `
-        query {
-          fetchPairData(
-            token0: $token0
-            token1: $token1
-          )
-        }
-      `,
-      variables: {
-        token0: usdc,
-        token1: eth,
-      },
-    });
+  it("Should successfully EXEC ether -> dai -> usdc -> ether", async () => {
+    const weth_dai: Pair = await getPairData(weth, dai, client, ensUri) as Pair;
+    const dai_usdc: Pair = await getPairData(dai, usdc, client, ensUri) as Pair;
+    const usdc_weth: Pair = await getPairData(usdc, weth, client, ensUri) as Pair;
 
-    // EXEC: ETH -> dai
-    const etherDaiTradeResult = await client.query<{bestTradeExactOut: Trade[]}>({
-      uri: ensUri,
-      query: `
-        query {
-          bestTradeExactOut (
-            pairs: $pairs
-            amountOut: $amountOut
-            tokenIn: $tokenIn
-          )
-        }
-      `,
-      variables: {
-        pairs: [etherDaiData.data!.fetchPairData],
-        amountOut: {
-          token: dai,
-          amount: "1000000000000000000000" // $1,000
-        },
-        tokenIn: eth,
-      },
-    });
-    const etherDaiTrade = etherDaiTradeResult.data!.bestTradeExactOut[0];
+    const daiContract = new Contract(dai.address, erc20ABI, ethersProvider);
+    const usdcContract = new Contract(usdc.address, erc20ABI, ethersProvider);
+
+    const etherDaiOut = "1000000000000000000000"; // $1,000
+    const daiUsdcIn = "100000000000000000000"; // $100
+    const usdcEthIn = "10000000"; // $10;
+    const daiUsdcSwapOut = "100000000"; // $100
+    const usdcDaiSwapIn = "100000000"; // $100
+    
+    // EXEC eth -> dai
+    const etherDaiAmountOut: TokenAmount = {
+        token: dai,
+        amount: etherDaiOut,
+      };
+    const etherDaiBestTrades: Trade[] = await getBestTradeExactOut([weth_dai], weth, etherDaiAmountOut, null, client, ensUri);
+    const etherDaiTrade: Trade = etherDaiBestTrades[0];
     etherDaiTrade.route.path[0].currency = ethCurrency;
     etherDaiTrade.route.pairs[0].tokenAmount1.token.currency = ethCurrency;
     etherDaiTrade.route.input.currency = ethCurrency;
     etherDaiTrade.inputAmount.token.currency = ethCurrency;
-    const etherDaiTxResponse = await client.query<{ exec: TxResponse}>({
-      uri: ensUri,
-      query: `
-        mutation {
-          exec (
-            trade: $trade
-            tradeOptions: $tradeOptions
-          )
-        }
-      `,
-      variables: {
-        trade: etherDaiTrade,
-        tradeOptions: {
-          allowedSlippage: "0.9",
-          recipient: recipient,
-          unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: 1800
-        }
-      },
-    });
-
-    if (etherDaiTxResponse.errors) {
-      etherDaiTxResponse.errors.forEach(console.log)
-    }
-
-    expect(etherDaiTxResponse.errors).toBeFalsy
-    const etherDaiTxHash: string = etherDaiTxResponse.data?.exec.hash ?? "";
-    const etherDaiTx = await ethersProvider.getTransaction(etherDaiTxHash);
+    const etherDaiTxResponse = await execTrade(etherDaiTrade, getTradeOptions(recipient), client, ensUri);
+    const etherDaiTx = await ethersProvider.getTransaction(etherDaiTxResponse.hash);
     await etherDaiTx.wait();
-
-    const daiContract = new Contract(dai.address, erc20ABI, ethersProvider);
-    const daiBalance = await daiContract.balanceOf(recipient);
-    expect(daiBalance.gte("1000000000000000000000")).toBeTruthy();
+    // CHECK eth -> dai
+    expect((await daiContract.balanceOf(recipient)).gte(etherDaiOut)).toBeTruthy();
 
     // EXEC dai -> usdc
-    const daiUsdcTradeData = await client.query<{bestTradeExactIn: Trade[]}>({
-      uri: ensUri,
-      query: `
-        query {
-          bestTradeExactIn (
-            pairs: $pairs
-            amountIn: $amountIn
-            tokenOut: $tokenOut
-          )
-        }
-      `,
-      variables: {
-        pairs: [daiUsdcData.data!.fetchPairData],
-        amountIn: {
-          token: dai,
-          amount: "100000000000000000000" // $100
-        },
-        tokenOut: usdc,
-      },
-    });
-    const daiUsdcTrade = daiUsdcTradeData.data!.bestTradeExactIn[0];
-    const daiUsdcTxResponse = await client.query<{ exec: TxResponse}>({
-      uri: ensUri,
-      query: `
-        mutation {
-          exec (
-            trade: $trade
-            tradeOptions: $tradeOptions
-          )
-        }
-      `,
-      variables: {
-        trade: daiUsdcTrade,
-        tradeOptions: {
-          allowedSlippage: "0.9",
-          recipient: recipient,
-          unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: 1800
-        }
-      },
-    });
-
-    const usdcContract = new Contract(usdc.address, erc20ABI, ethersProvider);
-    const usdcBalance = await usdcContract.balanceOf(recipient);
-
-    expect(daiUsdcTxResponse.errors).toBeFalsy();
-    const daiUsdcTxHash: string = daiUsdcTxResponse.data?.exec.hash ?? "";
-    const daiUsdcTx = await ethersProvider.getTransaction(daiUsdcTxHash);
+    const daiUsdcAmountIn: TokenAmount = {
+      token: dai,
+      amount: daiUsdcIn,
+    };
+    const daiUsdcBestTrades: Trade[] = await getBestTradeExactIn([dai_usdc], daiUsdcAmountIn, usdc, null, client, ensUri);
+    const daiUsdcTrade: Trade = daiUsdcBestTrades[0];
+    const daiUsdcTxResponse = await execTrade(daiUsdcTrade, getTradeOptions(recipient), client, ensUri);
+    const daiUsdcTx = await ethersProvider.getTransaction(daiUsdcTxResponse.hash);
     await daiUsdcTx.wait();
-    expect((await daiContract.balanceOf(recipient)).toString()).toBe("900000000000000000000");
+    // CHECK dai -> usdc
+    const daiBalanceAfterDaiUsdc = await daiContract.balanceOf(recipient);
+    const expectedDaiBalanceAfterDaiUsdc = ethers.BigNumber.from(etherDaiOut).sub(daiUsdcIn);
+    expect(daiBalanceAfterDaiUsdc.toString()).toBe(expectedDaiBalanceAfterDaiUsdc.toString());
+    const usdcBalance = await usdcContract.balanceOf(recipient);
     expect(usdcBalance.gt("0")).toBeTruthy();
 
-    // EXEC usdc -> eth exec
-    const usdcEthTradeResult = await client.query<{bestTradeExactIn: Trade[]}>({
-      uri: ensUri,
-      query: `
-        query {
-          bestTradeExactIn (
-            pairs: $pairs
-            amountIn: $amountIn
-            tokenOut: $tokenOut
-          )
-        }
-      `,
-      variables: {
-        pairs: [usdcEtherData.data!.fetchPairData],
-        amountIn: {
-          token: usdc,
-          amount: "10000000" // $10
-        },
-        tokenOut: eth,
-      },
-    });
-    const usdcEthTrade = usdcEthTradeResult.data!.bestTradeExactIn[0];
+    // EXEC usdc -> eth
+    const usdcEthAmountIn: TokenAmount = {
+      token: usdc,
+      amount: usdcEthIn,
+    };
+    const usdcEthBestTrades: Trade[] = await getBestTradeExactIn([usdc_weth], usdcEthAmountIn, weth, null, client, ensUri);
+    const usdcEthTrade: Trade = usdcEthBestTrades[0];
     usdcEthTrade.route.path[1].currency = ethCurrency;
     usdcEthTrade.route.pairs[0].tokenAmount1.token.currency = ethCurrency;
     usdcEthTrade.route.output.currency = ethCurrency;
     usdcEthTrade.outputAmount.token.currency = ethCurrency;
-    const usdcEthTxResponse = await client.query<{ exec: TxResponse}>({
-      uri: ensUri,
-      query: `
-        mutation {
-          exec (
-            trade: $trade
-            tradeOptions: $tradeOptions
-          )
-        }
-      `,
-      variables: {
-        trade: usdcEthTrade,
-        tradeOptions: {
-          allowedSlippage: "0.9",
-          recipient: recipient,
-          unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: 1800
-        }
-      },
-    });
-
-    expect(usdcEthTxResponse.errors).toBeFalsy();
-    const usdcEthTxHash: string = usdcEthTxResponse.data?.exec.hash ?? "";
-    const usdcEthTx = await ethersProvider.getTransaction(usdcEthTxHash);
+    const usdcEthTxResponse = await execTrade(usdcEthTrade, getTradeOptions(recipient), client, ensUri);
+    const usdcEthTx = await ethersProvider.getTransaction(usdcEthTxResponse.hash);
     await usdcEthTx.wait();
-
-    expect((await usdcContract.balanceOf(recipient)).lt(usdcBalance)).toBeTruthy();
+    // CHECK usdc -> eth
+    const usdcBalanceAfterUsdcEth: ethers.BigNumber = await usdcContract.balanceOf(recipient);
+    expect(usdcBalanceAfterUsdcEth.lt(usdcBalance)).toBeTruthy();
 
     // SWAP dai -> usdc
-    const daiUsdcSwap = await client.query<{ swap: TxResponse}>({
-      uri: ensUri,
-      query: `
-        mutation {
-          swap (
-            tokenIn: $token0
-            tokenOut: $token1
-            amount: $amount
-            tradeType: $tradeType
-            tradeOptions: $tradeOptions
-          )
-        }
-      `,
-      variables: {
-        token0: dai,
-        token1: usdc,
-        amount: "100000000000000000000", // $100
-        tradeType: "EXACT_INPUT",
-        tradeOptions: {
-          allowedSlippage: "0.9",
-          recipient: recipient,
-          unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: 1800
-        }
-      },
-    });
-
-
-    expect(daiUsdcSwap.errors).toBeFalsy();
-    const daiUsdcSwapHash: string = daiUsdcSwap.data?.swap.hash ?? "";
-    const daiUsdcSwapTx = await ethersProvider.getTransaction(daiUsdcSwapHash);
+    const daiUsdcSwapTxResponse = await execSwap(dai, usdc, daiUsdcSwapOut, "EXACT_OUTPUT", getTradeOptions(recipient), client, ensUri);
+    const daiUsdcSwapTx = await ethersProvider.getTransaction(daiUsdcSwapTxResponse.hash);
     await daiUsdcSwapTx.wait();
-    expect((await daiContract.balanceOf(recipient)).toString()).toBe("800000000000000000000");
+    // CHECK dai -> usdc swap
+    const usdcBalanceAfterDaiUsdcSwap: ethers.BigNumber = await usdcContract.balanceOf(recipient);
+    const expectedUsdcBalanceAfterDaiUsdcSwap = usdcBalanceAfterUsdcEth.add(daiUsdcSwapOut);
+    expect(usdcBalanceAfterDaiUsdcSwap.toString()).toBe(expectedUsdcBalanceAfterDaiUsdcSwap.toString());
+    expect((await daiContract.balanceOf(recipient)).lt(daiBalanceAfterDaiUsdc)).toBeTruthy();
 
     // SWAP usdc -> dai
-    const usdcDaiSwap = await client.query<{ swap: TxResponse}>({
-      uri: ensUri,
-      query: `
-        mutation {
-          swap (
-            tokenIn: $token0
-            tokenOut: $token1
-            amount: $amount
-            tradeType: $tradeType
-            tradeOptions: $tradeOptions
-          )
-        }
-      `,
-      variables: {
-        token0: usdc,
-        token1: dai,
-        amount: "100000000000000000000", // $100
-        tradeType: "EXACT_OUTPUT",
-        tradeOptions: {
-          allowedSlippage: "0.9",
-          recipient: recipient,
-          unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
-          ttl: 1800
-        }
-      },
-    });
-
-    expect(usdcDaiSwap.errors).toBeFalsy();
-    const usdcDaiSwapHash: string = usdcDaiSwap.data?.swap.hash ?? "";
-    const usdcDaiSwapTx = await ethersProvider.getTransaction(usdcDaiSwapHash);
+    const usdcDaiSwapTxResponse = await execSwap(usdc,dai, usdcDaiSwapIn, "EXACT_INPUT", getTradeOptions(recipient), client, ensUri);
+    const usdcDaiSwapTx = await ethersProvider.getTransaction(usdcDaiSwapTxResponse.hash);
     await usdcDaiSwapTx.wait();
-    expect((await daiContract.balanceOf(recipient)).toString()).toEqual("900000000000000000000");
+    // CHECK usdc -> dai swap
+    expect((await usdcContract.balanceOf(recipient)).toString()).toEqual(usdcBalanceAfterUsdcEth.toString());
   });
 });
+
