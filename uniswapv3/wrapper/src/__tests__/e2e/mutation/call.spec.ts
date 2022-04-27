@@ -12,7 +12,7 @@ import {
 import path from "path";
 import { getPlugins, getPoolFromAddress, getPools, getTokens } from "../testUtils";
 import * as ethers from "ethers";
-import { bestTradeExactOut, getEther, swapCallParameters } from "../wrappedQueries";
+import { bestTradeExactOut, getNative, swapCallParameters } from "../wrappedQueries";
 import erc20ABI from "../testData/erc20ABI.json";
 
 jest.setTimeout(180000);
@@ -82,7 +82,7 @@ describe("Call (mainnet fork)", () => {
       await approveTx.wait();
     }
 
-    const ETH: Token = await getEther(client, ensUri, ChainIdEnum.MAINNET);
+    const ETH: Token = await getNative(client, ensUri, ChainIdEnum.MAINNET);
     const USDC: Token = tokens.find(token => token.currency.symbol === "USDC") as Token;
 
     // eth -> usdc preparation

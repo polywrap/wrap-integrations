@@ -1,6 +1,6 @@
 format: 0.0.1-prealpha.1
 docker:
-  name: http-wrapper-build-env
+  name: http-wrapper-build
 config:
   node_version: "16.13.0"
   include:

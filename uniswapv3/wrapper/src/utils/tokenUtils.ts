@@ -1,4 +1,4 @@
-import { ChainId, Currency, Token, TokenAmount } from "../query/w3";
+import { ChainId, Currency, Token, TokenAmount } from "../w3";
 import { currencyEquals } from "../query";
 
 export const ETHER: Currency = {
@@ -98,7 +98,11 @@ export function _isNative(token: Token): boolean {
 
 // check if need to wrap ether
 export function _wrapToken(token: Token): Token {
-  if (_isNative(token)) {
+  if (
+    _isNative(token) &&
+    token.chainId != ChainId.POLYGON &&
+    token.chainId != ChainId.POLYGON_MUMBAI
+  ) {
     return _getWETH(token.chainId);
   }
   return token;

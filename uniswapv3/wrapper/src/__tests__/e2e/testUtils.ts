@@ -39,7 +39,7 @@ export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): 
      {
       uri: "w3://ens/ethers-solidity.polywrap.eth",
        // @ts-ignore
-      plugin: ethersSolidity({}), // TODO: why am i getting an "incompatible types" error here?
+      plugin: ethersSolidity({}),
      },
     ],
   };

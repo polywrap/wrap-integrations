@@ -5,7 +5,7 @@ import { Pair, Route, Token } from "./types";
 import { getPairData, getPlugins, getTokenList, getUniPairs } from "../testUtils";
 import * as uni from "@uniswap/sdk";
 
-jest.setTimeout(360000);
+jest.setTimeout(480000);
 
 describe('Route', () => {
 

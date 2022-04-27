@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@as-pect/cli": "6.0.0",
-    "@ethersproject/providers": "5.0.7",
+    "@ethersproject/providers": "5.6.4",
     "@types/jest": "26.0.8",
     "@types/node": "12.6.9",
     "@types/node-fetch": "2.5.10",
@@ -32,7 +32,7 @@
     "@web3api/wasm-as": "0.0.1-prealpha.49",
     "assemblyscript": "0.19.1",
     "axios": "0.21.1",
-    "ethers": "5.0.7",
+    "ethers": "5.6.4",
     "jest": "26.6.3",
     "js-yaml": "3.14.0",
     "node-fetch": "2.6.1",

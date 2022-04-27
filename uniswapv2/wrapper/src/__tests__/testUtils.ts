@@ -1,4 +1,4 @@
-import { BestTradeOptions, ChainId, Pair, Token, TokenAmount, Trade } from "./e2e/types";
+import { BestTradeOptions, ChainId, Pair, Token, TokenAmount, Trade, TxResponse, TradeOptions } from "./e2e/types";
 import { ClientConfig, coreInterfaceUris, Web3ApiClient } from "@web3api/client-js";
 import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
 import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
@@ -209,4 +209,94 @@ export async function getBestTradeExactOut(
     query.errors.forEach(console.log)
   }
   return result!
+}
+
+export async function approveToken(
+  token: Token,
+  client: Web3ApiClient,
+  ensUri: string
+): Promise<TxResponse> {
+  const query = await client.query<{approve: TxResponse}>({
+    uri: ensUri,
+    query: `
+        mutation {
+          approve(
+            token: $token
+          )
+        }
+      `,
+    variables: {
+      token: token,
+    },
+  });
+  const result: TxResponse | undefined = query.data?.approve
+  if (query.errors) {
+    query.errors.forEach(console.log)
+  }
+  return result!;
+}
+
+export async function execTrade(
+  trade: Trade,
+  tradeOptions: TradeOptions,
+  client: Web3ApiClient,
+  ensUri: string
+): Promise<TxResponse> {
+  const query = await client.query<{ exec: TxResponse}>({
+    uri: ensUri,
+    query: `
+          mutation {
+            exec (
+              trade: $trade
+              tradeOptions: $tradeOptions
+            )
+          }
+        `,
+    variables: {
+      trade: trade,
+      tradeOptions: tradeOptions,
+    },
+  });
+  const result: TxResponse | undefined = query.data?.exec
+  if (query.errors) {
+    query.errors.forEach(console.log)
+  }
+  return result!;
+}
+
+export async function execSwap(
+  tokenIn: Token,
+  tokenOut: Token,
+  amount: string,
+  tradeType: string,
+  tradeOptions: TradeOptions,
+  client: Web3ApiClient,
+  ensUri: string
+): Promise<TxResponse> {
+  const query = await client.query<{ swap: TxResponse}>({
+    uri: ensUri,
+    query: `
+        mutation {
+          swap (
+            tokenIn: $token0
+            tokenOut: $token1
+            amount: $amount
+            tradeType: $tradeType
+            tradeOptions: $tradeOptions
+          )
+        }
+      `,
+    variables: {
+      token0: tokenIn,
+      token1: tokenOut,
+      amount: amount,
+      tradeType: tradeType,
+      tradeOptions: tradeOptions
+    },
+  });
+  const result: TxResponse | undefined = query.data?.swap
+  if (query.errors) {
+    query.errors.forEach(console.log)
+  }
+  return result!;
 }

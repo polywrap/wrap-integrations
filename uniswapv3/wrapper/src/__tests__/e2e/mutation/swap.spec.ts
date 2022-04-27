@@ -12,7 +12,7 @@ import {
 import path from "path";
 import { getPlugins, getPoolFromAddress, getTokens } from "../testUtils";
 import * as ethers from "ethers";
-import { bestTradeExactIn, bestTradeExactOut, getEther } from "../wrappedQueries";
+import { bestTradeExactIn, bestTradeExactOut, getNative } from "../wrappedQueries";
 import erc20ABI from "../testData/erc20ABI.json";
 
 jest.setTimeout(180000);
@@ -72,7 +72,7 @@ describe("Swap (mainnet fork)", () => {
   it("execSwap: eth -> usdc -> wbtc -> eth", async () => {
     const recipient = await ethersProvider.getSigner(0).getAddress();
 
-    const ETH: Token = await getEther(client, ensUri, ChainIdEnum.MAINNET);
+    const ETH: Token = await getNative(client, ensUri, ChainIdEnum.MAINNET);
     const USDC: Token = tokens.find(token => token.currency.symbol === "USDC") as Token;
     const WBTC: Token = tokens.find(token => token.currency.symbol === "WBTC") as Token;
 
@@ -157,7 +157,7 @@ describe("Swap (mainnet fork)", () => {
   it("swap: eth -> usdc", async () => {
     const recipient = await ethersProvider.getSigner(1).getAddress();
 
-    const ETH: Token = await getEther(client, ensUri, ChainIdEnum.MAINNET);
+    const ETH: Token = await getNative(client, ensUri, ChainIdEnum.MAINNET);
     const USDC: Token = tokens.find(token => token.currency.symbol === "USDC") as Token;
 
     const ethUsdcQuery = await client.invoke<Ethereum_TxResponse>({
@@ -189,7 +189,7 @@ describe("Swap (mainnet fork)", () => {
   it("swap: eth -> usdc; swapWithPool: usdc -> wbtc", async () => {
     const recipient = await ethersProvider.getSigner().getAddress();
 
-    const ETH: Token = await getEther(client, ensUri, ChainIdEnum.MAINNET);
+    const ETH: Token = await getNative(client, ensUri, ChainIdEnum.MAINNET);
     const USDC: Token = tokens.find(token => token.currency.symbol === "USDC") as Token;
     const WBTC: Token = tokens.find(token => token.currency.symbol === "WBTC") as Token;
 

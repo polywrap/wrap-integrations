@@ -467,11 +467,11 @@ export async function bestTradeExactOut(client: Web3ApiClient, ensUri: string, p
  return query.data!;
 }
 
-export async function getEther(client: Web3ApiClient, ensUri: string, chainId: ChainId): Promise<Token> {
+export async function getNative(client: Web3ApiClient, ensUri: string, chainId: ChainId): Promise<Token> {
  const query = await client.invoke<Token>({
    uri: ensUri,
    module: "query",
-   method: "getEther",
+   method: "getNative",
    input: {
      chainId: typeof chainId === "string" ? chainId : ChainIdEnum[chainId],
    },
