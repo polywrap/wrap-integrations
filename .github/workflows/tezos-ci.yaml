@@ -11,12 +11,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: (Tezos Test Env Wrapper) Read .nvmrc
+      - name: Read .nvmrc
         run: echo ::set-output name=NVMRC::$(cat .nvmrc)
         id: tezos-nvm
         working-directory: ./tezos/tezos-domains-wrapper
 
-      - name: (Tezos) Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@master
         with:
           node-version: '${{ steps.tezos-nvm.outputs.NVMRC }}'
@@ -25,8 +25,18 @@ jobs:
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
         working-directory: ./tezos/test-env
 
-      - name: (Tezos) Test
+      - name: Test up
         run: npm run test:env:up
+        working-directory: ./tezos/test-env
+        env:
+          TEZOS_POLYWRAP_PORT: 20000
+          TEZOS_POLYWRAP_BLOCK_TIME: 5
+          TEZOS_POLYWRAP_PROTOCOL: Hangzhou
+          TEZOS_POLYWRAP_PLATFORM: linux/amd64
+          TEZOS_POLYWRAP_ROOT_PATH: /
+
+      - name: Test down
+        run: npm run test:env:down
         working-directory: ./tezos/test-env
         env:
           TEZOS_POLYWRAP_PORT: 20000
