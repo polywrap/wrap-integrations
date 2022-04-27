@@ -28,4 +28,10 @@ jobs:
       - name: (Tezos) Test
         run: npm run test:env:up
         working-directory: ./tezos/test-env
+        env:
+          TEZOS_POLYWRAP_PORT: 20000
+          TEZOS_POLYWRAP_BLOCK_TIME: 5
+          TEZOS_POLYWRAP_PROTOCOL: Hangzhou
+          TEZOS_POLYWRAP_PLATFORM: linux/amd64
+          TEZOS_POLYWRAP_ROOT_PATH: /
       #
