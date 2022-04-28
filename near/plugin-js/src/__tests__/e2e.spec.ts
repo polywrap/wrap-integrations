@@ -62,6 +62,11 @@ describe("e2e", () => {
     const requestSuccess: Promise<PublicKey> = result.data!.createKey;
     expect((await requestSuccess).data).toBeInstanceOf(Uint8Array);
     expect((await requestSuccess).keyType).toEqual(0);
+    const key = await near.connection.signer.getPublicKey(
+      testUtils.testAccountId,
+      config.networkId
+    );
+    expect(await requestSuccess).toEqual(key);
   });
 
   // beforeEach(async () => {

@@ -34,7 +34,7 @@ export async function setUpTestConfig(): Promise<NearPluginConfig> {
     walletUrl: "https://wallet.testnet.near.org",
     helperUrl: "https://helper.testnet.near.org",
     masterAccount: testAccountId,
-    initialBalance: "2000000000000000000000000",
+    initialBalance: "1100000000000000000000000",
   };
 
   if (config.masterAccount) {
