@@ -99,16 +99,17 @@ describe("e2e", () => {
       );
     }
     const transfer = createTransferTx();
-    const resultR = await walletConnection.requestSignTransactions({
+    await walletConnection.requestSignTransactions({
       transactions: [transfer],
       callbackUrl: window.location.href,
       meta: "",
     });
-    console.log("resultR", resultR);
 
-    const result = await client.query<{ requestSignTransactions: Boolean }>({
+    const result = await client.query<{
+      requestSignTransactions: Boolean;
+    }>({
       uri,
-      query: `query {
+      query: `mutation {
       requestSignTransactions(
         transactions:$transactions
         callbackUrl:$callbackUrl
@@ -121,25 +122,13 @@ describe("e2e", () => {
         meta: "",
       },
     });
-    console.log("result => ", result);
 
-    // expect(result.errors).toBeFalsy();
+    expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
-
-    // const requsetSuccess: Boolean = result.data!.requestSignTransactions;
-    // console.log(requsetSuccess);
-
-    // expect(requsetSuccess).toEqual(true);
-    /*   expect(url.parse(lastRedirectUrl, true)).toMatchObject({
-      protocol: "http:",
-      host: "example.com",
-      query: {
-        meta: "something",
-        callbackUrl: "http://example.com/after",
-        transactions:
-          "CQAAAHRlc3QubmVhcgCRez0mjUtY9/7BsVC9aNab4+5dTMOYVeNBU4Rlu3eGDQEAAAAAAAAADQAAAHdoYXRldmVyLm5lYXIPpHP9JpAd8pa+atxMxN800EDvokNSJLaYaRDmMML+9gEAAAADAQAAAAAAAAAAAAAAAAAAAA==",
-      },
-    }); */
+    expect(result.data).toEqual({ requestSignTransactions: true });
+    expect(result.errors).toEqual(undefined);
+    const requestSuccess: Boolean = result.data!.requestSignTransactions;
+    expect(requestSuccess).toEqual(true);
   });
 
   /*   it("Sign a message", async () => {
