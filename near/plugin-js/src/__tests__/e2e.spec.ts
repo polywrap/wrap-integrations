@@ -1,5 +1,5 @@
 import { Web3ApiClient } from "@web3api/client-js";
-import { nearPlugin, NearPluginConfig } from "../";
+import { nearPlugin, NearPluginConfig } from "..";
 import { PublicKey } from "../w3";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
@@ -12,7 +12,6 @@ describe("e2e", () => {
   // @ts-ignore
   let client: Web3ApiClient;
   const uri = "w3://ens/near.web3api.eth";
-
   let config: NearPluginConfig;
   // @ts-ignore
   let near: nearApi.Near;
@@ -52,22 +51,17 @@ describe("e2e", () => {
       )
     }`,
       variables: {
-        accountId: "",
-        networkId: "",
+        accountId: testUtils.testAccountId,
+        networkId: config.networkId,
       },
     });
-    // const creat = await config.keyStore.getKey(
-    //   config.networkId,
-    //   workingAccount.accountId
-    // );
 
-    console.log(result);
-    // expect(result.data).toEqual(true);
     expect(result.errors).toBeFalsy();
     expect(result).toBeTruthy();
-    // expect(result.errors).toEqual(undefined);
-    // const requestSuccess: Boolean = result.data!.requestSignTransactions;
-    // expect(requestSuccess).toEqual(true);
+    expect(result.errors).toEqual(undefined);
+    const requestSuccess: Promise<PublicKey> = result.data!.createKey;
+    expect((await requestSuccess).data).toBeInstanceOf(Uint8Array);
+    expect((await requestSuccess).keyType).toEqual(0);
   });
 
   // beforeEach(async () => {
