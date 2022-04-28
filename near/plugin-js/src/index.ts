@@ -27,6 +27,7 @@ export { keyStores as KeyStores, KeyPair } from "near-api-js";
 
 export interface NearPluginConfig {
   networkId: string;
+  keyPair: nearApi.KeyPair;
   keyStore: nearApi.keyStores.KeyStore;
   nodeUrl: string;
   walletUrl?: string;
@@ -178,6 +179,16 @@ export class NearPlugin extends Plugin {
       },
     };
     return { hash, signedTx };
+  }
+
+  public async createKey(input: Mutation.Input_createKey): Promise<PublicKey> {
+    const { networkId, accountId } = input;
+    const keyPair = await this._config.keyStore.getKey(
+      this._config.networkId,
+      accountId
+    );
+    await this._config.keyStore.setKey(networkId, accountId, keyPair);
+    return toPublicKey(keyPair.getPublicKey());
   }
 
   public async sendJsonRpc(input: Mutation.Input_sendJsonRpc): Promise<Json> {
