@@ -14,12 +14,17 @@ describe("Tezos Plugin", () => {
   let uri: string;
   let accounts: Account[];
   let node: Node;
+  let simpleContractAddress: string | undefined;
 
   beforeAll(async () => {
     uri = "w3://ens/tezos.web3api.eth"
     const response = await up()
     node = response.node
     accounts = response.accounts
+    simpleContractAddress = await deployContract(node.url, accounts[0].secretKey, {
+      code: SIMPLE_CONTRACT, 
+      storage: SIMPLE_CONTRACT_STORAGE
+    })
     client = new Web3ApiClient({
       plugins: [
         {
@@ -29,8 +34,8 @@ describe("Tezos Plugin", () => {
               mainnet: {
                 provider: "https://rpc.tzstats.com"
               },
-              hangzhou: {
-                provider: "https://rpc.hangzhou.tzstats.com"
+              ithacanet: {
+                provider: "https://rpc.ithaca.tzstats.com"
               },
               testnet: {
                 provider: node.url,
@@ -51,7 +56,6 @@ describe("Tezos Plugin", () => {
   describe("Query", () => {
     describe("getContractCallTransferParams", () => {
       it("should get the transferParams of a contract call", async () => {
-        const contractAddress = "KT1QLqPN8us3LpgqSR9BgdF8bwJ8vJBjhfwV"
         const response = await client.query<{ getContractCallTransferParams: QueryTypes.TransferParams }>({
           uri,
           query: `
@@ -66,21 +70,21 @@ describe("Tezos Plugin", () => {
             }
           `,
           variables: {
-            address: contractAddress,
+            address: simpleContractAddress,
             method: "increment",
             args: "[10]",
             params: {
               mutez: true
             },
             connection: {
-              networkNameOrChainId: "hangzhou"
+              networkNameOrChainId: "testnet"
             }
           }
         })
 
         expect(response.errors).toBeUndefined()
         expect(response.data?.getContractCallTransferParams).toBeDefined()
-        expect(response.data?.getContractCallTransferParams.to).toBe(contractAddress)
+        expect(response.data?.getContractCallTransferParams.to).toBe(simpleContractAddress)
         expect(response.data?.getContractCallTransferParams.mutez).toBe(true)
         expect(response.data?.getContractCallTransferParams.parameter).toBeDefined()
       })
@@ -150,15 +154,14 @@ describe("Tezos Plugin", () => {
             }
           `,
           variables: {
-            address: "KT1LNMrk8orMQ85zbwK25996dPhDxfSicvKh",
+            address: "KT1Ha4yFVeyzw6KRAdkzq6TxDHB97KG4pZe8",
             view: "getBalance",
             args: '["tz1c1X8vD4pKV9TgV1cyosR7qdnkc8FTEyM1"]',
             connection: {
-              networkNameOrChainId: "hangzhou"
+              networkNameOrChainId: "mainnet"
             }
           }
         })
-
         expect(response.errors).toBeUndefined()
         expect(response.data).toBeDefined()
         expect(response.data?.callContractView).toBeDefined()
@@ -343,7 +346,7 @@ describe("Tezos Plugin", () => {
       })
 
       it("should get operation status on ithaca", async () => {
-        const response =  await client.query<{ getOperationStatus: Schema.OperationStatus }>({
+        const response =  await client.query<{ getOperationStatus: QueryTypes.OperationStatus }>({
           uri,
           query: `
             query {
@@ -623,10 +626,6 @@ describe("Tezos Plugin", () => {
   describe("Mutation", () => {
     describe("batchContractCalls and batchWalletContractCalls",  () => {
       it("should batch multiple contract calls", async () => {
-        const contractAddress = await deployContract(node.url, accounts[0].secretKey, {
-          code: SIMPLE_CONTRACT, 
-          storage: SIMPLE_CONTRACT_STORAGE
-        })
         const transferParamsResponse = await Promise.all([
           client.query<{ getContractCallTransferParams: QueryTypes.TransferParams }>({
             uri,
@@ -641,7 +640,7 @@ describe("Tezos Plugin", () => {
               }
             `,
             variables: {
-              address: contractAddress,
+              address: simpleContractAddress,
               method: "increment",
               args: "[10]",
               params: {
@@ -662,7 +661,7 @@ describe("Tezos Plugin", () => {
               }
             `,
             variables: {
-              address: contractAddress,
+              address: simpleContractAddress,
               method: "increment",
               args: "[10]",
               params: {
@@ -675,7 +674,7 @@ describe("Tezos Plugin", () => {
         transferParamsResponse.forEach((response) => {
           expect(response.errors).toBeUndefined()
           expect(response.data?.getContractCallTransferParams).toBeDefined()
-          expect(response.data?.getContractCallTransferParams.to).toBe(contractAddress)
+          expect(response.data?.getContractCallTransferParams.to).toBe(simpleContractAddress)
           expect(response.data?.getContractCallTransferParams.mutez).toBe(true)
           expect(response.data?.getContractCallTransferParams.parameter).toBeDefined()
         })
@@ -709,10 +708,6 @@ describe("Tezos Plugin", () => {
 
     describe("callContractMethod", () => {
       it("should be able to call contract's method", async () => {
-        const contractAddress = await deployContract(node.url, accounts[0].secretKey, {
-          code: SIMPLE_CONTRACT, 
-          storage: SIMPLE_CONTRACT_STORAGE
-        })
         const response = await client.query<{ callContractMethod: MutationTypes.TxOperation }>({
           uri,
           query: `
@@ -725,7 +720,7 @@ describe("Tezos Plugin", () => {
             }
           `,
           variables: {
-            address: contractAddress,
+            address: simpleContractAddress,
             method: "increment",
             args: JSON.stringify([2])
           }
@@ -737,10 +732,6 @@ describe("Tezos Plugin", () => {
 
     describe("callContractMethodAndConfirmation", () => {
       it("should be able to call contract's method and confirm", async () => {
-        const contractAddress = await deployContract(node.url, accounts[0].secretKey, {
-          code: SIMPLE_CONTRACT, 
-          storage: SIMPLE_CONTRACT_STORAGE
-        })
         const response = await client.query<{ callContractMethodAndConfirmation: number }>({
           uri,
           query: `
@@ -755,7 +746,7 @@ describe("Tezos Plugin", () => {
             }
           `,
           variables: {
-            address: contractAddress,
+            address: simpleContractAddress,
             method: "increment",
             args: JSON.stringify([2]),
             confirmations: 1,
