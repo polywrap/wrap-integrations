@@ -63,7 +63,7 @@ describe("e2e", () => {
       HELLO_WASM_METHODS.changeMethods,
       new BN("2000000000000000000000000")
     );
-    await config.keyStore.setKey(
+    await config.keyStore!.setKey(
       testUtils.networkId,
       workingAccount.accountId,
       keyPair
@@ -73,7 +73,7 @@ describe("e2e", () => {
   it("Sign a message", async () => {
     const message = Buffer.from(generateUniqueString("msg"));
 
-    const keyPair = await config.keyStore.getKey(
+    const keyPair = await config.keyStore!.getKey(
       config.networkId,
       workingAccount.accountId
     );

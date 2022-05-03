@@ -24,6 +24,7 @@ export async function setUpTestConfig(): Promise<NearPluginConfig> {
   const keyStore = new KeyStores.InMemoryKeyStore();
   const keyPair = KeyPair.fromString(PRIVATE_KEY);
   let config: NearPluginConfig = {
+    headers: {},
     networkId: networkId,
     keyStore: keyStore,
     nodeUrl: "https://rpc.testnet.near.org",
