@@ -22,6 +22,8 @@
     "@web3api/core-js": "^0.0.1-prealpha.71",
     "bn.js": "5.2.0",
     "js-sha256": "0.9.0",
+    "localstorage-polyfill": "^1.0.1",
+    "mock-browser": "^0.92.14",
     "near-api-js": "^0.44.2"
   },
   "devDependencies": {

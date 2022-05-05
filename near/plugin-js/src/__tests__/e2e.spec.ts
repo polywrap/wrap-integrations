@@ -1,41 +1,51 @@
+// import url from "url";
 import { Web3ApiClient } from "@web3api/client-js";
 import { nearPlugin, NearPluginConfig } from "..";
-//import { Action, Transaction } from "../w3";
+import "localstorage-polyfill";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
 import { KeyPair } from "near-api-js";
+
 import BN from "bn.js";
-import { HELLO_WASM_METHODS, generateUniqueString } from "./testUtils";
-import { Signature } from "../w3";
+const MockBrowser = require("mock-browser").mocks.MockBrowser;
+
+import { HELLO_WASM_METHODS } from "./testUtils";
+//import { Signature } from "../w3";
 
 jest.setTimeout(360000);
 
 describe("e2e", () => {
-  // @ts-ignore
+  const mock = new MockBrowser();
+
   let client: Web3ApiClient;
   const uri = "w3://ens/near.web3api.eth";
 
   let config: NearPluginConfig;
-  // @ts-ignore
+
+  global["document"] = mock.getDocument();
+  global["window"] = mock.getWindow();
+  global["localStorage"] = localStorage;
+
+  let walletConnection: nearApi.WalletConnection;
   let near: nearApi.Near;
   let workingAccount: nearApi.Account;
+  // let keyStore = new nearApi.keyStores.InMemoryKeyStore();
   let contractId: string;
   //let contract: nearApi.Contract;
-
-  /*  const prepActions = (): Action[] => {
-    const setCallValue = testUtils.generateUniqueString("setCallPrefix");
-    const args = { value: setCallValue };
-    const stringify = (obj: unknown): Buffer =>
-      Buffer.from(JSON.stringify(obj));
-    return [
-      {
-        methodName: "setValue",
-        args: stringify(args),
-        gas: "3000000000000",
-        deposit: "0",
-      },
-    ];
-  }; */
+  // const prepActions = (): Action[] => {
+  //   const setCallValue = testUtils.generateUniqueString("setCallPrefix");
+  //   const args = { value: setCallValue };
+  //   const stringify = (obj: unknown): Buffer =>
+  //     Buffer.from(JSON.stringify(obj));
+  //   return [
+  //     {
+  //       methodName: "setValue",
+  //       args: stringify(args),
+  //       gas: "3000000000000",
+  //       deposit: "0",
+  //     },
+  //   ];
+  // };
 
   beforeAll(async () => {
     config = await testUtils.setUpTestConfig();
@@ -68,9 +78,60 @@ describe("e2e", () => {
       workingAccount.accountId,
       keyPair
     );
+    walletConnection = await new nearApi.WalletConnection(near, "polywrap");
   });
 
-  it("Sign a message", async () => {
+  it("Request sign transactions", async () => {
+    const BLOCK_HASH = "244ZQ9cgj3CQ6bWBdytfrJMuMQ1jdXLFGnr4HhvtCTnM";
+    const blockHash = nearApi.utils.serialize.base_decode(BLOCK_HASH);
+
+    const actions = [nearApi.transactions.transfer(new BN("1"))];
+    function createTransferTx() {
+      return nearApi.transactions.createTransaction(
+        "test.near",
+        nearApi.utils.PublicKey.fromString(
+          "Anu7LYDfpLtkP7E16LT9imXF694BdQaa9ufVkQiwTQxC"
+        ),
+        "whatever.near",
+        1,
+        actions,
+        blockHash
+      );
+    }
+    const transfer = createTransferTx();
+    await walletConnection.requestSignTransactions({
+      transactions: [transfer],
+      callbackUrl: window.location.href,
+      meta: "",
+    });
+
+    const result = await client.query<{
+      requestSignTransactions: Boolean;
+    }>({
+      uri,
+      query: `mutation {
+      requestSignTransactions(
+        transactions:$transactions
+        callbackUrl:$callbackUrl
+        meta:$meta
+      )
+    }`,
+      variables: {
+        transactions: [transfer],
+        callbackUrl: "",
+        meta: "",
+      },
+    });
+
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+    expect(result.data).toEqual({ requestSignTransactions: true });
+    expect(result.errors).toEqual(undefined);
+    const requestSuccess: Boolean = result.data!.requestSignTransactions;
+    expect(requestSuccess).toEqual(true);
+  });
+
+  /*   it("Sign a message", async () => {
     const message = Buffer.from(generateUniqueString("msg"));
 
     const keyPair = await config.keyStore!.getKey(
@@ -105,7 +166,7 @@ describe("e2e", () => {
     expect(signature.data).toBeTruthy();
     expect(signature.data).toBeInstanceOf(Uint8Array);
     expect(signature.keyType).toBeDefined();
-  });
+  }); */
 
   /*  it("Creates a transaction without wallet", async () => {
     const actions: Action[] = prepActions();
@@ -126,7 +187,6 @@ describe("e2e", () => {
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
-
     const transaction: Transaction = result.data!.createTransaction;
     expect(transaction.signerId).toEqual(workingAccount.accountId);
     expect(transaction.publicKey).toBeTruthy();
@@ -157,7 +217,6 @@ describe("e2e", () => {
     expect(txQuery.errors).toBeFalsy();
     expect(txQuery.data).toBeTruthy();
     const transaction: Transaction = txQuery.data!.createTransaction;
-
     const result = await client.query<{
       signTransaction: SignTransactionResult;
     }>({
@@ -173,7 +232,6 @@ describe("e2e", () => {
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
-
     const signedTx = result.data!.signTransaction.signedTx;
     const txHash = result.data!.signTransaction.hash;
     expect(signedTx.transaction.signerId).toEqual(workingAccount.accountId);
