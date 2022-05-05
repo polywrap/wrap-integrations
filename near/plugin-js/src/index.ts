@@ -23,18 +23,11 @@ import {
 } from "@web3api/core-js";
 import * as nearApi from "near-api-js";
 import sha256 from "js-sha256";
+import { ConnectConfig } from "near-api-js";
 
 export { keyStores as KeyStores, KeyPair } from "near-api-js";
 
-export interface NearPluginConfig {
-  networkId: string;
-  keyStore: nearApi.keyStores.KeyStore;
-  nodeUrl: string;
-  walletUrl?: string;
-  helperUrl?: string;
-  explorerUrl?: string;
-  masterAccount?: string;
-  initialBalance?: string;
+export interface NearPluginConfig extends ConnectConfig{
 }
 
 export class NearPlugin extends Plugin {
@@ -97,7 +90,7 @@ export class NearPlugin extends Plugin {
     input: Query.Input_getPublicKey
   ): Promise<PublicKey | null> {
     const { accountId } = input;
-    const keyPair = await this._config.keyStore.getKey(
+    const keyPair = await this._config.keyStore!.getKey(
       this._config.networkId,
       accountId
     );
