@@ -26,7 +26,7 @@ const RANDOM_ACCOUNT_LENGTH = 40;
 export async function setUpTestConfig(): Promise<NearPluginConfig> {
   const keyStore = new KeyStores.InMemoryKeyStore();
   const keyPair = KeyPair.fromString(PRIVATE_KEY);
-  
+
   let config: NearPluginConfig = {
     headers: {},
     keyPair: keyPair,

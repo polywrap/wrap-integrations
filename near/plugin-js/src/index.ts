@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { mutation, query } from "./resolvers";
 import {
   manifest,
@@ -15,6 +16,7 @@ import { fromAction, fromSignedTx, fromTx, toPublicKey } from "./typeMapping";
 import { parseJsonFinalExecutionOutcome } from "./jsonMapping";
 import { JsonFinalExecutionOutcome } from "./jsonTypes";
 
+import { ConnectConfig } from "near-api-js";
 import {
   Plugin,
   PluginFactory,
@@ -23,11 +25,11 @@ import {
 } from "@web3api/core-js";
 import * as nearApi from "near-api-js";
 import sha256 from "js-sha256";
-import { ConnectConfig } from "near-api-js";
 
 export { keyStores as KeyStores, KeyPair } from "near-api-js";
 
 export interface NearPluginConfig extends ConnectConfig {
+  headers?: any;
   networkId: string;
   keyPair: nearApi.KeyPair;
   keyStore: nearApi.keyStores.KeyStore;
