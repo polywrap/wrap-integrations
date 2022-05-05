@@ -26,7 +26,9 @@ const RANDOM_ACCOUNT_LENGTH = 40;
 export async function setUpTestConfig(): Promise<NearPluginConfig> {
   const keyStore = new KeyStores.InMemoryKeyStore();
   const keyPair = KeyPair.fromString(PRIVATE_KEY);
+  
   let config: NearPluginConfig = {
+    headers: {},
     keyPair: keyPair,
     networkId: networkId,
     keyStore: keyStore,
@@ -34,7 +36,7 @@ export async function setUpTestConfig(): Promise<NearPluginConfig> {
     walletUrl: "https://wallet.testnet.near.org",
     helperUrl: "https://helper.testnet.near.org",
     masterAccount: testAccountId,
-    initialBalance: "1100000000000000000000000",
+    initialBalance: "2000000000000000000000000",
   };
 
   if (config.masterAccount) {

@@ -17,6 +17,9 @@ export const query = (plugin: NearPlugin): Query.Module => ({
   getPublicKey: async (input: Query.Input_getPublicKey) => {
     return await plugin.getPublicKey(input);
   },
+  signMessage: async (input: Query.Input_signMessage) => {
+    return await plugin.signMessage(input);
+  },
   createTransactionWithWallet: async (
     input: Query.Input_createTransactionWithWallet
   ) => {

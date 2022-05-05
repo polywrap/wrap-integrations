@@ -16,6 +16,11 @@ type Query {
     accountId: String!
   ): PublicKey
 
+  signMessage(
+    message: Bytes!
+    signerId: String!
+  ): Signature!
+
   """
   Creates a transaction.
   If signerId is provided, the transaction will be signed using data from the KeyStore in the plugin config.

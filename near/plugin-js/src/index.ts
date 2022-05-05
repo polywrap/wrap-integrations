@@ -5,6 +5,7 @@ import {
   Mutation,
   Transaction,
   SignedTransaction,
+  Signature,
   SignTransactionResult,
   FinalExecutionOutcome,
   PublicKey,
@@ -22,10 +23,11 @@ import {
 } from "@web3api/core-js";
 import * as nearApi from "near-api-js";
 import sha256 from "js-sha256";
+import { ConnectConfig } from "near-api-js";
 
 export { keyStores as KeyStores, KeyPair } from "near-api-js";
 
-export interface NearPluginConfig {
+export interface NearPluginConfig extends ConnectConfig {
   networkId: string;
   keyPair: nearApi.KeyPair;
   keyStore: nearApi.keyStores.KeyStore;
@@ -97,7 +99,7 @@ export class NearPlugin extends Plugin {
     input: Query.Input_getPublicKey
   ): Promise<PublicKey | null> {
     const { accountId } = input;
-    const keyPair = await this._config.keyStore.getKey(
+    const keyPair = await this._config.keyStore!.getKey(
       this._config.networkId,
       accountId
     );
@@ -211,6 +213,22 @@ export class NearPlugin extends Plugin {
       meta: meta ?? undefined,
     });
     return true;
+  }
+  public async signMessage(input: Query.Input_signMessage): Promise<Signature> {
+    const { message, signerId } = input;
+    const {
+      signature,
+      publicKey,
+    } = await this.near.connection.signer.signMessage(
+      message,
+      signerId,
+      this.near.connection.networkId
+    );
+
+    return {
+      data: signature,
+      keyType: toPublicKey(publicKey).keyType,
+    };
   }
 
   public async sendTransaction(
