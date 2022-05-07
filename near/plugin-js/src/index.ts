@@ -29,7 +29,7 @@ import sha256 from "js-sha256";
 export { keyStores as KeyStores, KeyPair } from "near-api-js";
 
 export interface NearPluginConfig extends ConnectConfig {
-  headers?: any;
+  headers: any;
   networkId: string;
   keyPair: nearApi.KeyPair;
   keyStore: nearApi.keyStores.KeyStore;

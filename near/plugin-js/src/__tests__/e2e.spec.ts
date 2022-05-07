@@ -105,7 +105,11 @@ describe("e2e", () => {
         meta: "",
       },
     });
-    console.log(result);
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toEqual({ requestSignTransactions: true });
+    expect(result.errors).toEqual(undefined);
+    const requestSuccess: Boolean = result.data!.requestSignTransactions;
+    expect(requestSuccess).toEqual(true);
   });
 
   it("Create key", async () => {
