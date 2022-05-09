@@ -5,10 +5,17 @@ import * as nearApi from "near-api-js";
 import { KeyPair, KeyStores, NearPluginConfig } from "../index";
 import * as path from "path";
 
+<<<<<<< HEAD
+export const networkId = "testnet";
+export const testAccountId = "polywraptest.testnet";
+const PRIVATE_KEY =
+  "ed25519:3ZASru2hHvoDpT4jut4b8LqRBnz4GqMhtp24AzkLwdhuLDm6xgptkNmXVGWwfdyFHnnnG512Xb5RJcA7Cup3yjcG";
+=======
 export const networkId = "polywrap";
 export const testAccountId = "polywrap.testnet";
 const PRIVATE_KEY =
   "ed25519:2pN4qAFA94qXMzSLYtTG3qSmXS29cGfjXcZWwvb21TSsVm4awSruDiFd91XCoq2wp5hHXtDM5ZFwjabz2SLPAPjD";
+>>>>>>> origin/near
 
 const HELLO_WASM_PATH = path.resolve(
   __dirname + "../../../node_modules/near-hello/dist/main.wasm"
@@ -28,8 +35,11 @@ export async function setUpTestConfig(): Promise<NearPluginConfig> {
   const keyPair = KeyPair.fromString(PRIVATE_KEY);
 
   let config: NearPluginConfig = {
+<<<<<<< HEAD
+=======
     headers: {},
     keyPair: keyPair,
+>>>>>>> origin/near
     networkId: networkId,
     keyStore: keyStore,
     nodeUrl: "https://rpc.testnet.near.org",

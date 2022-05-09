@@ -1,0 +1,5 @@
+# Ignore w3:
+**/w3
+
+# Ignore schema files:
+*.graphql

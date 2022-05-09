@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable @typescript-eslint/no-require-imports */
 import {
   ExecutionOutcomeWithId,
   FinalExecutionOutcome,
@@ -14,16 +10,9 @@ import * as testUtils from "./testUtils";
 import { HELLO_WASM_METHODS } from "./testUtils";
 
 import * as nearApi from "near-api-js";
-import { nearPlugin, KeyPair, NearPluginConfig } from "near-polywrap-js";
+import { KeyPair, NearPluginConfig } from "../../../plugin-js";
 import { Web3ApiClient } from "@web3api/client-js";
-import {
-  buildAndDeployApi,
-  initTestEnvironment,
-  stopTestEnvironment,
-} from "@web3api/test-env-js";
-import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
-import { ensPlugin } from "@web3api/ens-plugin-js";
-import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
+import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
 
 const BN = require("bn.js");
@@ -42,17 +31,9 @@ describe("e2e", () => {
   const prepActions = (): Action[] => {
     const setCallValue = testUtils.generateUniqueString("setCallPrefix");
     const args = { value: setCallValue };
-    const stringify = (obj: unknown): Buffer =>
-      Buffer.from(JSON.stringify(obj));
+    const stringify = (obj: unknown): Buffer => Buffer.from(JSON.stringify(obj));
     const value: Buffer = stringify(args);
-    return [
-      {
-        methodName: "setValue",
-        args: value,
-        gas: "3000000000000",
-        deposit: "0",
-      },
-    ];
+    return [{ methodName: "setValue", args: value, gas: "3000000000000", deposit: "0" }];
   };
 
   beforeAll(async () => {
@@ -64,34 +45,10 @@ describe("e2e", () => {
     // set up client
     nearConfig = await testUtils.setUpTestConfig();
     near = await nearApi.connect(nearConfig);
-    client = new Web3ApiClient({
-      plugins: [
-        {
-          uri: "w3://ens/nearPlugin.web3api.eth",
-          //@ts-ignore
-          plugin: nearPlugin(nearConfig),
-        },
-        {
-          uri: "w3://ens/ipfs.web3api.eth",
-          plugin: ipfsPlugin({ provider: ipfs }),
-        },
-        {
-          uri: "w3://ens/ens.web3api.eth",
-          plugin: ensPlugin({ addresses: { testnet: ensAddress } }),
-        },
-        {
-          uri: "w3://ens/ethereum.web3api.eth",
-          plugin: ethereumPlugin({
-            networks: {
-              testnet: {
-                provider: ethereum,
-              },
-            },
-            defaultNetwork: "testnet",
-          }),
-        },
-      ],
-    });
+
+    const polywrapConfig = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
+    client = new Web3ApiClient(polywrapConfig);
+
     // set up contract account
     contractId = testUtils.generateUniqueString("test");
     workingAccount = await testUtils.createAccount(near);
@@ -101,14 +58,10 @@ describe("e2e", () => {
     await workingAccount.addKey(
       keyPair.getPublicKey(),
       contractId,
-      HELLO_WASM_METHODS.allMethods,
+      HELLO_WASM_METHODS.changeMethods,
       new BN("2000000000000000000000000")
     );
-    await nearConfig.keyStore.setKey(
-      testUtils.networkId,
-      workingAccount.accountId,
-      keyPair
-    );
+    await nearConfig.keyStore!.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
   });
 
   afterAll(async () => {
@@ -144,9 +97,7 @@ describe("e2e", () => {
     expect(transaction.blockHash).toBeTruthy();
     expect(transaction.actions.length).toEqual(1);
     expect(transaction.actions[0].methodName).toEqual(actions[0].methodName);
-    expect(transaction.actions[0].args).toEqual(
-      Uint8Array.from(actions[0].args!)
-    );
+    expect(transaction.actions[0].args).toEqual(Uint8Array.from(actions[0].args!));
     expect(transaction.actions[0].gas).toEqual(actions[0].gas);
     expect(transaction.actions[0].deposit).toEqual(actions[0].deposit);
     expect(transaction.actions[0].publicKey).toBeFalsy();
@@ -226,13 +177,11 @@ describe("e2e", () => {
     const status: ExecutionStatus = result.data!.signAndSendTransaction.status;
     expect(status.successValue).toBeTruthy();
     expect(status.failure).toBeFalsy();
-    const txOutcome: ExecutionOutcomeWithId = result.data!
-      .signAndSendTransaction.transaction_outcome;
+    const txOutcome: ExecutionOutcomeWithId = result.data!.signAndSendTransaction.transaction_outcome;
     expect(txOutcome.id).toBeTruthy();
     expect(txOutcome.outcome.status.successReceiptId).toBeTruthy();
     expect(txOutcome.outcome.status.failure).toBeFalsy();
-    const receiptsOutcome: ExecutionOutcomeWithId[] = result.data!
-      .signAndSendTransaction.receipts_outcome;
+    const receiptsOutcome: ExecutionOutcomeWithId[] = result.data!.signAndSendTransaction.receipts_outcome;
     expect(receiptsOutcome.length).toBeGreaterThan(0);
   });
 

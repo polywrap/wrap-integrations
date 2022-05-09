@@ -46,6 +46,21 @@ export interface Action {
   beneficiaryId?: String | null;
 }
 
+export interface BlockChange {
+  chagneType: String;
+  account_id: String;
+}
+
+export interface BlockChangeResult {
+  block_hash: String;
+  changes: BlockChange[];
+}
+
+export interface ChangeResult {
+  block_hash: String;
+  changes: [JSON];
+}
+
 export interface Transaction {
   signerId: String;
   publicKey: PublicKey;
@@ -76,6 +91,40 @@ export interface FinalExecutionStatus {
   failure?: Json | null;
 }
 
+export interface CurrentEpochValidatorInfo {
+  account_id: String;
+  public_key: String;
+  is_slashed: Boolean;
+  stake: String;
+  shards: [BigInt];
+  num_produced_blocks: UInt;
+  num_expected_blocks: UInt;
+}
+
+export interface NextEpochValidatorInfo {
+  account_id: String;
+  public_key: String;
+  stake: String;
+  shards: [BigInt];
+}
+
+export interface ValidatorStakeView {
+  account_id: String;
+  public_key: String;
+  stake: String;
+}
+
+export interface EpochValidatorInfo {
+  next_validators: [NextEpochValidatorInfo];
+  current_validators: [CurrentEpochValidatorInfo];
+  next_fisherman: [ValidatorStakeView];
+  current_fisherman: [ValidatorStakeView];
+  current_proposals: [ValidatorStakeView];
+  prev_epoch_kickout: [ValidatorStakeView];
+  epoch_start_height: BigInt;
+  epoch_height: BigInt;
+}
+
 export interface ExecutionStatus {
   successValue?: String | null;
   successReceiptId?: String | null;
@@ -101,6 +150,25 @@ export interface FinalExecutionOutcome {
   receipts_outcome: Array<ExecutionOutcomeWithId>;
 }
 
+export interface FinalExecutionOutcomeWithReceipts extends FinalExecutionOutcome {
+  receipts: [ReceiptWithId];
+}
+
+export interface ReceiptWithId {
+  predecessor_id: String;
+  receipt: Receipt;
+  receipt_id: String;
+  receiver_id: String;
+}
+
+export interface Receipt {
+  Action: ActionContainer;
+}
+
+export interface ActionContainer {
+  actions: [Action];
+}
+
 export interface QueryResponseKind {
   blockHeight: BigInt;
   blockHash: String;
@@ -120,11 +188,9 @@ export enum KeyTypeEnum {
   ed25519,
 }
 
-export type KeyTypeString =
-  | "ed25519"
+export type KeyTypeString = "ed25519";
 
 export type KeyType = KeyTypeEnum | KeyTypeString;
-
 
 export interface BlockReference {
   blockId?: string;
@@ -149,7 +215,7 @@ export interface BlockHeader {
   timestamp_nanosec: string;
   random_value: string;
   validator_proposals: string[];
-  chunk_mask: boolean[]
+  chunk_mask: boolean[];
   gas_price: string;
   rent_paid: string;
   validator_reward: string;
@@ -185,12 +251,88 @@ export interface Chunk {
   signature: string;
 }
 
+export interface ChunkResult {
+  header: Chunk;
+  receipts: [JSON];
+  transactions: [Transaction];
+}
+
 export interface BlockResult {
   author: string;
   header: BlockHeader;
   chunks: Chunk[];
 }
 
+export interface NodeStatusResult {
+  chain_id: string;
+  rpc_addr: string;
+  sync_info: SyncInfo;
+  validators: string[];
+  version: Version;
+}
+
+export interface SyncInfo {
+  latest_block_hash: string;
+  latest_block_height: BigInt;
+  latest_block_time: string;
+  latest_state_root: string;
+  syncing: string;
+}
+export interface Version {
+  version: string;
+  build: string;
+}
+
+export interface NearProtocolConfig {
+  runtime_config: NearProtocolRuntimeConfig;
+}
+
+export interface NearProtocolRuntimeConfig {
+  storage_amount_per_byte: String;
+}
+
+export enum IdType {
+  Transaction = "transaction",
+  Receipt = "receipt",
+}
+
+export interface LightClientProofRequest {
+  type: IdType;
+  light_client_head: String;
+  transaction_hash?: String;
+  sender_id?: String;
+  receipt_id?: String;
+  receiver_id?: String;
+}
+
+export interface BlockHeaderInnerLiteView {
+  height: BigInt;
+  epoch_id: String;
+  next_epoch_id: String;
+  prev_state_root: String;
+  outcome_root: String;
+  timestamp: BigInt;
+  next_bp_hash: String;
+  block_merkle_root: String;
+}
+
+export interface LightClientBlockLiteView {
+  prev_block_hash: String;
+  inner_rest_hash: String;
+  inner_lite: BlockHeaderInnerLiteView;
+}
+
+export interface LightClientProof {
+  outcome_proof: ExecutionOutcomeWithId;
+  outcome_root_proof: [ExecutionProof];
+  block_header_lite: LightClientBlockLiteView;
+  block_proof: [ExecutionProof];
+}
+
+export interface ExecutionProof {
+  direction: String;
+  hash: String;
+}
 /// Imported Objects START ///
 
 /// Imported Objects END ///
