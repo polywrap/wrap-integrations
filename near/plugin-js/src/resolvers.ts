@@ -43,4 +43,7 @@ export const mutation = (plugin: NearPlugin): Mutation.Module => ({
   sendTransactionAsync: (input: Mutation.Input_sendTransactionAsync) => {
     return plugin.sendTransactionAsync(input);
   },
+  createKey: (input: Mutation.Input_createKey) => {
+    return plugin.createKey(input);
+  },
 });

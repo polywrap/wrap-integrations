@@ -1,5 +1,5 @@
-import { Web3ApiClient } from "@web3api/client-js";
-import { nearPlugin, NearPluginConfig, KeyPair } from "near-polywrap-js";
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
 import {
   BlockReference,
   BlockResult,
@@ -9,19 +9,26 @@ import {
   AccessKey,
 } from "./tsTypes";
 import * as testUtils from "./testUtils";
+import { HELLO_WASM_METHODS, networkId, publicKeyToStr } from "./testUtils";
+
+import { Web3ApiClient } from "@web3api/client-js";
+import { nearPlugin, NearPluginConfig, KeyPair } from "near-polywrap-js";
 import * as nearApi from "near-api-js";
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
+import {
+  buildAndDeployApi,
+  initTestEnvironment,
+  stopTestEnvironment,
+} from "@web3api/test-env-js";
 import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
 import { ensPlugin } from "@web3api/ens-plugin-js";
 import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
 import path from "path";
-const BN = require('bn.js');
-import { HELLO_WASM_METHODS, networkId, publicKeyToStr } from "./testUtils";
+
+const BN = require("bn.js");
 
 jest.setTimeout(360000);
 
 describe("e2e", () => {
-
   let client: Web3ApiClient;
   let apiUri: string;
 
@@ -43,7 +50,7 @@ describe("e2e", () => {
       plugins: [
         {
           uri: "w3://ens/nearPlugin.web3api.eth",
-          plugin: nearPlugin(nearConfig)
+          plugin: nearPlugin(nearConfig),
         },
         {
           uri: "w3://ens/ipfs.web3api.eth",
@@ -58,22 +65,31 @@ describe("e2e", () => {
           plugin: ethereumPlugin({
             networks: {
               testnet: {
-                provider: ethereum
+                provider: ethereum,
               },
             },
-            defaultNetwork: "testnet"
+            defaultNetwork: "testnet",
           }),
         },
-      ]
+      ],
     });
     // set up contract account
-    contractId = testUtils.generateUniqueString('test');
+    contractId = testUtils.generateUniqueString("test");
     workingAccount = await testUtils.createAccount(near);
     await testUtils.deployContract(workingAccount, contractId);
     // set up access key
-    const keyPair = KeyPair.fromRandom('ed25519');
-    await workingAccount.addKey(keyPair.getPublicKey(), contractId, HELLO_WASM_METHODS.changeMethods, new BN(  "2000000000000000000000000"));
-    await nearConfig.keyStore.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
+    const keyPair = KeyPair.fromRandom("ed25519");
+    await workingAccount.addKey(
+      keyPair.getPublicKey(),
+      contractId,
+      HELLO_WASM_METHODS.changeMethods,
+      new BN("2000000000000000000000000")
+    );
+    await nearConfig.keyStore.setKey(
+      testUtils.networkId,
+      workingAccount.accountId,
+      keyPair
+    );
   });
 
   afterAll(async () => {
@@ -91,7 +107,7 @@ describe("e2e", () => {
       }`,
       variables: {
         blockQuery: blockQuery,
-      }
+      },
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
@@ -102,11 +118,16 @@ describe("e2e", () => {
     expect(block.chunks.length).toBeGreaterThan(0);
     expect(block.chunks[0]).toBeTruthy();
 
-    const nearBlock = await (near.connection.provider as nearApi.providers.JsonRpcProvider).block({ blockId: Number.parseInt(block.header.height) });
+    const nearBlock = await (near.connection
+      .provider as nearApi.providers.JsonRpcProvider).block({
+      blockId: Number.parseInt(block.header.height),
+    });
     expect(block.author).toStrictEqual(nearBlock.author);
     expect(block.header.hash).toStrictEqual(nearBlock.header.hash);
     expect(block.header.signature).toStrictEqual(nearBlock.header.signature);
-    expect(block.chunks[0].chunk_hash).toStrictEqual(nearBlock.chunks[0].chunk_hash);
+    expect(block.chunks[0].chunk_hash).toStrictEqual(
+      nearBlock.chunks[0].chunk_hash
+    );
   });
 
   it("Get account state", async () => {
@@ -119,7 +140,7 @@ describe("e2e", () => {
       }`,
       variables: {
         accountId: workingAccount.accountId,
-      }
+      },
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
@@ -132,8 +153,12 @@ describe("e2e", () => {
     expect(state.amount).toStrictEqual(nearState.amount);
     expect(state.locked).toStrictEqual(nearState.locked);
     expect(state.codeHash).toStrictEqual(nearState.code_hash);
-    expect(state.storagePaidAt).toStrictEqual(nearState.storage_paid_at.toString());
-    expect(state.storageUsage).toStrictEqual(nearState.storage_usage.toString());
+    expect(state.storagePaidAt).toStrictEqual(
+      nearState.storage_paid_at.toString()
+    );
+    expect(state.storageUsage).toStrictEqual(
+      nearState.storage_usage.toString()
+    );
   });
 
   it("Find access key", async () => {
@@ -146,7 +171,7 @@ describe("e2e", () => {
       }`,
       variables: {
         accountId: workingAccount.accountId,
-      }
+      },
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
@@ -157,7 +182,9 @@ describe("e2e", () => {
 
     const apiKey: AccessKey = accessKeyInfo.accessKey;
 
-    const nearKeys = (await workingAccount.getAccessKeys()).filter(k => k.access_key.permission !== "FullAccess");
+    const nearKeys = (await workingAccount.getAccessKeys()).filter(
+      (k) => k.access_key.permission !== "FullAccess"
+    );
     expect(nearKeys.length).toBeGreaterThan(0);
     const nearKey = nearKeys[0];
     const nearPermission = nearKey.access_key.permission;
@@ -168,14 +195,24 @@ describe("e2e", () => {
       throw Error("This should never happen");
     } else {
       expect(apiKey.permission.isFullAccess).toBeFalsy();
-      expect(apiKey.permission.receiverId).toStrictEqual(nearPermission.FunctionCall.receiver_id);
-      expect(apiKey.permission.methodNames).toStrictEqual(nearPermission.FunctionCall.method_names);
-      expect(apiKey.permission.allowance).toStrictEqual(nearPermission.FunctionCall.allowance.toString());
+      expect(apiKey.permission.receiverId).toStrictEqual(
+        nearPermission.FunctionCall.receiver_id
+      );
+      expect(apiKey.permission.methodNames).toStrictEqual(
+        nearPermission.FunctionCall.method_names
+      );
+      expect(apiKey.permission.allowance).toStrictEqual(
+        nearPermission.FunctionCall.allowance.toString()
+      );
     }
 
     // public key
-    expect(publicKeyToStr(accessKeyInfo.publicKey)).toStrictEqual(nearKey.public_key);
-    const nearPublicKey = nearApi.utils.PublicKey.fromString(nearKey.public_key);
+    expect(publicKeyToStr(accessKeyInfo.publicKey)).toStrictEqual(
+      nearKey.public_key
+    );
+    const nearPublicKey = nearApi.utils.PublicKey.fromString(
+      nearKey.public_key
+    );
     const nearPublicKeyData: Uint8Array = Uint8Array.from(nearPublicKey.data);
     expect(accessKeyInfo.publicKey.data).toStrictEqual(nearPublicKeyData);
   });
@@ -190,7 +227,7 @@ describe("e2e", () => {
       }`,
       variables: {
         accountId: workingAccount.accountId,
-      }
+      },
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
@@ -198,7 +235,10 @@ describe("e2e", () => {
     const publicKey: PublicKey = result.data!.getPublicKey;
     expect(publicKey).toBeTruthy();
 
-    const nearKey = await near.connection.signer.getPublicKey(workingAccount.accountId, networkId);
+    const nearKey = await near.connection.signer.getPublicKey(
+      workingAccount.accountId,
+      networkId
+    );
     expect(publicKey.data).toStrictEqual(nearKey.data);
 
     const publicKeyStr: string = publicKeyToStr(publicKey);

@@ -53,6 +53,10 @@ type Mutation {
     meta: String
   ): Boolean!
 
+  createKey(
+    accountId: String!
+    networkId: String!
+  ): PublicKey!
   # sends a signed transaction and awaits execution
   sendTransaction(
     signedTx: SignedTransaction!
@@ -62,6 +66,8 @@ type Mutation {
   sendTransactionAsync(
     signedTx: SignedTransaction!
   ): String!
+
+
 }
 
 # Account public key data
