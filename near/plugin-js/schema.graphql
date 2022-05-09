@@ -16,6 +16,11 @@ type Query {
     accountId: String!
   ): PublicKey
 
+  signMessage(
+    message: Bytes!
+    signerId: String!
+  ): Signature!
+
   """
   Creates a transaction.
   If signerId is provided, the transaction will be signed using data from the KeyStore in the plugin config.
@@ -48,6 +53,10 @@ type Mutation {
     meta: String
   ): Boolean!
 
+  createKey(
+    accountId: String!
+    networkId: String!
+  ): PublicKey!
   # sends a signed transaction and awaits execution
   sendTransaction(
     signedTx: SignedTransaction!
@@ -57,6 +66,8 @@ type Mutation {
   sendTransactionAsync(
     signedTx: SignedTransaction!
   ): String!
+
+
 }
 
 # Account public key data
