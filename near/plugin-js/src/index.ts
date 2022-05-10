@@ -97,7 +97,7 @@ export class NearPlugin extends Plugin {
     if (keyPair === null) {
       return null;
     }
-    return null;
+    return toPublicKey(keyPair.getPublicKey());
   }
 
   public async createTransactionWithWallet(
