@@ -172,7 +172,7 @@ export const fromAccessKey = (
 };
 
 export const toAccessKey = (key: nearApi.transactions.AccessKey): AccessKey => {
-  let permission: AccessKeyPermission = {};
+  let permission: AccessKeyPermission = {} as AccessKeyPermission;
   if (isNearFunctionCallPermission(key.permission)) {
     permission = {
       receiverId: key.permission.receiverId,

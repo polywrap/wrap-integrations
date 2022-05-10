@@ -40,7 +40,7 @@ describe("e2e", () => {
     await stopTestEnvironment();
   });
 
-  it("Create account", async () => {
+   it("Create account", async () => {
     const newAccountId = testUtils.generateUniqueString("test");
     const keyPair = KeyPair.fromRandom("ed25519");
 
@@ -87,39 +87,6 @@ describe("e2e", () => {
     await accountCreated.deleteAccount(testUtils.testAccountId);
   });
 
-  /* it("Add key", async () => {
-    const keyPair = nearApi.utils.KeyPair.fromRandom("ed25519");
-
-    const result = await client.query<{ addKey: Near_FinalExecutionOutcome }>({
-      uri: apiUri,
-      query: `mutation {
-        addKey(
-          publicKey: $publicKey
-          contractId: $contractId
-          methodNames: $methodNames
-          amount: $amount
-          signerId: $signerId
-        )
-      }`,
-      variables: {
-        publicKey: keyPair.getPublicKey(),
-        contractId: contractId,
-        methodNames: [],
-        amount: "1000000000",
-        signerId: workingAccount.accountId,
-      },
-    });
-
-    expect(result.errors).toBeFalsy();
-    expect(result.data).toBeTruthy();
-
-    const addKeyResult = result.data!.addKey;
-
-    expect(addKeyResult.status.SuccessValue).toBeTruthy();
-
-    //expect(details.authorizedApps).toEqual(jasmine.arrayContaining(expectedResult.authorizedApps));
-  }); */
-
   it("Delete account", async () => {
     const accountToDelete = await testUtils.createAccount(near);
 
@@ -150,5 +117,56 @@ describe("e2e", () => {
     expect(deletionResult.status.failure).toBeFalsy();
     expect(deletionResult.status.SuccessValue).toBeDefined();
     expect(accountToDelete.state()).rejects.toThrow();
+  });
+
+  it("Add key", async () => {
+    const newPublicKey = nearApi.utils.KeyPair.fromRandom("ed25519").getPublicKey();
+
+    const { amount } = await workingAccount.state();
+    const newAmount = new BN(amount).div(new BN(10)).toString();
+
+    const detailsBefore = await workingAccount.getAccountDetails();
+
+    const result = await client.query<{ addKey: Near_FinalExecutionOutcome }>({
+      uri: apiUri,
+      query: `mutation {
+        addKey(
+          publicKey: $publicKey
+          contractId: $contractId
+          methodNames: $methodNames
+          amount: $amount
+          signerId: $signerId
+          )
+        }`,
+      variables: {
+        publicKey: newPublicKey,
+        contractId: contractId,
+        methodNames: [],
+        amount: newAmount,
+        signerId: workingAccount.accountId,
+      },
+    });
+
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const addKeyResult = result.data!.addKey;
+
+    expect(addKeyResult).toBeTruthy();
+    expect(addKeyResult.status.failure).toBeFalsy();
+    expect(addKeyResult.status.SuccessValue).toBeDefined();
+
+    const detailsAfter = await workingAccount.getAccountDetails();
+
+    expect(detailsAfter.authorizedApps.length).toBeGreaterThan(detailsBefore.authorizedApps.length);
+    expect(detailsAfter.authorizedApps).toEqual(
+      expect.arrayContaining([
+        {
+          contractId: contractId,
+          amount: newAmount,
+          publicKey: newPublicKey.toString(),
+        },
+      ])
+    );
   });
 });

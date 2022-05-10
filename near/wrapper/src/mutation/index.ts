@@ -81,13 +81,11 @@ export function addKey(input: Input_addKey): Near_FinalExecutionOutcome {
   } else {
     accessKey = fullAccessKey();
   }
-
-  const transaction = createTransaction({
+  return signAndSendTransaction({
     receiverId: input.signerId,
+    signerId: input.signerId,
     actions: [{ publicKey: input.publicKey, accessKey: accessKey } as Near_Action],
-  } as Input_createTransaction);
-  const signedTxResult: Near_SignTransactionResult = signTransaction({ transaction: transaction });
-  return sendTransaction({ signedTx: signedTxResult.signedTx });
+  });
 }
 
 export function createAccount(input: Input_createAccount): Near_FinalExecutionOutcome {
