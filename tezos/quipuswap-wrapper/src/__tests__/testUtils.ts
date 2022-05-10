@@ -40,7 +40,7 @@ export const getPlugins = (ipfs: string, ensAddress: string, ethereum: string, t
         },
         {
             uri: "w3://ens/ens.web3api.eth",
-            plugin: ensPlugin({ addresses: { testnet: ensAddress } }),
+            plugin: ensPlugin({ query: { addresses: { testnet: ensAddress } } }),
         },
         {
             uri: "w3://ens/ethereum.web3api.eth",

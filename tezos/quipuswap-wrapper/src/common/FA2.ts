@@ -47,7 +47,7 @@ export class FA2 {
       args: generateFA2UpdateOperationArg('add_operator', owner, operator, this.tokenId),
       params: null,
       connection: connection
-    })
+    }).unwrap();
   }
 
   generateRemoveOperation(connection: Tezos_Connection, owner: string, operator: string): Tezos_TransferParams {
@@ -57,6 +57,6 @@ export class FA2 {
       args: generateFA2UpdateOperationArg('remove_operator', owner, operator, this.tokenId),
       params: null,
       connection: connection
-    })
+    }).unwrap();
   }
 }

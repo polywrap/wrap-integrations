@@ -23,7 +23,7 @@ export function listTokenPairs(input: Input_listTokenPairs): JSON.Arr {
     connection: connection.connection,
     key: "storage",
     field: "pairs_count"
-  });
+  }).unwrap();
   const tokenPairs = JSON.Value.Array();
   for (let i = 0; i < parseInt(pairsCount); i++) {
     const tokenPair = getPair(i.toString(), connection);
@@ -39,7 +39,7 @@ export function getTokenSupply(input: Input_getTokenSupply): GetTokenSupplyRespo
     connection: connection.connection,
     key: "storage.pairs",
     field: input.pairId
-  });
+  }).unwrap();
   const assetData = <JSON.Obj>JSON.parse(storage);
   return {
     token_a_pool: getString(assetData, "token_a_pool"),
@@ -56,7 +56,7 @@ export function getLPTokenBalance(input: Input_getLPTokenBalance): string {
     connection: connection.connection,
     key: 'storage.ledger.["' + input.owner + '",' + input.pairId + '].balance',
     field: ""
-  });
+  }).unwrap();
 }
 
 export function getPair(pairId: string, connection: Address): JSON.Obj {
@@ -65,7 +65,7 @@ export function getPair(pairId: string, connection: Address): JSON.Obj {
     connection: connection.connection,
     key: `storage.tokens`,
     field: pairId
-  });
+  }).unwrap();
   if (token == "") {
     throw new Error(`invalid pair id "${pairId}"`);
   }

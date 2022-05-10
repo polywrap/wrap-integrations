@@ -15,9 +15,16 @@ describe("e2e", () => {
   let ensUri: string;
 
   beforeAll(async () => {
-    const { ensAddress, ethereum, ipfs } = await initTestEnvironment();
+    const testEnv = await initTestEnvironment();
     const apiPath = path.join(__dirname, "/../../..");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
+    const api = await buildAndDeployApi({
+      apiAbsPath: apiPath,
+      ipfsProvider: testEnv.ipfs,
+      ensRegistryAddress: testEnv.ensAddress,
+      ensRegistrarAddress: testEnv.registrarAddress,
+      ensResolverAddress: testEnv.resolverAddress,
+      ethereumProvider: testEnv.ethereum,
+    });
     ensUri = `ens/testnet/${api.ensDomain}`;
     const tezosConnection = {
       network: "hangzhounet",
@@ -25,7 +32,7 @@ describe("e2e", () => {
       signer: await InMemorySigner.fromSecretKey(Config.TZ_SECRET)
     }
     client = new Web3ApiClient({
-        plugins: getPlugins(ipfs, ensAddress, ethereum, tezosConnection),
+        plugins: getPlugins(testEnv.ipfs, testEnv.ensAddress, testEnv.ethereum, tezosConnection),
     })
   })
 
