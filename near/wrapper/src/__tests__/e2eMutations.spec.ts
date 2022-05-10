@@ -40,7 +40,7 @@ describe("e2e", () => {
     await stopTestEnvironment();
   });
 
-   it("Create account", async () => {
+  it("Create account", async () => {
     const newAccountId = testUtils.generateUniqueString("test");
     const keyPair = KeyPair.fromRandom("ed25519");
 
@@ -168,5 +168,44 @@ describe("e2e", () => {
         },
       ])
     );
+  });
+
+  it("Delete key", async () => {
+    const newPublicKey = nearApi.utils.KeyPair.fromRandom("ed25519").getPublicKey();
+
+    const detailsBefore = await workingAccount.getAccountDetails();
+
+    workingAccount.addKey(newPublicKey, contractId, "", new BN(400000));
+
+    const detailsAfterAddKey = await workingAccount.getAccountDetails();
+
+    expect(detailsAfterAddKey.authorizedApps.length).toBeGreaterThan(detailsBefore.authorizedApps.length);
+
+    const result = await client.query<{ deleteKey: Near_FinalExecutionOutcome }>({
+      uri: apiUri,
+      query: `mutation {
+        deleteKey(
+          publicKey: $publicKey
+          signerId: $signerId
+          )
+        }`,
+      variables: {
+        publicKey: newPublicKey,
+        signerId: workingAccount.accountId,
+      },
+    });
+
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const deleteKeyResult = result.data!.deleteKey;
+
+    expect(deleteKeyResult).toBeTruthy();
+    expect(deleteKeyResult.status.failure).toBeFalsy();
+    expect(deleteKeyResult.status.SuccessValue).toBeDefined();
+
+    const detailsAfterDeleteKey = await workingAccount.getAccountDetails();
+
+    expect(detailsBefore.authorizedApps.length).toEqual(detailsAfterDeleteKey.authorizedApps.length);
   });
 });
