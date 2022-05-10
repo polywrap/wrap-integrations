@@ -208,4 +208,45 @@ describe("e2e", () => {
 
     expect(detailsBefore.authorizedApps.length).toEqual(detailsAfterDeleteKey.authorizedApps.length);
   });
+
+  it("Send money", async () => {
+    const receiver = await testUtils.createAccount(near);
+    const receiverBalanceBefore = await receiver.getAccountBalance();
+
+    const { amount } = await workingAccount.state();
+    const newAmount = new BN(amount).div(new BN(10)).toString();
+
+    const result = await client.query<{ sendMoney: Near_FinalExecutionOutcome }>({
+      uri: apiUri,
+      query: `mutation {
+        sendMoney(
+          amount: $amount
+          receiverId: $receiverId
+          signerId: $signerId
+          )
+        }`,
+      variables: {
+        amount: newAmount,
+        receiverId: receiver.accountId,
+        signerId: workingAccount.accountId,
+      },
+    });
+
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const sendMoneyResult = result.data!.sendMoney;
+
+    expect(sendMoneyResult).toBeTruthy();
+    expect(sendMoneyResult.status.failure).toBeFalsy();
+    expect(sendMoneyResult.status.SuccessValue).toBeDefined();
+
+    const receiverBalanceAfter = await receiver.getAccountBalance();
+
+    expect(new BN(receiverBalanceAfter.total).gt(new BN(receiverBalanceBefore.total))).toEqual(true);
+
+    expect(new BN(receiverBalanceAfter.total).sub(new BN(newAmount)).toString()).toEqual(receiverBalanceBefore.total);
+
+    await receiver.deleteAccount(testUtils.testAccountId);
+  });
 });
