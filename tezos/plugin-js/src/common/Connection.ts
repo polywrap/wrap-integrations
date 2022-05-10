@@ -1,4 +1,5 @@
 import { getProvider } from "./Networks";
+import { Connection as SchemaConnection } from "../query/w3";
 
 import {
   ContractAbstraction,
@@ -102,4 +103,38 @@ export class Connection {
   ): Promise<ContractAbstraction<ContractProvider>> {
     return this._client.contract.at(address);
   }
+}
+
+export async function getConnection(
+  connections: Connections,
+  defaultNetwork: string,
+  connection?: SchemaConnection | null
+): Promise<Connection> {
+  if (!connection) {
+    return connections[defaultNetwork];
+  }
+  const { networkNameOrChainId, provider } = connection;
+  let result: Connection= connections[defaultNetwork];
+  // If a custom network is provided, either get an already
+  // established connection, or a create a new one
+  if (networkNameOrChainId) {
+    const networkStr = networkNameOrChainId.toLowerCase();
+    if (connections[networkStr]) {
+      result = connections[networkStr];
+    } else {
+      try {
+        result = Connection.fromNetwork(networkStr);
+      } catch (error) {
+        // ignore if network is not supported by core
+      }
+    }
+  } 
+  // If a custom node endpoint is provided, create a combined
+  // connection with the node's endpoint and a connection's signer
+  // (if one exists for the network)
+  else if (provider) {
+    const nodeConnection = Connection.fromNode(provider);
+    result = nodeConnection;
+  }
+  return result;
 }

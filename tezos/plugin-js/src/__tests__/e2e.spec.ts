@@ -1,12 +1,11 @@
 import { tezosPlugin } from "..";
-import * as Schema from "../w3";
-import { deployContract, SIMPLE_CONTRACT, SIMPLE_CONTRACT_STORAGE } from "../scripts/deploy"
+import { deployContract, SIMPLE_CONTRACT, SIMPLE_CONTRACT_STORAGE } from "./deploy"
+import * as QueryTypes from "../query/w3/types";
+import * as MutationTypes from "../mutation/w3/types";
 
-import { up, down, Account, Node } from "@web3api/tezos-test-env"
+import { up, down, Account, Node } from "@blockwatch-cc/tezos-test-env"
 import { Web3ApiClient } from "@web3api/client-js";
 import { InMemorySigner } from "@taquito/signer";
-
-import * as Types from "../w3";
 
 jest.setTimeout(360000)
 
@@ -53,7 +52,7 @@ describe("Tezos Plugin", () => {
     describe("getContractCallTransferParams", () => {
       it("should get the transferParams of a contract call", async () => {
         const contractAddress = "KT1QLqPN8us3LpgqSR9BgdF8bwJ8vJBjhfwV"
-        const response = await client.query<{ getContractCallTransferParams: Types.TransferParams }>({
+        const response = await client.query<{ getContractCallTransferParams: QueryTypes.TransferParams }>({
           uri,
           query: `
             query {
@@ -315,7 +314,7 @@ describe("Tezos Plugin", () => {
 
     describe("getOperationStatus", () => {
       it("should get operation status", async () => {
-        const response =  await client.query<{ getOperationStatus: Schema.OperationStatus }>({
+        const response =  await client.query<{ getOperationStatus: QueryTypes.OperationStatus }>({
           uri,
           query: `
             query {
@@ -420,8 +419,8 @@ describe("Tezos Plugin", () => {
 
     describe("getRevealEstimate", () => {
       it("should return an error if account is already revealed", async () => {
-        const params: Schema.RevealParams = {}
-        const response = await client.query<{ getRevealEstimate: Schema.EstimateResult }>({
+        const params: QueryTypes.RevealParams = {}
+        const response = await client.query<{ getRevealEstimate: QueryTypes.EstimateResult }>({
           uri,
           query:`
             query {
@@ -441,11 +440,11 @@ describe("Tezos Plugin", () => {
 
     describe("getTransferEstimate", () => {
       it("should estimate the cost to make a transfer operation", async () => {
-        const params: Schema.SendParams = {
+        const params: QueryTypes.SendParams = {
           to: 'tz1QQyn4VqqD9KGShaWDHPSVQnDuzq47tvSj',
           amount: 100
         }
-        const response = await client.query<{ getTransferEstimate: Schema.EstimateResult }>({
+        const response = await client.query<{ getTransferEstimate: QueryTypes.EstimateResult }>({
           uri,
           query:`
             query {
@@ -473,11 +472,11 @@ describe("Tezos Plugin", () => {
       })
 
       it("should fail to estimate the cost to make a transfer if address is invalid", async () => {
-        const params: Schema.SendParams = {
+        const params: QueryTypes.SendParams = {
           to: 'invalid-address',
           amount: 100
         }
-        const response = await client.query<{ getTransferEstimate: Schema.EstimateResult }>({
+        const response = await client.query<{ getTransferEstimate: QueryTypes.EstimateResult }>({
           uri,
           query:`
             query {
@@ -499,11 +498,11 @@ describe("Tezos Plugin", () => {
 
     describe("getOriginateEstimate", () => {
       it("should fail if code parameter is invalid", async () => {
-        const params: Schema.OriginateParams = {
+        const params: QueryTypes.OriginateParams = {
           code: '',
           storage: ''
         }
-        const response = await client.query<{ getOriginateEstimate: Schema.EstimateResult }>({
+        const response = await client.query<{ getOriginateEstimate: QueryTypes.EstimateResult }>({
           uri,
           query:`
             query {
@@ -523,7 +522,7 @@ describe("Tezos Plugin", () => {
       })
 
       it("should estimate the cost to make an origination operation", async () => {
-        const params: Schema.OriginateParams = {
+        const params: QueryTypes.OriginateParams = {
           code: `
           parameter unit;
           
@@ -553,7 +552,7 @@ describe("Tezos Plugin", () => {
           `,
           storage: ''
         }
-        const response = await client.query<{ getOriginateEstimate: Schema.EstimateResult }>({
+        const response = await client.query<{ getOriginateEstimate: QueryTypes.EstimateResult }>({
           uri,
           query:`
             query {
@@ -590,7 +589,7 @@ describe("Tezos Plugin", () => {
           storage: SIMPLE_CONTRACT_STORAGE
         })
         const transferParamsResponse = await Promise.all([
-          client.query<{ getContractCallTransferParams: Types.TransferParams }>({
+          client.query<{ getContractCallTransferParams: QueryTypes.TransferParams }>({
             uri,
             query: `
               query {
@@ -611,7 +610,7 @@ describe("Tezos Plugin", () => {
               }
             }
           }),
-          client.query<{ getContractCallTransferParams: Types.TransferParams }>({
+          client.query<{ getContractCallTransferParams: QueryTypes.TransferParams }>({
             uri,
             query: `
               query {
@@ -675,7 +674,7 @@ describe("Tezos Plugin", () => {
           code: SIMPLE_CONTRACT, 
           storage: SIMPLE_CONTRACT_STORAGE
         })
-        const response = await client.query<{ callContractMethod: Schema.TxOperation }>({
+        const response = await client.query<{ callContractMethod: MutationTypes.TxOperation }>({
           uri,
           query: `
             mutation {
@@ -756,7 +755,7 @@ describe("Tezos Plugin", () => {
 
     describe("transferAndConfirm", () => {
       it("should make a transfer and confirm", async () => {
-        const response = await client.query<{ transferAndConfirm: Schema.TransferConfirmation }>({
+        const response = await client.query<{ transferAndConfirm: MutationTypes.TransferConfirmation }>({
           uri,
           query: `
             mutation {
@@ -787,7 +786,7 @@ describe("Tezos Plugin", () => {
     describe("signMessage", () => {
       it("signs a message", async () => {
         const message = "random-message"
-        const response = await client.query<{ signMessage: Schema.SignResult }>({
+        const response = await client.query<{ signMessage: MutationTypes.SignResult }>({
           uri,
           query: `
             mutation {
@@ -809,7 +808,7 @@ describe("Tezos Plugin", () => {
 
     describe("originate", () => {
       it("should fail if provided with invalid init value", async () => {
-        const response = await client.query<{ originate: Schema.OriginationResponse }>({
+        const response = await client.query<{ originate: MutationTypes.OriginationResponse }>({
           uri,
           query: `
             mutation {
@@ -857,7 +856,7 @@ describe("Tezos Plugin", () => {
       })
 
       it("should originate a contract", async () => {
-        const response = await client.query<{ originate: Schema.OriginationResponse }>({
+        const response = await client.query<{ originate: MutationTypes.OriginationResponse }>({
           uri,
           query: `
             mutation {
@@ -911,7 +910,7 @@ describe("Tezos Plugin", () => {
 
     describe("originateAndConfirm", () => {
       it("should originate a contract and confirm", async () => {
-        const response = await client.query<{ originateAndConfirm: Schema.OriginationConfirmationResponse }>({
+        const response = await client.query<{ originateAndConfirm: MutationTypes.OriginationConfirmationResponse }>({
           uri,
           query: `
             mutation {
