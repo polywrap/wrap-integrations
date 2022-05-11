@@ -34,7 +34,6 @@
   "devDependencies": {
     "@blockwatch-cc/tezos-test-env": "0.0.1-prealpha.63",
     "@types/jest": "26.0.8",
-    "@blockwatch-cc/tezos-test-env": "0.0.1-prealpha.63",
     "@web3api/client-js": "0.0.1-prealpha.76",
     "@web3api/ens-plugin-js": "0.0.1-prealpha.76",
     "@web3api/ipfs-plugin-js": "0.0.1-prealpha.76",
