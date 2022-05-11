@@ -7,6 +7,15 @@ import * as nearApi from "near-api-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
 import { BN } from "bn.js";
+import * as fs from "fs";
+
+import "localstorage-polyfill";
+const MockBrowser = require("mock-browser").mocks.MockBrowser;
+const mock = new MockBrowser();
+
+global["document"] = mock.getDocument();
+global["window"] = mock.getWindow();
+global["localStorage"] = localStorage;
 
 jest.setTimeout(360000);
 
@@ -17,6 +26,7 @@ describe("e2e", () => {
   let nearConfig: NearPluginConfig;
   let contractId: string;
   let workingAccount: nearApi.Account;
+  let masterAccount: nearApi.Account;
 
   beforeAll(async () => {
     // set up test env and deploy api
@@ -34,12 +44,14 @@ describe("e2e", () => {
     contractId = testUtils.generateUniqueString("test");
     workingAccount = await testUtils.createAccount(near);
     await testUtils.deployContract(workingAccount, contractId);
+
+    masterAccount = await near.account(testUtils.testAccountId);
   });
 
   afterAll(async () => {
     await stopTestEnvironment();
   });
-
+   
   it("Create account", async () => {
     const newAccountId = testUtils.generateUniqueString("test");
     const keyPair = KeyPair.fromRandom("ed25519");
@@ -175,7 +187,7 @@ describe("e2e", () => {
 
     const detailsBefore = await workingAccount.getAccountDetails();
 
-    workingAccount.addKey(newPublicKey, contractId, "", new BN(400000));
+    await workingAccount.addKey(newPublicKey, contractId, "", new BN(400000));
 
     const detailsAfterAddKey = await workingAccount.getAccountDetails();
 
@@ -248,5 +260,94 @@ describe("e2e", () => {
     expect(new BN(receiverBalanceAfter.total).sub(new BN(newAmount)).toString()).toEqual(receiverBalanceBefore.total);
 
     await receiver.deleteAccount(testUtils.testAccountId);
+  });
+ 
+  it("Create and deploy contract", async () => {
+    const newContractId = testUtils.generateUniqueString("test_contract");
+
+    const keyPair = KeyPair.fromRandom("ed25519");
+    const newPublicKey = keyPair.getPublicKey();
+
+    const { amount } = await workingAccount.state();
+    const newAmount = new BN(amount).div(new BN(10)).toString();
+
+    const acc = await near.account(testUtils.testAccountId);
+
+    const created = await acc.createAccount(newContractId, newPublicKey, new BN(newAmount));
+    console.log('created', created)
+    const data = fs.readFileSync(testUtils.HELLO_WASM_PATH);
+
+    //await acc.addKey(newPublicKey, newContractId, "", new BN(400000));
+
+    //const newAccount = await testUtils.createAccount(near);
+
+    const result = await client.query<{ createAndDeployContract: boolean }>({
+      uri: apiUri,
+      query: `mutation {
+        createAndDeployContract(
+          contractId: $contractId
+          publicKey: $publicKey
+          data: $data
+          amount: $amount
+          signerId: $signerId
+        )
+      }`,
+      variables: {
+        contractId: newContractId,
+        publicKey: newPublicKey,
+        data: data,
+        amount: newAmount,
+        signerId: acc.accountId,
+      },
+    });
+
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const createAndDeployContractResult = result.data!.createAndDeployContract;
+
+    console.log(createAndDeployContractResult);
+
+    expect(createAndDeployContractResult).toBeTruthy();
+  });
+
+  it("Deploy contract", async () => {
+    const newContractId = testUtils.generateUniqueString("test_contract");
+
+    const data = fs.readFileSync(testUtils.HELLO_WASM_PATH);
+
+    const keyPair = KeyPair.fromRandom("ed25519");
+    const newPublicKey = keyPair.getPublicKey();
+
+    const { amount } = await masterAccount.state();
+    const newAmount = new BN(amount).div(new BN(100));
+
+    await masterAccount.createAccount(newContractId, newPublicKey, newAmount);
+
+    const result = await client.query<{ deployContract: Near_FinalExecutionOutcome }>({
+      uri: apiUri,
+      query: `mutation {
+        deployContract(
+          data: $data
+          contractId: $contractId
+          signerId: $signerId
+        )
+      }`,
+      variables: {
+        data: data,
+        contractId: masterAccount.accountId,
+        signerId: masterAccount.accountId,
+      },
+    });
+
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const deployContractResult = result.data!.deployContract;
+    console.log(deployContractResult);
+
+    expect(deployContractResult).toBeTruthy();
+    expect(deployContractResult.status.failure).toBeFalsy();
+    expect(deployContractResult.status.SuccessValue).toBeDefined();
   });
 });

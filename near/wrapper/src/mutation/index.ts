@@ -140,8 +140,18 @@ export function deleteKey(input: Input_deleteKey): Near_FinalExecutionOutcome {
     actions: [action.deleteKey(input.publicKey)],
   });
 }
-export function createAndDeployContract(input: Input_createAndDeployContract): boolean {
-  const contractResult = signAndSendTransaction({
+export function createAndDeployContract(input: Input_createAndDeployContract): Near_FinalExecutionOutcome {
+/*   const transaction = createTransaction({
+    receiverId: input.contractId,
+    actions: [
+      action.createAccount(),
+      action.transfer(input.amount),
+      action.addKey(input.publicKey, fullAccessKey()),
+      action.deployContract(input.data),
+    ],
+  } as Input_createTransaction);
+  const signedTxResult: Near_SignTransactionResult = signTransaction({ transaction: transaction }); */
+     const contractResult = signAndSendTransaction({
     receiverId: input.contractId,
     signerId: input.contractId,
     actions: [
@@ -150,7 +160,8 @@ export function createAndDeployContract(input: Input_createAndDeployContract): b
       action.addKey(input.publicKey, fullAccessKey()),
       action.deployContract(input.data),
     ],
-  });
+  }); 
+  return contractResult
   //const contractAccount = createAccount({})
-  return !!contractResult.status.SuccessValue;
+  //return sendTransaction({ signedTx: signedTxResult.signedTx });
 }
