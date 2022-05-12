@@ -119,6 +119,7 @@ export function sendMoney(input: Input_sendMoney): Near_FinalExecutionOutcome {
     actions: [action.transfer(input.amount)],
   });
 }
+
 export function functionCall(input: Input_functionCall): Near_FinalExecutionOutcome {
   const actions = [action.functionCall(input.methodName, input.args, input.gas, input.deposit)];
   if (input.signerId !== null) {
@@ -140,6 +141,7 @@ export function deleteKey(input: Input_deleteKey): Near_FinalExecutionOutcome {
     actions: [action.deleteKey(input.publicKey)],
   });
 }
+
 export function createAndDeployContract(input: Input_createAndDeployContract): Near_FinalExecutionOutcome {
   return signAndSendTransaction({
     receiverId: input.contractId,
