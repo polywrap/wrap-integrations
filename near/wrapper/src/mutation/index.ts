@@ -141,27 +141,14 @@ export function deleteKey(input: Input_deleteKey): Near_FinalExecutionOutcome {
   });
 }
 export function createAndDeployContract(input: Input_createAndDeployContract): Near_FinalExecutionOutcome {
-/*   const transaction = createTransaction({
+  return signAndSendTransaction({
     receiverId: input.contractId,
+    signerId: input.signerId,
     actions: [
       action.createAccount(),
       action.transfer(input.amount),
       action.addKey(input.publicKey, fullAccessKey()),
       action.deployContract(input.data),
     ],
-  } as Input_createTransaction);
-  const signedTxResult: Near_SignTransactionResult = signTransaction({ transaction: transaction }); */
-     const contractResult = signAndSendTransaction({
-    receiverId: input.contractId,
-    signerId: input.contractId,
-    actions: [
-      action.createAccount(),
-      action.transfer(input.amount),
-      action.addKey(input.publicKey, fullAccessKey()),
-      action.deployContract(input.data),
-    ],
-  }); 
-  return contractResult
-  //const contractAccount = createAccount({})
-  //return sendTransaction({ signedTx: signedTxResult.signedTx });
+  });
 }

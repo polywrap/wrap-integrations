@@ -51,7 +51,7 @@ describe("e2e", () => {
   afterAll(async () => {
     await stopTestEnvironment();
   });
-   
+
   it("Create account", async () => {
     const newAccountId = testUtils.generateUniqueString("test");
     const keyPair = KeyPair.fromRandom("ed25519");
@@ -261,27 +261,21 @@ describe("e2e", () => {
 
     await receiver.deleteAccount(testUtils.testAccountId);
   });
- 
+
   it("Create and deploy contract", async () => {
     const newContractId = testUtils.generateUniqueString("test_contract");
 
-    const keyPair = KeyPair.fromRandom("ed25519");
-    const newPublicKey = keyPair.getPublicKey();
-
-    const { amount } = await workingAccount.state();
-    const newAmount = new BN(amount).div(new BN(10)).toString();
-
-    const acc = await near.account(testUtils.testAccountId);
-
-    const created = await acc.createAccount(newContractId, newPublicKey, new BN(newAmount));
-    console.log('created', created)
     const data = fs.readFileSync(testUtils.HELLO_WASM_PATH);
 
-    //await acc.addKey(newPublicKey, newContractId, "", new BN(400000));
+    const { amount } = await masterAccount.state();
+    const newAmount = new BN(amount).div(new BN(100)).toString();
 
-    //const newAccount = await testUtils.createAccount(near);
+    const signerPublicKey = await masterAccount.connection.signer.getPublicKey(
+      masterAccount.accountId,
+      testUtils.networkId
+    );
 
-    const result = await client.query<{ createAndDeployContract: boolean }>({
+    const result = await client.query<{ createAndDeployContract: Near_FinalExecutionOutcome }>({
       uri: apiUri,
       query: `mutation {
         createAndDeployContract(
@@ -294,10 +288,10 @@ describe("e2e", () => {
       }`,
       variables: {
         contractId: newContractId,
-        publicKey: newPublicKey,
         data: data,
         amount: newAmount,
-        signerId: acc.accountId,
+        publicKey: signerPublicKey,
+        signerId: masterAccount.accountId,
       },
     });
 
@@ -306,9 +300,9 @@ describe("e2e", () => {
 
     const createAndDeployContractResult = result.data!.createAndDeployContract;
 
-    console.log(createAndDeployContractResult);
-
     expect(createAndDeployContractResult).toBeTruthy();
+    expect(createAndDeployContractResult.status.failure).toBeFalsy();
+    expect(createAndDeployContractResult.status.SuccessValue).toBeDefined();
   });
 
   it("Deploy contract", async () => {

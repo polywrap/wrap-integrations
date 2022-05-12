@@ -214,9 +214,10 @@ export function toAccessKeyInfo(json: JSON.Obj): AccessKeyInfo {
 }
 
 export function toAccessKey(json: JSON.Obj): AccessKey {
+  let nonce: BigInt = BigInt.fromString("0");
   let permission: AccessKeyPermission;
-  const jsonPermVal: JSON.Value = json.getValue("permission")!;
-  if (jsonPermVal.isString) {
+  const jsonPermVal: JSON.Value | null = json.getValue("permission");
+  if (jsonPermVal == null || jsonPermVal.isString) {
     permission = {
       isFullAccess: true,
       receiverId: null,
@@ -238,9 +239,12 @@ export function toAccessKey(json: JSON.Obj): AccessKey {
       allowance,
     };
   }
-
+  const nonceVal = json.getValue("nonce");
+  if (nonceVal != null) {
+    nonce = BigInt.fromString(nonceVal!.stringify());
+  }
   return {
-    nonce: BigInt.fromString(json.getValue("nonce")!.stringify()),
+    nonce: nonce,
     permission: permission,
   };
 }
