@@ -4,6 +4,7 @@ const cmds = require('./cmds')
 const { PORT, PROTOCOL, BLOCK_TIME } = require('./config')
 const { PollingSubscribeProvider } = require('@taquito/taquito')
 const { getClient, getSigner } = require('./taquito')
+const Networks = require('./networks')
 
 async function runCommand(command, quiet) {
   if (!quiet) {
@@ -67,12 +68,14 @@ async function deployContract(account, contractInfo, confirmation = 1) {
   const { code, init, storage } = contractInfo
   const client = getClient()
   const signer = await getSigner(account.secretKey)
+  const chainId = await client.rpc.getChainId()
   const rpcConstants = await client.rpc.getConstants()
+  const maxOperationsTTL = rpcConstants[Networks[chainId].maxOperationTTLKey] || 120;
   client.setSignerProvider(signer)
   client.setProvider({
     signer,
     config: {
-      confirmationPollingTimeoutSecond: rpcConstants.max_operations_time_to_live * BLOCK_TIME
+      confirmationPollingTimeoutSecond: maxOperationsTTL * BLOCK_TIME
     }
   })
   client.setStreamProvider(client.getFactory(PollingSubscribeProvider)({
