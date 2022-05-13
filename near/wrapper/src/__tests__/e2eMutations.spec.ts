@@ -339,7 +339,6 @@ describe("e2e", () => {
     expect(result.data).toBeTruthy();
 
     const deployContractResult = result.data!.deployContract;
-    console.log(deployContractResult);
 
     expect(deployContractResult).toBeTruthy();
     expect(deployContractResult.status.failure).toBeFalsy();
@@ -375,7 +374,6 @@ describe("e2e", () => {
     expect(result.data).toBeTruthy();
 
     const functionResult = result.data!.functionCall;
-    console.log(functionResult);
 
     expect(functionResult).toBeTruthy();
     expect(functionResult.status.failure).toBeFalsy();
