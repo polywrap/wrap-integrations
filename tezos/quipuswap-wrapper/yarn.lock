@@ -293,10 +293,10 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@blockwatch-cc/tezos-plugin-js@0.0.1-prealpha.63":
-  version "0.0.1-prealpha.63"
-  resolved "https://registry.yarnpkg.com/@blockwatch-cc/tezos-plugin-js/-/tezos-plugin-js-0.0.1-prealpha.63.tgz#1c56c51d5ca362996f6584a78fdcad98b67ce523"
-  integrity sha512-tXGcY7gW6NUYPJmyi2uggbcqzUxGdGWmdfoCqMh3d4TQCbZBNoHV19yCTdhMPRKECJC8MyuBify4Bx5mPvFp1A==
+"@blockwatch-cc/tezos-plugin-js@0.0.1-prealpha.78":
+  version "0.0.1-prealpha.78"
+  resolved "https://registry.yarnpkg.com/@blockwatch-cc/tezos-plugin-js/-/tezos-plugin-js-0.0.1-prealpha.78.tgz#7aad5b8160cac1c2a23be3ac97f3d372f31b12a7"
+  integrity sha512-aeGuPwgpBwJ6Kvj85eKOUKGhgfxshz89L/JyBmYyJlj5hImWXn8Qd64LJ8r739d3MsRvcUG0nHTTDiLL3F0tJw==
   dependencies:
     "@taquito/michel-codec" "12.1.0"
     "@taquito/michelson-encoder" "12.1.0"
@@ -305,7 +305,7 @@
     "@taquito/tzip16" "12.1.0"
     "@taquito/utils" "12.1.0"
     "@temple-wallet/dapp" "6.1.0"
-    "@web3api/core-js" "0.0.1-prealpha.61"
+    "@web3api/core-js" "0.0.1-prealpha.76"
     axios "0.25.0"
 
 "@cspotcode/source-map-consumer@0.8.0":
@@ -2054,19 +2054,6 @@
     axios "0.21.2"
     dotenv "10.0.0"
 
-"@web3api/core-js@0.0.1-prealpha.61":
-  version "0.0.1-prealpha.61"
-  resolved "https://registry.yarnpkg.com/@web3api/core-js/-/core-js-0.0.1-prealpha.61.tgz#ffad8597e718e6ddc46f0f8171bb85f39d7e686f"
-  integrity sha512-tIGCGT/JaNtW4Zuhf0KeyQEQdHJjWyyueIh1qE3/zyJxi4KgvpjXIyqFcQMhO7jiKIFmLxZVc/5VeNzqz8VGbw==
-  dependencies:
-    "@web3api/manifest-schemas" "0.0.1-prealpha.61"
-    "@web3api/tracing-js" "0.0.1-prealpha.61"
-    graphql "15.5.0"
-    graphql-tag "2.10.4"
-    js-yaml "3.14.0"
-    jsonschema "1.4.0"
-    semver "7.3.5"
-
 "@web3api/core-js@0.0.1-prealpha.76":
   version "0.0.1-prealpha.76"
   resolved "https://registry.yarnpkg.com/@web3api/core-js/-/core-js-0.0.1-prealpha.76.tgz#082ab14198832d283edea4f58504053f211ba6cb"
@@ -2146,11 +2133,6 @@
   dependencies:
     "@web3api/core-js" "0.0.1-prealpha.76"
 
-"@web3api/manifest-schemas@0.0.1-prealpha.61":
-  version "0.0.1-prealpha.61"
-  resolved "https://registry.yarnpkg.com/@web3api/manifest-schemas/-/manifest-schemas-0.0.1-prealpha.61.tgz#60cbab1b50e6451de4471b94fbf55456f1916cc0"
-  integrity sha512-smqRFmoxVkUYKxfjaXhPTab+Ybwu1w54ZardWZF6LgWptOrunJec1HyLwjoZVP8OmJh1w5ToqFUZhVc2Mrczfg==
-
 "@web3api/manifest-schemas@0.0.1-prealpha.76":
   version "0.0.1-prealpha.76"
   resolved "https://registry.yarnpkg.com/@web3api/manifest-schemas/-/manifest-schemas-0.0.1-prealpha.76.tgz#13e7c4a70d03f1ae300e1377e3da76b42948b3ac"
@@ -2207,23 +2189,6 @@
     js-sha3 "0.8.0"
     js-yaml "4.1.0"
     spawn-command "0.0.2-1"
-
-"@web3api/tracing-js@0.0.1-prealpha.61":
-  version "0.0.1-prealpha.61"
-  resolved "https://registry.yarnpkg.com/@web3api/tracing-js/-/tracing-js-0.0.1-prealpha.61.tgz#d9dfbe89de9c382fab120a9385d3f5778c04cb9a"
-  integrity sha512-sjG5+9Luups70hs6gO2M7G1T7DDZvBhttgRkoN5WetHxJjylwMKf8043nMa3YZtaYquUTZFthHbVvndtD1km+A==
-  dependencies:
-    "@opentelemetry/api" "0.20.0"
-    "@opentelemetry/context-zone" "0.20.0"
-    "@opentelemetry/core" "0.20.0"
-    "@opentelemetry/exporter-collector" "0.20.0"
-    "@opentelemetry/exporter-jaeger" "0.20.0"
-    "@opentelemetry/exporter-zipkin" "0.20.0"
-    "@opentelemetry/node" "0.20.0"
-    "@opentelemetry/propagator-b3" "0.20.0"
-    "@opentelemetry/tracing" "0.20.0"
-    "@opentelemetry/web" "0.20.0"
-    browser-util-inspect "0.2.0"
 
 "@web3api/tracing-js@0.0.1-prealpha.76":
   version "0.0.1-prealpha.76"
