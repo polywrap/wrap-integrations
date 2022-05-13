@@ -241,7 +241,7 @@ export function toAccessKey(json: JSON.Obj): AccessKey {
   }
   const nonceVal = json.getValue("nonce");
   if (nonceVal != null) {
-    nonce = BigInt.fromString(nonceVal!.stringify());
+    nonce = BigInt.fromString(nonceVal.stringify());
   }
   return {
     nonce: nonce,
@@ -295,7 +295,7 @@ export function toAction(json: JSON.Obj): Near_Action {
     action.deposit = BigInt.fromString(depositValue.valueOf());
   }
   if (argsValue != null) {
-    action.args = bs58.decode(argsValue.valueOf()).buffer;
+    action.args = bs58.decode(argsValue!.valueOf()).buffer;
   }
   if (gasValue != null) {
     action.gas = BigInt.fromString(gasValue.valueOf());

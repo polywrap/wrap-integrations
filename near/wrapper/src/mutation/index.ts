@@ -26,6 +26,7 @@ import { BigInt, JSON } from "@web3api/wasm-as";
 import { createTransaction, signTransaction } from "../query";
 import { Input_createTransaction } from "../query/w3";
 import * as action from "../utils/actionCreators";
+import * as bs58 from "as-base58";
 import { fullAccessKey, functionCallAccessKey } from "../utils/typeUtils";
 
 export function sendJsonRpc(input: Input_sendJsonRpc): JSON.Obj {

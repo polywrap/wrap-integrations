@@ -10,6 +10,7 @@ import { BN } from "bn.js";
 import * as fs from "fs";
 
 import "localstorage-polyfill";
+
 const MockBrowser = require("mock-browser").mocks.MockBrowser;
 const mock = new MockBrowser();
 
@@ -343,5 +344,41 @@ describe("e2e", () => {
     expect(deployContractResult).toBeTruthy();
     expect(deployContractResult.status.failure).toBeFalsy();
     expect(deployContractResult.status.SuccessValue).toBeDefined();
+  });
+
+  it("FunctionCall with json stringified args", async () => {
+    const jsonArgs = JSON.stringify({});
+
+    const result = await client.query<{ functionCall: Near_FinalExecutionOutcome }>({
+      uri: apiUri,
+      query: `mutation {
+        functionCall(
+          contractId: $contractId
+          methodName: $methodName
+          args: $args
+          gas: $gas
+          deposit: $deposit
+          signerId: $signerId
+        )
+      }`,
+      variables: {
+        contractId: contractId,
+        methodName: "hello",
+        args: jsonArgs,
+        gas: new BN("20000000000000").toString(),
+        deposit: new BN("20000000000000").toString(),
+        signerId: workingAccount.accountId,
+      },
+    });
+
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const functionResult = result.data!.functionCall;
+    console.log(functionResult);
+
+    expect(functionResult).toBeTruthy();
+    expect(functionResult.status.failure).toBeFalsy();
+    expect(functionResult.status.SuccessValue).toBeDefined();
   });
 });
