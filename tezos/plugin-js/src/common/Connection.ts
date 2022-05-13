@@ -117,6 +117,10 @@ export class Connection {
   ): Promise<ContractAbstraction<ContractProvider>> {
     return this._client.contract.at(address);
   }
+
+  toJSON() {
+    return `class Connection {}`;
+  }
 }
 
 export async function getConnection(
