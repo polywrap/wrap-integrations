@@ -78,7 +78,7 @@ export class Mutation extends Module<MutationConfig> {
   ): Promise<string> {
     const connection = await this._getConnection(input.connection);
     const paramsWithKind = input.params.map(Mapping.toTransferParamsWithTransactionKind)
-    const batchCalls = await connection.getProvider().contract.batch(paramsWithKind);
+    const batchCalls = connection.getProvider().contract.batch(paramsWithKind);
     const operation = await batchCalls.send()
     return operation.hash;
   }
@@ -210,7 +210,7 @@ export class Mutation extends Module<MutationConfig> {
   ): Promise<string> {
     const connection = await this._getConnection(input.connection);
     const paramsWithKind = input.params.map(Mapping.toTransferParamsWithTransactionKind)
-    const batchCalls = await connection.getProvider().wallet.batch(paramsWithKind);
+    const batchCalls = connection.getProvider().wallet.batch(paramsWithKind);
     const operation = await batchCalls.send()
     return operation.opHash;
   }

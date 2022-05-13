@@ -4,6 +4,7 @@ import { Connection as SchemaConnection } from "../query/w3";
 import {
   ContractAbstraction,
   ContractProvider,
+  PollingSubscribeProvider,
   TezosToolkit,
 } from "@taquito/taquito";
 import { InMemorySigner } from "@taquito/signer";
@@ -33,8 +34,9 @@ export interface Connections {
 }
 
 export interface ConfirmationConfig {
-  confirmationPollingTimeoutSecond: number | undefined
-  defaultConfirmationCount: number | undefined
+  confirmationPollingTimeoutSecond?: number;
+  defaultConfirmationCount?: number;
+  pollingIntervalMilliseconds?: number;
 }
 
 export class Connection {
@@ -76,14 +78,16 @@ export class Connection {
   public setProvider(provider: TezosProvider, signer?: InMemorySigner, confirmationConfig?: ConfirmationConfig): void {
     this._client = new TezosToolkit(provider);
     this._client.addExtension(new Tzip16Module());
-    if (confirmationConfig) {
-      this._client.setProvider({
-        config: confirmationConfig
-      })
-    }
-    if (signer) {
-      this.setSigner(signer);
-    }
+    this._client.setProvider({
+      signer,
+      config: {
+        defaultConfirmationCount: confirmationConfig?.defaultConfirmationCount,
+        confirmationPollingTimeoutSecond: confirmationConfig?.confirmationPollingTimeoutSecond
+      },
+    });
+    this._client.setStreamProvider(this._client.getFactory(PollingSubscribeProvider)({
+      pollingIntervalMilliseconds: confirmationConfig?.confirmationPollingTimeoutSecond
+    }));
   }
 
   public getProvider(): TezosClient {
