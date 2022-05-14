@@ -30,7 +30,7 @@ export function getBalanceOf(input: Input_getBalanceOf): TokenBalance {
     connection: connectionDetails.connection,
     key: "ledger",
     field: '["' + input.owner + '",' + input.tokenId + ']',
-  });
+  }).unwrap();
   return {
       owner: input.owner,
       tokenId: input.tokenId,
@@ -45,7 +45,7 @@ export function getTokenMetadata(input: Input_getTokenMetadata): TokenMetadata {
     connection: connectionDetails.connection,
     key: "token_metadata",
     field: input.tokenId
-  });
+  }).unwrap();
   const metadata = <JSON.Obj>JSON.parse(storage);
   const hash = <JSON.Obj>JSON.parse(getString(metadata, "token_info"));
   return {
@@ -61,7 +61,7 @@ export function getTokenCountData(input: Input_getTokenCountData): string {
     connection: connectionDetails.connection,
     key: "all_tokens",
     field: ""
-  });
+  }).unwrap();
 }
 
 export function getSwapData(input: Input_getSwapData): SwapData {
@@ -71,7 +71,7 @@ export function getSwapData(input: Input_getSwapData): SwapData {
     connection: connectionDetails.connection,
     key: "swaps",
     field: input.swapId
-  });
+  }).unwrap();
   const swap = <JSON.Obj>JSON.parse(storage);
   return {
     creator: getString(swap, "creator"),
