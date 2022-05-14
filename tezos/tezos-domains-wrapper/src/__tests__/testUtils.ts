@@ -1,37 +1,13 @@
-import path from "path"
 import { ensPlugin } from "@web3api/ens-plugin-js"
 import { ipfsPlugin } from "@web3api/ipfs-plugin-js"
-import { tezosPlugin, InMemorySigner } from "@blockwatch-cc/tezos-plugin-js"
 import { ethereumPlugin  } from "@web3api/ethereum-plugin-js"
 import { PluginRegistration, Subscription, Web3ApiClient } from "@web3api/client-js"
 import { tezosDomainsPlugin } from "@blockwatch-cc/tezos-domains-plugin-js"
-import { buildAndDeployApi } from "@web3api/test-env-js"
 
 import * as QuerySchema from "../query/w3"
 
-export const getEnsUri = async (ipfs: string, ensAddress: string) => {
-    const apiPath = path.join(__dirname, "/../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
-    return `ens/testnet/${api.ensDomain}`;
-}
-
-export const getPlugins = (ipfs: string, ensAddress: string, ethereum: string, signer?: InMemorySigner): PluginRegistration<string>[] => {
+export const getPlugins = (ipfs: string, ensAddress: string, ethereum: string): PluginRegistration<string>[] => {
     return [
-        {
-            uri: "w3://ens/tezos.web3api.eth",
-            plugin: tezosPlugin({
-                networks: {
-                    mainnet: {
-                        provider: "https://rpc.tzstats.com"
-                    },  
-                    ithacanet: {
-                        provider: "https://rpc.ithaca.tzstats.com",
-                        signer,
-                    }
-                },
-                defaultNetwork: "ithacanet"
-              })
-        },
         {
             uri: "w3://ens/tezosDomainsPlugin.web3api.eth",
             plugin: tezosDomainsPlugin({
@@ -44,7 +20,7 @@ export const getPlugins = (ipfs: string, ensAddress: string, ethereum: string, s
         },
         {
             uri: "w3://ens/ens.web3api.eth",
-            plugin: ensPlugin({ addresses: { testnet: ensAddress } }),
+            plugin: ensPlugin({ query: { addresses: { testnet: ensAddress } } }),
         },
         {
             uri: "w3://ens/ethereum.web3api.eth",

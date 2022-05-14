@@ -1,11 +1,13 @@
+import path from 'path'
 import { randomInt} from 'crypto'
+import { tezosPlugin } from "@blockwatch-cc/tezos-plugin-js"
 import { Web3ApiClient } from "@web3api/client-js"
-import { InMemorySigner } from "@blockwatch-cc/tezos-plugin-js"
-import { initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js"
+import { InMemorySigner } from "@taquito/signer"
+import { initTestEnvironment, stopTestEnvironment, buildAndDeployApi } from "@web3api/test-env-js"
 
 import { Config } from "../config"
 import * as MutationSchema from "../../mutation/w3"
-import { getEnsUri, getPlugins, getRandomString, waitForConfirmation } from "../testUtils"
+import { getPlugins, getRandomString, waitForConfirmation } from "../testUtils"
 
 jest.setTimeout(600000)
 
@@ -15,11 +17,37 @@ describe("Mutation", () => {
   let ensUri: string;
 
   beforeAll(async () => {
-    const { ensAddress, ethereum, ipfs } = await initTestEnvironment();
-    ensUri = await getEnsUri(ipfs, ensAddress);
+    const testEnv = await initTestEnvironment();
+    const apiPath = path.join(__dirname, "/../../../");
+    const api = await buildAndDeployApi({
+      apiAbsPath: apiPath,
+      ipfsProvider: testEnv.ipfs,
+      ensRegistryAddress: testEnv.ensAddress,
+      ensRegistrarAddress: testEnv.registrarAddress,
+      ensResolverAddress: testEnv.resolverAddress,
+      ethereumProvider: testEnv.ethereum,
+    });
+    ensUri = `ens/testnet/${api.ensDomain}`;
     const signer = await InMemorySigner.fromSecretKey(Config.TZ_SECRET_KEY);
     client = new Web3ApiClient({
-      plugins: getPlugins(ipfs, ensAddress, ethereum, signer),
+      plugins: [
+        {
+          uri: "w3://ens/tezos.web3api.eth",
+          plugin: tezosPlugin({
+              networks: {
+                  mainnet: {
+                      provider: "https://rpc.tzstats.com"
+                  },  
+                  ithacanet: {
+                      provider: "https://rpc.ithaca.tzstats.com",
+                      signer,
+                  }
+              },
+              defaultNetwork: "ithacanet"
+            })
+        },
+        ...getPlugins(testEnv.ipfs, testEnv.ensAddress, testEnv.ethereum),
+      ]
     })
   })
 
