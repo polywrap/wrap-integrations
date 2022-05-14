@@ -108,5 +108,6 @@ type Mutation {
     publicKey: Near_PublicKey! # | String
     data: Bytes!
     amount: BigInt!
-  ): Boolean!
+    signerId: String !
+  ): Near_FinalExecutionOutcome!
 }

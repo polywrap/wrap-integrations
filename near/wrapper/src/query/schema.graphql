@@ -21,6 +21,10 @@ type Query {
     accountId: String!
   ): AccountView!
 
+  viewContractCode(
+    accountId: String!
+   ) : ViewContractCode!
+
   findAccessKey(
     accountId: String!
   ): AccessKeyInfo
@@ -50,6 +54,12 @@ type Query {
     methodName: String!
     args: JSON!
   ): JSON!
+
+  viewContractState(
+    prefix: String!
+    blockQuery: BlockReference!
+    accountId: String!
+  ): ContractStateResult!
 
   """
     Transaction Query Functions (Implemented, Tested)
@@ -241,6 +251,11 @@ type ChunkHeader {
   validator_reward: String!
 }
 
+type KeyValuePair {
+  key: String!
+  value: String!
+}
+
 type ChunkResult {
   header: ChunkHeader!
   receipts: [JSON!]!
@@ -358,6 +373,13 @@ type AccountView implements QueryResponseKind {
   storagePaidAt: BigInt!
 }
 
+type  ViewContractCode {
+  code_base64: String!
+  hash: String!
+  block_height: BigInt!
+  block_hash: String!
+}
+
 type AccountBalance {
   total: String!
   stateStaked: String!
@@ -384,6 +406,12 @@ type AccessKey {
   permission: AccessKeyPermission!
 }
 
+type KeyVulueCode {
+  code_base64: String!
+  hash: String!
+  block_height: BigInt!
+  block_hash: String!
+}
 # Access keys contain access key permissions, which determine how an account is allowed to interact with a contract
 type AccessKeyInfo {
   publicKey: String!
@@ -412,4 +440,8 @@ type ChangeResult {
 type AccessKeyWithPublicKey {
   account_id: String!
   public_key: String!
+}
+
+type ContractStateResult {
+  values: [KeyValuePair!]!
 }

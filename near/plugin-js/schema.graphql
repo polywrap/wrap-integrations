@@ -84,13 +84,18 @@ enum KeyType {
 # Access key permissions determine how an account is allow to interact with a contract
 type AccessKeyPermission {
   _: String
+  receiverId: String
+  methodNames: [String!]
+  allowance: BigInt
 }
 
 # Full access permission allows an account to call all public contract functions
-type FullAccessPermission implements AccessKeyPermission {}
+type FullAccessPermission {
+  _:String!
+}
 
 # Function call permissions describe which contract functions an account can call
-type FunctionCallPermission implements AccessKeyPermission {
+type FunctionCallPermission {
   receiverId: String!
   methodNames: [String!]!
   allowance: BigInt

@@ -18,9 +18,9 @@ export interface PublicKey {
 }
 
 export interface AccessKeyPermission {
-  isFullAccess?: Boolean | null;
-  receiverId?: String | null;
-  methodNames?: Array<String> | null;
+  isFullAccess?: boolean | null;
+  receiverId?: string | null;
+  methodNames?: Array<string> | null;
   allowance?: BigInt | null;
 }
 
@@ -36,36 +36,36 @@ export interface AccessKeyInfo {
 
 export interface Action {
   code?: Bytes | null;
-  methodName?: String | null;
+  methodName?: string | null;
   args?: Bytes | null;
   gas?: BigInt | null;
   deposit?: BigInt | null;
   stake?: BigInt | null;
   publicKey?: PublicKey | null;
   accessKey?: AccessKey | null;
-  beneficiaryId?: String | null;
+  beneficiaryId?: string | null;
 }
 
 export interface BlockChange {
-  chagneType: String;
-  account_id: String;
+  chagneType: string;
+  account_id: string;
 }
 
 export interface BlockChangeResult {
-  block_hash: String;
+  block_hash: string;
   changes: BlockChange[];
 }
 
 export interface ChangeResult {
-  block_hash: String;
+  block_hash: string;
   changes: [JSON];
 }
 
 export interface Transaction {
-  signerId: String;
+  signerId: string;
   publicKey: PublicKey;
   nonce: BigInt;
-  receiverId: String;
+  receiverId: string;
   actions: Array<Action>;
   blockHash?: Bytes;
   hash?: string;
@@ -87,31 +87,32 @@ export interface SignTransactionResult {
 }
 
 export interface FinalExecutionStatus {
-  successValue?: String | null;
+  [x: string]: any;
+  successValue?: string | null;
   failure?: Json | null;
 }
 
 export interface CurrentEpochValidatorInfo {
-  account_id: String;
-  public_key: String;
-  is_slashed: Boolean;
-  stake: String;
+  account_id: string;
+  public_key: string;
+  is_slashed: boolean;
+  stake: string;
   shards: [BigInt];
   num_produced_blocks: UInt;
   num_expected_blocks: UInt;
 }
 
 export interface NextEpochValidatorInfo {
-  account_id: String;
-  public_key: String;
-  stake: String;
+  account_id: string;
+  public_key: string;
+  stake: string;
   shards: [BigInt];
 }
 
 export interface ValidatorStakeView {
-  account_id: String;
-  public_key: String;
-  stake: String;
+  account_id: string;
+  public_key: string;
+  stake: string;
 }
 
 export interface EpochValidatorInfo {
@@ -126,19 +127,21 @@ export interface EpochValidatorInfo {
 }
 
 export interface ExecutionStatus {
-  successValue?: String | null;
-  successReceiptId?: String | null;
+  successValue?: string | null;
+  successReceiptId?: string | null;
   failure?: Json | null;
 }
 
 export interface ExecutionOutcomeWithId {
-  id: String;
+  id: string;
   outcome: ExecutionOutcome;
 }
 
 export interface ExecutionOutcome {
-  logs: Array<String>;
-  receiptIds: Array<String>;
+  receipt_ids: Array<string>;
+  gas_burnt: BigInt;
+  logs: Array<string>;
+  receiptIds: Array<string>;
   gasBurnt: BigInt;
   status: ExecutionStatus;
 }
@@ -155,10 +158,10 @@ export interface FinalExecutionOutcomeWithReceipts extends FinalExecutionOutcome
 }
 
 export interface ReceiptWithId {
-  predecessor_id: String;
+  predecessor_id: string;
   receipt: Receipt;
-  receipt_id: String;
-  receiver_id: String;
+  receipt_id: string;
+  receiver_id: string;
 }
 
 export interface Receipt {
@@ -171,17 +174,17 @@ export interface ActionContainer {
 
 export interface QueryResponseKind {
   blockHeight: BigInt;
-  blockHash: String;
+  blockHash: string;
 }
 
 export interface AccountView {
-  amount: String;
-  locked: String;
-  codeHash: String;
+  amount: string;
+  locked: string;
+  codeHash: string;
   storageUsage: BigInt;
   storagePaidAt: BigInt;
   blockHeight: BigInt;
-  blockHash: String;
+  blockHash: string;
 }
 
 export enum KeyTypeEnum {
@@ -288,7 +291,7 @@ export interface NearProtocolConfig {
 }
 
 export interface NearProtocolRuntimeConfig {
-  storage_amount_per_byte: String;
+  storage_amount_per_byte: string;
 }
 
 export enum IdType {
@@ -298,27 +301,27 @@ export enum IdType {
 
 export interface LightClientProofRequest {
   type: IdType;
-  light_client_head: String;
-  transaction_hash?: String;
-  sender_id?: String;
-  receipt_id?: String;
-  receiver_id?: String;
+  light_client_head: string;
+  transaction_hash?: string;
+  sender_id?: string;
+  receipt_id?: string;
+  receiver_id?: string;
 }
 
 export interface BlockHeaderInnerLiteView {
   height: BigInt;
-  epoch_id: String;
-  next_epoch_id: String;
-  prev_state_root: String;
-  outcome_root: String;
+  epoch_id: string;
+  next_epoch_id: string;
+  prev_state_root: string;
+  outcome_root: string;
   timestamp: BigInt;
-  next_bp_hash: String;
-  block_merkle_root: String;
+  next_bp_hash: string;
+  block_merkle_root: string;
 }
 
 export interface LightClientBlockLiteView {
-  prev_block_hash: String;
-  inner_rest_hash: String;
+  prev_block_hash: string;
+  inner_rest_hash: string;
   inner_lite: BlockHeaderInnerLiteView;
 }
 
@@ -330,8 +333,8 @@ export interface LightClientProof {
 }
 
 export interface ExecutionProof {
-  direction: String;
-  hash: String;
+  direction: string;
+  hash: string;
 }
 /// Imported Objects START ///
 

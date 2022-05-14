@@ -1,19 +1,23 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { NearPluginConfig, KeyPair } from "../../../plugin-js"; //TODO change to appropriate package
-
 import { BlockReference, BlockResult, AccountView, PublicKey, AccessKeyInfo, AccessKey } from "./tsTypes";
-
 import * as testUtils from "./testUtils";
+import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
+import { ContractStateResult } from "../query/w3";
+import { ViewContractCode } from "../query/w3";
 
 import { Web3ApiClient } from "@web3api/client-js";
 import * as nearApi from "near-api-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
+import { AccountAuthorizedApp, AccountBalance } from "near-api-js/lib/account";
+
 const BN = require("bn.js");
-import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
 //import { NodeStatusResult } from "./tsTypes";
 //import { AccountAuthorizedApp } "near-api-js/lib/account";
-import { AccountAuthorizedApp, AccountBalance } from "near-api-js/lib/account";
+
 
 jest.setTimeout(360000);
 
@@ -51,7 +55,7 @@ describe("e2e", () => {
     await workingAccount.addKey(
       keyPair.getPublicKey(),
       contractId,
-      HELLO_WASM_METHODS.changeMethods,
+      testUtils.HELLO_WASM_METHODS.changeMethods,
       new BN("2000000000000000000000000")
     );
 
@@ -125,6 +129,64 @@ describe("e2e", () => {
     expect(state.storageUsage).toStrictEqual(nearState.storage_usage.toString());
   });
 
+  it("Get contract state", async () => {
+    const blockQuery = { block_id: null, finality: "final", syncCheckpoint: null };
+    const result = await client.query<{ viewContractState: ContractStateResult }>({
+      uri: apiUri,
+      query: `query {
+        viewContractState(
+          prefix: $prefix
+          blockQuery: $blockQuery,
+          accountId: $accountId
+        )
+      }`,
+      variables: {
+        prefix: "",
+        blockQuery: blockQuery,
+        accountId: workingAccount.accountId,
+      },
+    });
+    const state: ContractStateResult = result.data!.viewContractState;
+    const resultState = await workingAccount.viewState("final");
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+    expect(state).toBeTruthy();
+    expect(result.data).toEqual({ viewContractState: { values: [] } });
+    expect(result.errors).toEqual(undefined);
+    expect(resultState).toBeTruthy();
+    expect(resultState).toEqual([]);
+  
+  // contract code
+  it("Get contract code", async () => {
+    const result = await client.query<{ viewContractCode: ViewContractCode }>({
+      uri: apiUri,
+      query: `query {
+        viewContractCode(
+          accountId: $accountId
+          request_type: $request_type
+          finality: $finality
+        )
+      }`,
+      variables: {
+        accountId: testUtils.testAccountId,
+        finality: "optimistic",
+        request_type: "view_code",
+      },
+    });
+
+    const response = await near.connection.provider.query({
+      account_id: testUtils.testAccountId,
+      finality: "optimistic",
+      request_type: "view_code",
+    });
+    expect(response).toBeTruthy();
+    expect(response.block_hash).toStrictEqual(result.data?.viewContractCode.block_hash);
+    expect(`${response.block_height}`).toStrictEqual(result.data?.viewContractCode.block_height);
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+    expect(result.errors).toStrictEqual(undefined);
+  });
+
   // account balance +
   it("Get account balance", async () => {
     const result = await client.query<{ getAccountBalance: AccountBalance }>({
@@ -138,14 +200,12 @@ describe("e2e", () => {
         accountId: workingAccount.accountId,
       },
     });
-    expect(result.errors).toBeFalsy();
-    expect(result.data).toBeTruthy();
 
     const resultBalance: AccountBalance = result.data!.getAccountBalance;
-    expect(resultBalance).toBeTruthy();
-
     const actualBalance = await workingAccount.getAccountBalance();
-
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+    expect(resultBalance).toBeTruthy();
     expect(resultBalance.available).toStrictEqual(actualBalance.available);
     expect(resultBalance.staked).toStrictEqual(actualBalance.staked);
     expect(resultBalance.stateStaked).toStrictEqual(actualBalance.stateStaked);
@@ -212,13 +272,15 @@ describe("e2e", () => {
         )
       }`,
       variables: {
-        accountId: workingAccount.accountId,
+        accountId: testUtils.testAccountId,
       },
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
 
     const accessKeyInfo: AccessKeyInfo = result.data!.findAccessKey;
+    console.log(result);
+
     expect(accessKeyInfo.publicKey).toBeTruthy();
     expect(accessKeyInfo.accessKey).toBeTruthy();
 
@@ -263,6 +325,8 @@ describe("e2e", () => {
     expect(result.data).toBeTruthy();
 
     const publicKey: PublicKey = result.data!.getPublicKey;
+    console.log(result);
+
     expect(publicKey).toBeTruthy();
 
     const nearKey = await near.connection.signer.getPublicKey(workingAccount.accountId, testUtils.networkId);

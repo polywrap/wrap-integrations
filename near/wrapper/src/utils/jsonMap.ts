@@ -30,7 +30,9 @@ import {
   LightClientProof,
   LightClientProofRequest,
   LightClientBlockLiteView,
+  ContractStateResult,
   getIdTypeKey,
+  KeyValuePair,
 } from "../query/w3";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { publicKeyFromStr } from "./typeUtils";
@@ -99,6 +101,21 @@ export function toBlockChanges(json: JSON.Obj): BlockChangeResult {
           changeType: change.getString("type")!.valueOf(),
         } as BlockChange;
       }),
+  };
+}
+
+export function toContractStateResult(json: JSON.Obj): ContractStateResult {
+  const values = json.getArr("values")!.valueOf();
+  return {
+    values: values.map<KeyValuePair>((v: JSON.Value) => {
+      const val: JSON.Obj = <JSON.Obj>v;
+      const proof = val.getArr("proof")!.valueOf();
+      return {
+        key: val.getString("key")!.valueOf(),
+        value: val.getString("value")!.valueOf(),
+        // proof: proof.map<Near_ExecutionProof>((v) => toExecutionProof(<JSON.Obj>v)),
+      } as KeyValuePair;
+    }),
   };
 }
 
@@ -214,9 +231,10 @@ export function toAccessKeyInfo(json: JSON.Obj): AccessKeyInfo {
 }
 
 export function toAccessKey(json: JSON.Obj): AccessKey {
+  let nonce: BigInt = BigInt.fromString("0");
   let permission: AccessKeyPermission;
-  const jsonPermVal: JSON.Value = json.getValue("permission")!;
-  if (jsonPermVal.isString) {
+  const jsonPermVal: JSON.Value | null = json.getValue("permission");
+  if (jsonPermVal == null || jsonPermVal.isString) {
     permission = {
       isFullAccess: true,
       receiverId: null,
@@ -238,9 +256,12 @@ export function toAccessKey(json: JSON.Obj): AccessKey {
       allowance,
     };
   }
-
+  const nonceVal = json.getValue("nonce");
+  if (nonceVal != null) {
+    nonce = BigInt.fromString(nonceVal.stringify());
+  }
   return {
-    nonce: BigInt.fromString(json.getValue("nonce")!.stringify()),
+    nonce: nonce,
     permission: permission,
   };
 }
@@ -291,7 +312,7 @@ export function toAction(json: JSON.Obj): Near_Action {
     action.deposit = BigInt.fromString(depositValue.valueOf());
   }
   if (argsValue != null) {
-    action.args = bs58.decode(argsValue.valueOf()).buffer;
+    action.args = bs58.decode(argsValue!.valueOf()).buffer;
   }
   if (gasValue != null) {
     action.gas = BigInt.fromString(gasValue.valueOf());

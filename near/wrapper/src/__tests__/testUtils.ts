@@ -9,13 +9,14 @@ import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
 import * as fs from "fs/promises";
 import * as nearApi from "near-api-js";
 import * as path from "path";
+
 const BN = require("bn.js");
 
 export const networkId = "testnet";
-export const testAccountId = "polywraptest.testnet";
-const PRIVATE_KEY = "ed25519:3ZASru2hHvoDpT4jut4b8LqRBnz4GqMhtp24AzkLwdhuLDm6xgptkNmXVGWwfdyFHnnnG512Xb5RJcA7Cup3yjcG";
+export const testAccountId = "polydev.testnet";
+const PRIVATE_KEY = "ed25519:W9dWnSjawNKbr5eC6z9SbTXg25fp1j8s8aGSMtABKRzKTPYLJA8Fzimb6hkq7U7JwEXGNgwCo7YhmBpfMFWy11j";
 
-const HELLO_WASM_PATH = path.resolve(__dirname + "../../../node_modules/near-hello/dist/main.wasm");
+export const HELLO_WASM_PATH = path.resolve(__dirname + "../../../node_modules/near-hello/dist/main.wasm");
 const HELLO_WASM_BALANCE = new BN("1000000000000000000000000");
 export const HELLO_WASM_METHODS = {
   viewMethods: ["getValue", "getLastResult"],
