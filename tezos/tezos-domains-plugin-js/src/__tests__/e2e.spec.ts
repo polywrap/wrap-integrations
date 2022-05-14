@@ -1,5 +1,5 @@
 import { tezosDomainsPlugin } from "..";
-import * as Types from "../w3";
+import * as QuerySchema from "../query/w3";
 
 import { Web3ApiClient } from "@web3api/client-js";
 
@@ -27,7 +27,7 @@ describe("Tezos Domains Plugin", () => {
   describe("Query", () => {
     describe("getAcquisitionInfo", () => {
       it("returns the acquisition state of the domain name", async () => {
-        const response  = await client.query<{ getAcquisitionInfo: Types.AcquisitionInfo }>({
+        const response  = await client.query<{ getAcquisitionInfo: QuerySchema.AcquisitionInfo }>({
           uri,
           query: `
             query {
@@ -40,11 +40,11 @@ describe("Tezos Domains Plugin", () => {
         })
 
         expect(response.errors).toBeUndefined()
-        expect(response.data?.getAcquisitionInfo.state).toBe("Taken")
+        expect(response.data?.getAcquisitionInfo.state).toBeDefined()
       })
 
       it("returns the acquisition state of the domain name", async () => {
-        const response  = await client.query<{ getAcquisitionInfo: Types.AcquisitionInfo }>({
+        const response  = await client.query<{ getAcquisitionInfo: QuerySchema.AcquisitionInfo }>({
           uri,
           query: `
             query {
