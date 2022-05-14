@@ -1,10 +1,6 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable @typescript-eslint/no-require-imports */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { NearPluginConfig, KeyPair } from "../../../plugin-js"; //TODO change to appropriate package
 import { BlockReference, BlockResult, AccountView, PublicKey, AccessKeyInfo, AccessKey } from "./tsTypes";
 import * as testUtils from "./testUtils";
-import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
 import { ContractStateResult } from "../query/w3";
 import { ViewContractCode } from "../query/w3";
 
@@ -17,7 +13,6 @@ import { AccountAuthorizedApp, AccountBalance } from "near-api-js/lib/account";
 const BN = require("bn.js");
 //import { NodeStatusResult } from "./tsTypes";
 //import { AccountAuthorizedApp } "near-api-js/lib/account";
-
 
 jest.setTimeout(360000);
 
@@ -155,7 +150,8 @@ describe("e2e", () => {
     expect(result.errors).toEqual(undefined);
     expect(resultState).toBeTruthy();
     expect(resultState).toEqual([]);
-  
+  });
+
   // contract code
   it("Get contract code", async () => {
     const result = await client.query<{ viewContractCode: ViewContractCode }>({
@@ -237,6 +233,7 @@ describe("e2e", () => {
     expect(authorizedApps.length).toEqual(nearAuthorizedApps.length);
     expect(authorizedApps).toEqual(nearAuthorizedApps);
   });
+
   // account details +- TODO
   it("Get access keys", async () => {
     const result = await client.query<{ getAccessKeys: AccessKeyInfo[] }>({

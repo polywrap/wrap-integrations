@@ -10,6 +10,7 @@
     "schema.graphql"
   ],
   "scripts": {
+    "prettier-format": "npx prettier --write ./src",
     "reset": "yarn clean && yarn && yarn build",
     "clean": "npx rimraf ./node_modules ./build ./coverage ./.w3",
     "build": "rimraf ./build && yarn codegen && npx tsc --project tsconfig.build.json",

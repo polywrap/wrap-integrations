@@ -36,7 +36,6 @@ import {
   Near_FinalExecutionOutcomeWithReceipts,
   ChunkResult,
   BlockChangeResult,
-
   LightClientProof,
   NearProtocolConfig,
   KeyValuePair,
@@ -70,7 +69,7 @@ import {
   Input_getAccessKeys,
   Input_getAccountDetails,
   Input_viewFunction,
-  Input_viewContractCode
+  Input_viewContractCode,
 } from "./w3/Query/serialization";
 
 export function requestSignIn(input: Input_requestSignIn): boolean {
@@ -129,21 +128,21 @@ export function viewContractState(input: Input_viewContractState): ContractState
   encoder.setString("request_type", "view_state");
   // encoder.setString("account_id", '');
   if (input.blockQuery.block_id != null) {
-    encoder.setString("block_id",input.blockQuery.block_id!);
+    encoder.setString("block_id", input.blockQuery.block_id!);
   }
   if (input.blockQuery.finality != null) {
     encoder.setString("finality", input.blockQuery.finality!);
   }
   encoder.setString("account_id", input.accountId);
-  encoder.setString("prefix_base64", '');
+  encoder.setString("prefix_base64", "");
   encoder.popObject();
   const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
   // send rpc
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const result: JSON.Obj = provider.sendJsonRpc("query", params);
-  return toContractStateResult(result)
+  return toContractStateResult(result);
 }
-  
+
 export function viewContractCode(input: Input_viewContractCode): ViewContractCode {
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
@@ -154,12 +153,12 @@ export function viewContractCode(input: Input_viewContractCode): ViewContractCod
   const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const result: JSON.Obj = provider.sendJsonRpc("query", params);
-return {
-  code_base64: result.getString("code_base64")!.valueOf(),
-  hash: result.getString("hash")!.valueOf(),
-  block_height: BigInt.fromString(result.getValue("block_height")!.stringify()),
-  block_hash: result.getString("block_hash")!.valueOf(),
-  }
+  return {
+    code_base64: result.getString("code_base64")!.valueOf(),
+    hash: result.getString("hash")!.valueOf(),
+    block_height: BigInt.fromString(result.getValue("block_height")!.stringify()),
+    block_hash: result.getString("block_hash")!.valueOf(),
+  };
 }
 
 export function findAccessKey(input: Input_findAccessKey): AccessKeyInfo | null {

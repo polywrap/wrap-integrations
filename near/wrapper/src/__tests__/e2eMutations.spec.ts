@@ -3,7 +3,6 @@ import { Near_FinalExecutionOutcome } from "../w3";
 import { KeyPair, NearPluginConfig } from "../../../plugin-js"; //TODO change to appropriate package
 
 import { Web3ApiClient } from "@web3api/client-js";
-import { KeyPair, NearPluginConfig } from "../../../plugin-js"; //TODO change to appropriate package
 import * as nearApi from "near-api-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";

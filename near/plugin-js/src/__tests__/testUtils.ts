@@ -5,17 +5,10 @@ import * as nearApi from "near-api-js";
 import { KeyPair, KeyStores, NearPluginConfig } from "../index";
 import * as path from "path";
 
-<<<<<<< HEAD
 export const networkId = "testnet";
 export const testAccountId = "polywraptest.testnet";
 const PRIVATE_KEY =
   "ed25519:3ZASru2hHvoDpT4jut4b8LqRBnz4GqMhtp24AzkLwdhuLDm6xgptkNmXVGWwfdyFHnnnG512Xb5RJcA7Cup3yjcG";
-=======
-export const networkId = "polywrap";
-export const testAccountId = "polywrap.testnet";
-const PRIVATE_KEY =
-  "ed25519:2pN4qAFA94qXMzSLYtTG3qSmXS29cGfjXcZWwvb21TSsVm4awSruDiFd91XCoq2wp5hHXtDM5ZFwjabz2SLPAPjD";
->>>>>>> origin/near
 
 const HELLO_WASM_PATH = path.resolve(
   __dirname + "../../../node_modules/near-hello/dist/main.wasm"
@@ -35,11 +28,7 @@ export async function setUpTestConfig(): Promise<NearPluginConfig> {
   const keyPair = KeyPair.fromString(PRIVATE_KEY);
 
   let config: NearPluginConfig = {
-<<<<<<< HEAD
-=======
     headers: {},
-    keyPair: keyPair,
->>>>>>> origin/near
     networkId: networkId,
     keyStore: keyStore,
     nodeUrl: "https://rpc.testnet.near.org",
@@ -56,20 +45,6 @@ export async function setUpTestConfig(): Promise<NearPluginConfig> {
   return config;
 }
 
-// export async function setUpTestConfig(): Promise<NearPluginConfig> {
-//   const keyStore = new KeyStores.InMemoryKeyStore();
-//   const keyPair = KeyPair.fromString(YOUR_PRIVATE_KEY);
-//   let config: NearPluginConfig = {
-//     networkId: "testnet",
-//     keyStore: keyStore,
-//     nodeUrl: "https://rpc.testnet.near.org",
-//     walletUrl: 'https://wallet.testnet.near.org',
-//     helperUrl: 'https://helper.testnet.near.org',
-//   };
-//   return config;
-// }
-
-// const nearConfig = setUpTestConfig();
 // Generate some unique string of length at least RANDOM_ACCOUNT_LENGTH with a given prefix using the alice nonce.
 export function generateUniqueString(prefix: string): string {
   let result = `${prefix}-${Date.now()}-${Math.round(Math.random() * 1000000)}`;
