@@ -28,7 +28,7 @@
     "@taquito/michelson-encoder": "12.1.0",
     "@taquito/utils": "12.1.0",
     "@web3api/core-js": "0.0.1-prealpha.76",
-    "@temple-wallet/dapp": "6.1.0",
+    "@temple-wallet/dapp": "7.0.0",
     "axios": "0.25.0"
   },
   "devDependencies": {
