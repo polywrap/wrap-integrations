@@ -22,15 +22,17 @@ import {
 import * as Mapping from "../common/mapping";
 import { parseArgs, parseValue, stringify } from "../common/parsing";
 import { getOperation } from "../common/indexer";
-import { getConnection, Connections, Connection } from "../common/Connection";
-import { TezosConfig } from "../common/TezosConfig";
+import { getConnection, Connection, Connections } from "../common/Connection";
 
 import { tzip16 } from "@taquito/tzip16";
 import { Schema } from "@taquito/michelson-encoder";
 import { MichelsonType, packDataBytes } from "@taquito/michel-codec";
 import { MichelsonMap, BigMapAbstraction } from "@taquito/taquito";
 
-export interface QueryConfig extends TezosConfig, Record<string, unknown> { }
+export interface QueryConfig extends Record<string, unknown> {
+  connections: Connections;
+  defaultNetwork: string;
+ }
 
 export class Query extends Module<QueryConfig> {
   private _connections: Connections;
@@ -38,19 +40,8 @@ export class Query extends Module<QueryConfig> {
 
   constructor(config: QueryConfig) {
     super(config);
-    this._connections = Connection.fromConfigs(config.networks);
-    // Assign the default network (mainnet if not provided)
-    if (config.defaultNetwork) {
-      this._defaultNetwork = config.defaultNetwork;
-    } else {
-      this._defaultNetwork = "mainnet";
-    }
-    // Create a connection for the default network if none exists
-    if (!this._connections[this._defaultNetwork]) {
-      this._connections[this._defaultNetwork] = Connection.fromNetwork(
-        this._defaultNetwork
-      );
-    }
+    this._connections = config.connections;
+    this._defaultNetwork = config.defaultNetwork;
   }
 
   public async getContractCallTransferParams(

@@ -24,13 +24,15 @@ import {
 import * as Mapping from "../common/mapping";
 import { parseArgs } from "../common/parsing";
 import { getConnection, Connections, Connection } from "../common/Connection";
-import { TezosConfig } from "../common/TezosConfig";
 
 import { char2Bytes } from "@taquito/utils";
 import { TempleWallet, TempleDAppNetwork } from "@temple-wallet/dapp";
 import { TransactionOperation } from "@taquito/taquito";
 
-export interface MutationConfig extends TezosConfig, Record<string, unknown> { }
+export interface MutationConfig extends Record<string, unknown> { 
+  connections: Connections;
+  defaultNetwork: string;
+}
 
 export class Mutation extends Module<MutationConfig> {
   private _connections: Connections;
@@ -38,19 +40,8 @@ export class Mutation extends Module<MutationConfig> {
 
   constructor(config: MutationConfig) {
     super(config);
-    this._connections = Connection.fromConfigs(config.networks);
-    // Assign the default network (mainnet if not provided)
-    if (config.defaultNetwork) {
-      this._defaultNetwork = config.defaultNetwork;
-    } else {
-      this._defaultNetwork = "mainnet";
-    }
-    // Create a connection for the default network if none exists
-    if (!this._connections[this._defaultNetwork]) {
-      this._connections[this._defaultNetwork] = Connection.fromNetwork(
-        this._defaultNetwork
-      );
-    }
+    this._connections = config.connections;
+    this._defaultNetwork = config.defaultNetwork;
   }
 
   public async callContractMethod(

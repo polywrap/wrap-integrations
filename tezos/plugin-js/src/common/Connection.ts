@@ -9,6 +9,7 @@ import {
 } from "@taquito/taquito";
 import { InMemorySigner } from "@taquito/signer";
 import { Tzip16Module } from "@taquito/tzip16"
+import { TezosPluginConfigs } from "..";
 
 export type Address = string;
 export type AccountIndex = number;
@@ -156,3 +157,25 @@ export async function getConnection(
   }
   return result;
 }
+
+export const getConnections = (config: TezosPluginConfigs) => {
+  let defaultNetwork;
+  const connections = Connection.fromConfigs(config.networks);
+  // Assign the default network (mainnet if not provided)
+  if (config.defaultNetwork) {
+    defaultNetwork = config.defaultNetwork;
+  } else {
+    defaultNetwork = "mainnet";
+  }
+  // Create a connection for the default network if none exists
+  if (!connections[defaultNetwork]) {
+    connections[defaultNetwork] = Connection.fromNetwork(
+      defaultNetwork
+    );
+  }
+  return {
+    connections,
+    defaultNetwork
+  }
+}
+
