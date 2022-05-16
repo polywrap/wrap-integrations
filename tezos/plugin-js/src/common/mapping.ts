@@ -1,20 +1,20 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import {
-  TxOperation,
   OperationError,
   Estimate,
   RevealParams,
   SendParams,
   OriginateParams,
+  OriginationOperation,
+  TransferParams
+} from "../query/w3";
+import {
+  TxOperation,
   SignResult,
   TransferConfirmation,
   Block,
-  OriginationOperation,
-  OperationStatus,
-  TransferParams
-} from "./w3";
+} from "../mutation/w3";
 import * as Taquito from "./taquito-types";
-import * as Types from "./types"
 
 import taquito from "@taquito/taquito";
 import taquitoRpc, { OpKind } from "@taquito/rpc";
@@ -50,33 +50,6 @@ export const toTransferParams = (
   storageLimit: receipt.storageLimit,
   mutez: receipt.mutez,
   parameter: JSON.stringify(receipt.parameter)
-})
-
-export const toOperationStatus = (
-  response: Types.OperationStatus
-): OperationStatus => ({
-  hash: response.hash,
-  type: response.type,
-  block: response.block,
-  time: response.time,
-  height: response.hash,
-  cycle: response.cycle,
-  counter: response.counter,
-  status: response.status,
-  is_success: response.is_success,
-  is_contract: response.is_contract,
-  gas_limit: response.gas_limit,
-  gas_used: response.gas_used,
-  gas_price: response.gas_price,
-  storage_limit: response.storage_limit,
-  storage_size: response.storage_size,
-  storage_paid: response.storage_paid,
-  volume: response.volume,
-  fee: response.fee,
-  days_destroyed: response.days_destroyed,
-  sender: response.sender,
-  receiver: response.receiver,
-  confirmations: response.confirmations
 })
 
 export const toOriginationOperation = (

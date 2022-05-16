@@ -99,7 +99,7 @@ function generateSwapTransferParams(hops: SwapPair[], swapParams: SwapParams, ad
     args: generateSwapArg(hops, swapParams),
     params: sendParams,
     connection: address.connection
-  })
+  }).unwrap()
 }
 
 function getAddAndRemoveOperation(address: Address, token: JSON.Value, owner: string, amount: BigInt): GetAddAndRemoveOperationResult {

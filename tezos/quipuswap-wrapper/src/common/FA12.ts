@@ -27,7 +27,7 @@ export class FA12 {
       args: generateFA12AllowOperationArg(operator, amount),
       params: null,
       connection: connection
-    })
+    }).unwrap();
   }
 
   generateRemoveOperation(connection: Tezos_Connection, operator: string): Tezos_TransferParams {
@@ -38,6 +38,6 @@ export class FA12 {
       args: generateFA12AllowOperationArg(operator, amount),
       params: null,
       connection: connection
-    })
+    }).unwrap();
   }
 }

@@ -1,7 +1,6 @@
-import axios from "axios"
+import { OperationStatus } from "../query/w3";
 
-import { OperationStatus } from "./types"
-import { isValidOperationHash } from "./utils";
+import axios from "axios"
 
 const indexerSupportedNetworks  = [ "mainnet", "granadanet", "hangzhounet"];
   
@@ -16,6 +15,10 @@ const indexerClient = axios.create({
         "Content-Type": "application/json"
     }
 })
+
+function isValidOperationHash(hash: string): boolean {
+    return hash.length === 51 && hash.startsWith('o');
+}
 
 export async function getOperation(network: string, hash: string): Promise<OperationStatus> {
     if (!isValidOperationHash(hash)) {
