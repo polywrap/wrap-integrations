@@ -51,11 +51,12 @@ describe("e2e", () => {
 
   afterAll(async () => {
     await stopTestEnvironment();
+    await workingAccount.deleteAccount(testUtils.testAccountId);
   });
 
+  // create account +
   it("Create account", async () => {
     const newAccountId = testUtils.generateUniqueString("test");
-    const keyPair = KeyPair.fromRandom("ed25519");
 
     const accountToCreate = await near.account(newAccountId);
 
@@ -64,7 +65,7 @@ describe("e2e", () => {
     const { amount } = await workingAccount.state();
     const newAmount = new BN(amount).div(new BN(10)).toString();
 
-    const newPublicKey = keyPair.getPublicKey();
+    const newPublicKey = await near.connection.signer.createKey(newAccountId, testUtils.networkId);
 
     const result = await client.query<{ createAccount: Near_FinalExecutionOutcome }>({
       uri: apiUri,
@@ -100,6 +101,7 @@ describe("e2e", () => {
     await accountCreated.deleteAccount(testUtils.testAccountId);
   });
 
+  // delete account +
   it("Delete account", async () => {
     const accountToDelete = await testUtils.createAccount(near);
 
@@ -131,7 +133,7 @@ describe("e2e", () => {
     expect(deletionResult.status.SuccessValue).toBeDefined();
     expect(accountToDelete.state()).rejects.toThrow();
   });
-
+  // add key +
   it("Add key", async () => {
     const newPublicKey = nearApi.utils.KeyPair.fromRandom("ed25519").getPublicKey();
 
@@ -183,6 +185,7 @@ describe("e2e", () => {
     );
   });
 
+  // delete key +
   it("Delete key", async () => {
     const newPublicKey = nearApi.utils.KeyPair.fromRandom("ed25519").getPublicKey();
 
@@ -222,6 +225,7 @@ describe("e2e", () => {
     expect(detailsBefore.authorizedApps.length).toEqual(detailsAfterDeleteKey.authorizedApps.length);
   });
 
+  // send money +
   it("Send money", async () => {
     const receiver = await testUtils.createAccount(near);
     const receiverBalanceBefore = await receiver.getAccountBalance();
@@ -263,6 +267,7 @@ describe("e2e", () => {
     await receiver.deleteAccount(testUtils.testAccountId);
   });
 
+  // createAndDeplyt contract +
   it("Create and deploy contract", async () => {
     const newContractId = testUtils.generateUniqueString("test_contract");
 
@@ -306,6 +311,7 @@ describe("e2e", () => {
     expect(createAndDeployContractResult.status.SuccessValue).toBeDefined();
   });
 
+  // deploy contract +
   it("Deploy contract", async () => {
     const newContractId = testUtils.generateUniqueString("test_contract");
 
@@ -345,8 +351,9 @@ describe("e2e", () => {
     expect(deployContractResult.status.SuccessValue).toBeDefined();
   });
 
+  // function call +
   it("FunctionCall with json stringified args", async () => {
-    const jsonArgs = JSON.stringify({});
+    const jsonArgs = JSON.stringify({ name: "trex" });
 
     const result = await client.query<{ functionCall: Near_FinalExecutionOutcome }>({
       uri: apiUri,

@@ -7,7 +7,7 @@ export type Int8 = number;
 export type Int16 = number;
 export type Int32 = number;
 export type Bytes = Uint8Array;
-export type BigInt = string;
+export type BigInt = string | number;
 export type Json = string;
 export type String = string;
 export type Boolean = boolean;
@@ -127,8 +127,8 @@ export interface EpochValidatorInfo {
 }
 
 export interface ExecutionStatus {
-  successValue?: string | null;
-  successReceiptId?: string | null;
+  SuccessValue?: string | null;
+  SuccessReceiptId?: string | null;
   failure?: Json | null;
 }
 

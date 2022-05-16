@@ -184,7 +184,7 @@ type SignTransactionResult {
 
 type ExecutionStatus {
   SuccessValue: String
-  successReceiptId: String
+  SuccessReceiptId: String
   failure: JSON
 }
 

@@ -37,6 +37,7 @@ import {
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { publicKeyFromStr } from "./typeUtils";
 import * as bs58 from "as-base58";
+import * as bs64 from "as-base64";
 
 export function fromBlockReference(blockQuery: BlockReference): JSON.Obj {
   const encoder = new JSONEncoder();
@@ -82,7 +83,7 @@ export function fromViewFunction(contractId: string, methodName: string, args: J
   encoder.setString("request_type", "call_function");
   encoder.setString("account_id", contractId);
   encoder.setString("method_name", methodName);
-  encoder.setString("args_base64", bs58.encode(bs58.decode(args.stringify())));
+  encoder.setString("args_base64", toBase64String(args.stringify()));
   encoder.setString("finality", "optimistic");
   encoder.popObject();
   return <JSON.Obj>JSON.parse(encoder.serialize());
@@ -312,7 +313,7 @@ export function toAction(json: JSON.Obj): Near_Action {
     action.deposit = BigInt.fromString(depositValue.valueOf());
   }
   if (argsValue != null) {
-    action.args = bs58.decode(argsValue!.valueOf()).buffer;
+    action.args = bs58.decode(argsValue.valueOf()).buffer;
   }
   if (gasValue != null) {
     action.gas = BigInt.fromString(gasValue.valueOf());
@@ -570,9 +571,9 @@ function toExecutionStatus(json: JSON.Obj): Near_ExecutionStatus {
     result.SuccessValue = successValue.valueOf();
   }
 
-  const successReceiptId = json.getString("successReceiptId");
+  const successReceiptId = json.getString("SuccessReceiptId");
   if (successReceiptId != null) {
-    result.successReceiptId = successReceiptId.valueOf();
+    result.SuccessReceiptId = successReceiptId.valueOf();
   }
 
   const failure = json.getValue("failure");
@@ -580,4 +581,10 @@ function toExecutionStatus(json: JSON.Obj): Near_ExecutionStatus {
     result.failure = failure;
   }
   return result;
+}
+
+function toBase64String(value: string): string {
+  const valueBuffer = String.UTF16.encode(value);
+  const valueArray: Uint8Array = valueBuffer.byteLength > 0 ? Uint8Array.wrap(valueBuffer) : new Uint8Array(0);
+  return bs64.encode(valueArray);
 }

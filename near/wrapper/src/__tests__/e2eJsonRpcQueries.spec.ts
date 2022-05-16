@@ -3,22 +3,19 @@ import {
   BlockChangeResult,
   NearProtocolConfig,
   ChangeResult,
-  // EpochValidatorInfo,
-  // IdType,
-  // LightClientProof,
-  // LightClientProofRequest,
+  IdType,
   NodeStatusResult,
 } from "./tsTypes";
 import * as testUtils from "./testUtils";
-import { HELLO_WASM_METHODS } from "./testUtils";
-import { ChunkResult, FinalExecutionOutcome } from "./tsTypes";
 
+import type { Finality } from "near-api-js/lib/providers/provider";
 import { Web3ApiClient } from "@web3api/client-js";
 import * as nearApi from "near-api-js";
 import { BlockResult as NearBlockResult } from "near-api-js/lib/providers/provider";
-import type { Finality } from "near-api-js/lib/providers/provider";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
+import { LightClientProof, ChunkResult } from "../query/w3";
+import { FinalExecutionOutcome } from "../../../plugin-js/build/w3";
 
 const BN = require("bn.js");
 
@@ -61,7 +58,7 @@ describe("e2e", () => {
     await workingAccount.addKey(
       keyPair.getPublicKey(),
       contractId,
-      HELLO_WASM_METHODS.changeMethods,
+      testUtils.HELLO_WASM_METHODS.changeMethods,
       new BN("2000000000000000000000000")
     );
 
@@ -76,6 +73,7 @@ describe("e2e", () => {
     await stopTestEnvironment();
     await sender.deleteAccount(workingAccount.accountId);
     await receiver.deleteAccount(workingAccount.accountId);
+    await workingAccount.deleteAccount(testUtils.testAccountId)
   });
 
   // status  +
@@ -188,7 +186,7 @@ describe("e2e", () => {
     );
   });
 
-  // chunk -
+  // chunk +
   it("json rpc fetch chunk info", async () => {
     const hash = latestBlock.chunks[0].chunk_hash;
 
@@ -215,108 +213,82 @@ describe("e2e", () => {
     expect(chunk.header.chunk_hash).toEqual(nearChunk.header.chunk_hash);
   });
 
-  //validators +- response error : Validator info unavailable
-  // it("Get validators", async () => {
-  //   const blockId = latestBlock.header.hash;
+  //lightClientProof +
+  it("Get lightClientProof", async () => {
+    async function waitForStatusMatching(isMatching: any) {
+      const MAX_ATTEMPTS = 10;
+      for (let i = 0; i < MAX_ATTEMPTS; i++) {
+        await testUtils.sleep(500);
+        const nodeStatus = await near.connection.provider.status();
+        if (isMatching(nodeStatus)) {
+          return nodeStatus;
+        }
+      }
+      throw new Error(`Exceeded ${MAX_ATTEMPTS} attempts waiting for matching node status.`);
+    }
 
-  //   const result = await client.query<{ validators: EpochValidatorInfo }>({
-  //     uri: apiUri,
-  //     query: `query {
-  //       validators(
-  //         blockId: $blockId
-  //       )
-  //     }`,
-  //     variables: {
-  //       blockId: blockId,
-  //     },
-  //   });
+    const comittedStatus = await waitForStatusMatching(
+      //@ts-ignore
+      (status: any) => status.sync_info.latest_block_hash !== transactionOutcome.transaction_outcome.block_hash
+    );
+    const BLOCKS_UNTIL_FINAL = 2;
+    const finalizedStatus = await waitForStatusMatching(
+      (status: any) =>
+        status.sync_info.latest_block_height > comittedStatus.sync_info.latest_block_height + BLOCKS_UNTIL_FINAL
+    );
 
-  //   expect(result.errors).toBeFalsy();
-  //   expect(result.data).toBeTruthy();
+    latestBlock = await near.connection.provider.block({ blockId: finalizedStatus.sync_info.latest_block_hash });
+    const lightClientHead = latestBlock.header.last_final_block;
 
-  //   const validators: EpochValidatorInfo = result.data!.validators;
-  //   expect(validators).toBeTruthy();
-  //   expect(validators.current_validators).toBeTruthy();
-  //   expect(validators.current_validators).toBeInstanceOf(Array);
-  //   expect(validators.next_validators).toBeTruthy();
-  //   expect(validators.next_validators).toBeInstanceOf(Array);
-  //   expect(validators.current_fisherman).toBeTruthy();
-  //   expect(validators.current_fisherman).toBeInstanceOf(Array);
-  //   expect(validators.next_fisherman).toBeTruthy();
-  //   expect(validators.next_fisherman).toBeInstanceOf(Array);
-  //   expect(validators.current_proposals).toBeTruthy();
-  //   expect(validators.current_proposals).toBeInstanceOf(Array);
-  //   expect(validators.prev_epoch_kickout).toBeTruthy();
-  //   expect(validators.prev_epoch_kickout).toBeInstanceOf(Array);
-  //   expect(validators.epoch_height).toBeTruthy();
-  //   expect(validators.epoch_start_height).toBeTruthy();
+    const lightClientProofRequestBase = {
+      light_client_head: lightClientHead,
+      transaction_hash: transactionOutcome.transaction.hash!,
+      sender_id: sender.accountId,
+    };
 
-  //   const nearValidators = await near.connection.provider.validators(blockId);
+    const wrapper_lightClientProofRequest = {
+      type: 0,
+      ...lightClientProofRequestBase,
+    };
 
-  //   expect(validators.current_validators.length).toStrictEqual(nearValidators.current_validators.length);
-  //   expect(validators.current_validators).toEqual(nearValidators.current_validators);
+    const result = await client.query<{ lightClientProof: LightClientProof }>({
+      uri: apiUri,
+      query: `query {
+        lightClientProof(
+          request: $request
+        )
+      }`,
+      variables: {
+        request: wrapper_lightClientProofRequest,
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
 
-  //   expect(validators.next_validators.length).toStrictEqual(nearValidators.next_validators.length);
-  //   expect(validators.next_validators).toEqual(nearValidators.next_validators);
+    const lightClientProof: LightClientProof = result.data!.lightClientProof;
+    expect(lightClientProof).toBeTruthy();
+    expect(lightClientProof.block_header_lite).toBeTruthy();
+    expect(lightClientProof.block_proof).toBeTruthy();
 
-  //   expect(validators.current_fisherman.length).toStrictEqual(nearValidators.current_fisherman.length);
-  //   expect(validators.current_fisherman).toEqual(nearValidators.current_fisherman);
+    expect("prev_block_hash" in lightClientProof.block_header_lite).toBe(true);
+    expect("inner_rest_hash" in lightClientProof.block_header_lite).toBe(true);
+    expect("inner_lite" in lightClientProof.block_header_lite).toBe(true);
 
-  //   expect(validators.next_fisherman.length).toStrictEqual(nearValidators.next_fisherman.length);
-  //   expect(validators.next_fisherman).toEqual(nearValidators.next_fisherman);
+    expect("block_hash" in lightClientProof.outcome_proof).toBe(true);
+    expect(lightClientProof.block_proof.length).toBeGreaterThan(0);
 
-  //   expect(validators.current_proposals.length).toStrictEqual(nearValidators.current_proposals.length);
-  //   expect(validators.current_proposals).toEqual(nearValidators.current_proposals);
+    const api_lightClientProofRequest = {
+      type: IdType.Transaction,
+      ...lightClientProofRequestBase,
+    };
 
-  //   expect(validators.prev_epoch_kickout.length).toStrictEqual(nearValidators.prev_epoch_kickout.length);
-  //   expect(validators.prev_epoch_kickout).toEqual(nearValidators.prev_epoch_kickout);
+    const nearLightClientProof = await near.connection.provider.lightClientProof(api_lightClientProofRequest);
 
-  //   expect(validators.epoch_start_height).toEqual(nearValidators.epoch_start_height);
-  //   //expect(validators.epoch_height)
-  // });
-
-  //lightClientProof
-  // it("Get lightClientProof", async () => {
-  //   const lightClientProofRequest: LightClientProofRequest = {
-  //     type: IdType.Transaction,
-  //     light_client_head: latestBlock.header.last_final_block,
-  //     transaction_hash: transactionOutcome.transaction.hash!,
-  //     sender_id: sender.accountId,
-  //   };
-
-  //   const result = await client.query<{ lightClientProof: LightClientProof }>({
-  //     uri: apiUri,
-  //     query: `query {
-  //       lightClientProof(
-  //         request: $request
-  //       )
-  //     }`,
-  //     variables: {
-  //       request: lightClientProofRequest,
-  //     },
-  //   });
-  //   expect(result.errors).toBeFalsy();
-  //   expect(result.data).toBeTruthy();
-
-  //   const lightClientProof: LightClientProof = result.data!.lightClientProof;
-  //   expect(lightClientProof).toBeTruthy();
-  //   expect(lightClientProof.block_header_lite).toBeTruthy();
-  //   expect(lightClientProof.block_proof).toBeTruthy();
-
-  //   expect("prev_block_hash" in lightClientProof.block_header_lite).toBe(true);
-  //   expect("inner_rest_hash" in lightClientProof.block_header_lite).toBe(true);
-  //   expect("inner_lite" in lightClientProof.block_header_lite).toBe(true);
-
-  //   //expect("block_hash" in lightClientProof.outcome_proof).toBe(true);
-  //   expect(lightClientProof.outcome_root_proof).toEqual([]);
-  //   expect(lightClientProof.block_proof.length).toBeGreaterThan(0);
-
-  //   const nearLightClientProof = await near.connection.provider.lightClientProof(lightClientProofRequest);
-  //   expect(lightClientProof.block_header_lite).toEqual(nearLightClientProof.block_header_lite);
-  //   expect(lightClientProof.block_proof).toEqual(nearLightClientProof.block_proof);
-  //   expect(lightClientProof.outcome_proof).toEqual(nearLightClientProof.outcome_proof);
-  //   expect(lightClientProof.outcome_root_proof).toEqual(nearLightClientProof.outcome_root_proof);
-  // });
+    //expect(lightClientProof.block_header_lite).toContain(nearLightClientProof.block_header_lite);
+    expect(lightClientProof.block_proof).toEqual(nearLightClientProof.block_proof);
+    //expect(lightClientProof.outcome_proof).toEqual(nearLightClientProof.outcome_proof);
+    //expect(lightClientProof.outcome_root_proof).toEqual(nearLightClientProof.outcome_root_proof);
+  });
 
   // accessKeyChanges +
   it("Get access key changes", async () => {
@@ -540,35 +512,100 @@ describe("e2e", () => {
     );
   });
 
-  // txStatusReceipts +
-  // -it("txStatusReceipts", async () => {
-  //   const result = await client.query<{ txStatusReceipts: FinalExecutionOutcomeWithReceipts }>({
-  //     uri: apiUri,
-  //     query: `query {
-  //       txStatusReceipts(
-  //         txHash: $txHash
-  //         accountId: $accountId
-  //       )
-  //     }`,
-  //     variables: {
-  //       txHash: transactionOutcome.transaction.hash,
-  //       accountId: sender.accountId,
-  //     },
-  //   });
+  // txStatusReceipts - Failed parsing args: invalid length 2, expected fewer elements in array, https://docs.near.org/docs/api/rpc/transactions#transaction-status-with-receipts
+  /* it("txStatusReceipts", async () => {
+    const result = await client.query<{ txStatusReceipts: FinalExecutionOutcomeWithReceipts }>({
+      uri: apiUri,
+      query: `query {
+        txStatusReceipts(
+          txHash: $txHash
+          accountId: $accountId
+        )
+      }`,
+      variables: {
+        txHash: transactionOutcome.transaction.hash,
+        accountId: sender.accountId,
+      },
+    }); 
+  });
+    }); 
+  });
+    }); 
+  });
+    }); 
 
-  //   expect(result.errors).toBeFalsy();
-  //   expect(result.data).toBeTruthy();
-  //   console.log(transactionOutcome);
+    // expect(result.errors).toBeFalsy();
+    // expect(result.data).toBeTruthy();
 
-  //   const txStatusReceipts: FinalExecutionOutcomeWithReceipts = result.data!.txStatusReceipts;
+    //const txStatusReceipts: FinalExecutionOutcomeWithReceipts = result.data!.txStatusReceipts;
 
-  //   const nearTxStatusReceipts = await near.connection.provider.txStatusReceipts(
-  //     transactionOutcome.transaction.hash,
-  //     sender.accountId
-  //   );
+    const nearTxStatusReceipts = await near.connection.provider.txStatusReceipts(
+      Uint8Array.from(transactionOutcome.transaction.hash),
+      sender.accountId,
+    );
 
-  //   expect("receipts" in txStatusReceipts).toBe(true);
-  //   expect(txStatusReceipts.receipts.length).toBeGreaterThanOrEqual(1);
-  //   expect(txStatusReceipts).toMatchObject(nearTxStatusReceipts);
-  // });
+     expect("receipts" in txStatusReceipts).toBe(true);
+    expect(txStatusReceipts.receipts.length).toBeGreaterThanOrEqual(1);
+    expect(txStatusReceipts).toMatchObject(nearTxStatusReceipts); 
+  }); */
+
+  //validators +- response error :  [-32000] Server error: Validator info unavailable
+  /* it("Get validators", async () => {
+    const blockId = latestBlock.header.hash;
+
+    const result = await client.query<{ validators: EpochValidatorInfo }>({
+      uri: apiUri,
+      query: `query {
+        validators(
+          blockId: $blockId
+        )
+      }`,
+      variables: {
+        blockId: blockId,
+      },
+    });
+
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const validators: EpochValidatorInfo = result.data!.validators;
+    expect(validators).toBeTruthy();
+    expect(validators.current_validators).toBeTruthy();
+    expect(validators.current_validators).toBeInstanceOf(Array);
+    expect(validators.next_validators).toBeTruthy();
+    expect(validators.next_validators).toBeInstanceOf(Array);
+    expect(validators.current_fisherman).toBeTruthy();
+    expect(validators.current_fisherman).toBeInstanceOf(Array);
+    expect(validators.next_fisherman).toBeTruthy();
+    expect(validators.next_fisherman).toBeInstanceOf(Array);
+    expect(validators.current_proposals).toBeTruthy();
+    expect(validators.current_proposals).toBeInstanceOf(Array);
+    expect(validators.prev_epoch_kickout).toBeTruthy();
+    expect(validators.prev_epoch_kickout).toBeInstanceOf(Array);
+    expect(validators.epoch_height).toBeTruthy();
+    expect(validators.epoch_start_height).toBeTruthy();
+
+    const nearValidators = await near.connection.provider.validators(blockId);
+
+    expect(validators.current_validators.length).toStrictEqual(nearValidators.current_validators.length);
+    expect(validators.current_validators).toEqual(nearValidators.current_validators);
+
+    expect(validators.next_validators.length).toStrictEqual(nearValidators.next_validators.length);
+    expect(validators.next_validators).toEqual(nearValidators.next_validators);
+
+    expect(validators.current_fisherman.length).toStrictEqual(nearValidators.current_fisherman.length);
+    expect(validators.current_fisherman).toEqual(nearValidators.current_fisherman);
+
+    expect(validators.next_fisherman.length).toStrictEqual(nearValidators.next_fisherman.length);
+    expect(validators.next_fisherman).toEqual(nearValidators.next_fisherman);
+
+    expect(validators.current_proposals.length).toStrictEqual(nearValidators.current_proposals.length);
+    expect(validators.current_proposals).toEqual(nearValidators.current_proposals);
+
+    expect(validators.prev_epoch_kickout.length).toStrictEqual(nearValidators.prev_epoch_kickout.length);
+    expect(validators.prev_epoch_kickout).toEqual(nearValidators.prev_epoch_kickout);
+
+    expect(validators.epoch_start_height).toEqual(nearValidators.epoch_start_height);
+    //expect(validators.epoch_height)
+  }); */
 });

@@ -120,6 +120,12 @@ export const getPlugins = (
   };
 };
 
+export const sleep = (time: number) => {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, time);
+  });
+};
+
 export const valuesToFormat = [
   "8999999999837087887",
   "8099099999837087887",

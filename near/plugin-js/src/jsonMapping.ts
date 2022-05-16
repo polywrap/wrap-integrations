@@ -82,7 +82,7 @@ export const parseJsonExecutionStatus = (
   }
   return {
     SuccessValue: status.SuccessValue,
-    successReceiptId: status.SuccessReceiptId,
+    SuccessReceiptId: status.SuccessReceiptId,
     failure: JSON.stringify(status.Failure),
   };
 };

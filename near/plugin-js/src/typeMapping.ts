@@ -44,7 +44,7 @@ export const toAction = (action: nearApi.transactions.Action): Action => {
   } else if (isNearFunctionCall(action)) {
     result = {
       methodName: action["methodName"],
-      args: action["args"],
+      args: Uint8Array.from(action["args"]),
       gas: action["gas"].toString(),
       deposit: action["deposit"].toString(),
     };

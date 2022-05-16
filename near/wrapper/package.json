@@ -16,6 +16,7 @@
     "test:RpcQueries": "jest e2eRpcQueries --passWithNoTests --runInBand --verbose --silent=false",
     "test:e2eMutations": "jest e2eMutations --passWithNoTests --runInBand --verbose --silent=false",
     "test:JsonRpcQueries": "jest e2eJsonRpcQueries --passWithNoTests --runInBand --verbose --silent=false",
+    "test:Transactions": "jest e2eTransactions --passWithNoTests --runInBand --verbose --silent=false",
     "test:Wallet": "jest e2eWallet.spec --passWithNoTests --runInBand --verbose --silent=false",
     "test:Format": "jest e2eFormat --passWithNoTests --runInBand --verbose --silent=false",
     "test": "yarn test:e2e",
@@ -23,6 +24,7 @@
   },
   "dependencies": {
     "as-base58": "^0.1.1",
+    "as-base64": "^0.2.0",
     "as-fraction": "^0.2.0",
     "localstorage-polyfill": "^1.0.1",
     "mock-browser": "^0.92.14"

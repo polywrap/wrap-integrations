@@ -66,6 +66,7 @@ describe("e2e", () => {
 
   afterAll(async () => {
     await stopTestEnvironment();
+    await workingAccount.deleteAccount(testUtils.testAccountId)
   });
 
   it("Creates a transaction without wallet", async () => {
@@ -175,11 +176,11 @@ describe("e2e", () => {
     expect(result.data).toBeTruthy();
 
     const status: ExecutionStatus = result.data!.signAndSendTransaction.status;
-    expect(status.successValue).toBeTruthy();
+    expect(status.SuccessValue).toBeTruthy();
     expect(status.failure).toBeFalsy();
     const txOutcome: ExecutionOutcomeWithId = result.data!.signAndSendTransaction.transaction_outcome;
     expect(txOutcome.id).toBeTruthy();
-    expect(txOutcome.outcome.status.successReceiptId).toBeTruthy();
+    expect(txOutcome.outcome.status.SuccessReceiptId).toBeTruthy();
     expect(txOutcome.outcome.status.failure).toBeFalsy();
     const receiptsOutcome: ExecutionOutcomeWithId[] = result.data!.signAndSendTransaction.receipts_outcome;
     expect(receiptsOutcome.length).toBeGreaterThan(0);

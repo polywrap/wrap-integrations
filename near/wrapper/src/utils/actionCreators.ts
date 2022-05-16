@@ -1,7 +1,7 @@
 import { Near_AccessKey, Near_Action, Near_PublicKey } from "../query/w3";
 
 import { BigInt, JSON } from "@web3api/wasm-as";
-import * as bs58 from "as-base58";
+import * as bs64 from "as-base64";
 
 export function createAccount(): Near_Action {
   return {} as Near_Action;
@@ -12,7 +12,9 @@ export function deployContract(code: ArrayBuffer): Near_Action {
 }
 
 export function functionCall(methodName: string, args: JSON.Value, gas: BigInt, deposit: BigInt): Near_Action {
-  return { methodName: methodName, args: bs58.decode(args.stringify()).buffer, gas, deposit } as Near_Action;
+  const argsBuffer = String.UTF8.encode(args.stringify());
+  const argsArray: Uint8Array = argsBuffer.byteLength > 0 ? Uint8Array.wrap(argsBuffer) : new Uint8Array(0);
+  return { methodName: methodName, args: argsArray.buffer, gas, deposit } as Near_Action;
 }
 
 export function transfer(deposit: BigInt): Near_Action {
