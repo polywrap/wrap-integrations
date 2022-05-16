@@ -7,15 +7,12 @@ import {
   Action,
 } from "./tsTypes";
 import * as testUtils from "./testUtils";
-import { HELLO_WASM_METHODS } from "./testUtils";
-import { KeyPair, NearPluginConfig } from "../../../plugin-js";
+import {  NearPluginConfig } from "../../../plugin-js";
 
 import * as nearApi from "near-api-js";
 import { Web3ApiClient } from "@web3api/client-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
-
-const BN = require("bn.js");
 
 jest.setTimeout(360000);
 
@@ -53,15 +50,7 @@ describe("e2e", () => {
     contractId = testUtils.generateUniqueString("test");
     workingAccount = await testUtils.createAccount(near);
     await testUtils.deployContract(workingAccount, contractId);
-    // set up access key
-    const keyPair = KeyPair.fromRandom("ed25519");
-    await workingAccount.addKey(
-      keyPair.getPublicKey(),
-      contractId,
-      HELLO_WASM_METHODS.changeMethods,
-      new BN("2000000000000000000000000")
-    );
-    await nearConfig.keyStore!.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
+
   });
 
   afterAll(async () => {
