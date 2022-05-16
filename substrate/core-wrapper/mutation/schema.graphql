@@ -1,0 +1,25 @@
+"""
+https://github.com/w3f/Grants-Program/blob/master/applications/substrate_core_polywrapper.md
+
+author_submitExtrinsic
+chain_getBlockHash
+chain_getHeader
+chain_getFinalizedHead
+chain_getBlock
+state_getStorage
+state_queryStorage
+state_queryStorageAt
+state_getMetadata
+state_getRuntimeVersion
+system_properties
+
+good reference:
+tezos/plugin-js/src/mutation/schema.graphql
+tezos/plugin-js/src/query/schema.graphql
+"""
+
+type Mutation {
+  chainGetBlockHash(
+    ...
+  )
+}
