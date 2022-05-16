@@ -156,14 +156,10 @@ describe("e2e", () => {
       query: `query {
         viewContractCode(
           accountId: $accountId
-          request_type: $request_type
-          finality: $finality
         )
       }`,
       variables: {
-        accountId: testUtils.testAccountId,
-        finality: "optimistic",
-        request_type: "view_code",
+        accountId: contractId,
       },
     });
 
@@ -171,10 +167,11 @@ describe("e2e", () => {
     expect(result.data).toBeTruthy();
 
     const response = await near.connection.provider.query({
-      account_id: testUtils.testAccountId,
+      account_id: contractId,
       finality: "optimistic",
       request_type: "view_code",
     });
+
     expect(response).toBeTruthy();
     expect(response.block_hash).toStrictEqual(result.data?.viewContractCode.block_hash);
     expect(`${response.block_height}`).toStrictEqual(result.data?.viewContractCode.block_height);
@@ -274,7 +271,6 @@ describe("e2e", () => {
     expect(result.data).toBeTruthy();
 
     const publicKey: PublicKey = result.data!.getPublicKey;
-    console.log(result);
 
     expect(publicKey).toBeTruthy();
 
