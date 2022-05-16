@@ -1,4 +1,4 @@
-import { NearPluginConfig, KeyPair } from "../../../plugin-js";
+import { NearPluginConfig } from "../../../plugin-js";
 import {
   BlockChangeResult,
   NearProtocolConfig,
@@ -53,16 +53,6 @@ describe("e2e", () => {
     contractId = testUtils.generateUniqueString("test");
     workingAccount = await testUtils.createAccount(near);
     await testUtils.deployContract(workingAccount, contractId);
-    // set up access key
-    const keyPair = KeyPair.fromRandom("ed25519");
-    await workingAccount.addKey(
-      keyPair.getPublicKey(),
-      contractId,
-      testUtils.HELLO_WASM_METHODS.changeMethods,
-      new BN("2000000000000000000000000")
-    );
-
-    await nearConfig.keyStore!.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
 
     sender = await testUtils.createAccount(near);
     receiver = await testUtils.createAccount(near);
@@ -71,8 +61,8 @@ describe("e2e", () => {
 
   afterAll(async () => {
     await stopTestEnvironment();
-    await sender.deleteAccount(workingAccount.accountId);
-    await receiver.deleteAccount(workingAccount.accountId);
+    await sender.deleteAccount(testUtils.testAccountId);
+    await receiver.deleteAccount(testUtils.testAccountId);
     await workingAccount.deleteAccount(testUtils.testAccountId)
   });
 
