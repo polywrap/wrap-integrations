@@ -57,7 +57,7 @@ describe("e2e", () => {
 
   afterAll(async () => {
     await stopTestEnvironment();
-    await workingAccount.deleteAccount(testUtils.testAccountId)
+    await workingAccount.deleteAccount(testUtils.testAccountId);
   });
 
   // block +
@@ -330,9 +330,9 @@ describe("e2e", () => {
   // view function +-
   it("view function via account", async () => {
     const methodName = "hello"; // this is the function defined in hello.wasm file that we are calling
-    const args = { name: "trex" };
+    const args = { name: "world" };
 
-    const result = await client.query<{ viewFunction: JSON }>({
+    const result = await client.query<{ viewFunction: any }>({
       uri: apiUri,
       query: `query {
         viewFunction(
@@ -351,12 +351,16 @@ describe("e2e", () => {
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const viewFunctionResult: JSON = result.data!.viewFunction; // => "hello trex"
+    const viewFunctionResult = result.data!.viewFunction;
 
     expect(viewFunctionResult).toBeTruthy();
+    const fnResult = JSON.parse(viewFunctionResult).result;
+    expect(fnResult).toBeTruthy();
 
-    //const nearViewFunctionResult = await workingAccount.viewFunction(contractId, methodName, args); // returns "block_hash", "block_height", "error":method not found or bad utf16
+    const parsedResult = new TextDecoder().decode(Uint8Array.from(fnResult).buffer).replace(/\"/g, "");
 
-    //expect(viewFunctionResult).toEqual(nearViewFunctionResult);
+    const nearViewFunctionResult = await workingAccount.viewFunction(contractId, methodName, args);
+
+    expect(parsedResult).toEqual(nearViewFunctionResult);
   });
 });

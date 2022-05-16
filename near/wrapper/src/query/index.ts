@@ -271,7 +271,7 @@ export function getAccessKeys(input: Input_getAccessKeys): AccessKeyInfo[] {
 
 export function viewFunction(input: Input_viewFunction): JSON.Obj {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  return provider.viewFunction(input.contractId, input.contractId, input.args);
+  return provider.viewFunction(input.contractId, input.methodName, input.args);
 }
 
 export function createTransaction(input: Input_createTransaction): Near_Transaction {

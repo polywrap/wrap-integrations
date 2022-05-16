@@ -584,7 +584,7 @@ function toExecutionStatus(json: JSON.Obj): Near_ExecutionStatus {
 }
 
 function toBase64String(value: string): string {
-  const valueBuffer = String.UTF16.encode(value);
+  const valueBuffer = String.UTF8.encode(value);
   const valueArray: Uint8Array = valueBuffer.byteLength > 0 ? Uint8Array.wrap(valueBuffer) : new Uint8Array(0);
   return bs64.encode(valueArray);
 }
