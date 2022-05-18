@@ -2,7 +2,7 @@
 
 # declare enviroment variables with default values
 BLOCK_TIME=${TEZOS_POLYWRAP_BLOCK_TIME:-5}
-PROTOCOL="${TEZOS_POLYWRAP_PROTOCOL:-Hangzhou}"
+PROTOCOL="${TEZOS_POLYWRAP_PROTOCOL:-Ithaca}"
 ROOT_PATH="${TEZOS_POLYWRAP_ROOT_PATH:-/tmp/mini-net}"
 
 export bob="$(flextesa key bob)"
@@ -16,7 +16,7 @@ startup() {
         --set-history-mode N000:archive \
         --number-of-b 1 \
         --balance-of-bootstrap-accounts tez:100_000_000 \
-        --time-b "$BLOCK_TIME" \
+        --time-between-blocks "$BLOCK_TIME" \
         --add-bootstrap-account="$bob@2_000_000_000_000" \
         --add-bootstrap-account="$alice@2_000_000_000_000" \
         --no-daemons-for=bob \

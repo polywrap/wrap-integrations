@@ -1,6 +1,3 @@
-import { TezosToolkit } from '@taquito/taquito'
-import { InMemorySigner } from '@taquito/signer'
-
 export const SIMPLE_CONTRACT = `
 { parameter (or (int %decrement) (int %increment)) ;
     storage int ;
@@ -34,12 +31,3 @@ export const SIMPLE_CONTRACT = `
 `
 
 export const SIMPLE_CONTRACT_STORAGE = 0
-
-export async function deployContract(url: string, privateKey: string, deployParams: any): Promise<string | undefined> {
-    const Tezos = new TezosToolkit(url)
-    const signer = await InMemorySigner.fromSecretKey(privateKey)
-    Tezos.setSignerProvider(signer)
-    const originationOperation = await Tezos.contract.originate(deployParams)
-    const contract = await originationOperation.contract()
-    return contract.address
-}

@@ -22,7 +22,7 @@ export function encodeCommitment(label: string, owner: string, nonce: i32): stri
   const bytes = Tezos_Query.encodeMichelsonExpressionToBytes({
     expression: `{"prim":"pair","args":[{"prim":"pair","args":[{"annots":["%label"],"prim":"bytes"},{"annots":["%owner"],"prim":"address"}]},{"annots":["%nonce"],"prim":"nat"}]}`,
     value: commitValue.stringify(),
-  });
+  }).unwrap();
   return bytes;
 }
 
@@ -36,7 +36,7 @@ export function resolveAddress(input: Input_resolveAddress): DomainInfo | null {
     connection: address.connection, 
     viewName: "resolve-address",
     args: '["' + input.address + '"]'
-  });
+  }).unwrap();
   if (record.length === 0) {
     return null;
   }
@@ -60,7 +60,7 @@ export function resolveDomain(input: Input_resolveDomain): DomainInfo | null {
     connection: address.connection, 
     viewName: "resolve-name",
     args: '["' + domain + '"]'
-  });
+  }).unwrap();
   if (record.length === 0) {
     return null
   }

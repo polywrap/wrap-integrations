@@ -1,14 +1,15 @@
-import path from "path"
-import { Web3ApiClient } from "@web3api/client-js"
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js"
-import { InMemorySigner } from "@blockwatch-cc/tezos-plugin-js"
 import add from "date-fns/add"
+import path from "path"
+import { tezosPlugin } from "@blockwatch-cc/tezos-plugin-js"
+import { Web3ApiClient } from "@web3api/client-js"
+import { InMemorySigner } from "@taquito/signer"
+import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js"
 
 import { Config } from "../config"
 import { getPlugins } from "../testUtils"
 import * as QuerySchema from "../../query/w3"
 
-jest.setTimeout(300000)
+jest.setTimeout(460000)
 
 describe("e2e", () => {
   let client: Web3ApiClient;
@@ -26,13 +27,29 @@ describe("e2e", () => {
       ethereumProvider: testEnv.ethereum,
     });
     ensUri = `ens/testnet/${api.ensDomain}`;
-    const tezosConnection = {
-      network: "hangzhounet",
-      provider: "https://rpc.hangzhou.tzstats.com",
-      signer: await InMemorySigner.fromSecretKey(Config.TZ_SECRET)
-    }
+    const signer = await InMemorySigner.fromSecretKey(Config.TZ_SECRET)
     client = new Web3ApiClient({
-        plugins: getPlugins(testEnv.ipfs, testEnv.ensAddress, testEnv.ethereum, tezosConnection),
+        plugins: [
+          {
+            uri: "w3://ens/tezos.web3api.eth",
+            plugin: tezosPlugin({
+                networks: {
+                    mainnet: {
+                        provider: "https://rpc.tzstats.com"
+                    },
+                    hangzhounet: {
+                        provider: "https://rpc.tzkt.io/hangzhou2net",
+                        signer
+                    },
+                    ithacanet: {
+                        provider: "https://rpc.ithaca.tzstats.com"
+                    }
+                },
+                defaultNetwork: "hangzhounet"
+              })
+          },
+          ...getPlugins(testEnv.ipfs, testEnv.ensAddress, testEnv.ethereum)
+      ],
     })
   })
 
@@ -212,6 +229,41 @@ describe("e2e", () => {
     })
 
     describe("swapDirect", () => {
+      it("should be to swap token directly on hangzhounet", async () => {
+        const swapResponse = await client.query<{ swapDirect: QuerySchema.Tezos_TransferParams[] }>({
+          uri: ensUri,
+          query: `
+            mutation {
+              swapDirect(
+                network: hangzhounet,
+                params: $params,
+                sendParams: $sendParams
+              )
+            }
+          `,
+          variables: {
+            params: {
+              pairId: 3,
+              direction: `b_to_a`,
+              swapParams: {
+                amountIn: "1",
+                minAmountOut: "1",
+                deadline: add(new Date(), { minutes: 10 }).toISOString(),
+                receiver:  "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z"
+              }
+            },
+            sendParams: {
+              to: "",
+              amount: 0,
+              mutez: true
+            }
+          }
+        })
+        expect(swapResponse.errors).toBeUndefined()
+        expect(swapResponse.data?.swapDirect).toBeDefined()
+        expect(swapResponse.data?.swapDirect).toHaveLength(3)
+      });
+
       it("should swap tokens directly", async() => {
         const swapResponse = await client.query<{ swapDirect: QuerySchema.Tezos_TransferParams[] }>({
           uri: ensUri,

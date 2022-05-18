@@ -4,10 +4,12 @@ import { Connection as SchemaConnection } from "../query/w3";
 import {
   ContractAbstraction,
   ContractProvider,
+  PollingSubscribeProvider,
   TezosToolkit,
 } from "@taquito/taquito";
 import { InMemorySigner } from "@taquito/signer";
 import { Tzip16Module } from "@taquito/tzip16"
+import { TezosPluginConfigs } from "..";
 
 export type Address = string;
 export type AccountIndex = number;
@@ -21,6 +23,7 @@ export {
 export interface ConnectionConfig {
   provider: TezosProvider;
   signer?: InMemorySigner;
+  confirmationConfig?: ConfirmationConfig;
 }
 
 export interface ConnectionConfigs {
@@ -31,13 +34,18 @@ export interface Connections {
   [network: string]: Connection;
 }
 
+export interface ConfirmationConfig {
+  confirmationPollingTimeoutSecond?: number;
+  defaultConfirmationCount?: number;
+  pollingIntervalMilliseconds?: number;
+}
+
 export class Connection {
   private _client: TezosClient;
 
   constructor(private _config: ConnectionConfig) {
-    const { provider, signer } = _config;
-    // Sanitize Provider & Signer
-    this.setProvider(provider, signer !== undefined ? signer : undefined);
+    const { provider, signer, confirmationConfig } = _config;
+    this.setProvider(provider, signer, confirmationConfig);
   }
 
   static fromConfigs(configs: ConnectionConfigs): Connections {
@@ -68,12 +76,19 @@ export class Connection {
     });
   }
 
-  public setProvider(provider: TezosProvider, signer?: InMemorySigner): void {
+  public setProvider(provider: TezosProvider, signer?: InMemorySigner, confirmationConfig?: ConfirmationConfig): void {
     this._client = new TezosToolkit(provider);
     this._client.addExtension(new Tzip16Module());
-    if (signer) {
-      this.setSigner(signer);
-    }
+    this._client.setProvider({
+      signer,
+      config: {
+        defaultConfirmationCount: confirmationConfig?.defaultConfirmationCount,
+        confirmationPollingTimeoutSecond: confirmationConfig?.confirmationPollingTimeoutSecond
+      },
+    });
+    this._client.setStreamProvider(this._client.getFactory(PollingSubscribeProvider)({
+      pollingIntervalMilliseconds: confirmationConfig?.confirmationPollingTimeoutSecond
+    }));
   }
 
   public getProvider(): TezosClient {
@@ -102,6 +117,10 @@ export class Connection {
     address: Address
   ): Promise<ContractAbstraction<ContractProvider>> {
     return this._client.contract.at(address);
+  }
+
+  toJSON() {
+    return `class Connection {}`;
   }
 }
 
@@ -138,3 +157,25 @@ export async function getConnection(
   }
   return result;
 }
+
+export const getConnections = (config: TezosPluginConfigs) => {
+  let defaultNetwork;
+  const connections = Connection.fromConfigs(config.networks);
+  // Assign the default network (mainnet if not provided)
+  if (config.defaultNetwork) {
+    defaultNetwork = config.defaultNetwork;
+  } else {
+    defaultNetwork = "mainnet";
+  }
+  // Create a connection for the default network if none exists
+  if (!connections[defaultNetwork]) {
+    connections[defaultNetwork] = Connection.fromNetwork(
+      defaultNetwork
+    );
+  }
+  return {
+    connections,
+    defaultNetwork
+  }
+}
+

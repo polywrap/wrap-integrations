@@ -1,9 +1,10 @@
 // TIP: All user-defined code lives in the module folders (./query, ./mutation)
 
+import { PluginFactory, PluginPackage } from "@web3api/core-js";
+
 import * as Internal from "./w3";
 import { TezosConfig } from "./common/TezosConfig";
-
-import { PluginFactory } from "@web3api/core-js";
+import { getConnections } from "./common/Connection";
 
 export { manifest, schema } from "./w3";
 
@@ -12,20 +13,24 @@ export interface TezosPluginConfigs
     Record<string, unknown> {}
 
 export class TezosPlugin extends Internal.TezosPlugin {
-  constructor(config: TezosPluginConfigs) {
+  constructor(pluginConfig: TezosPluginConfigs) {
+    const connectionsCfg = getConnections(pluginConfig)
     super({
-      query: config,
-      mutation: config,
+      query: connectionsCfg,
+      mutation: connectionsCfg,
     });
   }
 }
 
+
 export const tezosPlugin: PluginFactory<TezosPluginConfigs> = (
-  opts: TezosPluginConfigs
-) =>
-  Internal.tezosPlugin({
-    query: opts,
-    mutation: opts,
+  pluginConfig: TezosPluginConfigs
+): PluginPackage => {
+  const connectionsCfg = getConnections(pluginConfig)
+  return Internal.tezosPlugin({
+    query: connectionsCfg,
+    mutation: connectionsCfg,
   });
+} 
 
 export const plugin = tezosPlugin;

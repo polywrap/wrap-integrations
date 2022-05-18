@@ -89,7 +89,7 @@ export function listAssets(input: Input_listAssets): string {
     connection: connectionDetails.connection,
     key: "assetCodes",
     field: ""
-  });
+  }).unwrap();
 }
 
 export function getCandle(input: Input_getCandle): AssetCandle {
@@ -99,7 +99,7 @@ export function getCandle(input: Input_getCandle): AssetCandle {
     connection: connectionDetails.connection,
     key: "oracleData",
     field: input.assetCode
-  });
+  }).unwrap();
   const assetData = <JSON.Obj>JSON.parse(storage);
   return {
       low:  normalizeValue(parseFloat(getString(assetData, "4"))),
@@ -120,7 +120,7 @@ export function getNormalizedPrice(input: Input_getNormalizedPrice): string {
     connection: connectionDetails.connection,
     key: "assetMap",
     field: input.assetCode
-  });
+  }).unwrap();
   const assetData = <JSON.Obj>JSON.parse(storage);
   return getString(assetData, "computedPrice")
 }
@@ -134,7 +134,7 @@ export function getAssetData(input: Input_getAssetData): AssetCandle {
     connection: connectionDetails.connection,
     key: "oracleData",
     field: input.assetCode
-  });
+  }).unwrap();
   const assetData = <JSON.Obj>JSON.parse(storageValue);
   return {
       low:  normalizeValue(parseFloat(getString(assetData, "4"))),

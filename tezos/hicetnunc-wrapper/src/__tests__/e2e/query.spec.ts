@@ -1,4 +1,5 @@
 import path from "path"
+import { tezosPlugin } from "@blockwatch-cc/tezos-plugin-js"
 import { Web3ApiClient } from "@web3api/client-js"
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js"
 
@@ -12,12 +13,35 @@ describe("Query", () => {
   let ensUri: string;
 
   beforeAll(async () => {
-    const { ensAddress, ethereum, ipfs } = await initTestEnvironment();
+    const testEnv = await initTestEnvironment();
     const apiPath = path.join(__dirname, "/../../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
+    const api = await buildAndDeployApi({
+      apiAbsPath: apiPath,
+      ipfsProvider: testEnv.ipfs,
+      ensRegistryAddress: testEnv.ensAddress,
+      ensRegistrarAddress: testEnv.registrarAddress,
+      ensResolverAddress: testEnv.resolverAddress,
+      ethereumProvider: testEnv.ethereum,
+    });
     ensUri = `ens/testnet/${api.ensDomain}`;
     client = new Web3ApiClient({
-        plugins: getPlugins(ipfs, ensAddress, ethereum),
+        plugins: [
+          {
+            uri: "w3://ens/tezos.web3api.eth",
+            plugin: tezosPlugin({
+                networks: {
+                    mainnet: {
+                        provider: "https://rpc.tzstats.com"
+                    },  
+                    testnet: {
+                        provider: "https://rpc.granada.tzstats.com",
+                    }
+                },
+                defaultNetwork: "testnet"
+              })
+        },
+        ...getPlugins(testEnv.ipfs, testEnv.ensAddress, testEnv.ethereum),
+        ]
     })
   })
 

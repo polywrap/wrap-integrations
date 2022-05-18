@@ -1,9 +1,8 @@
 import { tezosPlugin } from "..";
-import { deployContract, SIMPLE_CONTRACT, SIMPLE_CONTRACT_STORAGE } from "./deploy"
 import * as QueryTypes from "../query/w3/types";
 import * as MutationTypes from "../mutation/w3/types";
-
-import { up, down, Account, Node } from "@blockwatch-cc/tezos-test-env"
+import { SIMPLE_CONTRACT, SIMPLE_CONTRACT_STORAGE } from "./contracts/simple-contract"
+import { up, down, Account, Node, deployContract } from "@blockwatch-cc/tezos-test-env"
 import { Web3ApiClient } from "@web3api/client-js";
 import { InMemorySigner } from "@taquito/signer";
 
@@ -14,12 +13,18 @@ describe("Tezos Plugin", () => {
   let uri: string;
   let accounts: Account[];
   let node: Node;
+  let simpleContractAddress: string | undefined;
 
   beforeAll(async () => {
     uri = "w3://ens/tezos.web3api.eth"
     const response = await up()
     node = response.node
     accounts = response.accounts
+    const deployedResponse = await deployContract(accounts[0], {
+      code: SIMPLE_CONTRACT, 
+      storage: SIMPLE_CONTRACT_STORAGE
+    }, 1)
+    simpleContractAddress = deployedResponse.contractAddress
     client = new Web3ApiClient({
       plugins: [
         {
@@ -29,12 +34,12 @@ describe("Tezos Plugin", () => {
               mainnet: {
                 provider: "https://rpc.tzstats.com"
               },
-              hangzhou: {
-                provider: "https://rpc.hangzhou.tzstats.com"
+              ithacanet: {
+                provider: "https://rpc.ithaca.tzstats.com"
               },
               testnet: {
                 provider: node.url,
-                signer: await InMemorySigner.fromSecretKey(accounts[0].secretKey)
+                signer: await InMemorySigner.fromSecretKey(accounts[0].secretKey),
               }
             },
             defaultNetwork: "testnet"
@@ -51,7 +56,6 @@ describe("Tezos Plugin", () => {
   describe("Query", () => {
     describe("getContractCallTransferParams", () => {
       it("should get the transferParams of a contract call", async () => {
-        const contractAddress = "KT1QLqPN8us3LpgqSR9BgdF8bwJ8vJBjhfwV"
         const response = await client.query<{ getContractCallTransferParams: QueryTypes.TransferParams }>({
           uri,
           query: `
@@ -66,21 +70,21 @@ describe("Tezos Plugin", () => {
             }
           `,
           variables: {
-            address: contractAddress,
+            address: simpleContractAddress,
             method: "increment",
             args: "[10]",
             params: {
               mutez: true
             },
             connection: {
-              networkNameOrChainId: "hangzhou"
+              networkNameOrChainId: "testnet"
             }
           }
         })
 
         expect(response.errors).toBeUndefined()
         expect(response.data?.getContractCallTransferParams).toBeDefined()
-        expect(response.data?.getContractCallTransferParams.to).toBe(contractAddress)
+        expect(response.data?.getContractCallTransferParams.to).toBe(simpleContractAddress)
         expect(response.data?.getContractCallTransferParams.mutez).toBe(true)
         expect(response.data?.getContractCallTransferParams.parameter).toBeDefined()
       })
@@ -150,15 +154,14 @@ describe("Tezos Plugin", () => {
             }
           `,
           variables: {
-            address: "KT1LNMrk8orMQ85zbwK25996dPhDxfSicvKh",
+            address: "KT1Ha4yFVeyzw6KRAdkzq6TxDHB97KG4pZe8",
             view: "getBalance",
             args: '["tz1c1X8vD4pKV9TgV1cyosR7qdnkc8FTEyM1"]',
             connection: {
-              networkNameOrChainId: "hangzhou"
+              networkNameOrChainId: "mainnet"
             }
           }
         })
-
         expect(response.errors).toBeUndefined()
         expect(response.data).toBeDefined()
         expect(response.data?.callContractView).toBeDefined()
@@ -329,6 +332,45 @@ describe("Tezos Plugin", () => {
         expect(response.errors).toBeUndefined()
         expect(response.data).toBeDefined()
         expect(response.data?.getOperationStatus).toBeDefined()
+        expect(response.data?.getOperationStatus).toBeDefined()
+        expect(response.data?.getOperationStatus.hash).toBeDefined()
+        expect(response.data?.getOperationStatus.type).toBeDefined()
+        expect(response.data?.getOperationStatus.block).toBeDefined()
+        expect(response.data?.getOperationStatus.time).toBeDefined()
+        expect(response.data?.getOperationStatus.height).toBeDefined()
+        expect(response.data?.getOperationStatus.cycle).toBeDefined()
+        expect(response.data?.getOperationStatus.counter).toBeDefined()
+        expect(response.data?.getOperationStatus.status).toBeDefined()
+        expect(response.data?.getOperationStatus.is_success).toBeDefined()
+        expect(response.data?.getOperationStatus.confirmations).toBeDefined()
+      })
+
+      it("should get operation status on ithaca", async () => {
+        const response =  await client.query<{ getOperationStatus: QueryTypes.OperationStatus }>({
+          uri,
+          query: `
+            query {
+              getOperationStatus (
+                network: ithacanet, 
+                hash: "oot97Ak6cYpb3eofhQaTKpZLBoyeaYrb7xZSd2SoCv8GUXZT7sc"
+              )
+            }
+          `,
+        })
+
+        expect(response.errors).toBeUndefined()
+        expect(response.data).toBeDefined()
+        expect(response.data?.getOperationStatus).toBeDefined()
+        expect(response.data?.getOperationStatus.hash).toBeDefined()
+        expect(response.data?.getOperationStatus.type).toBeDefined()
+        expect(response.data?.getOperationStatus.block).toBeDefined()
+        expect(response.data?.getOperationStatus.time).toBeDefined()
+        expect(response.data?.getOperationStatus.height).toBeDefined()
+        expect(response.data?.getOperationStatus.cycle).toBeDefined()
+        expect(response.data?.getOperationStatus.counter).toBeDefined()
+        expect(response.data?.getOperationStatus.status).toBeDefined()
+        expect(response.data?.getOperationStatus.is_success).toBeDefined()
+        expect(response.data?.getOperationStatus.confirmations).toBeDefined()
       })
     })
 
@@ -582,98 +624,8 @@ describe("Tezos Plugin", () => {
   })
 
   describe("Mutation", () => {
-    describe("batchContractCalls and batchWalletContractCalls",  () => {
-      it("should batch multiple contract calls", async () => {
-        const contractAddress = await deployContract(node.url, accounts[0].secretKey, {
-          code: SIMPLE_CONTRACT, 
-          storage: SIMPLE_CONTRACT_STORAGE
-        })
-        const transferParamsResponse = await Promise.all([
-          client.query<{ getContractCallTransferParams: QueryTypes.TransferParams }>({
-            uri,
-            query: `
-              query {
-                getContractCallTransferParams(
-                  address: $address,
-                  method: $method,
-                  args: $args,
-                  params: $params
-                )
-              }
-            `,
-            variables: {
-              address: contractAddress,
-              method: "increment",
-              args: "[10]",
-              params: {
-                mutez: true
-              }
-            }
-          }),
-          client.query<{ getContractCallTransferParams: QueryTypes.TransferParams }>({
-            uri,
-            query: `
-              query {
-                getContractCallTransferParams(
-                  address: $address,
-                  method: $method,
-                  args: $args,
-                  params: $params
-                )
-              }
-            `,
-            variables: {
-              address: contractAddress,
-              method: "increment",
-              args: "[10]",
-              params: {
-                mutez: true
-              }
-            }
-          })
-        ])
-
-        transferParamsResponse.forEach((response) => {
-          expect(response.errors).toBeUndefined()
-          expect(response.data?.getContractCallTransferParams).toBeDefined()
-          expect(response.data?.getContractCallTransferParams.to).toBe(contractAddress)
-          expect(response.data?.getContractCallTransferParams.mutez).toBe(true)
-          expect(response.data?.getContractCallTransferParams.parameter).toBeDefined()
-        })
-
-        const transferParams = transferParamsResponse.map((response) => response.data?.getContractCallTransferParams);
-
-        // @note
-        // batchWalletContractCalls and batchContractCalls uses 
-        // the same internals only difference is the usage of the 
-        // wallet interface for external wallets to sign a transaction
-        // Thus, `batchContractCalls` below can be replaced with `batchWalletContractCalls`
-        const response = await client.query<{ batchContractCalls: string }>({
-          uri,
-          query: `
-            mutation {
-              batchContractCalls (
-                params: $params
-              )
-            }
-          `,
-          variables: {
-            params: transferParams
-          }
-        })
-
-        expect(response.errors).toBeUndefined()
-        expect(response.data?.batchContractCalls).toBeDefined()
-        expect(typeof response.data?.batchContractCalls).toBe('string')
-      })
-    })
-
     describe("callContractMethod", () => {
       it("should be able to call contract's method", async () => {
-        const contractAddress = await deployContract(node.url, accounts[0].secretKey, {
-          code: SIMPLE_CONTRACT, 
-          storage: SIMPLE_CONTRACT_STORAGE
-        })
         const response = await client.query<{ callContractMethod: MutationTypes.TxOperation }>({
           uri,
           query: `
@@ -686,7 +638,7 @@ describe("Tezos Plugin", () => {
             }
           `,
           variables: {
-            address: contractAddress,
+            address: simpleContractAddress,
             method: "increment",
             args: JSON.stringify([2])
           }
@@ -698,10 +650,6 @@ describe("Tezos Plugin", () => {
 
     describe("callContractMethodAndConfirmation", () => {
       it("should be able to call contract's method and confirm", async () => {
-        const contractAddress = await deployContract(node.url, accounts[0].secretKey, {
-          code: SIMPLE_CONTRACT, 
-          storage: SIMPLE_CONTRACT_STORAGE
-        })
         const response = await client.query<{ callContractMethodAndConfirmation: number }>({
           uri,
           query: `
@@ -716,7 +664,7 @@ describe("Tezos Plugin", () => {
             }
           `,
           variables: {
-            address: contractAddress,
+            address: simpleContractAddress,
             method: "increment",
             args: JSON.stringify([2]),
             confirmations: 1,
@@ -742,7 +690,7 @@ describe("Tezos Plugin", () => {
           `,
           variables: {
             params: {
-              to: 'tz1QD2Cp8uoxn7tCEfxGsqE6FiXkYXJwNeS1',
+              to: accounts[1].address,
               amount: 2
             }
           }
@@ -767,7 +715,7 @@ describe("Tezos Plugin", () => {
           `,
           variables: {
             params: {
-              to: 'tz1QD2Cp8uoxn7tCEfxGsqE6FiXkYXJwNeS1',
+              to: accounts[1].address,
               amount: 2
             },
             confirmations: 1
@@ -821,9 +769,7 @@ describe("Tezos Plugin", () => {
             params: {
               code: `
               parameter unit;
-              
               storage unit;
-              
               code {
                      CDR ;
                      NIL operation ;
@@ -963,6 +909,88 @@ describe("Tezos Plugin", () => {
         expect(response.errors).toBeUndefined()
         expect(response.data?.originateAndConfirm.confirmation).toBeDefined()
         expect(response.data?.originateAndConfirm.origination).toBeDefined()
+      })
+    })
+
+    describe("batchContractCalls and batchWalletContractCalls",  () => {
+      it("should batch multiple contract calls", async () => {
+        const transferParamsResponse = await Promise.all([
+          client.query<{ getContractCallTransferParams: QueryTypes.TransferParams }>({
+            uri,
+            query: `
+              query {
+                getContractCallTransferParams(
+                  address: $address,
+                  method: $method,
+                  args: $args,
+                  params: $params
+                )
+              }
+            `,
+            variables: {
+              address: simpleContractAddress,
+              method: "increment",
+              args: "[10]",
+              params: {
+                mutez: true
+              }
+            }
+          }),
+          client.query<{ getContractCallTransferParams: QueryTypes.TransferParams }>({
+            uri,
+            query: `
+              query {
+                getContractCallTransferParams(
+                  address: $address,
+                  method: $method,
+                  args: $args,
+                  params: $params
+                )
+              }
+            `,
+            variables: {
+              address: simpleContractAddress,
+              method: "increment",
+              args: "[10]",
+              params: {
+                mutez: true
+              }
+            }
+          })
+        ])
+
+        transferParamsResponse.forEach((response) => {
+          expect(response.errors).toBeUndefined()
+          expect(response.data?.getContractCallTransferParams).toBeDefined()
+          expect(response.data?.getContractCallTransferParams.to).toBe(simpleContractAddress)
+          expect(response.data?.getContractCallTransferParams.mutez).toBe(true)
+          expect(response.data?.getContractCallTransferParams.parameter).toBeDefined()
+        })
+
+        const transferParams = transferParamsResponse.map((response) => response.data?.getContractCallTransferParams);
+
+        // @note
+        // batchWalletContractCalls and batchContractCalls uses 
+        // the same internals only difference is the usage of the 
+        // wallet interface for external wallets to sign a transaction
+        // Thus, `batchContractCalls` below can be replaced with `batchWalletContractCalls`
+        const response = await client.query<{ batchContractCalls: string }>({
+          uri,
+          query: `
+            mutation {
+              batchContractCalls (
+                params: $params
+              )
+            }
+          `,
+          variables: {
+            params: transferParams
+          }
+        })
+
+        expect(response.errors).toBeUndefined()
+        expect(response.data?.batchContractCalls).toBeDefined()
+        expect(typeof response.data?.batchContractCalls).toBe('string')
       })
     })
   })

@@ -1,8 +1,10 @@
 const { exec } = require('child_process')
 
 const cmds = require('./cmds')
-const { PORT, PROTOCOL } = require('./config')
+const { PORT, PROTOCOL, BLOCK_TIME } = require('./config')
+const { PollingSubscribeProvider } = require('@taquito/taquito')
 const { getClient, getSigner } = require('./taquito')
+const Networks = require('./networks')
 
 async function runCommand(command, quiet) {
   if (!quiet) {
@@ -41,7 +43,7 @@ async function up(quiet = true) {
   
   // wait for some seconds for containers to properly setup before resolving
   // NB: fixes bug with failure to deploy contracts
-  await sleep(10000)
+  await sleep(60000)
   
   return Promise.resolve({
     node: {
@@ -66,7 +68,19 @@ async function deployContract(account, contractInfo, confirmation = 1) {
   const { code, init, storage } = contractInfo
   const client = getClient()
   const signer = await getSigner(account.secretKey)
+  const chainId = await client.rpc.getChainId()
+  const rpcConstants = await client.rpc.getConstants()
+  const maxOperationsTTL = rpcConstants[Networks[chainId].maxOperationTTLKey] || 120;
   client.setSignerProvider(signer)
+  client.setProvider({
+    signer,
+    config: {
+      confirmationPollingTimeoutSecond: maxOperationsTTL * BLOCK_TIME
+    }
+  })
+  client.setStreamProvider(client.getFactory(PollingSubscribeProvider)({
+    pollingIntervalMilliseconds: 1000 * BLOCK_TIME
+  }));
   const operation = await client.contract.originate({
     code,
     init,
@@ -104,5 +118,6 @@ function parseAccounts(stream) {
 module.exports = {
   up,
   down,
-  deployContract
+  deployContract,
+  getAccounts
 }
