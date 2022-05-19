@@ -227,7 +227,7 @@ describe("e2e", () => {
 
   // send money +
   it("Send money", async () => {
-    const receiver = await testUtils.createAccount(near);
+    let receiver = masterAccount
     const receiverBalanceBefore = await receiver.getAccountBalance();
 
     const { amount } = await workingAccount.state();
@@ -264,7 +264,6 @@ describe("e2e", () => {
 
     expect(new BN(receiverBalanceAfter.total).sub(new BN(newAmount)).toString()).toEqual(receiverBalanceBefore.total);
 
-    await receiver.deleteAccount(testUtils.testAccountId);
   });
 
   // createAndDeplyt contract +

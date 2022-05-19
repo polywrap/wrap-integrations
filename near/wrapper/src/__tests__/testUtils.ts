@@ -14,7 +14,7 @@ const BN = require("bn.js");
 
 export const networkId = "testnet";
 export const testAccountId = "polydev.testnet";
-const PRIVATE_KEY = "ed25519:W9dWnSjawNKbr5eC6z9SbTXg25fp1j8s8aGSMtABKRzKTPYLJA8Fzimb6hkq7U7JwEXGNgwCo7YhmBpfMFWy11j";
+const PRIVATE_KEY = "ed25519:4HbxvXyS76rvNdHcad3HegGzdVcpNid3LE1vbdZNMSqygZJrL2PRQDzPWZA5hopCBFuJNmp9kihyJKPEagVPsPEc";
 
 export const HELLO_WASM_PATH = path.resolve(__dirname + "../../../node_modules/near-hello/dist/main.wasm");
 const HELLO_WASM_BALANCE = new BN("1000000000000000000000000");
