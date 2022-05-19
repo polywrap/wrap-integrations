@@ -1,0 +1,147 @@
+name: CI
+
+on: [pull_request]
+
+jobs:
+  CI:
+    name: CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+#    # Console:
+#      - name: (Console) Read .nvmrc
+#        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+#        id: console-nvm
+#        working-directory: ./console/wrapper
+#
+#      - name: (Console) Setup Node.js
+#        uses: actions/setup-node@master
+#        with:
+#          node-version: '${{ steps.console-nvm.outputs.NVMRC }}'
+#        working-directory: ./console/wrapper
+#
+#      ## Yarn Caching:
+#      ## Only needs to happen once
+#      - name: Get yarn cache directory path
+#        id: yarn-cache-dir-path
+#        run: echo "::set-output name=dir::$(yarn cache dir)"
+#
+#      - uses: actions/cache@v2
+#        with:
+#          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+#          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+#          restore-keys: |
+#            ${{ runner.os }}-yarn-
+#      ##
+#
+#      - name: (Console) Install dependencies
+#        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+#        working-directory: ./console/wrapper
+#
+#      - name: (Console) Build
+#        run: yarn build
+#        working-directory: ./console/wrapper
+#
+#      - name: (Console) Test
+#        run: yarn test:ci
+#    #
+#
+#    # ENS
+#      - name: (ENS) Read .nvmrc
+#        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+#        id: ens-nvm
+#        working-directory: ./ens/wrapper
+#
+#      - name: (ENS) Setup Node.js
+#        uses: actions/setup-node@master
+#        with:
+#          node-version: '${{ steps.ens-nvm.outputs.NVMRC }}'
+#        working-directory: ./ens/wrapper
+#
+#      - name: (ENS) Install dependencies
+#        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+#        working-directory: ./ens/wrapper
+#
+#      - name: (ENS) Build
+#        run: yarn build
+#        working-directory: ./ens/wrapper
+#
+#      - name: (ENS) Test
+#        run: yarn test
+#    #
+
+    # NEAR
+      - name: (NEAR Plugin) Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: near-nvm
+        working-directory: ./near/plugin-js
+
+      - name: (NEAR Plugin) Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: '${{ steps.near-nvm.outputs.NVMRC }}'
+#        working-directory: ./near/wrapper
+
+      - name: (NEAR Plugin) Install dependencies
+        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+        working-directory: ./near/plugin-js
+
+      - name: (NEAR Plugin) Build
+        run: yarn build
+        working-directory: ./near/plugin-js
+
+      - name: (NEAR Wrapper) Test
+        working-directory: ./near/plugin-js
+        run: yarn test
+    #
+#
+#    # Uniswap V2
+#      - name: (Uniswap V2 Wrapper) Read .nvmrc
+#        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+#        id: uniswapv2-nvm
+#        working-directory: ./uniswapv2/wrapper
+#
+#      - name: (Uniswap V2 Wrapper) Setup Node.js
+#        uses: actions/setup-node@master
+#        with:
+#          node-version: '${{ steps.uniswapv2-nvm.outputs.NVMRC }}'
+#        working-directory: ./uniswapv2/wrapper
+#
+#      - name: (Uniswap V2 Wrapper) Install dependencies
+#        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+#        working-directory: ./uniswapv2/wrapper
+#
+#      - name: (Uniswap V2 Wrapper) Build
+#        run: yarn build
+#        working-directory: ./uniswapv2/wrapper
+#
+#      - name: (Uniswap V2 Wrapper) Test
+#        run: yarn test
+#    #
+#
+#    # Uniswap V3
+#      - name: (Uniswap V3 Wrapper) Read .nvmrc
+#        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+#        id: uniswapv3-nvm
+#        working-directory: ./uniswapv3/wrapper
+#
+#      - name: (Uniswap V3 Wrapper) Setup Node.js
+#        uses: actions/setup-node@master
+#        with:
+#          node-version: '${{ steps.uniswapv3-nvm.outputs.NVMRC }}'
+#        working-directory: ./uniswapv3/wrapper
+#
+#      - name: (Uniswap V3 Wrapper) Install dependencies
+#        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+#        working-directory: ./uniswapv3/wrapper
+#
+#      - name: (Uniswap V3 Wrapper) Build
+#        run: yarn build
+#        working-directory: ./uniswapv3/wrapper
+#
+#      - name: (Uniswap V3 Wrapper) Test
+#        run: yarn test
+#    #
