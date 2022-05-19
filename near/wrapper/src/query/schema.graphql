@@ -34,7 +34,7 @@ type Query {
   ): Near_PublicKey
 
   """
-    RPC Query Functions not part of JsonRpcProvider (Not Implemented)
+    RPC Query Functions not part of JsonRpcProvider (Implemented, Tested)
   """
 
   getAccountBalance(
@@ -97,7 +97,7 @@ type Query {
   ): BlockResult!
 
   """
-    JsonRpcProvider Query Functions (Not Implemented)
+    JsonRpcProvider Query Functions (Implemented, Tested)
   """
   status: NodeStatusResult!
 

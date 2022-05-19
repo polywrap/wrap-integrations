@@ -70,7 +70,7 @@ type Query {
   ): Near_PublicKey
 
 """
-  RPC Query Functions not part of JsonRpcProvider (Not Implemented)
+  RPC Query Functions not part of JsonRpcProvider (Implemented, Tested)
 """
 
   # get account balance
@@ -117,7 +117,7 @@ type Query {
   ): SignTransactionResult!
 
 """
-  Utility Functions (Not Implemented)
+  Utility Functions (Implemented, Tested)
 """
 
   # takes amount in Near, returns amount in YoctoNear
@@ -139,7 +139,7 @@ getBlock(
 ): BlockResult!
 
 """
-  JsonRpcProvider Query Functions (Not Implemented)
+  JsonRpcProvider Query Functions (Implemented, Tested)
 """
 
   status(): NodeStatusResult!
@@ -580,7 +580,7 @@ type Mutation {
   ): String!
 
 """
-  Convenience Mutation Functions (Not Implemented)
+  Convenience Mutation Functions (Implemented, Tested)
 """
 
 # create a new Near account
@@ -823,7 +823,7 @@ type Query {
   ): PublicKey
 
   """
-  KeyStore, KeyPair, and Signer Query Functions (Not Implemented)
+  KeyStore, KeyPair, and Signer Query Functions (Implemented, Testeds)
   """
 
   signMessage(
@@ -855,7 +855,7 @@ type Mutation {
   ): Boolean!
 
   """
-  KeyStore, KeyPair, and Signer Query Functions (Not Implemented)
+  KeyStore, KeyPair, and Signer Query Functions (Implemented, Tested)
   """
 
   createKey(
