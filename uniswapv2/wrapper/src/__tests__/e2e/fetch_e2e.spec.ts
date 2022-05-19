@@ -5,6 +5,7 @@ import path from "path";
 import { getPlugins, getTokenList } from "../testUtils";
 import * as uni from "@uniswap/sdk";
 import * as ethers from "ethers";
+import * as providers from "@ethersproject/providers"
 
 jest.setTimeout(90000);
 
@@ -15,7 +16,7 @@ describe("Fetch", () => {
   let tokens: Token[];
   let uniTokens: uni.Token[];
   let pairs: Token[][];
-  let ethersProvider: ethers.providers.BaseProvider;
+  let ethersProvider: providers.BaseProvider;
 
   beforeAll(async () => {
     const { ethereum: testEnvEtherem, ensAddress, ipfs } = await initTestEnvironment();
@@ -49,7 +50,7 @@ describe("Fetch", () => {
     const link: Token = tokens.filter(token => token.currency.symbol === "LINK")[0];
     pairs = [[aave, dai], [usdc, dai], [aave, usdc], [comp, weth], [uniswap, link], [uniswap, wbtc], [wbtc, weth]];
     // set up ethers provider
-    ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546");
+    ethersProvider = providers.getDefaultProvider("http://localhost:8546");
   });
 
   afterAll(async () => {

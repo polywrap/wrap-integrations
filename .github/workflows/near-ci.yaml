@@ -1,0 +1,59 @@
+name: CI
+
+on: [pull_request]
+
+jobs:
+  CI:
+    name: Near CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # NEAR plugin
+      - name: (NEAR Plugin) Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: near-plugin-nvm
+        working-directory: ./near/plugin-js
+
+      - name: (NEAR Plugin) Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: '${{ steps.near-plugin-nvm.outputs.NVMRC }}'
+
+      - name: (NEAR Plugin) Install dependencies
+        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+        working-directory: ./near/plugin-js
+
+      - name: (NEAR Plugin) Build
+        run: yarn build
+        working-directory: ./near/plugin-js
+
+      - name: (NEAR Plugin) Test
+        run: yarn test
+        working-directory: ./near/plugin-js
+      #
+
+      # NEAR wrapper
+      - name: Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: near-wrapper-nvm
+        working-directory: ./near/wrapper
+
+      - name: Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: '${{ steps.near-wrapper-nvm.outputs.NVMRC }}'
+
+      - name: Install dependencies
+        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+        working-directory: ./near/wrapper
+
+      - name: Build
+        run: yarn build
+        working-directory: ./near/wrapper
+
+      - name: Test
+        run: yarn test
+        working-directory: ./near/wrapper

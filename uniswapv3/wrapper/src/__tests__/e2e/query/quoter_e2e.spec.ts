@@ -76,13 +76,20 @@ describe('SwapQuoter', () => {
   let ensUri: string;
 
   beforeAll(async () => {
-    const { ethereum: testEnvEtherem, ensAddress, ipfs } = await initTestEnvironment();
+    const { ipfs, ethereum, ensAddress, registrarAddress, resolverAddress } = await initTestEnvironment();
     // get client
-    const config: ClientConfig = getPlugins(testEnvEtherem, ipfs, ensAddress);
+    const config: ClientConfig = getPlugins(ethereum, ipfs, ensAddress);
     client = new Web3ApiClient(config);
     // deploy api
     const apiPath: string = path.resolve(__dirname + "/../../../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
+    const api = await buildAndDeployApi({
+      apiAbsPath: apiPath,
+      ipfsProvider: ipfs,
+      ensRegistryAddress: ensAddress,
+      ethereumProvider: ethereum,
+      ensRegistrarAddress: registrarAddress,
+      ensResolverAddress: resolverAddress,
+    });
     ensUri = `ens/testnet/${api.ensDomain}`;
     // set up test case data
     pool_0_1 = await makePool(client, ensUri, token0, token1);

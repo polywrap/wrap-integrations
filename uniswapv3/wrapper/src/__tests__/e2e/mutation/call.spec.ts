@@ -12,7 +12,7 @@ import {
 import path from "path";
 import { getPlugins, getPoolFromAddress, getPools, getTokens } from "../testUtils";
 import * as ethers from "ethers";
-import { bestTradeExactOut, getEther, swapCallParameters } from "../wrappedQueries";
+import { bestTradeExactOut, getNative, swapCallParameters } from "../wrappedQueries";
 import erc20ABI from "../testData/erc20ABI.json";
 
 jest.setTimeout(180000);
@@ -28,13 +28,20 @@ describe("Call (mainnet fork)", () => {
   let recipient: string;
 
   beforeAll(async () => {
-    const { ethereum: testEnvEtherem, ensAddress, ipfs } = await initTestEnvironment();
+    const { ipfs, ethereum, ensAddress, registrarAddress, resolverAddress } = await initTestEnvironment();
     // get client
-    const config: ClientConfig = getPlugins(testEnvEtherem, ipfs, ensAddress);
+    const config: ClientConfig = getPlugins(ethereum, ipfs, ensAddress);
     client = new Web3ApiClient(config);
     // deploy api
     const apiPath: string = path.resolve(__dirname + "/../../../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
+    const api = await buildAndDeployApi({
+      apiAbsPath: apiPath,
+      ipfsProvider: ipfs,
+      ensRegistryAddress: ensAddress,
+      ethereumProvider: ethereum,
+      ensRegistrarAddress: registrarAddress,
+      ensResolverAddress: resolverAddress,
+    });
     ensUri = `ens/testnet/${api.ensDomain}`;
     // set up ethers provider
     ethersProvider = new ethers.providers.JsonRpcProvider("http://localhost:8546");
@@ -82,7 +89,7 @@ describe("Call (mainnet fork)", () => {
       await approveTx.wait();
     }
 
-    const ETH: Token = await getEther(client, ensUri, ChainIdEnum.MAINNET);
+    const ETH: Token = await getNative(client, ensUri, ChainIdEnum.MAINNET);
     const USDC: Token = tokens.find(token => token.currency.symbol === "USDC") as Token;
 
     // eth -> usdc preparation

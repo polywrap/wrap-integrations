@@ -434,7 +434,6 @@ export interface Ethereum_EventNotification {
   log: Ethereum_Log;
 }
 
-// TODO: does the fact that this was created suggest there was a duplicate type in the typeinfo?
 /* URI: "w3://ipfs/QmeiPWHe2ixfitcgjRwP5AaJD5R7DbsGhQNQwT4rFNyxx8" */
 export interface ERC20_Ethereum_Connection {
   node?: String | null;

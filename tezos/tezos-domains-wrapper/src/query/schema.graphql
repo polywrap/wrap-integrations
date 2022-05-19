@@ -1,0 +1,25 @@
+#import { Query, Connection } into Tezos from "w3://ens/tezos.web3api.eth"
+#import { Network, CustomConnection, DomainInfo } from "../common/schema.graphql"
+
+type Query {
+  """ Resolve address domain name """
+  resolveAddress(
+    """ Supported Network """
+    network: Network!
+    """ Tezos address """ 
+    address: String!
+    """ CustomConnection """
+    custom: CustomConnection
+  ): DomainInfo
+
+  """ Resolve domain name to address """
+  resolveDomain(
+    """ Supported Network """
+    network: Network!
+    """ Domain name """
+    domain: String!
+    """ Custom Connection """
+    custom: CustomConnection
+  ): DomainInfo
+}
+
