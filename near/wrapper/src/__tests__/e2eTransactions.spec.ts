@@ -1,5 +1,3 @@
-import { Web3ApiClient } from "@web3api/client-js";
-import { nearPlugin, KeyPair, NearPluginConfig, } from "near-polywrap-js";
 import {
   ExecutionOutcomeWithId,
   FinalExecutionOutcome,
@@ -9,19 +7,16 @@ import {
   Action,
 } from "./tsTypes";
 import * as testUtils from "./testUtils";
+import {  NearPluginConfig } from "../../../plugin-js";
+
 import * as nearApi from "near-api-js";
-const BN = require('bn.js');
-import { HELLO_WASM_METHODS } from "./testUtils";
+import { Web3ApiClient } from "@web3api/client-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
-import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
-import { ensPlugin } from "@web3api/ens-plugin-js";
-import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
 import path from "path";
 
 jest.setTimeout(360000);
 
 describe("e2e", () => {
-
   let client: Web3ApiClient;
   let apiUri: string;
 
@@ -31,12 +26,12 @@ describe("e2e", () => {
   let contractId: string;
 
   const prepActions = (): Action[] => {
-    const setCallValue = testUtils.generateUniqueString('setCallPrefix');
+    const setCallValue = testUtils.generateUniqueString("setCallPrefix");
     const args = { value: setCallValue };
     const stringify = (obj: unknown): Buffer => Buffer.from(JSON.stringify(obj));
     const value: Buffer = stringify(args);
     return [{ methodName: "setValue", args: value, gas: "3000000000000", deposit: "0" }];
-  }
+  };
 
   beforeAll(async () => {
     // set up test env and deploy api
@@ -47,45 +42,20 @@ describe("e2e", () => {
     // set up client
     nearConfig = await testUtils.setUpTestConfig();
     near = await nearApi.connect(nearConfig);
-    client = new Web3ApiClient({
-      plugins: [
-        {
-          uri: "w3://ens/nearPlugin.web3api.eth",
-          plugin: nearPlugin(nearConfig)
-        },
-        {
-          uri: "w3://ens/ipfs.web3api.eth",
-          plugin: ipfsPlugin({ provider: ipfs }),
-        },
-        {
-          uri: "w3://ens/ens.web3api.eth",
-          plugin: ensPlugin({ addresses: { testnet: ensAddress } }),
-        },
-        {
-          uri: "w3://ens/ethereum.web3api.eth",
-          plugin: ethereumPlugin({
-            networks: {
-              testnet: {
-                provider: ethereum
-              },
-            },
-            defaultNetwork: "testnet"
-          }),
-        },
-      ]
-    });
+
+    const polywrapConfig = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
+    client = new Web3ApiClient(polywrapConfig);
+
     // set up contract account
-    contractId = testUtils.generateUniqueString('test');
+    contractId = testUtils.generateUniqueString("test");
     workingAccount = await testUtils.createAccount(near);
     await testUtils.deployContract(workingAccount, contractId);
-    // set up access key
-    const keyPair = KeyPair.fromRandom('ed25519');
-    await workingAccount.addKey(keyPair.getPublicKey(), contractId, HELLO_WASM_METHODS.allMethods, new BN(  "2000000000000000000000000"));
-    await nearConfig.keyStore.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
+
   });
 
   afterAll(async () => {
     await stopTestEnvironment();
+    await workingAccount.deleteAccount(testUtils.testAccountId)
   });
 
   it("Creates a transaction without wallet", async () => {
@@ -103,7 +73,7 @@ describe("e2e", () => {
         receiverId: contractId,
         actions: actions,
         signerId: workingAccount.accountId,
-      }
+      },
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
@@ -143,14 +113,14 @@ describe("e2e", () => {
         receiverId: contractId,
         actions: actions,
         signerId: workingAccount.accountId,
-      }
+      },
     });
     expect(txQuery.errors).toBeFalsy();
     expect(txQuery.data).toBeTruthy();
     const transaction: Transaction = txQuery.data!.createTransaction;
 
     const result = await client.query<{
-      signTransaction: SignTransactionResult
+      signTransaction: SignTransactionResult;
     }>({
       uri: apiUri,
       query: `query {
@@ -160,7 +130,7 @@ describe("e2e", () => {
       }`,
       variables: {
         transaction: transaction,
-      }
+      },
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
@@ -174,7 +144,9 @@ describe("e2e", () => {
 
   it("creates, signs, sends, and awaits mining of a transaction without wallet", async () => {
     const actions: Action[] = prepActions();
-    const result = await client.query<{ signAndSendTransaction: FinalExecutionOutcome }>({
+    const result = await client.query<{
+      signAndSendTransaction: FinalExecutionOutcome;
+    }>({
       uri: apiUri,
       query: `mutation {
         signAndSendTransaction(
@@ -187,17 +159,17 @@ describe("e2e", () => {
         receiverId: contractId,
         actions: actions,
         signerId: workingAccount.accountId,
-      }
+      },
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
 
     const status: ExecutionStatus = result.data!.signAndSendTransaction.status;
-    expect(status.successValue).toBeTruthy();
+    expect(status.SuccessValue).toBeTruthy();
     expect(status.failure).toBeFalsy();
     const txOutcome: ExecutionOutcomeWithId = result.data!.signAndSendTransaction.transaction_outcome;
     expect(txOutcome.id).toBeTruthy();
-    expect(txOutcome.outcome.status.successReceiptId).toBeTruthy();
+    expect(txOutcome.outcome.status.SuccessReceiptId).toBeTruthy();
     expect(txOutcome.outcome.status.failure).toBeFalsy();
     const receiptsOutcome: ExecutionOutcomeWithId[] = result.data!.signAndSendTransaction.receipts_outcome;
     expect(receiptsOutcome.length).toBeGreaterThan(0);
@@ -218,7 +190,7 @@ describe("e2e", () => {
         receiverId: contractId,
         actions: actions,
         signerId: workingAccount.accountId,
-      }
+      },
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
@@ -227,4 +199,3 @@ describe("e2e", () => {
     expect(txHash).toBeTruthy();
   });
 });
-
