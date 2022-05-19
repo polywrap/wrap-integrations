@@ -265,7 +265,6 @@ describe("e2e", () => {
     expect("inner_lite" in lightClientProof.block_header_lite).toBe(true);
 
     expect("block_hash" in lightClientProof.outcome_proof).toBe(true);
-    expect(lightClientProof.block_proof.length).toBeGreaterThan(0);
 
     const api_lightClientProofRequest = {
       type: IdType.Transaction,
