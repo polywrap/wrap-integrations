@@ -173,8 +173,8 @@ describe("e2e", () => {
     });
 
     expect(response).toBeTruthy();
-    expect(response.block_hash).toStrictEqual(result.data?.viewContractCode.block_hash);
-    expect(`${response.block_height}`).toStrictEqual(result.data?.viewContractCode.block_height);
+    //@ts-ignore
+    expect(response?.code_base64).toStrictEqual(result.data?.viewContractCode.code_base64);
   });
 
   // account balance +
