@@ -18,6 +18,12 @@ type CreateSubdomainInOpenDomainAndSetContentHashResponse implements CreateSubdo
   setContentHashReceiptTx: Ethereum_TxResponse!
 }
 
+type RegistrationResult {
+  name: String!
+  didRegister: Boolean!
+  tx: Ethereum_TxResponse
+}
+
 type Mutation {
   setResolver(
     domain: String!
@@ -95,6 +101,29 @@ type Mutation {
     connection: Ethereum_Connection
     txOverrides: TxOverrides
   ): Ethereum_TxResponse!
+
+  registerSubdomainsRecursively(
+    domain: String!
+    label: String!
+    owner: String!
+    resolverAddress: String!
+    ttl: String!
+    registryAddress: String!
+    connection: Ethereum_Connection
+    txOverrides: TxOverrides
+  ): [RegistrationResult!]!
+
+  registerDomainAndSubdomainsRecursively(
+    domain: String!
+    label: String!
+    owner: String!
+    resolverAddress: String!
+    ttl: String!
+    registrarAddress: String!
+    registryAddress: String!
+    connection: Ethereum_Connection
+    txOverrides: TxOverrides
+  ): [RegistrationResult!]!
 
   setContentHash(
     domain: String!

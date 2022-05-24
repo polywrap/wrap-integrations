@@ -15,6 +15,12 @@ type Query {
     connection: Ethereum_Connection
   ): String!
 
+  checkIfRecordExists(
+    domain: String!
+    registryAddress: String!
+    connection: Ethereum_Connection
+  ): Boolean!
+
   getAddress(
     domain: String!
     resolverAddress: String!
