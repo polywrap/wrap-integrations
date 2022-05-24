@@ -15,7 +15,7 @@ jobs:
       - name: (NEAR Plugin) Read .nvmrc
         run: echo ::set-output name=NVMRC::$(cat .nvmrc)
         id: near-plugin-nvm
-        working-directory: ./near/plugin-js
+        working-directory: ./protocol/near/plugin-js
 
       - name: (NEAR Plugin) Setup Node.js
         uses: actions/setup-node@master
@@ -24,22 +24,22 @@ jobs:
 
       - name: (NEAR Plugin) Install dependencies
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
-        working-directory: ./near/plugin-js
+        working-directory: ./protocol/near/plugin-js
 
       - name: (NEAR Plugin) Build
         run: yarn build
-        working-directory: ./near/plugin-js
+        working-directory: ./protocol/near/plugin-js
 
       - name: (NEAR Plugin) Test
         run: yarn test
-        working-directory: ./near/plugin-js
+        working-directory: ./protocol/near/plugin-js
       #
 
       # NEAR wrapper
       - name: Read .nvmrc
         run: echo ::set-output name=NVMRC::$(cat .nvmrc)
         id: near-wrapper-nvm
-        working-directory: ./near/wrapper
+        working-directory: ./protocol/near/wrapper
 
       - name: Setup Node.js
         uses: actions/setup-node@master
@@ -48,12 +48,12 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
-        working-directory: ./near/wrapper
+        working-directory: ./protocol/near/wrapper
 
       - name: Build
         run: yarn build
-        working-directory: ./near/wrapper
+        working-directory: ./protocol/near/wrapper
 
       - name: Test
         run: yarn test
-        working-directory: ./near/wrapper
+        working-directory: ./protocol/near/wrapper

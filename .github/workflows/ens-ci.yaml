@@ -14,7 +14,7 @@ jobs:
       - name: Read .nvmrc
         run: echo ::set-output name=NVMRC::$(cat .nvmrc)
         id: ens-nvm
-        working-directory: ./ens/wrapper
+        working-directory: ./protocol/ethereum/ens/wrapper
 
       - name: Setup Node.js
         uses: actions/setup-node@master
@@ -23,12 +23,12 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
-        working-directory: ./ens/wrapper
+        working-directory: ./protocol/ethereum/ens/wrapper
 
       - name: Build
         run: yarn build
-        working-directory: ./ens/wrapper
+        working-directory: ./protocol/ethereum/ens/wrapper
 
       - name: Test
         run: yarn test
-        working-directory: ./ens/wrapper
+        working-directory: ./protocol/ethereum/ens/wrapper
