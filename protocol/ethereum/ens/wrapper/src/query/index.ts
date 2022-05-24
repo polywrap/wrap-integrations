@@ -4,6 +4,7 @@ import {
   Input_getResolver,
   Input_getExpiryTimes,
   Input_getOwner,
+  Input_checkIfRecordExists,
   Input_getAddress,
   Input_getContentHash,
   Input_getReverseResolver,
@@ -36,6 +37,19 @@ export function getOwner(input: Input_getOwner): string {
   });
 
   return owner.unwrap();
+}
+
+export function checkIfRecordExists(input: Input_checkIfRecordExists): bool {
+  const recordExists = Ethereum_Query.callContractView({
+    address: input.registryAddress,
+    method: "function recordExists(bytes32 node) external view returns (address)",
+    args: [namehash(input.domain)],
+    connection: input.connection,
+  });
+
+  const result = recordExists.unwrap();
+
+  return result == "0x0000000000000000000000000000000000000001";
 }
 
 export function getAddress(input: Input_getAddress): string {

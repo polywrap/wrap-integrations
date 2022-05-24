@@ -1,4 +1,4 @@
-import { getResolver } from "../query";
+import { getResolver, checkIfRecordExists } from "../query";
 import { namehash, keccak256 } from "../utils";
 import { abi, bytecode } from "../contracts/FIFSRegistrar";
 import {
@@ -26,6 +26,9 @@ import {
   CreateSubdomainInOpenDomainResponse,
   CreateSubdomainInOpenDomainAndSetContentHashResponse,
   TxOverrides,
+  RegistrationResult,
+  Input_registerDomainAndSubdomainsRecursively,
+  Input_registerSubdomainsRecursively,
 } from "./w3";
 
 export function setResolver(input: Input_setResolver): Ethereum_TxResponse {
@@ -145,6 +148,128 @@ export function setSubdomainRecord(
   });
 
   return tx.unwrap();
+}
+
+export function registerDomainAndSubdomainsRecursively(
+  input: Input_registerDomainAndSubdomainsRecursively
+): RegistrationResult[] {
+  const registrationResults: RegistrationResult[] = []
+  const splitDomain = input.domain.split(".");
+
+  if (splitDomain.length < 3) {
+    throw new Error("Expected subdomain name. Example: foo.bar.eth")
+  }
+
+  let rootDomain = splitDomain.slice(-1)[0];
+  let subdomains = splitDomain.slice(0, -1).reverse();
+
+  for (let i = 0; i < subdomains.length; i++) {
+    subdomains[i] = `${subdomains[i]}.${i === 0? rootDomain: subdomains[i - 1]}`
+  }
+
+  for (let i = 0; i < subdomains.length; i++) {
+    const result: RegistrationResult = {
+      name: subdomains[i],
+      didRegister: false,
+      tx: null
+    }
+
+    const isRegistered = checkIfRecordExists({
+      registryAddress: input.registryAddress,
+      domain: subdomains[i],
+      connection: input.connection
+    });
+
+    if (!isRegistered) {
+      if(i === 0) {
+        // Main domain case
+        result.tx = registerDomain({
+          domain: subdomains[i],
+          registrarAddress: input.registrarAddress,
+          registryAddress: input.registryAddress,
+          owner: input.owner,
+          connection: input.connection,
+          txOverrides: input.txOverrides
+        })
+
+      } else {
+        // Subdomain case
+        const label = subdomains[i].split('.')[0]
+        const domain = subdomains[i].split('.').slice(1).join('.')
+  
+        result.tx = setSubdomainRecord({
+          domain,
+          label,
+          owner: input.owner,
+          resolverAddress: input.resolverAddress,
+          ttl: input.ttl,
+          registryAddress: input.registryAddress,
+          connection: input.connection,
+          txOverrides: input.txOverrides
+        })
+      }
+
+      result.didRegister = true;
+    }
+
+    registrationResults.push(result)
+  }
+
+  return registrationResults;
+}
+
+export function registerSubdomainsRecursively(
+  input: Input_registerSubdomainsRecursively
+): RegistrationResult[] {
+  const registrationResults: RegistrationResult[] = []
+  const splitDomain = input.domain.split(".");
+
+  if (splitDomain.length < 3) {
+    throw new Error("Expected subdomain name. Example: foo.bar.eth")
+  }
+
+  let rootDomain = splitDomain.slice(-2).join(".");
+  let subdomains = splitDomain.slice(0, -2).reverse();
+
+  for (let i = 0; i < subdomains.length; i++) {
+    subdomains[i] = `${subdomains[i]}.${i === 0? rootDomain: subdomains[i - 1]}`
+  }
+
+  for (let i = 0; i < subdomains.length; i++) {
+    const result: RegistrationResult = {
+      name: subdomains[i],
+      didRegister: false,
+      tx: null
+    }
+
+    const isRegistered = checkIfRecordExists({
+      registryAddress: input.registryAddress,
+      domain: subdomains[i],
+      connection: input.connection
+    });
+
+    if (!isRegistered) {
+      const label = subdomains[i].split('.')[0]
+      const domain = subdomains[i].split('.').slice(1).join('.')
+
+      result.tx = setSubdomainRecord({
+        domain,
+        label,
+        owner: input.owner,
+        resolverAddress: input.resolverAddress,
+        ttl: input.ttl,
+        registryAddress: input.registryAddress,
+        connection: input.connection,
+        txOverrides: input.txOverrides
+      })
+
+      result.didRegister = true;
+    }
+
+    registrationResults.push(result)
+  }
+
+  return registrationResults;
 }
 
 //TODO: Where could this be used on mainnet?
