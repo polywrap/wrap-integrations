@@ -233,6 +233,337 @@ describe("ENS Wrapper", () => {
     expect(getOwnerErrors).toBeUndefined();
   });
 
+  it("should register domain with subdomains recursively and fetch it", async () => {
+    const domain = "foo.bar.baz.mydomain.eth";
+    const registerDomainAndSubdomainsRecursivelyVariables = {
+      domain,
+      owner,
+      registryAddress: ensAddress,
+      resolverAddress,
+      ttl: '0',
+      registrarAddress,
+      network,
+    };
+
+    const {
+      data: registerDomainAndSubdomainsRecursivelyData,
+      errors: registerDomainAndSubdomainsRecursivelyErrors,
+    } = await ownerClient.query({
+      uri: ensUri,
+      query: `
+        mutation {
+          registerDomainAndSubdomainsRecursively(
+            domain: $domain
+            owner: $owner
+            registryAddress: $registryAddress
+            resolverAddress: $resolverAddress
+            registrarAddress: $registrarAddress
+            ttl: $ttl
+            connection: {
+              networkNameOrChainId: $network
+            }
+          )
+        }
+      `,
+      variables: registerDomainAndSubdomainsRecursivelyVariables,
+    });
+
+    expect(registerDomainAndSubdomainsRecursivelyData?.registerDomainAndSubdomainsRecursively).toBeDefined();
+    expect(registerDomainAndSubdomainsRecursivelyErrors).toBeUndefined();
+    
+    const resultingRegistrations = registerDomainAndSubdomainsRecursivelyData?.registerDomainAndSubdomainsRecursively as any[];
+
+    expect(resultingRegistrations[0]?.name).toBe("mydomain.eth")
+    expect(resultingRegistrations[0]?.didRegister).toBe(true)
+    expect(resultingRegistrations[1]?.name).toBe("baz.mydomain.eth")
+    expect(resultingRegistrations[1]?.didRegister).toBe(true)
+    expect(resultingRegistrations[2]?.name).toBe("bar.baz.mydomain.eth")
+    expect(resultingRegistrations[2]?.didRegister).toBe(true)
+    expect(resultingRegistrations[3]?.name).toBe("foo.bar.baz.mydomain.eth")
+    expect(resultingRegistrations[3]?.didRegister).toBe(true)
+
+    const {
+      data: getOwnerData,
+      errors: getOwnerErrors,
+    } = await ownerClient.query({
+      uri: ensUri,
+      query: `
+        query {
+          getOwner(
+            domain: $domain
+            registryAddress: $registry
+            connection: {
+              networkNameOrChainId: $network
+            }
+          )
+        }
+      `,
+      variables: {
+        domain,
+        registry: ensAddress,
+        network,
+      },
+    });
+
+    expect(getOwnerData?.getOwner).toBeDefined();
+    expect(getOwnerErrors).toBeUndefined();
+    expect(getOwnerData?.getOwner).toBe(owner);
+  });
+
+  it("should not attempt to re-register registered subdomains/domains when recursively registering", async () => {
+    const rootDomain = "domain.eth"
+    const label = "sub"
+    const tld = `${label}.${rootDomain}`
+    const subdomain = `already.registered.${tld}`;
+
+    await ownerClient.query<{
+      registerDomain: string;
+    }>({
+      uri: ensUri,
+      query: `mutation {
+        registerDomain(
+          domain: $domain
+          owner: $owner
+          registrarAddress: $registrarAddress
+          registryAddress: $registryAddress
+          connection: {
+            networkNameOrChainId: $network
+          }
+        )
+      }`,
+      variables: {
+        domain: tld,
+        owner,
+        registryAddress: ensAddress,
+        registrarAddress: registrarAddress,
+        network,
+      },
+    });
+
+    await ownerClient.query<{
+      registerDomain: string;
+    }>({
+      uri: ensUri,
+      query: `mutation {
+        registerDomain(
+          domain: $domain
+          owner: $owner
+          registrarAddress: $registrarAddress
+          registryAddress: $registryAddress
+          connection: {
+            networkNameOrChainId: $network
+          }
+        )
+      }`,
+      variables: {
+        domain: rootDomain,
+        owner,
+        registryAddress: ensAddress,
+        registrarAddress: registrarAddress,
+        network,
+      },
+    });
+
+    await ownerClient.query({
+      uri: ensUri,
+      query: `
+        mutation {
+          setSubdomainRecord(
+            domain: $domain
+            label: $label
+            owner: $owner
+            registryAddress: $registry
+            resolverAddress: $resolver
+            ttl: $ttl
+            connection: {
+              networkNameOrChainId: $network
+            }
+          )
+        }
+      `,
+      variables: {
+        domain: rootDomain,
+        owner,
+        registry: ensAddress,
+        resolver: resolverAddress,
+        ttl: "0",
+        label,
+        network,
+      },
+    });
+
+    const {
+      data: registerDomainAndSubdomainsRecursivelyData,
+      errors: registerDomainAndSubdomainsRecursivelyErrors,
+    } = await ownerClient.query({
+      uri: ensUri,
+      query: `
+        mutation {
+          registerDomainAndSubdomainsRecursively(
+            domain: $domain
+            owner: $owner
+            registryAddress: $registryAddress
+            resolverAddress: $resolverAddress
+            registrarAddress: $registrarAddress
+            ttl: $ttl
+            connection: {
+              networkNameOrChainId: $network
+            }
+          )
+        }
+      `,
+      variables: {
+        domain: subdomain,
+        owner,
+        registryAddress: ensAddress,
+        resolverAddress,
+        ttl: '0',
+        registrarAddress,
+        network,
+      },
+    });
+
+    expect(registerDomainAndSubdomainsRecursivelyData?.registerDomainAndSubdomainsRecursively).toBeDefined();
+    expect(registerDomainAndSubdomainsRecursivelyErrors).toBeUndefined();
+    
+    const resultingRegistrations = registerDomainAndSubdomainsRecursivelyData?.registerDomainAndSubdomainsRecursively as any[];
+
+    expect(resultingRegistrations[0]?.name).toBe("domain.eth")
+    expect(resultingRegistrations[0]?.didRegister).toBe(false)
+    expect(resultingRegistrations[1]?.name).toBe("sub.domain.eth")
+    expect(resultingRegistrations[1]?.didRegister).toBe(false)
+    expect(resultingRegistrations[2]?.name).toBe("registered.sub.domain.eth")
+    expect(resultingRegistrations[2]?.didRegister).toBe(true)
+    expect(resultingRegistrations[3]?.name).toBe("already.registered.sub.domain.eth")
+    expect(resultingRegistrations[3]?.didRegister).toBe(true)
+
+    const {
+      data: getOwnerData,
+      errors: getOwnerErrors,
+    } = await ownerClient.query({
+      uri: ensUri,
+      query: `
+        query {
+          getOwner(
+            domain: $domain
+            registryAddress: $registry
+            connection: {
+              networkNameOrChainId: $network
+            }
+          )
+        }
+      `,
+      variables: {
+        domain: subdomain,
+        registry: ensAddress,
+        network,
+      },
+    });
+
+    expect(getOwnerData?.getOwner).toBeDefined();
+    expect(getOwnerErrors).toBeUndefined();
+    expect(getOwnerData?.getOwner).toBe(owner);
+  });
+
+  it("should register subdomain recursively and fetch it", async () => {
+    const tld = "basedomain.eth";
+    const subdomain = `aaa.bbb.ccc.${tld}`;
+
+    await ownerClient.query<{
+      registerDomain: string;
+    }>({
+      uri: ensUri,
+      query: `mutation {
+        registerDomain(
+          domain: $domain
+          owner: $owner
+          registrarAddress: $registrarAddress
+          registryAddress: $registryAddress
+          connection: {
+            networkNameOrChainId: $network
+          }
+        )
+      }`,
+      variables: {
+        domain: tld,
+        owner,
+        registryAddress: ensAddress,
+        registrarAddress: registrarAddress,
+        network,
+      },
+    });
+
+    const {
+      data: registerSubdomainsRecursivelyData,
+      errors: registerSubdomainsRecursivelyErrors,
+    } = await ownerClient.query({
+      uri: ensUri,
+      query: `
+        mutation {
+          registerSubdomainsRecursively(
+            domain: $domain
+            owner: $owner
+            registryAddress: $registryAddress
+            resolverAddress: $resolverAddress
+            registrarAddress: $registrarAddress
+            ttl: $ttl
+            connection: {
+              networkNameOrChainId: $network
+            }
+          )
+        }
+      `,
+      variables: {
+        domain: subdomain,
+        owner,
+        registryAddress: ensAddress,
+        resolverAddress,
+        ttl: '0',
+        registrarAddress,
+        network,
+      },
+    });
+
+    expect(registerSubdomainsRecursivelyData?.registerSubdomainsRecursively).toBeDefined();
+    expect(registerSubdomainsRecursivelyErrors).toBeUndefined();
+    
+    const resultingRegistrations = registerSubdomainsRecursivelyData?.registerSubdomainsRecursively as any[];
+
+    expect(resultingRegistrations[0]?.name).toBe("ccc.basedomain.eth")
+    expect(resultingRegistrations[0]?.didRegister).toBe(true)
+    expect(resultingRegistrations[1]?.name).toBe("bbb.ccc.basedomain.eth")
+    expect(resultingRegistrations[1]?.didRegister).toBe(true)
+    expect(resultingRegistrations[2]?.name).toBe("aaa.bbb.ccc.basedomain.eth")
+    expect(resultingRegistrations[2]?.didRegister).toBe(true)
+
+    const {
+      data: getOwnerData,
+      errors: getOwnerErrors,
+    } = await ownerClient.query({
+      uri: ensUri,
+      query: `
+        query {
+          getOwner(
+            domain: $domain
+            registryAddress: $registry
+            connection: {
+              networkNameOrChainId: $network
+            }
+          )
+        }
+      `,
+      variables: {
+        domain: subdomain,
+        registry: ensAddress,
+        network,
+      },
+    });
+
+    expect(getOwnerData?.getOwner).toBeDefined();
+    expect(getOwnerErrors).toBeUndefined();
+    expect(getOwnerData?.getOwner).toBe(owner);
+  });
+
   it("should set subdomain owner, resolver and ttl", async () => {
     const setSubdomainRecordVariables = {
       domain: customTld,

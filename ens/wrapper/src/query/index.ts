@@ -49,7 +49,7 @@ export function checkIfRecordExists(input: Input_checkIfRecordExists): bool {
 
   const result = recordExists.unwrap();
 
-  return result === "true";
+  return result == "0x0000000000000000000000000000000000000001";
 }
 
 export function getAddress(input: Input_getAddress): string {

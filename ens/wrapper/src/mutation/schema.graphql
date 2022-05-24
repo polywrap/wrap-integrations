@@ -104,7 +104,6 @@ type Mutation {
 
   registerSubdomainsRecursively(
     domain: String!
-    label: String!
     owner: String!
     resolverAddress: String!
     ttl: String!
@@ -115,7 +114,6 @@ type Mutation {
 
   registerDomainAndSubdomainsRecursively(
     domain: String!
-    label: String!
     owner: String!
     resolverAddress: String!
     ttl: String!

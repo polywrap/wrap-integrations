@@ -28,7 +28,7 @@ import {
   TxOverrides,
   RegistrationResult,
   Input_registerDomainAndSubdomainsRecursively,
-  Input_registerSubdomainsRecursively
+  Input_registerSubdomainsRecursively,
 } from "./w3";
 
 export function setResolver(input: Input_setResolver): Ethereum_TxResponse {
@@ -157,11 +157,7 @@ export function registerDomainAndSubdomainsRecursively(
   const splitDomain = input.domain.split(".");
 
   if (splitDomain.length < 3) {
-    throw new Error("Expected domain name. Example: foo.eth")
-  }
-
-  if (input.label.includes(".")) {
-    throw new Error("Label should be only the top level name. Example: for foo.bar.eth, it'd be 'foo'")
+    throw new Error("Expected subdomain name. Example: foo.bar.eth")
   }
 
   let rootDomain = splitDomain.slice(-1)[0];
