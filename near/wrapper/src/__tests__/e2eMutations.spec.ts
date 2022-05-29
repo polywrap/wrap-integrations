@@ -19,6 +19,7 @@ global["window"] = mock.getWindow();
 global["localStorage"] = localStorage;
 
 jest.setTimeout(360000);
+jest.retryTimes(3)
 
 describe("e2e", () => {
   let client: Web3ApiClient;

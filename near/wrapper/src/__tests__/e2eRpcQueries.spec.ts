@@ -11,6 +11,7 @@ import path from "path";
 import { AccountAuthorizedApp, AccountBalance } from "near-api-js/lib/account";
 
 jest.setTimeout(360000);
+jest.retryTimes(3)
 
 describe("e2e", () => {
   let client: Web3ApiClient;

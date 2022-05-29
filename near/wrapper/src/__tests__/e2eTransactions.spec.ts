@@ -15,6 +15,7 @@ import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@we
 import path from "path";
 
 jest.setTimeout(360000);
+jest.retryTimes(3)
 
 describe("e2e", () => {
   let client: Web3ApiClient;

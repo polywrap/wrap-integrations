@@ -20,6 +20,7 @@ import { FinalExecutionOutcome } from "../../../plugin-js/build/w3";
 const BN = require("bn.js");
 
 jest.setTimeout(360000);
+jest.retryTimes(3)
 
 describe("e2e", () => {
   let client: Web3ApiClient;

@@ -17,6 +17,7 @@ import path from "path";
 const MockBrowser = require("mock-browser").mocks.MockBrowser;
 
 jest.setTimeout(360000);
+jest.retryTimes(3)
 
 describe("e2e", () => {
   let apiUri: string;
