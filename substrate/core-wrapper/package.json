@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "codegen": "npx w3 codegen",
+    "build": "npx w3 build",
+    "build:check": "cd module && cargo check"
+  },
+  "dependencies": {
+    "@web3api/cli": "0.0.1-prealpha.82"
+  }
+}

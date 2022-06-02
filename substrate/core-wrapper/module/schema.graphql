@@ -18,8 +18,14 @@ tezos/plugin-js/src/mutation/schema.graphql
 tezos/plugin-js/src/query/schema.graphql
 """
 
+#import { Query, Request, Header, UrlParam, Response, } into Http from "w3://ens/http.web3api.eth"
+
 type Mutation {
   chainGetBlockHash(
-    ...
-  )
+    argument: String!
+  ): CustomType!
+}
+
+type CustomType {
+  prop: String!
 }
