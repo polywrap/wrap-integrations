@@ -14,7 +14,7 @@ jobs:
       - name: Read .nvmrc
         run: echo ::set-output name=NVMRC::$(cat .nvmrc)
         id: uniswapv3-nvm
-        working-directory: ./uniswapv3/wrapper
+        working-directory: ./protocol/ethereum/uniswapv3/wrapper
 
       - name: Setup Node.js
         uses: actions/setup-node@master
@@ -23,12 +23,12 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
-        working-directory: ./uniswapv3/wrapper
+        working-directory: ./protocol/ethereum/uniswapv3/wrapper
 
       - name: Build
         run: yarn build
-        working-directory: ./uniswapv3/wrapper
+        working-directory: ./protocol/ethereum/uniswapv3/wrapper
 
       - name: Test
         run: yarn test
-        working-directory: ./uniswapv3/wrapper
+        working-directory: ./protocol/ethereum/uniswapv3/wrapper
