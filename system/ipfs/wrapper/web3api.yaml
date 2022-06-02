@@ -1,0 +1,12 @@
+format: 0.0.1-prealpha.8
+name: IPFS Wrapper
+language: wasm/assemblyscript
+modules:
+  query:
+    schema: ./src/query/schema.graphql
+    module: ./src/query/index.ts
+import_redirects:
+  - uri: w3://ens/http.web3api.eth
+    schema: ./node_modules/@web3api/http-plugin-js/build/schema.graphql
+  - uri: w3://ens/fs.web3api.eth
+    schema: ./node_modules/@web3api/fs-plugin-js/build/schema.graphql

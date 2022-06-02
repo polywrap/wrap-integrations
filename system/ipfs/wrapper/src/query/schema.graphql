@@ -1,0 +1,50 @@
+#import { Query, Request, Header, UrlParam, Response, ResponseType } into Http from "w3://ens/http.web3api.eth"
+#import { Query } into Console from "w3://fs/../../console/wrapper/build"
+
+type QueryEnv {
+  """
+  Disable querying providers in parallel when resolving URIs
+  """
+  disableParallelRequests: Boolean
+}
+
+type Query {
+  catFile(
+    cid: String!
+    options: Options!
+  ): Bytes
+
+  catFileToString(
+    cid: String!
+    options: Options!
+  ): String
+
+  resolve(
+    cid: String!
+    options: Options!
+  ): ResolveResult
+}
+
+type ResolveResult {
+  cid: String
+  provider: String!
+}
+
+type Options {
+  """
+  Timeout (in ms) for the operation.
+  Fallback providers are used if timeout is reached.
+  """
+  timeout: UInt32
+
+  """
+  The IPFS provider to be used
+  """
+  provider: String!
+}
+
+type ExecutionResult {
+  data: String
+  error: String
+  provider: String!
+}
