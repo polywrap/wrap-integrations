@@ -1,49 +1,28 @@
 pub mod w3;
 pub use w3::*;
+use w3::imported::*;
 
 pub fn chain_get_block_hash(input: InputChainGetBlockHash) -> CustomType {
 
-  // How do I get the block hash from here?
-  // A: Make an RPC call using HTTP (plugin)
+  let url = String::from("https://jsonplaceholder.typicode.com/photos/1");
 
-  let url = "https://jsonplaceholder.typicode.com/photos/1";
-
-  let response = HttpQuery.get(http_query::InputGet {
+  let response = HttpQuery::get(&http_query::InputGet {
     url: url,
-    request: {
+    request: Some(HttpRequest {
       response_type: HttpResponseType::TEXT,
-      headers: [{
-        key: "user-agent",
-        value: "HttpDemo"
-      }],
-      url_params: [{
-        key: "dummyQueryParam",
-        value: "20"
-      }],
-      body: ""
-    }
-  }).unwrap();
+      headers: Some(vec!(HttpHeader {
+        key: String::from("user-agent"),
+        value: String::from("HttpDemo")
+      })),
+      url_params: Some(vec!(HttpUrlParam {
+        key: String::from("dummyQueryParam"),
+        value: String::from("20")
+      })),
+      body: Some(String::from(""))
+    })
+  }).unwrap().unwrap();
 
   CustomType {
-    prop: input.argument
+    prop: response.body.unwrap()
   }
 }
-
-/*
-const photosFeedUrl = "https://jsonplaceholder.typicode.com/photos/1";
-const response = Http_Query.get({
-  url: photosFeedUrl,
-  request: {
-    responseType: Http_ResponseType.TEXT,
-    headers: [{
-      key: "user-agent",
-      value: "HttpDemo"
-    }],
-    urlParams: [{
-      key: "dummyQueryParam",
-      value: "20"
-    }],
-    body: ""
-  }
-}).unwrap();
-*/
