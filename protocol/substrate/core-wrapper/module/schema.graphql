@@ -22,7 +22,7 @@ tezos/plugin-js/src/query/schema.graphql
 
 type Mutation {
   chainGetBlockHash(
-    argument: String!
+    argument: String
   ): CustomType!
 }
 
