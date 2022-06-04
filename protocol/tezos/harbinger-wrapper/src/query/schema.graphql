@@ -1,0 +1,92 @@
+#import { Query, Connection } into Tezos from "w3://ens/tezos.web3api.eth"
+
+""" Describes asset candle """
+type AssetCandle {
+  low: String!
+  open: String!
+  high: String!
+  asset: String!
+  close: String!
+  volume: String!
+  endPeriod: String!
+  startPeriod: String!
+}
+
+""" Describes provider network where contract is deployed """
+type ProviderNetworks {
+  """ Network contract is originated """
+  Network: String!
+  """ Kind of contract (Storage or Normalizer )"""
+  Kind: String!
+  """ Address of contract """
+  ContractAddress: String!
+}
+
+""" Supported providers  """
+type Providers {
+  """ Provider of token data eg. Coinbase, Binance """
+  Provider: String!
+  """ ProviderNetworks """
+  ProviderNetworks: [ProviderNetworks]!
+}
+
+""" Wrapper supported networks """
+enum Network {
+  custom
+  mainnet
+  hangzhounet
+}
+
+""" Custom Connection """
+type CustomConnection {
+  """ Connection """
+  connection: Tezos_Connection!
+}
+
+type Query {
+  """ Get asset data """
+  getAssetData(
+    """ Network """
+    network: Network!
+    """ Asset code for token """
+    assetCode: String!
+    """ Deployed provider address """
+    providerAddress: String!
+    """ CustomConnection """
+    custom: CustomConnection
+  ): AssetCandle!
+
+  """ List Assets available with provider """
+  listAssets(
+    """ Network """
+    network: Network!
+    """ CustomConnection """
+    custom: CustomConnection
+    """ Deployed provider address """
+    providerAddress: String!
+  ): String!
+
+  """ Get market data of asset """
+  getCandle(
+    """ Network """
+    network: Network!
+    """ CustomConnection """
+    custom: CustomConnection
+    """ Asset's code """
+    assetCode: String!
+    """ Deployed provider address """
+    providerAddress: String!
+  ): AssetCandle!
+
+  """ List providers """
+  listProviders: [Providers!]!
+
+  """ Get normalized price of asset """ 
+  getNormalizedPrice(
+    network: Network!
+    custom: CustomConnection
+    assetCode: String!
+    providerAddress: String!
+  ): String!
+
+}

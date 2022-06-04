@@ -1,0 +1,5 @@
+**/.DS_Store
+protocol/tezos/quipuswap-token-edition/node_modules/
+protocol/tezos/quipuswap-token-edition/build/
+protocol/tezos/quipuswap-token-edition/.w3/
+protocol/tezos/quipuswap-token-edition/src/query/w3/

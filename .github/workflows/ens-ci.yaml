@@ -1,0 +1,34 @@
+name: CI
+
+on: [pull_request]
+
+jobs:
+  CI:
+    name: ENS CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: ens-nvm
+        working-directory: ./protocol/ethereum/ens/wrapper
+
+      - name: Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: '${{ steps.ens-nvm.outputs.NVMRC }}'
+
+      - name: Install dependencies
+        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+        working-directory: ./protocol/ethereum/ens/wrapper
+
+      - name: Build
+        run: yarn build
+        working-directory: ./protocol/ethereum/ens/wrapper
+
+      - name: Test
+        run: yarn test
+        working-directory: ./protocol/ethereum/ens/wrapper
