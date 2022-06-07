@@ -1,6 +1,7 @@
 pub mod w3;
 pub use w3::*;
 use w3::imported::*;
+use web3api_wasm_rs::{w3_debug_log};
 
 pub fn chain_get_block_hash(input: InputChainGetBlockHash) -> CustomType {
 
@@ -21,6 +22,8 @@ pub fn chain_get_block_hash(input: InputChainGetBlockHash) -> CustomType {
       body: Some(String::from(""))
     })
   }).unwrap().unwrap();
+
+  w3_debug_log("foo");
 
   CustomType {
     prop: response.body.unwrap()
