@@ -1,0 +1,30 @@
+#import { Connection } into Tezos from "w3://ens/tezos.web3api.eth"
+
+""" Networks supported by wrapper """
+enum Network {
+  custom
+  mainnet
+  granadanet
+  hangzhounet
+  ithacanet
+}
+
+""" Describes domain information """
+type DomainInfo {
+  """ Name of domain """
+  Name: String!
+  """ Tezos address """ 
+  Address: String!
+  """ Metadata of domain """
+  Data: String!
+  """ Expiry of domain """
+  Expiry: String!
+}
+
+""" Describes custom connection """
+type CustomConnection {
+  """ Connection """
+  connection: Tezos_Connection!
+  """ Contract Address """
+  contractAddress: String!
+}
