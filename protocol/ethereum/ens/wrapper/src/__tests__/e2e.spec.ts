@@ -2,10 +2,12 @@ import {
   buildAndDeployApi,
   initTestEnvironment,
   stopTestEnvironment,
+  providers,
+  ensAddresses
 } from "@web3api/test-env-js";
 import { Web3ApiClient } from "@web3api/client-js";
 import path from "path";
-import { providers } from "ethers";
+import { providers as ethersProviders } from "ethers";
 
 import { getPlugins } from "./utils";
 
@@ -18,11 +20,11 @@ describe("ENS Wrapper", () => {
   let anotherOwnerClient: Web3ApiClient;
 
   let ensUri: string;
-  let ethersProvider: providers.JsonRpcProvider;
-  let ensAddress: string;
-  let registrarAddress: string;
-  let resolverAddress: string;
-  let reverseRegistryAddress: string;
+  let ethersProvider: ethersProviders.JsonRpcProvider;
+  let ensAddress: string = ensAddresses.ensAddress;
+  let registrarAddress: string = ensAddresses.registrarAddress;
+  let resolverAddress: string = ensAddresses.resolverAddress;
+  let reverseRegistryAddress: string = ensAddresses.reverseAddress;
   let customFifsRegistrarAddress: string;
 
   let owner: string;
@@ -35,39 +37,33 @@ describe("ENS Wrapper", () => {
   const network: string = "testnet";
 
   beforeAll(async () => {
-    const {
-      ensAddress: ensRegistryAddress,
-      registrarAddress: ensRegistrarAddress,
-      resolverAddress: ensResolverAddress,
-      reverseAddress: ensReverseAddress,
-      ipfs,
-      ethereum,
-    } = await initTestEnvironment();
+    await initTestEnvironment();
 
     // deploy api
-    const apiPath: string = path.resolve(__dirname + "/../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensRegistryAddress);
+    const apiAbsPath: string = path.resolve(__dirname + "/../../");
+    const api = await buildAndDeployApi({ 
+      apiAbsPath, 
+      ipfsProvider: providers.ipfs, 
+      ethereumProvider: providers.ethereum 
+    });
     ensUri = `ens/testnet/${api.ensDomain}`;
 
     // set up ethers provider
-    ethersProvider = providers.getDefaultProvider(
-      "http://localhost:8546"
-    ) as providers.JsonRpcProvider;
+    ethersProvider = ethersProviders.getDefaultProvider(
+      providers.ethereum
+    ) as ethersProviders.JsonRpcProvider;
     owner = await ethersProvider.getSigner(0).getAddress();
     anotherOwner = await ethersProvider.getSigner(1).getAddress();
-    ensAddress = ensRegistryAddress;
-    registrarAddress = ensRegistrarAddress;
-    resolverAddress = ensResolverAddress;
-    reverseRegistryAddress = ensReverseAddress;
 
     // get client
-    const plugins = getPlugins(ethereum, ipfs, ensRegistryAddress);
+    const plugins = getPlugins(providers.ethereum, providers.ipfs, ensAddress);
+  
     ownerClient = new Web3ApiClient({ plugins });
 
     const anotherOwnerRedirects = getPlugins(
-      ethereum,
-      ipfs,
-      ensRegistryAddress,
+      providers.ethereum,
+      providers.ipfs,
+      ensAddress,
       anotherOwner
     );
     anotherOwnerClient = new Web3ApiClient({ plugins: anotherOwnerRedirects });

@@ -28,7 +28,7 @@ export function getPlugins(
     },
     {
       uri: "ens/ens.web3api.eth",
-      plugin: ensPlugin({ addresses: { testnet: ensAddress } }),
+      plugin: ensPlugin({ query: { addresses: { testnet: ensAddress } } }),
     },
   ];
 }
