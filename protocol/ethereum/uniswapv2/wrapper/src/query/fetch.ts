@@ -30,7 +30,7 @@ export function fetchTokenData(input: Input_fetchTokenData): Token {
             node: null,
             networkNameOrChainId: getChainIdKey(chainId),
           },
-        });
+        }).unwrap();
   const name: string =
     input.name != null
       ? input.name!
@@ -42,7 +42,7 @@ export function fetchTokenData(input: Input_fetchTokenData): Token {
             node: null,
             networkNameOrChainId: getChainIdKey(chainId),
           },
-        });
+        }).unwrap();
   const decimals: string = Ethereum_Query.callContractView({
     address: address,
     method: "function decimals() external pure returns (uint8)",
@@ -51,7 +51,7 @@ export function fetchTokenData(input: Input_fetchTokenData): Token {
       node: null,
       networkNameOrChainId: getChainIdKey(chainId),
     },
-  });
+  }).unwrap();
   return {
     chainId: chainId,
     address: address,
@@ -81,7 +81,7 @@ export function fetchPairData(input: Input_fetchPairData): Pair {
       node: null,
       networkNameOrChainId: getChainIdKey(token0.chainId),
     },
-  });
+  }).unwrap();
   const resArray: string[] = res.split(",");
   const amountA = resArray[0];
   const amountB = resArray[1];
@@ -128,7 +128,7 @@ export function fetchTotalSupply(input: Input_fetchTotalSupply): TokenAmount {
       node: null,
       networkNameOrChainId: getChainIdKey(token.chainId),
     },
-  });
+  }).unwrap();
   return {
     token: token,
     amount: BigInt.fromString(res),
@@ -147,6 +147,6 @@ export function fetchKLast(input: Input_fetchKLast): BigInt {
       node: null,
       networkNameOrChainId: getChainIdKey(token.chainId),
     },
-  });
+  }).unwrap();
   return BigInt.fromString(result);
 }

@@ -61,7 +61,7 @@ export function execCall(input: Input_execCall): Ethereum_TxResponse {
       gasPrice: txOverrides.gasPrice,
       gasLimit: txOverrides.gasLimit,
     },
-  });
+  }).unwrap();
   return txResponse;
 }
 
@@ -123,6 +123,6 @@ export function approve(input: Input_approve): Ethereum_TxResponse {
       gasPrice: txOverrides.gasPrice,
       gasLimit: txOverrides.gasLimit,
     },
-  });
+  }).unwrap();
   return txResponse;
 }

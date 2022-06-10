@@ -1,4 +1,4 @@
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
+import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment, providers as localProviders, ensAddresses } from "@web3api/test-env-js";
 import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
 import { Currency, Pair, Token, TokenAmount, Trade, TxResponse } from "./types";
 import path from "path";
@@ -35,16 +35,15 @@ describe("Swap", () => {
   let usdc: Token;
 
   beforeAll(async () => {
-    const { ethereum: testEnvEtherem, ensAddress, ipfs } = await initTestEnvironment();
+    await initTestEnvironment();
     // get client
-    const config: ClientConfig = getPlugins(testEnvEtherem, ipfs, ensAddress);
+    const config: ClientConfig = getPlugins(localProviders.ethereum, localProviders.ipfs, ensAddresses.ensAddress);
     client = new Web3ApiClient(config);
-
     // deploy api
-    const apiPath: string = path.resolve(__dirname + "../../../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
+    const apiAbsPath: string = path.resolve(__dirname + "/../../../");
+    const api = await buildAndDeployApi({ apiAbsPath, ipfsProvider: localProviders.ipfs, ethereumProvider: localProviders.ethereum });
     ensUri = `ens/testnet/${api.ensDomain}`;
-    ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546") as providers.JsonRpcProvider;
+    ethersProvider = ethers.providers.getDefaultProvider("https://eth-mainnet.alchemyapi.io/v2/QK_M4b91n_L8yeixmnEqFy-vkPRz6PvN") as providers.JsonRpcProvider;
     recipient = await ethersProvider.getSigner().getAddress();
 
     // set up test case data -> pairs
