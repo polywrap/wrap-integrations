@@ -43,7 +43,7 @@ describe("Swap", () => {
     const apiAbsPath: string = path.resolve(__dirname + "/../../../");
     const api = await buildAndDeployApi({ apiAbsPath, ipfsProvider: localProviders.ipfs, ethereumProvider: localProviders.ethereum });
     ensUri = `ens/testnet/${api.ensDomain}`;
-    ethersProvider = ethers.providers.getDefaultProvider("https://eth-mainnet.alchemyapi.io/v2/QK_M4b91n_L8yeixmnEqFy-vkPRz6PvN") as providers.JsonRpcProvider;
+    ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546") as providers.JsonRpcProvider;
     recipient = await ethersProvider.getSigner().getAddress();
 
     // set up test case data -> pairs
