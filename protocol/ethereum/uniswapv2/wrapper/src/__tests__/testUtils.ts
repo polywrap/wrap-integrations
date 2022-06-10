@@ -3,73 +3,67 @@ import { ClientConfig, coreInterfaceUris, Web3ApiClient } from "@web3api/client-
 import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
 import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
 import { ensPlugin } from "@web3api/ens-plugin-js";
-import axios from "axios";
-import path from "path";
-import { buildAndDeployApi } from "@web3api/test-env-js";
+import { initTestEnvironment as initWeb3ApiTestEnvironment, stopTestEnvironment as stopWeb3ApiTestEnvironment } from "@web3api/test-env-js";
 import * as uni from "@uniswap/sdk";
 import tokenList from "./e2e/testData/tokenList.json";
+import { spawn } from "child_process";
 
-interface TestEnvironment {
-  ipfs: string;
-  ethereum: string;
-  ensAddress: string;
-  clientConfig: ClientConfig;
+export async function initTestEnvironment(): Promise<void> {
+  console.log({ __dirname })
+  const { stderr, stdout } = spawn("docker-compose up", { cwd: __dirname})
+  console.log({stderr})
+  console.log({stdout})
+  
+  await initWeb3ApiTestEnvironment()
 }
 
-export async function getEnsUri(): Promise<string> {
-  const { ensAddress, ipfs } = await getProviders();
-  const apiPath: string = path.resolve(__dirname + "/../../");
-  const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
-  return `ens/testnet/${api.ensDomain}`;
-}
-
-export async function getProviders(): Promise<TestEnvironment> {
-  const { data: { ipfs, ethereum }, } = await axios.get("http://localhost:4040/providers");
-  const { data } = await axios.get("http://localhost:4040/deploy-ens");
-  const clientConfig: ClientConfig = getPlugins(ethereum, ipfs, data.ensAddress);
-  return { ipfs, ethereum, ensAddress: data.ensAddress, clientConfig, };
+export async function stopTestEnvironment(): Promise<void> {
+  await stopWeb3ApiTestEnvironment()
+  spawn("docker-compose down", { cwd: __dirname + "../"})
 }
 
 export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): ClientConfig {
- return {
-   redirects: [],
-   plugins: [
+  return {
+    redirects: [],
+    plugins: [
      {
        uri: "w3://ens/ipfs.web3api.eth",
        plugin: ipfsPlugin({ provider: ipfs }),
      },
      {
        uri: "w3://ens/ens.web3api.eth",
-       plugin: ensPlugin({ addresses: { testnet: ensAddress } }),
+       plugin: ensPlugin({ query: { addresses: { testnet: ensAddress } } }),
      },
      {
       uri: "w3://ens/ethereum.web3api.eth",
       plugin: ethereumPlugin({
-        networks: {
-          testnet: {
-            provider: ethereum
+          networks: {
+            testnet: {
+              provider: ethereum
+            },
+            MAINNET: {
+              provider: "http://localhost:8546"
+            },
           },
-          MAINNET: {
-            provider: "http://localhost:8546"
-          },
-        },
-        defaultNetwork: "testnet"
-      }),
-    },
+          defaultNetwork: "testnet"
+        }),
+      },
     ],
     interfaces: [
-    {
-      interface: coreInterfaceUris.uriResolver.uri,
-      implementations: [
-        "w3://ens/ipfs.web3api.eth",
-        "w3://ens/ens.web3api.eth",
-      ],
-    },
-    {
-      interface: coreInterfaceUris.logger.uri,
-      implementations: ["w3://ens/js-logger.web3api.eth"],
-    },
-  ],
+      {
+        interface: coreInterfaceUris.uriResolver.uri,
+        implementations: [
+          "w3://ens/ipfs.web3api.eth",
+          "w3://ens/ens.web3api.eth",
+        ],
+      },
+      {
+        interface: coreInterfaceUris.logger.uri,
+        implementations: ["w3://ens/js-logger.web3api.eth"],
+      },
+    ],
+    envs: [],
+    uriResolvers: []
   };
 }
 

@@ -15,7 +15,7 @@ export function getChecksumAddress(address: string): string {
 
   const hashed: string = SHA3_Query.buffer_keccak_256({
     message: expanded.buffer,
-  });
+  }).unwrap();
   const hashedArr: Uint8Array = arrayify(hashed);
 
   for (let i = 0; i < 40; i += 2) {

@@ -1,11 +1,11 @@
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
+import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment, providers, ensAddresses } from "@web3api/test-env-js";
 import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
 import { ChainId, Pair, Token, TokenAmount } from "./types";
 import path from "path";
 import { getPlugins, getTokenList } from "../testUtils";
 import * as uni from "@uniswap/sdk";
 import * as ethers from "ethers";
-import * as providers from "@ethersproject/providers"
+import { BaseProvider, getDefaultProvider} from "@ethersproject/providers"
 
 jest.setTimeout(90000);
 
@@ -16,16 +16,16 @@ describe("Fetch", () => {
   let tokens: Token[];
   let uniTokens: uni.Token[];
   let pairs: Token[][];
-  let ethersProvider: providers.BaseProvider;
+  let ethersProvider: BaseProvider;
 
   beforeAll(async () => {
-    const { ethereum: testEnvEtherem, ensAddress, ipfs } = await initTestEnvironment();
+    await initTestEnvironment();
     // get client
-    const config: ClientConfig = getPlugins(testEnvEtherem, ipfs, ensAddress);
+    const config: ClientConfig = getPlugins(providers.ethereum, providers.ipfs, ensAddresses.ensAddress);
     client = new Web3ApiClient(config);
     // deploy api
-    const apiPath: string = path.resolve(__dirname + "/../../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
+    const apiAbsPath: string = path.resolve(__dirname + "/../../../");
+    const api = await buildAndDeployApi({ apiAbsPath, ipfsProvider: providers.ipfs, ethereumProvider: providers.ethereum });
     ensUri = `ens/testnet/${api.ensDomain}`;
     // ipfsUri = `ipfs/${api.ipfsCid}`;
     // set up test case data -> tokens
@@ -50,7 +50,7 @@ describe("Fetch", () => {
     const link: Token = tokens.filter(token => token.currency.symbol === "LINK")[0];
     pairs = [[aave, dai], [usdc, dai], [aave, usdc], [comp, weth], [uniswap, link], [uniswap, wbtc], [wbtc, weth]];
     // set up ethers provider
-    ethersProvider = providers.getDefaultProvider("http://localhost:8546");
+    ethersProvider = getDefaultProvider("https://eth-mainnet.alchemyapi.io/v2/QK_M4b91n_L8yeixmnEqFy-vkPRz6PvN");
   });
 
   afterAll(async () => {

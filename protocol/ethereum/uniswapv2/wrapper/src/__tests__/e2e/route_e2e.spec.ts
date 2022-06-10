@@ -1,5 +1,5 @@
 import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
+import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment, providers, ensAddresses } from "@web3api/test-env-js";
 import * as path from "path";
 import { Pair, Route, Token } from "./types";
 import { getPairData, getPlugins, getTokenList, getUniPairs } from "../testUtils";
@@ -17,13 +17,13 @@ describe('Route', () => {
   let outputTokens: Token[] = [];
 
   beforeAll(async () => {
-    const { ethereum: testEnvEtherem, ensAddress, ipfs } = await initTestEnvironment();
+    await initTestEnvironment();
     // get client
-    const config: ClientConfig = getPlugins(testEnvEtherem, ipfs, ensAddress);
+    const config: ClientConfig = getPlugins(providers.ethereum, providers.ipfs, ensAddresses.ensAddress);
     client = new Web3ApiClient(config);
     // deploy api
-    const apiPath: string = path.resolve(__dirname + "/../../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
+    const apiAbsPath: string = path.resolve(__dirname + "/../../../");
+    const api = await buildAndDeployApi({ apiAbsPath, ipfsProvider: providers.ipfs, ethereumProvider: providers.ethereum });
     ensUri = `ens/testnet/${api.ensDomain}`;
     // pick some test case tokens
     const tokens: Token[] = await getTokenList();

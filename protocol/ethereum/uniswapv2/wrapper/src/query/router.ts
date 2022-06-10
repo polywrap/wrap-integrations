@@ -153,7 +153,7 @@ export function estimateGas(input: Input_estimateGas): BigInt {
       gasPrice: null,
       gasLimit: null,
     },
-  });
+  }).unwrap();
 }
 
 export function execCallStatic(
@@ -179,5 +179,5 @@ export function execCallStatic(
       gasPrice: txOverrides.gasPrice,
       gasLimit: txOverrides.gasLimit,
     },
-  });
+  }).unwrap();
 }

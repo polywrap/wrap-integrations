@@ -1,4 +1,4 @@
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
+import { buildAndDeployApi, providers, ensAddresses } from "@web3api/test-env-js";
 import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
 import {
   ChainId,
@@ -18,7 +18,9 @@ import {
   getPairData,
   getPlugins,
   getTokenList,
-  getUniPairs
+  getUniPairs,
+  initTestEnvironment,
+  stopTestEnvironment
 } from "../testUtils";
 import { ethers } from "ethers";
 import * as uni from "@uniswap/sdk";
@@ -38,16 +40,15 @@ describe("Router", () => {
   let ethToken: Token;
 
   beforeAll(async () => {
-    const { ethereum: testEnvEtherem, ensAddress, ipfs } = await initTestEnvironment();
+    await initTestEnvironment();
     // get client
-    const config: ClientConfig = getPlugins(testEnvEtherem, ipfs, ensAddress);
+    const config: ClientConfig = getPlugins(providers.ethereum, providers.ipfs, ensAddresses.ensAddress);
     client = new Web3ApiClient(config);
-
     // deploy api
-    const apiPath: string = path.resolve(__dirname + "../../../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
+    const apiAbsPath: string = path.resolve(__dirname + "/../../../");
+    const api = await buildAndDeployApi({ apiAbsPath, ipfsProvider: providers.ipfs, ethereumProvider: providers.ethereum });
     ensUri = `ens/testnet/${api.ensDomain}`;
-    ethersProvider = new ethers.providers.JsonRpcProvider("http://localhost:8546");
+    ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546") as ethers.providers.JsonRpcProvider;
     recipient = await ethersProvider.getSigner().getAddress();
 
     // set up test case data -> pairs
