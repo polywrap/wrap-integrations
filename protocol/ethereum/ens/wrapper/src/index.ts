@@ -336,8 +336,8 @@ export function registerDomainAndSubdomainsRecursively(
   const registrationResults: RegistrationResult[] = []
   const splitDomain = input.domain.split(".");
 
-  if (splitDomain.length < 3) {
-    throw new Error("Expected subdomain name. Example: foo.bar.eth")
+  if (splitDomain.length < 2) {
+    throw new Error("Expected subdomain/domain name. Examples: foo.eth, foo.bar.eth")
   }
 
   let rootDomain = splitDomain.slice(-1)[0];
@@ -368,6 +368,14 @@ export function registerDomainAndSubdomainsRecursively(
           registrarAddress: input.registrarAddress,
           registryAddress: input.registryAddress,
           owner: input.owner,
+          connection: input.connection,
+          txOverrides: input.txOverrides
+        })
+
+        setResolver({
+          domain: subdomains[i],
+          registryAddress: input.registryAddress,
+          resolverAddress: input.resolverAddress,
           connection: input.connection,
           txOverrides: input.txOverrides
         })

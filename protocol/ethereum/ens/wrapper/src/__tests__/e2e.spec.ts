@@ -308,6 +308,49 @@ describe("ENS Wrapper", () => {
     expect(getOwnerData?.getOwner).toBeDefined();
     expect(getOwnerErrors).toBeUndefined();
     expect(getOwnerData?.getOwner).toBe(owner);
+
+    // No subdomain
+
+    const domainWithNoSubdomain = "sumtin.eth";
+    const domainWithNoSubdomainVariables = {
+      domain: domainWithNoSubdomain,
+      owner,
+      registryAddress: ensAddress,
+      resolverAddress,
+      ttl: '0',
+      registrarAddress,
+      network,
+    };
+
+    const {
+      data: domainWithNoSubdomainData,
+      errors: domainWithNoSubdomainErrors,
+    } = await ownerClient.query({
+      uri: ensUri,
+      query: `
+        mutation {
+          registerDomainAndSubdomainsRecursively(
+            domain: $domain
+            owner: $owner
+            registryAddress: $registryAddress
+            resolverAddress: $resolverAddress
+            registrarAddress: $registrarAddress
+            ttl: $ttl
+            connection: {
+              networkNameOrChainId: $network
+            }
+          )
+        }
+      `,
+      variables: domainWithNoSubdomainVariables,
+    });
+
+    expect(domainWithNoSubdomainData?.registerDomainAndSubdomainsRecursively).toBeDefined();
+    expect(domainWithNoSubdomainErrors).toBeUndefined();
+    
+    const domainWithNoSubdomainRegistrations = domainWithNoSubdomainData?.registerDomainAndSubdomainsRecursively as any[];
+
+    expect(domainWithNoSubdomainRegistrations[0]?.name).toBe("sumtin.eth")
   });
 
   it("should not attempt to re-register registered subdomains/domains when recursively registering", async () => {
