@@ -1,30 +1,81 @@
-#import { Mutation, Connection } into Ethereum from "w3://ens/ethereum.web3api.eth"
-#import { Query } into UTS46 from "w3://ens/uts46.web3api.eth"
-#import { Query } into SHA3 from "w3://ens/sha3.web3api.eth"
-#import { TxOverrides } from "../common/schema.graphql"
+#import { Module, Connection } into Ethereum from "w3://ens/ethereum.web3api.eth"
+#import { Module } into UTS46 from "w3://ens/uts46.web3api.eth"
+#import { Module } into SHA3 from "w3://ens/sha3.web3api.eth"
 
-type ConfigureOpenDomainResponse {
-  fifsRegistrarAddress: String!
-  registerOpenDomainTxReceipt: Ethereum_TxResponse!
-  setSubdomainRecordTxReceipt: Ethereum_TxResponse!
-}
+type Module {
+  getResolver(
+    registryAddress: String!
+    domain: String!
+    connection: Ethereum_Connection
+  ): String!
 
-type CreateSubdomainInOpenDomainResponse {
-  registerSubdomainTxReceipt: Ethereum_TxResponse!
-  setResolverTxReceipt: Ethereum_TxResponse!
-}
+  getOwner(
+    domain: String!
+    registryAddress: String!
+    connection: Ethereum_Connection
+  ): String!
 
-type CreateSubdomainInOpenDomainAndSetContentHashResponse implements CreateSubdomainInOpenDomainResponse {
-  setContentHashReceiptTx: Ethereum_TxResponse!
-}
+  checkIfRecordExists(
+    domain: String!
+    registryAddress: String!
+    connection: Ethereum_Connection
+  ): Boolean!
 
-type RegistrationResult {
-  name: String!
-  didRegister: Boolean!
-  tx: Ethereum_TxResponse
-}
+  getAddress(
+    domain: String!
+    resolverAddress: String!
+    connection: Ethereum_Connection
+  ): String!
 
-type Mutation {
+  getAddressFromDomain(
+    domain: String!
+    registryAddress: String!
+    connection: Ethereum_Connection
+  ): String!
+
+  getContentHash(
+    domain: String!
+    resolverAddress: String!
+    connection: Ethereum_Connection
+  ): String!
+
+  getContentHashFromDomain(
+    domain: String!
+    registryAddress: String!
+    connection: Ethereum_Connection
+  ): String!
+
+  getExpiryTimes(
+    domain: String!
+    registrarAddress: String!
+    connection: Ethereum_Connection
+  ): String!
+
+  getReverseResolver(
+    address: String!
+    registryAddress: String!
+    connection: Ethereum_Connection
+  ): String!
+
+  getNameFromReverseResolver(
+    address: String!
+    resolverAddress: String!
+    connection: Ethereum_Connection
+  ): String!
+
+  getNameFromAddress(
+    address: String!
+    registryAddress: String!
+    connection: Ethereum_Connection
+  ): String!
+
+  getTextRecord(
+    domain: String!
+    resolverAddress: String!
+    key: String!
+    connection: Ethereum_Connection
+  ): String!
+
   setResolver(
     domain: String!
     resolverAddress: String!
@@ -203,4 +254,30 @@ type Mutation {
     connection: Ethereum_Connection
     txOverrides: TxOverrides
   ): CreateSubdomainInOpenDomainAndSetContentHashResponse
+}
+
+type ConfigureOpenDomainResponse {
+  fifsRegistrarAddress: String!
+  registerOpenDomainTxReceipt: Ethereum_TxResponse!
+  setSubdomainRecordTxReceipt: Ethereum_TxResponse!
+}
+
+type CreateSubdomainInOpenDomainResponse {
+  registerSubdomainTxReceipt: Ethereum_TxResponse!
+  setResolverTxReceipt: Ethereum_TxResponse!
+}
+
+type CreateSubdomainInOpenDomainAndSetContentHashResponse implements CreateSubdomainInOpenDomainResponse {
+  setContentHashReceiptTx: Ethereum_TxResponse!
+}
+
+type RegistrationResult {
+  name: String!
+  didRegister: Boolean!
+  tx: Ethereum_TxResponse
+}
+
+type TxOverrides {
+  gasPrice: BigInt
+  gasLimit: BigInt
 }

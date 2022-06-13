@@ -1,8 +1,25 @@
-import { getResolver, checkIfRecordExists } from "../query";
-import { namehash, keccak256 } from "../utils";
-import { abi, bytecode } from "../contracts/FIFSRegistrar";
+import { namehash, keccak256 } from "./utils";
+import { abi, bytecode } from "./contracts/FIFSRegistrar";
 import {
-  Ethereum_Mutation,
+  Ethereum_Module,
+  Ethereum_TxResponse,
+  ConfigureOpenDomainResponse,
+  CreateSubdomainInOpenDomainResponse,
+  CreateSubdomainInOpenDomainAndSetContentHashResponse,
+  TxOverrides,
+  RegistrationResult,
+  Input_getResolver,
+  Input_getExpiryTimes,
+  Input_getOwner,
+  Input_checkIfRecordExists,
+  Input_getAddress,
+  Input_getContentHash,
+  Input_getReverseResolver,
+  Input_getNameFromReverseResolver,
+  Input_getNameFromAddress,
+  Input_getContentHashFromDomain,
+  Input_getAddressFromDomain,
+  Input_getTextRecord,
   Input_registerDomain,
   Input_reverseRegisterDomain,
   Input_setAddress,
@@ -21,22 +38,185 @@ import {
   Input_configureOpenDomain,
   Input_createSubdomainInOpenDomain,
   Input_createSubdomainInOpenDomainAndSetContentHash,
-  Ethereum_TxResponse,
-  ConfigureOpenDomainResponse,
-  CreateSubdomainInOpenDomainResponse,
-  CreateSubdomainInOpenDomainAndSetContentHashResponse,
-  TxOverrides,
-  RegistrationResult,
   Input_registerDomainAndSubdomainsRecursively,
   Input_registerSubdomainsRecursively,
 } from "./w3";
+
+export function getResolver(input: Input_getResolver): string {
+  const domain = namehash(input.domain);
+
+  const resolverAddress = Ethereum_Module.callContractView({
+    address: input.registryAddress,
+    method: "function resolver(bytes32 node) external view returns (address)",
+    args: [domain],
+    connection: input.connection,
+  });
+
+  return resolverAddress.unwrap();
+}
+
+export function getOwner(input: Input_getOwner): string {
+  const owner = Ethereum_Module.callContractView({
+    address: input.registryAddress,
+    method: "function owner(bytes32 node) external view returns (address)",
+    args: [namehash(input.domain)],
+    connection: input.connection,
+  });
+
+  return owner.unwrap();
+}
+
+export function checkIfRecordExists(input: Input_checkIfRecordExists): bool {
+  const recordExists = Ethereum_Module.callContractView({
+    address: input.registryAddress,
+    method: "function recordExists(bytes32 node) external view returns (address)",
+    args: [namehash(input.domain)],
+    connection: input.connection,
+  });
+
+  const result = recordExists.unwrap();
+
+  return result == "0x0000000000000000000000000000000000000001";
+}
+
+export function getAddress(input: Input_getAddress): string {
+  const address = Ethereum_Module.callContractView({
+    address: input.resolverAddress,
+    method: "function addr(bytes32 node) external view returns (address)",
+    args: [namehash(input.domain)],
+    connection: input.connection,
+  });
+
+  return address.unwrap();
+}
+
+export function getContentHash(input: Input_getContentHash): string {
+  const hash = Ethereum_Module.callContractView({
+    address: input.resolverAddress,
+    method: "function contenthash(bytes32 node) external view returns (bytes)",
+    args: [namehash(input.domain)],
+    connection: input.connection,
+  });
+
+  return hash.unwrap();
+}
+
+export function getAddressFromDomain(
+  input: Input_getAddressFromDomain
+): string {
+  const resolverAddress = getResolver({
+    registryAddress: input.registryAddress,
+    domain: input.domain,
+    connection: input.connection,
+  });
+
+  const address = Ethereum_Module.callContractView({
+    address: resolverAddress,
+    method: "function addr(bytes32 node) external view returns (address)",
+    args: [namehash(input.domain)],
+    connection: input.connection,
+  });
+
+  return address.unwrap();
+}
+
+export function getContentHashFromDomain(
+  input: Input_getContentHashFromDomain
+): string {
+  const resolverAddress = getResolver({
+    registryAddress: input.registryAddress,
+    domain: input.domain,
+    connection: input.connection,
+  });
+
+  const hash = Ethereum_Module.callContractView({
+    address: resolverAddress,
+    method: "function contenthash(bytes32 node) external view returns (bytes)",
+    args: [namehash(input.domain)],
+    connection: input.connection,
+  });
+
+  return hash.unwrap();
+}
+
+export function getExpiryTimes(input: Input_getExpiryTimes): string {
+  const label = input.domain.split(".")[0];
+
+  const expiryTime = Ethereum_Module.callContractView({
+    address: input.registrarAddress,
+    method:
+      "function expiryTimes(bytes32 label) external view returns (uint256)",
+    args: [keccak256(label)],
+    connection: input.connection,
+  });
+
+  return expiryTime.unwrap();
+}
+
+export function getReverseResolver(input: Input_getReverseResolver): string {
+  const address = namehash(input.address.substr(2) + ".addr.reverse");
+
+  const resolverAddress = Ethereum_Module.callContractView({
+    address: input.registryAddress,
+    method: "function resolver(bytes32 node) external view returns (address)",
+    args: [address],
+    connection: input.connection,
+  });
+
+  return resolverAddress.unwrap();
+}
+
+export function getNameFromAddress(input: Input_getNameFromAddress): string {
+  const address = namehash(input.address.substr(2) + ".addr.reverse");
+
+  const resolverAddress = getReverseResolver({
+    registryAddress: input.registryAddress,
+    address: input.address,
+    connection: input.connection,
+  });
+
+  const name = Ethereum_Module.callContractView({
+    address: resolverAddress,
+    method: "function name(bytes32 node) external view returns (string)",
+    args: [address],
+    connection: input.connection,
+  });
+
+  return name.unwrap();
+}
+
+export function getNameFromReverseResolver(
+  input: Input_getNameFromReverseResolver
+): string {
+  const address = namehash(input.address.substr(2) + ".addr.reverse");
+
+  const name = Ethereum_Module.callContractView({
+    address: input.resolverAddress,
+    method: "function name(bytes32 node) external view returns (string)",
+    args: [address],
+    connection: input.connection,
+  });
+
+  return name.unwrap();
+}
+
+export function getTextRecord(input: Input_getTextRecord): string {
+  const value = Ethereum_Module.callContractView({
+    address: input.resolverAddress,
+    method: "function text(bytes32 node, string value) external view returns (string)",
+    args: [namehash(input.domain), input.key],
+    connection: input.connection,
+  });
+
+  return value.unwrap();
+}
 
 export function setResolver(input: Input_setResolver): Ethereum_TxResponse {
   const txOverrides: TxOverrides =
     input.txOverrides === null
       ? { gasLimit: null, gasPrice: null }
       : input.txOverrides!;
-  const setResolverTx = Ethereum_Mutation.callContractMethod({
+  const setResolverTx = Ethereum_Module.callContractMethod({
     address: input.registryAddress,
     method: "function setResolver(bytes32 node, address owner)",
     args: [namehash(input.domain), input.resolverAddress],
@@ -59,7 +239,7 @@ export function registerDomain(
     input.txOverrides === null
       ? { gasLimit: null, gasPrice: null }
       : input.txOverrides!;
-  const tx = Ethereum_Mutation.callContractMethod({
+  const tx = Ethereum_Module.callContractMethod({
     address: input.registrarAddress,
     method: "function register(bytes32 label, address owner)",
     args: [keccak256(label), input.owner],
@@ -79,7 +259,7 @@ export function setOwner(input: Input_setOwner): Ethereum_TxResponse {
     input.txOverrides === null
       ? { gasLimit: null, gasPrice: null }
       : input.txOverrides!;
-  const tx = Ethereum_Mutation.callContractMethod({
+  const tx = Ethereum_Module.callContractMethod({
     address: input.registryAddress,
     method: "function setOwner(bytes32 node, address owner) external",
     args: [namehash(input.domain), input.newOwner],
@@ -105,7 +285,7 @@ export function setSubdomainOwner(
     input.txOverrides === null
       ? { gasLimit: null, gasPrice: null }
       : input.txOverrides!;
-  const tx = Ethereum_Mutation.callContractMethod({
+  const tx = Ethereum_Module.callContractMethod({
     address: input.registryAddress,
     method:
       "function setSubnodeOwner(bytes32 node, bytes32 label, address owner) external",
@@ -128,7 +308,7 @@ export function setSubdomainRecord(
     input.txOverrides === null
       ? { gasLimit: null, gasPrice: null }
       : input.txOverrides!;
-  const tx = Ethereum_Mutation.callContractMethod({
+  const tx = Ethereum_Module.callContractMethod({
     address: input.registryAddress,
     method:
       "function setSubnodeRecord(bytes32 node, bytes32 label, address owner, address resolver, uint64 ttl)",
@@ -278,7 +458,7 @@ export function setRecord(input: Input_setRecord): Ethereum_TxResponse {
     input.txOverrides === null
       ? { gasLimit: null, gasPrice: null }
       : input.txOverrides!;
-  const tx = Ethereum_Mutation.callContractMethod({
+  const tx = Ethereum_Module.callContractMethod({
     address: input.registryAddress,
     method:
       "function setRecord(bytes32 node, address owner, address resolver, uint64 ttl)",
@@ -304,7 +484,7 @@ export function setName(input: Input_setName): Ethereum_TxResponse {
     input.txOverrides === null
       ? { gasLimit: null, gasPrice: null }
       : input.txOverrides!;
-  const setNameTx = Ethereum_Mutation.callContractMethod({
+  const setNameTx = Ethereum_Module.callContractMethod({
     address: input.reverseRegistryAddress,
     method: "function setName(string name)",
     args: [input.domain],
@@ -326,7 +506,7 @@ export function reverseRegisterDomain(
     input.txOverrides === null
       ? { gasLimit: null, gasPrice: null }
       : input.txOverrides!;
-  Ethereum_Mutation.callContractMethod({
+  Ethereum_Module.callContractMethod({
     address: input.reverseRegistryAddress,
     method: "function claim(address owner)",
     args: [input.owner],
@@ -356,7 +536,7 @@ export function setAddress(input: Input_setAddress): Ethereum_TxResponse {
     input.txOverrides === null
       ? { gasLimit: null, gasPrice: null }
       : input.txOverrides!;
-  const setAddrTx = Ethereum_Mutation.callContractMethod({
+  const setAddrTx = Ethereum_Module.callContractMethod({
     address: input.resolverAddress,
     method: "function setAddr(bytes32 node, address addr)",
     args: [namehash(input.domain), input.address],
@@ -378,7 +558,7 @@ export function setContentHash(
     input.txOverrides === null
       ? { gasLimit: null, gasPrice: null }
       : input.txOverrides!;
-  const setContentHash = Ethereum_Mutation.callContractMethod({
+  const setContentHash = Ethereum_Module.callContractMethod({
     address: input.resolverAddress,
     method: "function setContenthash(bytes32 node, bytes hash)",
     args: [namehash(input.domain), input.cid],
@@ -406,7 +586,7 @@ export function setAddressFromDomain(
     input.txOverrides === null
       ? { gasLimit: null, gasPrice: null }
       : input.txOverrides!;
-  const setAddrTx = Ethereum_Mutation.callContractMethod({
+  const setAddrTx = Ethereum_Module.callContractMethod({
     address: resolverAddress,
     method: "function setAddr(bytes32 node, address addr)",
     args: [namehash(input.domain), input.address],
@@ -434,7 +614,7 @@ export function setContentHashFromDomain(
     input.txOverrides === null
       ? { gasLimit: null, gasPrice: null }
       : input.txOverrides!;
-  const setContentHash = Ethereum_Mutation.callContractMethod({
+  const setContentHash = Ethereum_Module.callContractMethod({
     address: resolverAddress,
     method: "function setContenthash(bytes32 node, bytes hash)",
     args: [namehash(input.domain), input.cid],
@@ -450,7 +630,7 @@ export function setContentHashFromDomain(
 }
 
 export function deployFIFSRegistrar(input: Input_deployFIFSRegistrar): string {
-  const address = Ethereum_Mutation.deployContract({
+  const address = Ethereum_Module.deployContract({
     abi,
     bytecode,
     args: [input.registryAddress, namehash(input.tld)],
@@ -467,7 +647,7 @@ export function registerSubnodeOwnerWithFIFSRegistrar(
     input.txOverrides === null
       ? { gasLimit: null, gasPrice: null }
       : input.txOverrides!;
-  const txHash = Ethereum_Mutation.callContractMethod({
+  const txHash = Ethereum_Module.callContractMethod({
     address: input.fifsRegistrarAddress,
     method: "function register(bytes32 label, address owner) external",
     args: [keccak256(input.label), input.owner],
@@ -487,7 +667,7 @@ export function setTextRecord(input: Input_setTextRecord): Ethereum_TxResponse {
     input.txOverrides === null
       ? { gasLimit: null, gasPrice: null }
       : input.txOverrides!;
-  const txHash = Ethereum_Mutation.callContractMethod({
+  const txHash = Ethereum_Module.callContractMethod({
     address: input.resolverAddress,
     method: "function setText(bytes32 node, string key, string value)",
     args: [namehash(input.domain), input.key, input.value],
