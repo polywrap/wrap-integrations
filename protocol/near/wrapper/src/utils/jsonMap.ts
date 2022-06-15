@@ -216,7 +216,7 @@ export function toChunkResult(json: JSON.Obj): ChunkResult {
     },
     receipts: json.getArr("receipts")!.valueOf(),
     transactions: json
-      .getArr("receipts")!
+      .getArr("transactions")!
       .valueOf()
       .map<Near_Transaction>((v) => toTransaction(<JSON.Obj>v)),
   };
