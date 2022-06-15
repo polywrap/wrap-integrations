@@ -51,7 +51,7 @@ type Mutation {
   ): String!
 
 """
-  Convenience Mutation Functions (Not Implemented)
+  Convenience Mutation Functions (Implemented, Tested)
 """
 
 # create a new Near account

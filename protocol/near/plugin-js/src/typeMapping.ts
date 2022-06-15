@@ -10,6 +10,7 @@ import {
   Signature,
   SignedTransaction,
   Transaction,
+  FunctionCallPermission,
 } from "./w3";
 import {
   AccessKeyPermission,
@@ -43,7 +44,7 @@ export const toAction = (action: nearApi.transactions.Action): Action => {
   } else if (isNearFunctionCall(action)) {
     result = {
       methodName: action["methodName"],
-      args: action["args"],
+      args: Uint8Array.from(action["args"]),
       gas: action["gas"].toString(),
       deposit: action["deposit"].toString(),
     };
@@ -90,7 +91,7 @@ export const fromAction = (action: Action): nearApi.transactions.Action => {
     return nearApi.transactions.stake(new BN(action.stake!), publicKey);
   } else if (isAddKey(action)) {
     const publicKey = fromPublicKey(action.publicKey!);
-    const accessKey = new nearApi.transactions.AccessKey(action.accessKey!);
+    const accessKey = fromAccessKey(action.accessKey!);
     return nearApi.transactions.addKey(publicKey, accessKey);
   } else if (isDeleteKey(action)) {
     const publicKey = fromPublicKey(action.publicKey!);
@@ -151,8 +152,27 @@ export const fromPublicKey = (key: PublicKey): nearApi.utils.PublicKey => {
   return nearApi.utils.PublicKey.from(publicKeyToStr(key));
 };
 
+export const fromAccessKey = (
+  key: AccessKey
+): nearApi.transactions.AccessKey => {
+  //https://github.com/near/near-api-js/blob/26b3dd2f55ef97107c429fdfa704de566617c9b3/lib/transaction.js#L23
+  if (key.permission._ !== null && key.permission._ == "FullAccess") {
+    return nearApi.transactions.fullAccessKey();
+  } else {
+    const functionCallPermission = <FunctionCallPermission>key.permission;
+    const args: [string, string[], BN?] = [
+      functionCallPermission.receiverId,
+      functionCallPermission.methodNames,
+    ];
+    if (functionCallPermission.allowance !== null) {
+      args.push(new BN(functionCallPermission.allowance!));
+    }
+    return nearApi.transactions.functionCallAccessKey(...args);
+  }
+};
+
 export const toAccessKey = (key: nearApi.transactions.AccessKey): AccessKey => {
-  let permission: AccessKeyPermission = {};
+  let permission: AccessKeyPermission = {} as AccessKeyPermission;
   if (isNearFunctionCallPermission(key.permission)) {
     permission = {
       receiverId: key.permission.receiverId,

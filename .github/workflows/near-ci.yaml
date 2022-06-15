@@ -39,24 +39,24 @@ jobs:
       #
 
       # NEAR wrapper
-      - name: Read .nvmrc
+      - name: (NEAR Wrapper) Read .nvmrc
         run: echo ::set-output name=NVMRC::$(cat .nvmrc)
         id: near-wrapper-nvm
         working-directory: ./protocol/near/wrapper
 
-      - name: Setup Node.js
+      - name: (NEAR Wrapper) Setup Node.js
         uses: actions/setup-node@master
         with:
           node-version: '${{ steps.near-wrapper-nvm.outputs.NVMRC }}'
 
-      - name: Install dependencies
+      - name: (NEAR Wrapper) Install dependencies
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
         working-directory: ./protocol/near/wrapper
 
-      - name: Build
+      - name: (NEAR Wrapper) Build
         run: yarn build
         working-directory: ./protocol/near/wrapper
 
-      - name: Test
+      - name: (NEAR Wrapper) Test
         run: yarn test
         working-directory: ./protocol/near/wrapper
