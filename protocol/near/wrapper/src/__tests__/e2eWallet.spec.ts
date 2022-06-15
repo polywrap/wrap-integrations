@@ -4,9 +4,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Input_requestSignIn, Input_signOut, Input_isSignedIn, Input_getAccountId } from "../query/w3";
 import * as testUtils from "./testUtils";
-
-//const BN = require("bn.js");
-
 import "localstorage-polyfill";
 import { buildAndDeployApi, initTestEnvironment } from "@web3api/test-env-js";
 import { Web3ApiClient } from "@web3api/client-js";

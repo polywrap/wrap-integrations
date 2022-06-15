@@ -45,7 +45,7 @@ import {
 } from "./w3";
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
-import { BigInt, JSON, JSONEncoder, Context, WriteSizer } from "@web3api/wasm-as";
+import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { publicKeyFromStr, publicKeyToStr } from "../utils/typeUtils";
 import {
   toAccessKey,
@@ -115,14 +115,22 @@ export function getAccountState(input: Input_getAccountState): AccountView {
     amount: result.getString("amount")!.valueOf(),
     locked: result.getString("locked")!.valueOf(),
     codeHash: result.getString("code_hash")!.valueOf(),
-    storageUsage: BigInt.fromString(result.getValue("storage_usage")!.stringify()),
-    storagePaidAt: BigInt.fromString(result.getValue("storage_paid_at")!.stringify()),
-    blockHeight: BigInt.fromString(result.getValue("block_height")!.stringify()),
+    storageUsage: BigInt.fromString(
+      result.getValue("storage_usage")!.stringify()
+    ),
+    storagePaidAt: BigInt.fromString(
+      result.getValue("storage_paid_at")!.stringify()
+    ),
+    blockHeight: BigInt.fromString(
+      result.getValue("block_height")!.stringify()
+    ),
     blockHash: result.getString("block_hash")!.valueOf(),
   };
 }
 
-export function viewContractState(input: Input_viewContractState): ContractStateResult {
+export function viewContractState(
+  input: Input_viewContractState
+): ContractStateResult {
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
   encoder.setString("request_type", "view_state");
@@ -143,7 +151,9 @@ export function viewContractState(input: Input_viewContractState): ContractState
   return toContractStateResult(result);
 }
 
-export function viewContractCode(input: Input_viewContractCode): ViewContractCode {
+export function viewContractCode(
+  input: Input_viewContractCode
+): ViewContractCode {
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
   encoder.setString("request_type", "view_code");
@@ -156,14 +166,20 @@ export function viewContractCode(input: Input_viewContractCode): ViewContractCod
   return {
     code_base64: result.getString("code_base64")!.valueOf(),
     hash: result.getString("hash")!.valueOf(),
-    block_height: BigInt.fromString(result.getValue("block_height")!.stringify()),
+    block_height: BigInt.fromString(
+      result.getValue("block_height")!.stringify()
+    ),
     block_hash: result.getString("block_hash")!.valueOf(),
   };
 }
 
-export function findAccessKey(input: Input_findAccessKey): AccessKeyInfo | null {
+export function findAccessKey(
+  input: Input_findAccessKey
+): AccessKeyInfo | null {
   // get public key
-  const publicKey: Near_PublicKey | null = getPublicKey({ accountId: input.accountId });
+  const publicKey: Near_PublicKey | null = getPublicKey({
+    accountId: input.accountId,
+  });
   if (publicKey == null) {
     return null;
   }
@@ -189,7 +205,9 @@ export function getPublicKey(input: Input_getPublicKey): Near_PublicKey | null {
   return Near_Query.getPublicKey({ accountId: input.accountId }).unwrap();
 }
 
-export function getAccountBalance(input: Input_getAccountBalance): AccountBalance {
+export function getAccountBalance(
+  input: Input_getAccountBalance
+): AccountBalance {
   // prepare params
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
@@ -222,7 +240,9 @@ export function getAccountBalance(input: Input_getAccountBalance): AccountBalanc
   } as AccountBalance;
 }
 
-export function getAccountDetails(input: Input_getAccountDetails): AccountAuthorizedApp[] {
+export function getAccountDetails(
+  input: Input_getAccountDetails
+): AccountAuthorizedApp[] {
   const accessKeys = getAccessKeys({ accountId: input.accountId });
 
   const authorizedApps: AccountAuthorizedApp[] = [];
@@ -231,8 +251,10 @@ export function getAccountDetails(input: Input_getAccountDetails): AccountAuthor
     const key = accessKeys[i];
     if (key.accessKey.permission.isFullAccess === true) continue;
     const permission = key.accessKey.permission;
-    const allowance: BigInt = permission.allowance !== null ? permission.allowance! : BigInt.ZERO;
-    const contractId: string = permission.receiverId !== null ? permission.receiverId! : "";
+    const allowance: BigInt =
+      permission.allowance !== null ? permission.allowance! : BigInt.ZERO;
+    const contractId: string =
+      permission.receiverId !== null ? permission.receiverId! : "";
 
     const app: AccountAuthorizedApp = {
       contractId: contractId,
@@ -274,7 +296,9 @@ export function viewFunction(input: Input_viewFunction): JSON.Obj {
   return provider.viewFunction(input.contractId, input.methodName, input.args);
 }
 
-export function createTransaction(input: Input_createTransaction): Near_Transaction {
+export function createTransaction(
+  input: Input_createTransaction
+): Near_Transaction {
   if (input.signerId == null) {
     return Near_Query.createTransactionWithWallet({
       receiverId: input.receiverId,
@@ -299,7 +323,9 @@ export function createTransaction(input: Input_createTransaction): Near_Transact
       syncCheckpoint: null,
     },
   });
-  const blockHash: ArrayBuffer = <ArrayBuffer>bs58.decode(block.header.hash).buffer;
+  const blockHash: ArrayBuffer = <ArrayBuffer>(
+    bs58.decode(block.header.hash).buffer
+  );
   const nonce = accessKey.nonce.addInt(1);
   return {
     signerId: signerId,
@@ -312,13 +338,17 @@ export function createTransaction(input: Input_createTransaction): Near_Transact
   };
 }
 
-export function lightClientProof(input: Input_lightClientProof): LightClientProof {
+export function lightClientProof(
+  input: Input_lightClientProof
+): LightClientProof {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const lightClientProof = provider.lightClientProof(input.request);
   return toLightClientProof(lightClientProof);
 }
 
-export function signTransaction(input: Input_signTransaction): Near_SignTransactionResult {
+export function signTransaction(
+  input: Input_signTransaction
+): Near_SignTransactionResult {
   return Near_Query.signTransaction({
     transaction: input.transaction,
   }).unwrap();
@@ -336,7 +366,9 @@ export function txStatus(input: Input_txStatus): Near_FinalExecutionOutcome {
   return toFinalExecutionOutcome(txStatus);
 }
 
-export function txStatusReceipts(input: Input_txStatusReceipts): Near_FinalExecutionOutcomeWithReceipts {
+export function txStatusReceipts(
+  input: Input_txStatusReceipts
+): Near_FinalExecutionOutcomeWithReceipts {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const txStatus = provider.txStatusReceipts(input.txHash, input.accountId);
   return toFinalExecutionOutcomeWithReceipts(txStatus);
@@ -360,13 +392,19 @@ export function gasPrice(input: Input_gasPrice): BigInt {
 
 export function accessKeyChanges(input: Input_accessKeyChanges): ChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  const accessKeyChanges = provider.accessKeyChanges(input.accountIdArray, input.blockQuery);
+  const accessKeyChanges = provider.accessKeyChanges(
+    input.accountIdArray,
+    input.blockQuery
+  );
   return toChangeResult(accessKeyChanges);
 }
 
 export function accountChanges(input: Input_accountChanges): ChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  const accountChanges = provider.accountChanges(input.accountIdArray, input.blockQuery);
+  const accountChanges = provider.accountChanges(
+    input.accountIdArray,
+    input.blockQuery
+  );
   return toChangeResult(accountChanges);
 }
 
@@ -377,23 +415,39 @@ export function blockChanges(input: Input_blockChanges): BlockChangeResult {
   return toBlockChanges(blockChanges);
 }
 
-export function contractStateChanges(input: Input_contractStateChanges): ChangeResult {
+export function contractStateChanges(
+  input: Input_contractStateChanges
+): ChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
 
-  const contractStateChanges = provider.contractStateChanges(input.accountIdArray, input.blockQuery, input.keyPrefix!);
+  const contractStateChanges = provider.contractStateChanges(
+    input.accountIdArray,
+    input.blockQuery,
+    input.keyPrefix!
+  );
   return toChangeResult(contractStateChanges);
 }
 
-export function contractCodeChanges(input: Input_contractCodeChanges): ChangeResult {
+export function contractCodeChanges(
+  input: Input_contractCodeChanges
+): ChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
 
-  const contractCodeChanges = provider.contractCodeChanges(input.accountIdArray, input.blockQuery);
+  const contractCodeChanges = provider.contractCodeChanges(
+    input.accountIdArray,
+    input.blockQuery
+  );
   return toChangeResult(contractCodeChanges);
 }
 
-export function singleAccessKeyChanges(input: Input_singleAccessKeyChanges): ChangeResult {
+export function singleAccessKeyChanges(
+  input: Input_singleAccessKeyChanges
+): ChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  const singleAccessKeyChanges = provider.singleAccessKeyChanges(input.accessKeyArray, input.blockQuery!);
+  const singleAccessKeyChanges = provider.singleAccessKeyChanges(
+    input.accessKeyArray,
+    input.blockQuery!
+  );
   return toChangeResult(singleAccessKeyChanges);
 }
 
@@ -407,7 +461,9 @@ export function validators(input: Input_validators): EpochValidatorInfo {
   return toEpochValidatorInfo(validators);
 }
 
-export function experimental_protocolConfig(input: Input_experimental_protocolConfig): NearProtocolConfig {
+export function experimental_protocolConfig(
+  input: Input_experimental_protocolConfig
+): NearProtocolConfig {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   return provider.protocolConfig(input.blockReference);
 }
