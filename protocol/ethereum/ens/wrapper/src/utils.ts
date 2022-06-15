@@ -1,5 +1,5 @@
-import { SHA3_Module } from "./w3/imported/SHA3_Module";
-import { UTS46_Module } from "./w3/imported/UTS46_Module";
+import { SHA3_Module } from "./polywrap/imported/SHA3_Module";
+import { UTS46_Module } from "./polywrap/imported/UTS46_Module";
 
 export function namehash(inputName: string): string {
   let node = "";

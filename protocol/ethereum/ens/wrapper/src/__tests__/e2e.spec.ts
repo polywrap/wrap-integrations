@@ -1,9 +1,9 @@
 import {
-  buildAndDeployApi,
+  buildAndDeployWrapper,
   initTestEnvironment,
   stopTestEnvironment,
-} from "@web3api/test-env-js";
-import { Web3ApiClient } from "@web3api/client-js";
+} from "@polywrap/test-env-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import path from "path";
 import { providers } from "ethers";
 
@@ -14,8 +14,8 @@ jest.setTimeout(300000);
 describe("ENS Wrapper", () => {
   // We will have two clients because we need two
   // different signers in order to test ENS functions
-  let ownerClient: Web3ApiClient;
-  let anotherOwnerClient: Web3ApiClient;
+  let ownerClient: PolywrapClient;
+  let anotherOwnerClient: PolywrapClient;
 
   let ensUri: string;
   let ethersProvider: providers.JsonRpcProvider;
@@ -44,10 +44,10 @@ describe("ENS Wrapper", () => {
       ethereum,
     } = await initTestEnvironment();
 
-    // deploy api
-    const apiPath: string = path.resolve(__dirname + "/../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensRegistryAddress);
-    ensUri = `ens/testnet/${api.ensDomain}`;
+    // deploy wrapper
+    const wrapperPath: string = path.resolve(__dirname + "/../../");
+    const wrapper = await buildAndDeployWrapper(wrapperPath, ipfs, ensRegistryAddress);
+    ensUri = `ens/testnet/${wrapper.ensDomain}`;
 
     // set up ethers provider
     ethersProvider = providers.getDefaultProvider(
@@ -62,7 +62,7 @@ describe("ENS Wrapper", () => {
 
     // get client
     const plugins = getPlugins(ethereum, ipfs, ensRegistryAddress);
-    ownerClient = new Web3ApiClient({ plugins });
+    ownerClient = new PolywrapClient({ plugins });
 
     const anotherOwnerRedirects = getPlugins(
       ethereum,
@@ -70,7 +70,7 @@ describe("ENS Wrapper", () => {
       ensRegistryAddress,
       anotherOwner
     );
-    anotherOwnerClient = new Web3ApiClient({ plugins: anotherOwnerRedirects });
+    anotherOwnerClient = new PolywrapClient({ plugins: anotherOwnerRedirects });
   });
 
   afterAll(async () => {

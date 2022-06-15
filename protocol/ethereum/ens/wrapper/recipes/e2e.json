@@ -1,6 +1,6 @@
 [
   {
-    "api": "ens/testnet/ens.eth",
+    "wrapper": "ens/testnet/ens.eth",
     "constants": "./constants.json"
   },
   {
