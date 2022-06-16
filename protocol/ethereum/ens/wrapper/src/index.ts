@@ -40,7 +40,7 @@ import {
   Input_createSubdomainInOpenDomainAndSetContentHash,
   Input_registerDomainAndSubdomainsRecursively,
   Input_registerSubdomainsRecursively,
-} from "./polywrap";
+} from "./wrap";
 
 export function getResolver(input: Input_getResolver): string {
   const domain = namehash(input.domain);
