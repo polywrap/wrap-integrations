@@ -1,49 +1,52 @@
 import { NearPlugin } from ".";
-import { Query, Mutation } from "./w3";
+import {
+  Input_createKey, Input_createTransactionWithWallet, Input_getAccountId,
+  Input_getPublicKey, Input_isSignedIn, Input_requestSignIn, Input_requestSignTransactions, Input_sendJsonRpc,
+  Input_sendTransaction,
+  Input_sendTransactionAsync, Input_signMessage,
+  Input_signOut, Input_signTransaction
+} from "./wrap";
 
-export const query = (plugin: NearPlugin): Query.Module => ({
-  requestSignIn: async (input: Query.Input_requestSignIn) => {
+export const module = (plugin: NearPlugin) => ({
+  requestSignIn: async (input: Input_requestSignIn) => {
     return await plugin.requestSignIn(input);
   },
-  signOut: async (input: Query.Input_signOut) => {
+  signOut: async (input: Input_signOut) => {
     return await plugin.signOut(input);
   },
-  isSignedIn: async (input: Query.Input_isSignedIn) => {
+  isSignedIn: async (input: Input_isSignedIn) => {
     return await plugin.isSignedIn(input);
   },
-  getAccountId: async (input: Query.Input_getAccountId) => {
+  getAccountId: async (input: Input_getAccountId) => {
     return await plugin.getAccountId(input);
   },
-  getPublicKey: async (input: Query.Input_getPublicKey) => {
+  getPublicKey: async (input: Input_getPublicKey) => {
     return await plugin.getPublicKey(input);
   },
-  signMessage: async (input: Query.Input_signMessage) => {
+  signMessage: async (input: Input_signMessage) => {
     return await plugin.signMessage(input);
   },
   createTransactionWithWallet: async (
-    input: Query.Input_createTransactionWithWallet
+    input: Input_createTransactionWithWallet
   ) => {
     return await plugin.createTransactionWithWallet(input);
   },
-  signTransaction: async (input: Query.Input_signTransaction) => {
+  signTransaction: async (input: Input_signTransaction) => {
     return await plugin.signTransaction(input);
   },
-});
-
-export const mutation = (plugin: NearPlugin): Mutation.Module => ({
-  sendJsonRpc: (input: Mutation.Input_sendJsonRpc) => {
+  sendJsonRpc: (input: Input_sendJsonRpc) => {
     return plugin.sendJsonRpc(input);
   },
-  requestSignTransactions: (input: Mutation.Input_requestSignTransactions) => {
+  requestSignTransactions: (input: Input_requestSignTransactions) => {
     return plugin.requestSignTransactions(input);
   },
-  sendTransaction: (input: Mutation.Input_sendTransaction) => {
+  sendTransaction: (input: Input_sendTransaction) => {
     return plugin.sendTransaction(input);
   },
-  sendTransactionAsync: (input: Mutation.Input_sendTransactionAsync) => {
+  sendTransactionAsync: (input: Input_sendTransactionAsync) => {
     return plugin.sendTransactionAsync(input);
   },
-  createKey: (input: Mutation.Input_createKey) => {
+  createKey: (input: Input_createKey) => {
     return plugin.createKey(input);
   },
 });

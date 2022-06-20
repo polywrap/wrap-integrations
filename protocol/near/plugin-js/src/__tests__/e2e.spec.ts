@@ -1,6 +1,6 @@
-import { Web3ApiClient } from "@web3api/client-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import { nearPlugin, NearPluginConfig } from "..";
-import { PublicKey } from "../w3";
+import { PublicKey } from "../wrap";
 import "localstorage-polyfill";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
@@ -16,8 +16,8 @@ jest.setTimeout(360000);
 describe("e2e", () => {
   const mock = new MockBrowser();
 
-  let client: Web3ApiClient;
-  const uri = "w3://ens/near.web3api.eth";
+  let client: PolywrapClient;
+  const uri = "wrap://ens/near.web3api.eth";
 
   let config: NearPluginConfig;
 
@@ -33,7 +33,7 @@ describe("e2e", () => {
   beforeAll(async () => {
     config = await testUtils.setUpTestConfig();
     near = await nearApi.connect(config);
-    client = new Web3ApiClient({
+    client = new PolywrapClient({
       plugins: [
         {
           uri: uri,
