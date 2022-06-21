@@ -1,6 +1,6 @@
-import { Near_AccessKey, Near_Action, Near_PublicKey } from "../query/w3";
+import { Near_AccessKey, Near_Action, Near_PublicKey } from "../wrap";
 
-import { BigInt, JSON } from "@web3api/wasm-as";
+import { BigInt, JSON } from "@cbrzn/wasm-as";
 
 export function createAccount(): Near_Action {
   return {} as Near_Action;

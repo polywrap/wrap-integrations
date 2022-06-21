@@ -9,12 +9,12 @@ import {
 import * as testUtils from "./testUtils";
 
 import type { Finality } from "near-api-js/lib/providers/provider";
-import { Web3ApiClient } from "@web3api/client-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import * as nearApi from "near-api-js";
 import { BlockResult as NearBlockResult } from "near-api-js/lib/providers/provider";
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
+import { buildAndDeployWrapper, initTestEnvironment, stopTestEnvironment, providers } from "@polywrap/test-env-js";
 import path from "path";
-import { LightClientProof, ChunkResult } from "../query/w3";
+import { LightClientProof, ChunkResult } from "../wrap";
 import { FinalExecutionOutcome } from "../../../plugin-js/build/w3";
 
 const BN = require("bn.js");
@@ -23,7 +23,7 @@ jest.setTimeout(360000);
 jest.retryTimes(5)
 
 describe("e2e", () => {
-  let client: Web3ApiClient;
+  let client: PolywrapClient;
   let apiUri: string;
 
   let nearConfig: NearPluginConfig;
@@ -37,17 +37,20 @@ describe("e2e", () => {
 
   beforeAll(async () => {
     // set up test env and deploy api
-    const { ethereum, ensAddress, ipfs } = await initTestEnvironment();
+   await initTestEnvironment();
     const apiPath: string = path.resolve(__dirname + "/../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
-
+    const api = await buildAndDeployWrapper({
+      wrapperAbsPath: apiPath,
+      ipfsProvider: providers.ipfs,
+      ethereumProvider: providers.ethereum
+    });
     apiUri = `ens/testnet/${api.ensDomain}`;
     // set up client
     nearConfig = await testUtils.setUpTestConfig();
     near = await nearApi.connect(nearConfig);
 
     const polywrapConfig = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
-    client = new Web3ApiClient(polywrapConfig);
+    client = new PolywrapClient(polywrapConfig);
     latestBlock = await near.connection.provider.block({ finality: "final" });
 
     // set up contract account

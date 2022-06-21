@@ -1,29 +1,33 @@
 import { NearPluginConfig } from "../../../plugin-js"; //TODO change to appropriate package
 import * as testUtils from "./testUtils";
 
-import { Web3ApiClient } from "@web3api/client-js";
+import { PolywrapClient } from "@polywrap/client-js";
+import { BigInt } from "@polywrap/wasm-as";
 import * as nearApi from "near-api-js";
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
+import { buildAndDeployWrapper, initTestEnvironment, stopTestEnvironment, providers } from "@polywrap/test-env-js";
 import path from "path";
 
 jest.setTimeout(360000);
 
 describe("e2e", () => {
-  let client: Web3ApiClient;
+  let client: PolywrapClient;
   let apiUri: string;
-
   let nearConfig: NearPluginConfig;
 
   beforeAll(async () => {
     // set up test env and deploy api
-    const { ethereum, ensAddress, ipfs } = await initTestEnvironment();
+    await initTestEnvironment();
     const apiPath: string = path.resolve(__dirname + "/../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
+    const api = await buildAndDeployWrapper({
+      wrapperAbsPath: apiPath,
+      ipfsProvider: providers.ipfs,
+      ethereumProvider: providers.ethereum
+    });
 
     // set up client
     apiUri = `ens/testnet/${api.ensDomain}`;
     const polywrapConfig = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
-    client = new Web3ApiClient(polywrapConfig);
+    client = new PolywrapClient(polywrapConfig);
   });
 
   afterAll(async () => {

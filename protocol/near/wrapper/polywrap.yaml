@@ -1,0 +1,10 @@
+format: 0.0.1-prealpha.9
+name: Near Wrapper
+build: ./polywrap.build.yaml
+deploy: ./polywrap.deploy.yaml
+language: wasm/assemblyscript
+schema: ./src/schema.graphql
+module: ./src/index.ts
+import_redirects:
+  - uri: wrap://ens/nearPlugin.web3api.eth
+    schema: ../plugin-js/build/schema.graphql

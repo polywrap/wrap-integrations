@@ -10,7 +10,7 @@ import {
   Input_getPublicKey,
   Input_getBlock,
   Near_PublicKey,
-  Near_Query,
+  Near_Module,
   Near_Transaction,
   Near_SignTransactionResult,
   Near_FinalExecutionOutcome,
@@ -42,11 +42,18 @@ import {
   Input_viewContractState,
   ContractStateResult,
   ViewContractCode,
-} from "./w3";
-import JsonRpcProvider from "../utils/JsonRpcProvider";
+  Input_chunk,
+  Input_gasPrice,
+  Input_getAccessKeys,
+  Input_getAccountDetails,
+  Input_viewFunction,
+  Input_viewContractCode,
+  AccountAuthorizedApp
+} from "./wrap";
+import JsonRpcProvider from "./utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
-import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
-import { publicKeyFromStr, publicKeyToStr } from "../utils/typeUtils";
+import { BigInt, JSON, JSONEncoder } from "@cbrzn/wasm-as";
+import { publicKeyFromStr, publicKeyToStr } from "./utils/typeUtils";
 import {
   toAccessKey,
   toAccessKeyInfo,
@@ -59,21 +66,11 @@ import {
   toFinalExecutionOutcomeWithReceipts,
   toLightClientProof,
   toNodeStatus,
-} from "../utils/jsonMap";
-import * as formatUtils from "../utils/format";
-import { AccountAuthorizedApp } from "./w3/AccountAuthorizedApp";
-
-import {
-  Input_chunk,
-  Input_gasPrice,
-  Input_getAccessKeys,
-  Input_getAccountDetails,
-  Input_viewFunction,
-  Input_viewContractCode,
-} from "./w3/Query/serialization";
+} from "./utils/jsonMap";
+import * as formatUtils from "./utils/format";
 
 export function requestSignIn(input: Input_requestSignIn): boolean {
-  return Near_Query.requestSignIn({
+  return Near_Module.requestSignIn({
     contractId: input.contractId,
     methodNames: input.methodNames,
     successUrl: input.successUrl,
@@ -82,15 +79,15 @@ export function requestSignIn(input: Input_requestSignIn): boolean {
 }
 
 export function signOut(): boolean {
-  return Near_Query.signOut({}).unwrap();
+  return Near_Module.signOut({}).unwrap();
 }
 
 export function isSignedIn(): boolean {
-  return Near_Query.isSignedIn({}).unwrap();
+  return Near_Module.isSignedIn({}).unwrap();
 }
 
 export function getAccountId(): string | null {
-  return Near_Query.getAccountId({}).unwrap();
+  return Near_Module.getAccountId({}).unwrap();
 }
 
 export function getBlock(input: Input_getBlock): BlockResult {
@@ -202,7 +199,7 @@ export function findAccessKey(
 }
 
 export function getPublicKey(input: Input_getPublicKey): Near_PublicKey | null {
-  return Near_Query.getPublicKey({ accountId: input.accountId }).unwrap();
+  return Near_Module.getPublicKey({ accountId: input.accountId }).unwrap();
 }
 
 export function getAccountBalance(
@@ -300,7 +297,7 @@ export function createTransaction(
   input: Input_createTransaction
 ): Near_Transaction {
   if (input.signerId == null) {
-    return Near_Query.createTransactionWithWallet({
+    return Near_Module.createTransactionWithWallet({
       receiverId: input.receiverId,
       actions: input.actions,
     }).unwrap();
@@ -349,7 +346,7 @@ export function lightClientProof(
 export function signTransaction(
   input: Input_signTransaction
 ): Near_SignTransactionResult {
-  return Near_Query.signTransaction({
+  return Near_Module.signTransaction({
     transaction: input.transaction,
   }).unwrap();
 }

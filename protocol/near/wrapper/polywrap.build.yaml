@@ -5,6 +5,6 @@ config:
   node_version: "16.13.0"
   include:
     - ./package.json
-    - ./src/mutation
-    - ./src/query
+    - ./src/index.ts
+    - ./src/schema.graphql
     - ./src/utils

@@ -5,8 +5,8 @@
 import { Input_requestSignIn, Input_signOut, Input_isSignedIn, Input_getAccountId } from "../query/w3";
 import * as testUtils from "./testUtils";
 import "localstorage-polyfill";
-import { buildAndDeployApi, initTestEnvironment } from "@web3api/test-env-js";
-import { Web3ApiClient } from "@web3api/client-js";
+import {buildAndDeployWrapper, initTestEnvironment, providers} from "@polywrap/test-env-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import * as nearApi from "near-api-js";
 import { NearPluginConfig } from "../../../plugin-js/build";
 import path from "path";
@@ -18,7 +18,7 @@ jest.retryTimes(3)
 
 describe("e2e", () => {
   let apiUri: string;
-  let client: Web3ApiClient;
+  let client: PolywrapClient;
   let nearConfig: NearPluginConfig;
   let contractId: string;
   let workingAccount: nearApi.Account;
@@ -32,17 +32,21 @@ describe("e2e", () => {
     global["localStorage"] = localStorage;
 
     // set up test env and deploy api
-    const { ethereum, ensAddress, ipfs } = await initTestEnvironment();
+    await initTestEnvironment();
     const apiPath: string = path.resolve(__dirname + "/../../");
 
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
+    const api = await buildAndDeployWrapper({
+      wrapperAbsPath: apiPath,
+      ipfsProvider: providers.ipfs,
+      ethereumProvider: providers.ethereum
+    });
     apiUri = `ens/testnet/${api.ensDomain}`;
     // set up client
     nearConfig = await testUtils.setUpTestConfig();
     near = await nearApi.connect(nearConfig);
 
     const plugins = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
-    client = new Web3ApiClient(plugins);
+    client = new PolywrapClient(plugins);
 
     // set up contract account
     contractId = testUtils.generateUniqueString("test");

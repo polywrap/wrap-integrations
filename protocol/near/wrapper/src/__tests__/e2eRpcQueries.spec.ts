@@ -1,12 +1,11 @@
 import { NearPluginConfig } from "../../../plugin-js"; //TODO change to appropriate package
 import { BlockReference, BlockResult, AccountView, PublicKey, AccessKeyInfo } from "./tsTypes";
 import * as testUtils from "./testUtils";
-import { ContractStateResult } from "../query/w3";
-import { ViewContractCode } from "../query/w3";
+import { ContractStateResult, ViewContractCode } from "../wrap";
 
-import { Web3ApiClient } from "@web3api/client-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import * as nearApi from "near-api-js";
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
+import {buildAndDeployWrapper, initTestEnvironment, providers, stopTestEnvironment} from "@polywrap/test-env-js";
 import path from "path";
 import { AccountAuthorizedApp, AccountBalance } from "near-api-js/lib/account";
 
@@ -14,7 +13,7 @@ jest.setTimeout(360000);
 jest.retryTimes(3);
 
 describe("e2e", () => {
-  let client: Web3ApiClient;
+  let client: PolywrapClient;
   let apiUri: string;
 
   let nearConfig: NearPluginConfig;
@@ -24,17 +23,21 @@ describe("e2e", () => {
 
   beforeAll(async () => {
     // set up test env and deploy api
-    const { ethereum, ensAddress, ipfs } = await initTestEnvironment();
+    await initTestEnvironment();
     const apiPath: string = path.resolve(__dirname + "/../../");
 
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
+    const api = await buildAndDeployWrapper({
+      wrapperAbsPath: apiPath,
+      ipfsProvider: providers.ipfs,
+      ethereumProvider: providers.ethereum
+    });
     apiUri = `ens/testnet/${api.ensDomain}`;
     // set up client
     nearConfig = await testUtils.setUpTestConfig();
     near = await nearApi.connect(nearConfig);
 
     const plugins = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
-    client = new Web3ApiClient(plugins);
+    client = new PolywrapClient(plugins);
 
     // set up contract account
     contractId = testUtils.generateUniqueString("test");
