@@ -1,6 +1,6 @@
 [
   {
-    "api": "ens/testnet/console.eth",
+    "wrapper": "fs/./build",
     "constants": "./constants.json"
   },
   {
