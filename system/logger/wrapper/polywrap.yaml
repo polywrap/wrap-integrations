@@ -6,4 +6,4 @@ module: ./src/index.ts
 deploy: ./polywrap.deploy.yaml
 import_redirects:
   - uri: wrap://ens/logger.core.polywrap.eth
-    schema: ../interface/build/schema.graphql
+    schema: ../interface/schema.graphql
