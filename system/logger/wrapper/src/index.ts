@@ -12,8 +12,8 @@ import {
 
 export function log(input: Input_log): bool {
   const uris = Interface.getImplementations()
-  for (let index = 0; index < uris.length; index++) {
-    new Interface_Module(uris[index]).log({
+  for (let i = 0; i < uris.length; i++) {
+    new Interface_Module(uris[i]).log({
       message: input.message,
       level: input.level
     }).unwrap()
