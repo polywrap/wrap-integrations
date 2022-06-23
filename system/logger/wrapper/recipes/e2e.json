@@ -1,10 +1,9 @@
 [
   {
-    "wrapper": "fs/./build",
-    "constants": "./constants.json"
+    "wrapper": "fs/./build"
   },
   {
     "query": "./log.graphql",
-    "variables": { "message": "$message" }
+    "variables": { "message": "Cool message from log" }
   }
 ]
