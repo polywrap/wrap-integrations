@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "build",
     "esModuleInterop": true,
     "lib": [
       "es2015",
@@ -19,14 +21,12 @@
     "module": "commonjs",
     "sourceMap": true,
     "target": "es5",
-    "resolveJsonModule": true,
-    "strictNullChecks": true,
-    "outDir": "build"
+    "strictNullChecks": true
   },
   "include": [
-    "./src/**/*.ts"
+    "./src/**/*"
   ],
   "exclude": [
-    "./**/.w3/**/*.ts"
+    "./src/**/__tests__"
   ]
 }
