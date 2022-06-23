@@ -1,6 +1,7 @@
-#import { Module } into Logger from "wrap://ens/js-logger.polywrap.eth"
+#import { Module } into Interface from "wrap://ens/logger.core.polywrap.eth"
+#use { getImplementations } for Interface
 
-type Module implements Logger_Module {
+type Module implements Interface_Module {
     debug(
         message: String!
     ): Boolean!

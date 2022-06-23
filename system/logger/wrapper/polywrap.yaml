@@ -5,5 +5,5 @@ schema: ./src/schema.graphql
 module: ./src/index.ts
 deploy: ./polywrap.deploy.yaml
 import_redirects:
-  - uri: wrap://ens/js-logger.polywrap.eth
-    schema: ./node_modules/@polywrap/logger-plugin-js/build/schema.graphql
+  - uri: wrap://ens/logger.core.polywrap.eth
+    schema: ../../../../monorepo/packages/core-interfaces/logger/build/schema.graphql

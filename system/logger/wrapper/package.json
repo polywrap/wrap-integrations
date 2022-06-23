@@ -13,7 +13,6 @@
     "test:env:down": "polywrap infra down --modules=eth-ens-ipfs"
   },
   "devDependencies": {
-    "@polywrap/logger-plugin-js": "0.0.1-prealpha.88",
     "@polywrap/wasm-as": "0.0.1-prealpha.88",
     "polywrap": "0.0.1-prealpha.88",
     "assemblyscript": "0.19.1",
