@@ -1,0 +1,11 @@
+#import { Module, Response } into HTTP from "ens/http.polywrap.eth"
+#import { Module, TaskResult } into Concurrent from "ens/interface.concurrent.polywrap.eth"
+
+type FetchResult implements Concurrent_TaskResult {
+  parsed: HTTP_Response
+}
+
+type Module {
+  asyncBatchFetch: [FetchResult!]!
+  batchFetch: [Concurrent_TaskResult!]!
+}
