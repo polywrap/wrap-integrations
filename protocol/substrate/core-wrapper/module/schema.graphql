@@ -24,8 +24,22 @@ type Mutation {
   chainGetBlockHash(
     argument: String
   ): CustomType!
+
+  chainGetMetadata(url: String
+  ): ChainMetadataOutput
 }
+
+
+# A scalar that can represent any JSON value.
+scalar JSON
 
 type CustomType {
   prop: String!
+}
+
+type ChainMetadataOutput {
+  metadata: JSON!
+  pallets: JSON!
+  events: [JSON!]!
+  errors: [JSON!]!
 }

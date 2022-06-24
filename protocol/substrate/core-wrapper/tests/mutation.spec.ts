@@ -54,4 +54,24 @@ describe("e2e", () => {
     const httpResponse = JSON.parse(result.data?.prop || "");
     expect(httpResponse.url).toContain("https://via.placeholder.com/");
   });
+
+  it("chainGetMetadata", async () => {
+    // You can use the client directly
+    await client.invoke({
+      uri,
+      module: "mutation",
+      method: "chainGetMetadata"
+    });
+
+    // Or use the test app's codegen types (see web3api.app.yaml)
+    const result = await Substrate_Mutation.chainGetMetadata(
+      {
+          url: "http://localhost:9933"
+      },
+      client,
+      uri
+    );
+
+      console.log("http response: ", result);
+  });
 });

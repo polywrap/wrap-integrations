@@ -4,6 +4,7 @@ pub use w3::*;
 use web3api_wasm_rs::w3_debug_log;
 
 use api::BaseApi;
+use serde_json::Value;
 
 mod api;
 mod error;
@@ -18,9 +19,6 @@ macro_rules! debug {
 }
 
 pub fn chain_get_block_hash(input: InputChainGetBlockHash) -> CustomType {
-    let metadata = BaseApi::new("http://localhost:9933").fetch_metadata();
-    debug!("metadata: {:?}", metadata);
-
     let url = String::from("https://jsonplaceholder.typicode.com/photos/1");
 
     let response = HttpQuery::get(&http_query::InputGet {
@@ -46,4 +44,16 @@ pub fn chain_get_block_hash(input: InputChainGetBlockHash) -> CustomType {
     CustomType {
         prop: response.body.unwrap(),
     }
+}
+
+pub fn chain_get_metadata(url: InputChainGetMetadata) -> Option<ChainMetadataOutput> {
+    debug!("url: {:?}", url);
+    let metadata = BaseApi::new("http://localhost:9933").fetch_metadata();
+    debug!("metadata: {:?}", metadata);
+    Some(ChainMetadataOutput {
+        metadata: Value::Null,
+        pallets: Value::Null,
+        events: vec![],
+        errors: vec![],
+    })
 }
