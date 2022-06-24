@@ -18,8 +18,8 @@ macro_rules! debug {
 }
 
 pub fn chain_get_block_hash(input: InputChainGetBlockHash) -> CustomType {
-    let runtime_metadata = BaseApi::new("http://localhost:9933").fetch_runtime_metadata();
-    debug!("runtime_metadata: {:?}", runtime_metadata);
+    let metadata = BaseApi::new("http://localhost:9933").fetch_metadata();
+    debug!("metadata: {:?}", metadata);
 
     let url = String::from("https://jsonplaceholder.typicode.com/photos/1");
 
