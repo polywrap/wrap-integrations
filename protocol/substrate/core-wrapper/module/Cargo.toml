@@ -8,12 +8,31 @@ authors = [
 repository = "https://todo.com"
 edition = "2021"
 
-[dependencies]
-web3api-wasm-rs = { version = "0.0.1-prealpha.82" }
-serde = { version = "1.0", features = ["derive"] }
-
 [lib]
 crate-type = ["cdylib"]
+
+
+[dependencies]
+web3api-wasm-rs = { version = "0.0.1-prealpha.85" }
+serde = { version = "1.0", features = ["derive"] }
+getrandom = { version = "0.2", features = ["custom"] }
+log = "0.4"
+serde_json = "1"
+hex = "0.4.3"
+thiserror = "1.0.30"
+codec = { package = "parity-scale-codec", version = "3.0.0", features = ["derive"] }
+scale-info = { version = "2.0.1" }
+frame-metadata = { version = "15.0.0", features = ["v14"] }
+
+# If this 2 substrate crate can be incorporated into the code (used in base_api mod), then the rest should follow
+sp-core = { version = "6.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master", features = ["full_crypto"] }
+
+[features]
+default = []
+w3-invoke = []
+std = [
+ "sp-core/std",
+]
 
 [profile.release]
 opt-level = 's'
