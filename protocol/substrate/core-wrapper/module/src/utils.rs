@@ -48,6 +48,7 @@ impl FromHexStr for H256 {
     }
 }
 
+/*
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -81,3 +82,4 @@ mod tests {
         );
     }
 }
+*/
