@@ -1,9 +1,9 @@
-use crate::w3::imported::http_query;
-use crate::w3::HttpHeader;
-use crate::w3::HttpQuery;
-use crate::w3::HttpRequest;
-use crate::w3::HttpResponse;
-use crate::w3::HttpResponseType;
+use crate::wrap::imported::http_module;
+use crate::wrap::HttpHeader;
+use crate::wrap::HttpModule;
+use crate::wrap::HttpRequest;
+use crate::wrap::HttpResponse;
+use crate::wrap::HttpResponseType;
 use crate::{error::Error, types::metadata::Metadata, utils::FromHexStr};
 use frame_metadata::RuntimeMetadataPrefixed;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
@@ -238,7 +238,7 @@ impl BaseApi {
         );
 
         let response: Result<Option<HttpResponse>, String> =
-            HttpQuery::post(&http_query::InputPost {
+            HttpModule::post(&http_module::ArgsPost {
                 url: self.url.clone(),
                 request: Some(HttpRequest {
                     response_type: HttpResponseType::TEXT,
