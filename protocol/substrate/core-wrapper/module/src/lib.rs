@@ -18,6 +18,16 @@ macro_rules! debug {
     }
 }
 
+getrandom::register_custom_getrandom!(custom_random_number);
+
+/// TODO: use polywraps random plugin for this
+pub fn custom_random_number(buf: &mut [u8]) -> Result<(), getrandom::Error> {
+    for b in buf.iter_mut() {
+        *b = 4;
+    }
+    Ok(())
+}
+
 pub fn chain_get_block_hash(input: InputChainGetBlockHash) -> CustomType {
     let url = String::from("https://jsonplaceholder.typicode.com/photos/1");
 
@@ -50,6 +60,10 @@ pub fn chain_get_metadata(url: InputChainGetMetadata) -> Option<ChainMetadataOut
     debug!("url: {:?}", url);
     let metadata = BaseApi::new("http://localhost:9933").fetch_metadata();
     debug!("metadata: {:?}", metadata);
+
+    let api = BaseApi::new("http://localhost:9933");
+    let block_hash = api.fetch_block_hash(0);
+    debug!("block_hash: {:?}", block_hash);
     Some(ChainMetadataOutput {
         metadata: Value::Null,
         pallets: Value::Null,

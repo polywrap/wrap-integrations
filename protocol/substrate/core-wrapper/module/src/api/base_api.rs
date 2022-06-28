@@ -1,3 +1,4 @@
+use crate::debug;
 use crate::w3::imported::http_query;
 use crate::w3::HttpHeader;
 use crate::w3::HttpQuery;
@@ -8,13 +9,11 @@ use crate::{error::Error, types::metadata::Metadata, utils::FromHexStr};
 use frame_metadata::RuntimeMetadataPrefixed;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use sp_core::{Decode, H256};
-/*
 use sp_runtime::{
     generic::SignedBlock,
     traits::{Block, Header},
 };
 use sp_version::RuntimeVersion;
-*/
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct JsonReq {
@@ -103,7 +102,6 @@ impl BaseApi {
         }
     }
 
-    /*
     /// Fetch a substrate block by number `n`
     pub fn fetch_block<B>(&self, n: u32) -> Result<Option<B>, Error>
     where
@@ -112,13 +110,11 @@ impl BaseApi {
         let signed_block = self.fetch_signed_block(n)?;
         Ok(signed_block.map(|sb| sb.block))
     }
-    */
 
     pub fn fetch_genesis_hash(&self) -> Result<Option<H256>, Error> {
         self.fetch_block_hash(0)
     }
 
-    /*
     /// Fetch a substrate signed block by number `n`
     pub fn fetch_signed_block<B>(&self, n: u32) -> Result<Option<SignedBlock<B>>, Error>
     where
@@ -132,7 +128,6 @@ impl BaseApi {
             Ok(None)
         }
     }
-    */
 
     pub fn fetch_finalized_head(&self) -> Result<Option<H256>, Error> {
         let value = self.json_request_value("chain_getFinalizedHead", ())?;
@@ -145,14 +140,11 @@ impl BaseApi {
         }
     }
 
-    /*
     pub fn fetch_header<H>(&self, hash: H256) -> Result<Option<H>, Error>
     where
         H: Header + DeserializeOwned,
     {
-        let value = self
-            .json_request_value("chain_getHeader", vec![hash])
-            ?;
+        let value = self.json_request_value("chain_getHeader", vec![hash])?;
         match value {
             Some(value) => {
                 println!("value: {:?}", value);
@@ -161,32 +153,21 @@ impl BaseApi {
             None => Ok(None),
         }
     }
-    */
 
-    /*
     /// Fetch a substrate block by its hash `hash`
-    pub fn fetch_signed_block_by_hash<B>(
-        &self,
-        hash: H256,
-    ) -> Result<Option<SignedBlock<B>>, Error>
+    pub fn fetch_signed_block_by_hash<B>(&self, hash: H256) -> Result<Option<SignedBlock<B>>, Error>
     where
         B: Block + DeserializeOwned,
     {
-        let value = self
-            .json_request_value("chain_getBlock", vec![hash])
-            ?;
+        let value = self.json_request_value("chain_getBlock", vec![hash])?;
         match value {
             Some(value) => Ok(serde_json::from_value(value)?),
             None => Ok(None),
         }
     }
-    */
 
-    /*
     pub fn fetch_runtime_version(&self) -> Result<Option<RuntimeVersion>, Error> {
-        let version = self
-            .json_request_value("state_getRuntimeVersion", ())
-            ?;
+        let version = self.json_request_value("state_getRuntimeVersion", ())?;
         match version {
             Some(version) => {
                 let rt_version: RuntimeVersion = serde_json::from_value(version)?;
@@ -195,7 +176,6 @@ impl BaseApi {
             None => Ok(None),
         }
     }
-    */
 
     pub fn submit_extrinsic(
         &self,
@@ -230,9 +210,9 @@ impl BaseApi {
             params: serde_json::to_value(params)?,
         };
         println!("param: {:#?}", param);
-        crate::debug!("param: {:#?}", param);
-        crate::debug!("url: {}", self.url);
-        crate::debug!(
+        debug!("param: {:#?}", param);
+        debug!("url: {}", self.url);
+        debug!(
             "display param: {:?}",
             serde_json::to_string(&param).unwrap()
         );
@@ -251,7 +231,7 @@ impl BaseApi {
                 }),
             });
 
-        crate::debug!("response: {:#?}", response);
+        debug!("response: {:#?}", response);
 
         let response = match response {
             Ok(response) => response,
