@@ -10,7 +10,7 @@
     "rebuild": "yarn clean && yarn codegen && yarn build"
   },
   "dependencies": {
-    "@web3api/cli": "0.0.1-prealpha.83"
+    "@web3api/cli": "0.0.1-prealpha.85"
   },
   "devDependencies": {
     "@types/jest": "27.0.2",
