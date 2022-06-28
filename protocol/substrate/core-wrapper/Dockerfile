@@ -1,6 +1,6 @@
 #FROM rustlang/rust:nightly-slim as base
-#FROM rust:1.60.0-slim-bullseye as base
-FROM rust:1.60.0 as base
+FROM rust:1.60.0-slim-bullseye as base
+#FROM rust:1.60.0 as base
 
 # Install the wasm32 rust build target
 RUN rustup target add wasm32-unknown-unknown
@@ -9,8 +9,9 @@ WORKDIR /build-deps
 
 # Install curl
 RUN apt-get update
-#RUN apt-get -y install curl build-essential libssl-dev pkg-config clang
-RUN apt-get -y install curl clang llvm build-essential
+
+# Install prerequisites
+RUN apt-get -y install curl clang llvm build-essential pkg-config libssl-dev
 
 
 # Install wasm-opt
@@ -25,11 +26,19 @@ RUN cargo install toml-cli
 # Install wasm-snip
 RUN cargo install wasm-snip
 
+# Install wasm-bindgen-cli
+RUN cargo install -f wasm-bindgen-cli
+
+
+# Set environment variable for wasm bindgen cli
+ENV WASM_INTERFACE_TYPES=1
+
+
+
 WORKDIR /project
 
 # Copy all manifest files
 COPY web3api.yaml .
-#COPY .w3/web3api/build/env/web3api.build.yaml .
 
 # Copy all source files
 COPY module module
@@ -70,14 +79,10 @@ RUN mkdir ./build
 # Show the build wasm file
 RUN ls -lah ./module/target/wasm32-unknown-unknown/release/
 
-# Use wasm-opt to perform the "asyncify" post-processing step over all modules
-#RUN WASM_MODULE=$(ls ./module/target/wasm32-unknown-unknown/release/*.wasm); \
-#    wasm-snip $WASM_MODULE -o ./build/snipped_mutation.wasm && \
-#    wasm-opt --asyncify -Os ./build/snipped_mutation.wasm -o ./build/mutation.wasm && \
-#    rm -rf ./build/snipped_mutation.wasm
-
-# Use wasm-opt to perform the "asyncify" post-processing step over all modules
+# Use wasm-bindgen to remove wbindgen_placeholder, 
+# wasm-opt to perform the "asyncify" post-processing step over all modules
 RUN WASM_MODULE=$(ls ./module/target/wasm32-unknown-unknown/release/*.wasm); \
-    wasm-snip $WASM_MODULE -o ./build/snipped_mutation.wasm && \
+    wasm-bindgen $WASM_MODULE  --out-dir ./build/ --out-name bindgen_mutation.wasm && \
+    wasm-snip ./build/bindgen_mutation.wasm -o ./build/snipped_mutation.wasm && \
     wasm-opt --asyncify -Os ./build/snipped_mutation.wasm -o ./build/mutation.wasm && \
     rm -rf ./build/snipped_mutation.wasm
