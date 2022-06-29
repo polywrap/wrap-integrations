@@ -1,40 +1,9 @@
-"""
-https://github.com/w3f/Grants-Program/blob/master/applications/substrate_core_polywrapper.md
+#import { Module, Request, Header, UrlParam, Response, } into Http from "wrap://ens/http.polywrap.eth"
 
-author_submitExtrinsic
-chain_getBlockHash
-chain_getHeader
-chain_getFinalizedHead
-chain_getBlock
-state_getStorage
-state_queryStorage
-state_queryStorageAt
-state_getMetadata
-state_getRuntimeVersion
-system_properties
-
-good reference:
-tezos/plugin-js/src/mutation/schema.graphql
-tezos/plugin-js/src/query/schema.graphql
-"""
-
-#import { Query, Request, Header, UrlParam, Response, } into Http from "w3://ens/http.web3api.eth"
-
-type Mutation {
-  chainGetBlockHash(
-    argument: String
-  ): CustomType!
-
-  chainGetMetadata(url: String
+type Module {
+  chainGetMetadata(
+    url: String
   ): ChainMetadataOutput
-}
-
-
-# A scalar that can represent any JSON value.
-scalar JSON
-
-type CustomType {
-  prop: String!
 }
 
 type ChainMetadataOutput {
