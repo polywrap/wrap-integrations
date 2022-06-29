@@ -1,7 +1,7 @@
 {
   "scripts": {
     "codegen": "npx polywrap codegen",
-    "build": "npx polywrap build",
+    "build": "npx polywrap build -v",
     "build:check": "cd module && cargo check",
     "test": "yarn test:e2e",
     "test:e2e": "yarn test:e2e:codegen && jest --passWithNoTests --runInBand --verbose",

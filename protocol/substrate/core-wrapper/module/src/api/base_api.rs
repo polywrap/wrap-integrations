@@ -1,3 +1,4 @@
+use crate::debug;
 use crate::wrap::imported::http_module;
 use crate::wrap::HttpHeader;
 use crate::wrap::HttpModule;
