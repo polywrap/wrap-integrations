@@ -1,13 +1,13 @@
-import { Substrate_Mutation } from "./w3";
+import { Substrate_Module } from "./wrap";
 
-import { Uri, Web3ApiClient } from "@web3api/client-js";
-import { runCLI } from "@web3api/test-env-js";
+import { Uri, PolywrapClient } from "@polywrap/client-js";
+import { runCLI } from "@polywrap/test-env-js";
 import path from "path";
 
 jest.setTimeout(360000);
 
 describe("e2e", () => {
-  let client: Web3ApiClient;
+  let client: PolywrapClient;
   let uri: string;
 
   beforeAll(async () => {
@@ -27,9 +27,10 @@ describe("e2e", () => {
     }
 
     uri = new Uri(`fs/${wrapperDir}/build`).uri;
-    client = new Web3ApiClient();
+    client = new PolywrapClient();
   });
 
+      /*
   it("chainGetBlockHash", async () => {
     // You can use the client directly
     await client.invoke({
@@ -39,7 +40,7 @@ describe("e2e", () => {
     });
 
     // Or use the test app's codegen types (see web3api.app.yaml)
-    const result = await Substrate_Mutation.chainGetBlockHash(
+    const result = await Substrate_Module.chainGetBlockHash(
       {
         argument: "argument value"
       },
@@ -54,6 +55,7 @@ describe("e2e", () => {
     const httpResponse = JSON.parse(result.data?.prop || "");
     expect(httpResponse.url).toContain("https://via.placeholder.com/");
   });
+  */
 
   it("chainGetMetadata", async () => {
     // You can use the client directly
@@ -64,7 +66,7 @@ describe("e2e", () => {
     });
 
     // Or use the test app's codegen types (see web3api.app.yaml)
-    const result = await Substrate_Mutation.chainGetMetadata(
+    const result = await Substrate_Module.chainGetMetadata(
       {
           url: "http://localhost:9933"
       },
