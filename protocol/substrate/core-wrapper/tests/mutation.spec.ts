@@ -61,7 +61,6 @@ describe("e2e", () => {
     // You can use the client directly
     await client.invoke({
       uri,
-      module: "mutation",
       method: "chainGetMetadata"
     });
 
