@@ -4,7 +4,9 @@ pub use w3::*;
 use web3api_wasm_rs::w3_debug_log;
 
 use api::BaseApi;
+pub use error::Error;
 use serde_json::Value;
+pub use types::metadata::Metadata;
 
 mod api;
 mod error;
