@@ -74,7 +74,6 @@ impl Api {
                 let params: BaseExtrinsicParams<Tip> =
                     BaseExtrinsicParams::new(nonce, other_params);
                 let extra = GenericExtra::from(params);
-                println!("call: {:?}", call);
                 let head_or_genesis_hash = match head_hash {
                     Some(hash) => hash,
                     None => self.genesis_hash,

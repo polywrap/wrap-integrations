@@ -77,29 +77,3 @@ impl Api {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[tokio::test]
-    fn show_total_balance_total_issuance() {
-        let api = Api::new("http://localhost:9933").expect("must not error");
-        let result: Result<Option<u128>, Error> =
-            api.fetch_storage_value("Balances", "TotalIssuance");
-        println!("result: {:?}", result);
-        assert!(result.is_ok());
-        let result = result.ok().flatten().unwrap();
-        // only succeed when the substrate node is fresh or unmodified
-        assert_eq!(result, 4611686018427387904);
-    }
-
-    #[tokio::test]
-    fn show_template_module() {
-        let api = Api::new("http://localhost:9933").expect("must not error");
-        let result: Result<Option<u32>, Error> =
-            api.fetch_storage_value("TemplateModule", "Something");
-        println!("result: {:?}", result);
-        assert!(result.is_ok());
-    }
-}
