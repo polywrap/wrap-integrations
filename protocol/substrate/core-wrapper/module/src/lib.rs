@@ -3,8 +3,11 @@ use polywrap_wasm_rs::wrap_debug_log;
 use wrap::imported::*;
 pub use wrap::*;
 
+pub use api::Api;
 use api::BaseApi;
+pub use error::Error;
 use serde_json::Value;
+pub use types::metadata::Metadata;
 
 mod api;
 mod error;
