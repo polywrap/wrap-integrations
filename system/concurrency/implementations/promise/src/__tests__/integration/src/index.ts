@@ -1,64 +1,48 @@
 import {
+  Args_asyncBatchFetch,
+  Args_batchFetch,
   Concurrent_Module,
   Concurrent_ReturnWhen,
-  Concurrent_TaskResult,
+  Concurrent_Task,
   FetchResult,
+  HTTP_Module,
+  HTTP_Response,
   HTTP_ResponseType,
+  HTTP_UrlParam,
 } from "./wrap";
 import {
   serializegetArgs,
   deserializegetResult,
 } from "./wrap/imported/HTTP_Module/serialization";
 
-export function asyncBatchFetch(): FetchResult[] {
-  const posts = serializegetArgs({
-    url: "https://jsonplaceholder.typicode.com/posts",
-    request: {
-      headers: [],
-      urlParams: [],
-      body: "",
-      responseType: HTTP_ResponseType.TEXT,
-    },
-  });
+export function asyncBatchFetch(args: Args_asyncBatchFetch): FetchResult[] {
+  const tasks: Concurrent_Task[] = [];
+  for (let i = 0; i < args.delays.length; i++) {
+    const param: HTTP_UrlParam[] = [
+      {
+        key: "seconds",
+        value: args.delays[i],
+      },
+    ];
+    const apiCall: ArrayBuffer = serializegetArgs({
+      url: "https://hub.dummyapis.com/delay",
+      request: {
+        headers: [],
+        urlParams: param,
+        body: "",
+        responseType: HTTP_ResponseType.TEXT,
+      },
+    });
 
-  const users = serializegetArgs({
-    url: "https://jsonplaceholder.typicode.com/users",
-    request: {
-      headers: [],
-      urlParams: [],
-      body: "",
-      responseType: HTTP_ResponseType.TEXT,
-    },
-  });
-
-  const comments = serializegetArgs({
-    url: "https://jsonplaceholder.typicode.com/comments",
-    request: {
-      headers: [],
-      urlParams: [],
-      body: "",
-      responseType: HTTP_ResponseType.TEXT,
-    },
-  });
-
+    const task: Concurrent_Task = {
+      uri: "wrap://ens/http.polywrap.eth",
+      method: "get",
+      args: apiCall,
+    };
+    tasks.push(task);
+  }
   const taskIds: Array<i32> = Concurrent_Module.schedule({
-    tasks: [
-      {
-        uri: "wrap://ens/http.polywrap.eth",
-        method: "get",
-        input: posts,
-      },
-      {
-        uri: "wrap://ens/http.polywrap.eth",
-        method: "get",
-        input: users,
-      },
-      {
-        uri: "wrap://ens/http.polywrap.eth",
-        method: "get",
-        input: comments,
-      },
-    ],
+    tasks: tasks,
   }).unwrap();
 
   const results = Concurrent_Module.result({
@@ -92,61 +76,26 @@ export function asyncBatchFetch(): FetchResult[] {
   return parsedResults;
 }
 
-export function batchFetch(): Concurrent_TaskResult[] {
-  const posts = serializegetArgs({
-    url: "https://jsonplaceholder.typicode.com/posts",
-    request: {
-      headers: [],
-      urlParams: [],
-      body: "",
-      responseType: HTTP_ResponseType.TEXT,
-    },
-  });
-
-  const users = serializegetArgs({
-    url: "https://jsonplaceholder.typicode.com/users",
-    request: {
-      headers: [],
-      urlParams: [],
-      body: "",
-      responseType: HTTP_ResponseType.TEXT,
-    },
-  });
-
-  const comments = serializegetArgs({
-    url: "https://jsonplaceholder.typicode.com/comments",
-    request: {
-      headers: [],
-      urlParams: [],
-      body: "",
-      responseType: HTTP_ResponseType.TEXT,
-    },
-  });
-
-  const taskIds: Array<i32> = Concurrent_Module.schedule({
-    tasks: [
+export function batchFetch(args: Args_batchFetch): HTTP_Response[] {
+  const results: HTTP_Response[] = [];
+  for (let i = 0; i < args.delays.length; i++) {
+    const param: HTTP_UrlParam[] = [
       {
-        uri: "w3://ens/http.web3api.eth",
-        method: "get",
-        input: posts,
+        key: "seconds",
+        value: args.delays[i],
       },
-      {
-        uri: "w3://ens/http.web3api.eth",
-        method: "get",
-        input: users,
+    ];
+    const apiResult = HTTP_Module.get({
+      url: "https://hub.dummyapis.com/delay",
+      request: {
+        headers: [],
+        urlParams: param,
+        body: "",
+        responseType: HTTP_ResponseType.TEXT,
       },
-      {
-        uri: "w3://ens/http.web3api.eth",
-        method: "get",
-        input: comments,
-      },
-    ],
-  }).unwrap();
+    }).unwrap() as HTTP_Response;
 
-  const results = Concurrent_Module.result({
-    taskIds: taskIds,
-    returnWhen: Concurrent_ReturnWhen.ALL_COMPLETED,
-  }).unwrap();
-
+    results.push(apiResult);
+  }
   return results;
 }

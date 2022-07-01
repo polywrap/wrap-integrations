@@ -15,7 +15,7 @@ enum ReturnWhen {
 type Task {
   uri: String!
   method: String!
-  input: Bytes!
+  args: Bytes!
 }
 
 type TaskResult {

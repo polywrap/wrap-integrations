@@ -6,6 +6,13 @@ type FetchResult implements Concurrent_TaskResult {
 }
 
 type Module {
-  asyncBatchFetch: [FetchResult!]!
-  batchFetch: [Concurrent_TaskResult!]!
+  asyncBatchFetch(
+    """ Calls mock http api with given delays paralelly """
+    delays: [String!]!
+  ): [FetchResult!]!
+
+  batchFetch(
+    """ Calls mock http api with given delays sequencially"""
+    delays: [String!]!
+  ): [HTTP_Response!]!
 }

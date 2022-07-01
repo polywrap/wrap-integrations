@@ -1,5 +1,5 @@
 import { ClientConfig, coreInterfaceUris } from "@polywrap/client-js";
-import { ensPlugin } from "@polywrap/ens-plugin-js";
+import { ensResolverPlugin } from "@polywrap/ens-resolver-plugin-js";
 import { ethereumPlugin } from "@polywrap/ethereum-plugin-js";
 import { ipfsPlugin } from "@polywrap/ipfs-plugin-js";
 import { ensAddresses, providers } from "@polywrap/test-env-js";
@@ -28,7 +28,7 @@ export function getPlugins(): Partial<ClientConfig> {
       },
       {
         uri: "wrap://ens/ens.web3api.eth",
-        plugin: ensPlugin({ addresses: { testnet: testEnv.ensAddress } }),
+        plugin: ensResolverPlugin({ addresses: { testnet: testEnv.ensAddress } }),
       },
       {
         uri: "wrap://ens/ethereum.web3api.eth",

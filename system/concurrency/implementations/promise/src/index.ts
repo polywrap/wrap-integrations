@@ -5,9 +5,9 @@ import {
   PluginFactory,
 } from "@polywrap/core-js";
 import {
-  Input_result,
-  Input_schedule,
-  Input_status,
+  Args_result,
+  Args_schedule,
+  Args_status,
   Int,
   Interface_ReturnWhenEnum,
   Interface_Task,
@@ -32,7 +32,7 @@ export class ConcurrentPromisePlugin extends Module<ConcurrentPromisePluginConfi
   }
 
   public async result(
-    input: Input_result,
+    input: Args_result,
     client: Client
   ): Promise<Array<Interface_TaskResult>> {
     switch (input.returnWhen) {
@@ -55,27 +55,22 @@ export class ConcurrentPromisePlugin extends Module<ConcurrentPromisePluginConfi
   }
 
   public async status(
-    input: Input_status,
+    input: Args_status,
     client: Client
   ): Promise<Array<Interface_TaskStatus>> {
     return input.taskIds.map((id) => this._status[id]);
   }
 
-  public async schedule(
-    input: Input_schedule,
-    client: Client
-  ): Promise<Array<Int>> {
-    return await Promise.all(
-      input.tasks.map(async (task) => {
-        const taskId = this.scheduleTask(
-          {
-            ...task,
-          },
-          client
-        );
-        return taskId;
-      })
-    );
+  public schedule(input: Args_schedule, client: Client): Array<Int> {
+    return input.tasks.map((task) => {
+      const taskId = this.scheduleTask(
+        {
+          ...task,
+        },
+        client
+      );
+      return taskId;
+    });
   }
 
   private scheduleTask(task: Interface_Task, client: Client): number {
