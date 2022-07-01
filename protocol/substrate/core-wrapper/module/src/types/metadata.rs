@@ -21,6 +21,7 @@
 
 use crate::types::storage::GetStorage;
 use codec::{Encode, Error as CodecError};
+use frame_metadata::v14::StorageEntryType;
 use frame_metadata::{
     PalletConstantMetadata, RuntimeMetadata, RuntimeMetadataLastVersion, RuntimeMetadataPrefixed,
     StorageEntryMetadata, META_RESERVED,
@@ -151,6 +152,41 @@ impl Metadata {
     /// Return the runtime metadata.
     pub fn get_runtime_metadata(&self) -> &RuntimeMetadataLastVersion {
         &self.metadata
+    }
+
+    pub fn storage_value_type(
+        &self,
+        pallet_name: &str,
+        storage_name: &str,
+    ) -> Result<Option<&Type<PortableForm>>, MetadataError> {
+        let pallet = self.pallet(pallet_name)?;
+        let storage_metadata = pallet.storage(storage_name)?;
+        let ty_id = match storage_metadata.ty {
+            StorageEntryType::Plain(plain) => Some(plain.id()),
+            _ => None,
+        };
+        let portable_form = ty_id.map(|ty_id| self.get_resolve_type(ty_id)).flatten();
+        Ok(portable_form)
+    }
+
+    pub fn storage_map_type(
+        &self,
+        pallet_name: &str,
+        storage_name: &str,
+    ) -> Result<Option<(&Type<PortableForm>, &Type<PortableForm>)>, MetadataError> {
+        let pallet = self.pallet(pallet_name)?;
+        let storage_metadata = pallet.storage(storage_name)?;
+        match storage_metadata.ty {
+            StorageEntryType::Map { key, value, .. } => {
+                let ty_key = self.get_resolve_type(key.id());
+                let ty_value = self.get_resolve_type(value.id());
+                match (ty_key, ty_value) {
+                    (Some(ty_key), Some(ty_value)) => Ok(Some((ty_key, ty_value))),
+                    _ => Ok(None),
+                }
+            }
+            _ => Ok(None),
+        }
     }
 }
 
