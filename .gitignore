@@ -7,3 +7,4 @@ protocol/tezos/quipuswap-token-edition/src/query/w3/
 node_modules/
 build/
 wrap/
+.polywrap/
