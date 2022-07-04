@@ -1,9 +1,0 @@
-[
-  {
-    "wrapper": "fs/./build"
-  },
-  {
-    "query": "./log.graphql",
-    "variables": { "message": "Cool message from log" }
-  }
-]

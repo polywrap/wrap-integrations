@@ -2,16 +2,16 @@
   "name": "@polywrap/console-wrapper",
   "description": "Polywrap for logging",
   "private": true,
-  "version": "0.0.1-prealpha.88",
+  "version": "0.0.1-prealpha.91",
   "scripts": {
     "build": "polywrap build",
     "codegen": "polywrap codegen",
     "deploy": "polywrap deploy",
-    "test": "polywrap query ./recipes/e2e.json"
+    "test": "npx polywrap run ./workflows/e2e.yaml -c ./workflows/config.ts"
   },
   "devDependencies": {
-    "@polywrap/wasm-as": "0.0.1-prealpha.88",
-    "polywrap": "0.0.1-prealpha.88",
+    "@polywrap/wasm-as": "0.0.1-prealpha.91",
+    "polywrap": "0.0.1-prealpha.91",
     "assemblyscript": "0.19.1",
     "js-yaml": "3.14.0"
   }
