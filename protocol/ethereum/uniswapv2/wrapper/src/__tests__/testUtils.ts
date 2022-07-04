@@ -3,24 +3,8 @@ import { ClientConfig, coreInterfaceUris, Web3ApiClient } from "@web3api/client-
 import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
 import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
 import { ensPlugin } from "@web3api/ens-plugin-js";
-import { initTestEnvironment as initWeb3ApiTestEnvironment, stopTestEnvironment as stopWeb3ApiTestEnvironment } from "@web3api/test-env-js";
 import * as uni from "@uniswap/sdk";
 import tokenList from "./e2e/testData/tokenList.json";
-import { spawn } from "child_process";
-
-export async function initTestEnvironment(): Promise<void> {
-  console.log({ __dirname })
-  const { stderr, stdout } = spawn("docker-compose up", { cwd: __dirname})
-  console.log({stderr})
-  console.log({stdout})
-  
-  await initWeb3ApiTestEnvironment()
-}
-
-export async function stopTestEnvironment(): Promise<void> {
-  await stopWeb3ApiTestEnvironment()
-  spawn("docker-compose down", { cwd: __dirname + "../"})
-}
 
 export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): ClientConfig {
   return {

@@ -1,4 +1,4 @@
-import { buildAndDeployApi, providers, ensAddresses } from "@web3api/test-env-js";
+import { buildAndDeployApi, providers, ensAddresses, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
 import {
   ChainId,
@@ -19,8 +19,6 @@ import {
   getPlugins,
   getTokenList,
   getUniPairs,
-  initTestEnvironment,
-  stopTestEnvironment
 } from "../testUtils";
 import { ethers } from "ethers";
 import * as uni from "@uniswap/sdk";
