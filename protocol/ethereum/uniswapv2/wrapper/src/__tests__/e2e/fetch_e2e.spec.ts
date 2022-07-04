@@ -50,7 +50,7 @@ describe("Fetch", () => {
     const link: Token = tokens.filter(token => token.currency.symbol === "LINK")[0];
     pairs = [[aave, dai], [usdc, dai], [aave, usdc], [comp, weth], [uniswap, link], [uniswap, wbtc], [wbtc, weth]];
     // set up ethers provider
-    ethersProvider = getDefaultProvider("https://eth-mainnet.alchemyapi.io/v2/QK_M4b91n_L8yeixmnEqFy-vkPRz6PvN");
+    ethersProvider = getDefaultProvider("http://localhost:8546");
   });
 
   afterAll(async () => {

@@ -1,14 +1,12 @@
 import {
-  buildAndDeployApi,
   initTestEnvironment,
   stopTestEnvironment,
   providers,
   ensAddresses
-} from "@web3api/test-env-js";
-import { Web3ApiClient } from "@web3api/client-js";
-import path from "path";
+} from "@polywrap/test-env-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import { providers as ethersProviders } from "ethers";
-
+import path from "path"
 import { getPlugins } from "./utils";
 
 jest.setTimeout(300000);
@@ -16,37 +14,30 @@ jest.setTimeout(300000);
 describe("ENS Wrapper", () => {
   // We will have two clients because we need two
   // different signers in order to test ENS functions
-  let ownerClient: Web3ApiClient;
-  let anotherOwnerClient: Web3ApiClient;
+  let ownerClient: PolywrapClient;
+  let anotherOwnerClient: PolywrapClient;
 
-  let ensUri: string;
   let ethersProvider: ethersProviders.JsonRpcProvider;
   let ensAddress: string = ensAddresses.ensAddress;
   let registrarAddress: string = ensAddresses.registrarAddress;
   let resolverAddress: string = ensAddresses.resolverAddress;
   let reverseRegistryAddress: string = ensAddresses.reverseAddress;
   let customFifsRegistrarAddress: string;
-
+  
   let owner: string;
   let anotherOwner: string;
-
+  
   const customTld: string = "doe.eth";
   const openSubdomain: string = "open." + customTld;
   const customSubdomain: string = "john." + customTld;
-
+  
   const network: string = "testnet";
+  
+  const apiAbsPath: string = path.resolve(__dirname + "/../../build");
+  let ensUri: string = 'wrap://fs/' + apiAbsPath;
 
   beforeAll(async () => {
     await initTestEnvironment();
-
-    // deploy api
-    const apiAbsPath: string = path.resolve(__dirname + "/../../");
-    const api = await buildAndDeployApi({ 
-      apiAbsPath, 
-      ipfsProvider: providers.ipfs, 
-      ethereumProvider: providers.ethereum 
-    });
-    ensUri = `ens/testnet/${api.ensDomain}`;
 
     // set up ethers provider
     ethersProvider = ethersProviders.getDefaultProvider(
@@ -58,7 +49,7 @@ describe("ENS Wrapper", () => {
     // get client
     const plugins = getPlugins(providers.ethereum, providers.ipfs, ensAddress);
   
-    ownerClient = new Web3ApiClient({ plugins });
+    ownerClient = new PolywrapClient({ plugins });
 
     const anotherOwnerRedirects = getPlugins(
       providers.ethereum,
@@ -66,7 +57,7 @@ describe("ENS Wrapper", () => {
       ensAddress,
       anotherOwner
     );
-    anotherOwnerClient = new Web3ApiClient({ plugins: anotherOwnerRedirects });
+    anotherOwnerClient = new PolywrapClient({ plugins: anotherOwnerRedirects });
   });
 
   afterAll(async () => {

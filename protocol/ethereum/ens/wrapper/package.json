@@ -1,26 +1,26 @@
 {
-  "name": "@web3api/ens-api",
-  "description": "ENS Web3API",
+  "name": "@polywrap/ens-api",
+  "description": "ENS polywrap",
   "private": true,
-  "version": "0.0.1-prealpha.84",
+  "version": "0.0.1-prealpha.91",
   "scripts": {
-    "build": "npx w3 build",
-    "test:env:up": "npx w3 infra up --modules=eth-ens-ipfs",
-    "test:env:down": "npx w3 infra down --modules=eth-ens-ipfs",
-    "deploy": "npx w3 deploy",
+    "build": "npx polywrap build",
+    "test:env:up": "npx polywrap infra up --modules=eth-ens-ipfs",
+    "test:env:down": "npx polywrap infra down --modules=eth-ens-ipfs",
+    "deploy": "npx polywrap deploy",
     "test": "yarn test:e2e && yarn test:env:up && sleep 10 && yarn deploy && yarn test:recipe && yarn test:env:down",
-    "test:e2e": "jest --passWithNoTests --runInBand --verbose",
-    "test:recipe": "npx w3 query ./recipes/e2e.json"
+    "test:e2e": "jest --passWithNoTests --runInBand --verbose"
   },
   "dependencies": {
-    "@web3api/client-js": "^0.0.1-prealpha.84",
-    "@web3api/wasm-as": "0.0.1-prealpha.84"
+    "@polywrap/client-js": "0.0.1-prealpha.91",
+    "@polywrap/wasm-as": "0.0.1-prealpha.91"
   },
   "devDependencies": {
     "@types/jest": "22.2.3",
-    "@web3api/cli": "0.0.1-prealpha.84",
-    "@web3api/ethereum-plugin-js": "0.0.1-prealpha.84",
-    "@web3api/test-env-js": "0.0.1-prealpha.84",
+    "polywrap": "0.0.1-prealpha.91",
+    "@polywrap/ens-plugin-js": "0.0.1-prealpha.89",
+    "@polywrap/ethereum-plugin-js": "0.0.1-prealpha.91",
+    "@polywrap/test-env-js": "0.0.1-prealpha.91",
     "dotenv": "8.2.0",
     "ethers": "5.0.8",
     "jest": "27.0.6",
