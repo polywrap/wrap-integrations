@@ -4,8 +4,12 @@ import { KeyPair, NearPluginConfig } from "../../../plugin-js"; //TODO change to
 
 import { PolywrapClient } from "@polywrap/client-js";
 import * as nearApi from "near-api-js";
-import {buildAndDeployWrapper, initTestEnvironment, providers, stopTestEnvironment} from "@polywrap/test-env-js";
-import path from "path";
+import {
+  ensAddresses,
+  initTestEnvironment,
+  providers,
+  stopTestEnvironment,
+} from "@polywrap/test-env-js";
 import { BN } from "bn.js";
 import * as fs from "fs";
 
@@ -19,7 +23,7 @@ global["window"] = mock.getWindow();
 global["localStorage"] = localStorage;
 
 jest.setTimeout(360000);
-jest.retryTimes(3)
+jest.retryTimes(3);
 
 describe("e2e", () => {
   let client: PolywrapClient;
@@ -33,17 +37,17 @@ describe("e2e", () => {
   beforeAll(async () => {
     // set up test env and deploy api
     await initTestEnvironment();
-    const apiPath: string = path.resolve(__dirname + "/../../");
-    const api = await buildAndDeployWrapper({
-      wrapperAbsPath: apiPath,
-      ipfsProvider: providers.ipfs,
-      ethereumProvider: providers.ethereum
-    });
     nearConfig = await testUtils.setUpTestConfig();
     near = await nearApi.connect(nearConfig);
     // set up client
-    apiUri = `ens/testnet/${api.ensDomain}`;
-    const polywrapConfig = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
+    console.log(__dirname);
+    apiUri = `fs/../../build`;
+    const polywrapConfig = testUtils.getPlugins(
+      providers.ethereum,
+      ensAddresses.ensAddress,
+      providers.ipfs,
+      nearConfig
+    );
     client = new PolywrapClient(polywrapConfig);
 
     contractId = testUtils.generateUniqueString("test");
@@ -69,9 +73,14 @@ describe("e2e", () => {
     const { amount } = await workingAccount.state();
     const newAmount = new BN(amount).div(new BN(10)).toString();
 
-    const newPublicKey = await near.connection.signer.createKey(newAccountId, testUtils.networkId);
+    const newPublicKey = await near.connection.signer.createKey(
+      newAccountId,
+      testUtils.networkId
+    );
 
-    const result = await client.query<{ createAccount: Near_FinalExecutionOutcome }>({
+    const result = await client.query<{
+      createAccount: Near_FinalExecutionOutcome;
+    }>({
       uri: apiUri,
       query: `mutation {
         createAccount(
@@ -111,7 +120,9 @@ describe("e2e", () => {
 
     expect(accountToDelete.state()).resolves;
 
-    const result = await client.query<{ deleteAccount: Near_FinalExecutionOutcome }>({
+    const result = await client.query<{
+      deleteAccount: Near_FinalExecutionOutcome;
+    }>({
       uri: apiUri,
       query: `mutation {
         deleteAccount(
@@ -139,7 +150,9 @@ describe("e2e", () => {
   });
   // add key +
   it("Add key", async () => {
-    const newPublicKey = nearApi.utils.KeyPair.fromRandom("ed25519").getPublicKey();
+    const newPublicKey = nearApi.utils.KeyPair.fromRandom(
+      "ed25519"
+    ).getPublicKey();
 
     const { amount } = await workingAccount.state();
     const newAmount = new BN(amount).div(new BN(10)).toString();
@@ -177,7 +190,9 @@ describe("e2e", () => {
 
     const detailsAfter = await workingAccount.getAccountDetails();
 
-    expect(detailsAfter.authorizedApps.length).toBeGreaterThan(detailsBefore.authorizedApps.length);
+    expect(detailsAfter.authorizedApps.length).toBeGreaterThan(
+      detailsBefore.authorizedApps.length
+    );
     expect(detailsAfter.authorizedApps).toEqual(
       expect.arrayContaining([
         {
@@ -191,7 +206,9 @@ describe("e2e", () => {
 
   // delete key +
   it("Delete key", async () => {
-    const newPublicKey = nearApi.utils.KeyPair.fromRandom("ed25519").getPublicKey();
+    const newPublicKey = nearApi.utils.KeyPair.fromRandom(
+      "ed25519"
+    ).getPublicKey();
 
     const detailsBefore = await workingAccount.getAccountDetails();
 
@@ -199,9 +216,13 @@ describe("e2e", () => {
 
     const detailsAfterAddKey = await workingAccount.getAccountDetails();
 
-    expect(detailsAfterAddKey.authorizedApps.length).toBeGreaterThan(detailsBefore.authorizedApps.length);
+    expect(detailsAfterAddKey.authorizedApps.length).toBeGreaterThan(
+      detailsBefore.authorizedApps.length
+    );
 
-    const result = await client.query<{ deleteKey: Near_FinalExecutionOutcome }>({
+    const result = await client.query<{
+      deleteKey: Near_FinalExecutionOutcome;
+    }>({
       uri: apiUri,
       query: `mutation {
         deleteKey(
@@ -226,18 +247,22 @@ describe("e2e", () => {
 
     const detailsAfterDeleteKey = await workingAccount.getAccountDetails();
 
-    expect(detailsBefore.authorizedApps.length).toEqual(detailsAfterDeleteKey.authorizedApps.length);
+    expect(detailsBefore.authorizedApps.length).toEqual(
+      detailsAfterDeleteKey.authorizedApps.length
+    );
   });
 
   // send money +
   it("Send money", async () => {
-    let receiver = masterAccount
+    const receiver = masterAccount;
     const receiverBalanceBefore = await receiver.getAccountBalance();
 
     const { amount } = await workingAccount.state();
     const newAmount = new BN(amount).div(new BN(10)).toString();
 
-    const result = await client.query<{ sendMoney: Near_FinalExecutionOutcome }>({
+    const result = await client.query<{
+      sendMoney: Near_FinalExecutionOutcome;
+    }>({
       uri: apiUri,
       query: `mutation {
         sendMoney(
@@ -264,10 +289,13 @@ describe("e2e", () => {
 
     const receiverBalanceAfter = await receiver.getAccountBalance();
 
-    expect(new BN(receiverBalanceAfter.total).gt(new BN(receiverBalanceBefore.total))).toEqual(true);
+    expect(
+      new BN(receiverBalanceAfter.total).gt(new BN(receiverBalanceBefore.total))
+    ).toEqual(true);
 
-    expect(new BN(receiverBalanceAfter.total).sub(new BN(newAmount)).toString()).toEqual(receiverBalanceBefore.total);
-
+    expect(
+      new BN(receiverBalanceAfter.total).sub(new BN(newAmount)).toString()
+    ).toEqual(receiverBalanceBefore.total);
   });
 
   // createAndDeplyt contract +
@@ -284,7 +312,9 @@ describe("e2e", () => {
       testUtils.networkId
     );
 
-    const result = await client.query<{ createAndDeployContract: Near_FinalExecutionOutcome }>({
+    const result = await client.query<{
+      createAndDeployContract: Near_FinalExecutionOutcome;
+    }>({
       uri: apiUri,
       query: `mutation {
         createAndDeployContract(
@@ -328,7 +358,9 @@ describe("e2e", () => {
 
     await masterAccount.createAccount(newContractId, newPublicKey, newAmount);
 
-    const result = await client.query<{ deployContract: Near_FinalExecutionOutcome }>({
+    const result = await client.query<{
+      deployContract: Near_FinalExecutionOutcome;
+    }>({
       uri: apiUri,
       query: `mutation {
         deployContract(
@@ -358,7 +390,9 @@ describe("e2e", () => {
   it("FunctionCall with json stringified args", async () => {
     const jsonArgs = JSON.stringify({ name: "trex" });
 
-    const result = await client.query<{ functionCall: Near_FinalExecutionOutcome }>({
+    const result = await client.query<{
+      functionCall: Near_FinalExecutionOutcome;
+    }>({
       uri: apiUri,
       query: `mutation {
         functionCall(

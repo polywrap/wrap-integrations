@@ -1,14 +1,14 @@
 import {
   BlockResult,
   EpochValidatorInfo,
-  Input_accountChanges,
-  Input_getAccountState,
-  Input_createTransaction,
-  Input_requestSignIn,
-  Input_findAccessKey,
-  Input_signTransaction,
-  Input_getPublicKey,
-  Input_getBlock,
+  Args_accountChanges,
+  Args_getAccountState,
+  Args_createTransaction,
+  Args_requestSignIn,
+  Args_findAccessKey,
+  Args_signTransaction,
+  Args_getPublicKey,
+  Args_getBlock,
   Near_PublicKey,
   Near_Module,
   Near_Transaction,
@@ -18,19 +18,19 @@ import {
   AccessKey,
   AccountView,
   ChangeResult,
-  Input_accessKeyChanges,
-  Input_getAccountBalance,
-  Input_txStatus,
-  Input_txStatusReceipts,
-  Input_blockChanges,
-  Input_singleAccessKeyChanges,
-  Input_contractCodeChanges,
-  Input_contractStateChanges,
-  Input_lightClientProof,
-  Input_validators,
-  Input_experimental_protocolConfig,
-  Input_parseNearAmount,
-  Input_formatNearAmount,
+  Args_accessKeyChanges,
+  Args_getAccountBalance,
+  Args_txStatus,
+  Args_txStatusReceipts,
+  Args_blockChanges,
+  Args_singleAccessKeyChanges,
+  Args_contractCodeChanges,
+  Args_contractStateChanges,
+  Args_lightClientProof,
+  Args_validators,
+  Args_experimental_protocolConfig,
+  Args_parseNearAmount,
+  Args_formatNearAmount,
   AccountBalance,
   NodeStatusResult,
   Near_FinalExecutionOutcomeWithReceipts,
@@ -39,20 +39,20 @@ import {
   LightClientProof,
   NearProtocolConfig,
   KeyValuePair,
-  Input_viewContractState,
+  Args_viewContractState,
   ContractStateResult,
   ViewContractCode,
-  Input_chunk,
-  Input_gasPrice,
-  Input_getAccessKeys,
-  Input_getAccountDetails,
-  Input_viewFunction,
-  Input_viewContractCode,
+  Args_chunk,
+  Args_gasPrice,
+  Args_getAccessKeys,
+  Args_getAccountDetails,
+  Args_viewFunction,
+  Args_viewContractCode,
   AccountAuthorizedApp
 } from "./wrap";
 import JsonRpcProvider from "./utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
-import { BigInt, JSON, JSONEncoder } from "@cbrzn/wasm-as";
+import { BigInt, JSON, JSONEncoder } from "@polywrap/wasm-as";
 import { publicKeyFromStr, publicKeyToStr } from "./utils/typeUtils";
 import {
   toAccessKey,
@@ -69,7 +69,7 @@ import {
 } from "./utils/jsonMap";
 import * as formatUtils from "./utils/format";
 
-export function requestSignIn(input: Input_requestSignIn): boolean {
+export function requestSignIn(input: Args_requestSignIn): boolean {
   return Near_Module.requestSignIn({
     contractId: input.contractId,
     methodNames: input.methodNames,
@@ -90,12 +90,12 @@ export function getAccountId(): string | null {
   return Near_Module.getAccountId({}).unwrap();
 }
 
-export function getBlock(input: Input_getBlock): BlockResult {
+export function getBlock(input: Args_getBlock): BlockResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   return provider.block(input.blockQuery);
 }
 
-export function getAccountState(input: Input_getAccountState): AccountView {
+export function getAccountState(input: Args_getAccountState): AccountView {
   // prepare params
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
@@ -126,7 +126,7 @@ export function getAccountState(input: Input_getAccountState): AccountView {
 }
 
 export function viewContractState(
-  input: Input_viewContractState
+  input: Args_viewContractState
 ): ContractStateResult {
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
@@ -149,7 +149,7 @@ export function viewContractState(
 }
 
 export function viewContractCode(
-  input: Input_viewContractCode
+  input: Args_viewContractCode
 ): ViewContractCode {
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
@@ -171,7 +171,7 @@ export function viewContractCode(
 }
 
 export function findAccessKey(
-  input: Input_findAccessKey
+  input: Args_findAccessKey
 ): AccessKeyInfo | null {
   // get public key
   const publicKey: Near_PublicKey | null = getPublicKey({
@@ -198,12 +198,12 @@ export function findAccessKey(
   };
 }
 
-export function getPublicKey(input: Input_getPublicKey): Near_PublicKey | null {
+export function getPublicKey(input: Args_getPublicKey): Near_PublicKey | null {
   return Near_Module.getPublicKey({ accountId: input.accountId }).unwrap();
 }
 
 export function getAccountBalance(
-  input: Input_getAccountBalance
+  input: Args_getAccountBalance
 ): AccountBalance {
   // prepare params
   const encoder = new JSONEncoder();
@@ -238,7 +238,7 @@ export function getAccountBalance(
 }
 
 export function getAccountDetails(
-  input: Input_getAccountDetails
+  input: Args_getAccountDetails
 ): AccountAuthorizedApp[] {
   const accessKeys = getAccessKeys({ accountId: input.accountId });
 
@@ -264,7 +264,7 @@ export function getAccountDetails(
   return authorizedApps;
 }
 
-export function getAccessKeys(input: Input_getAccessKeys): AccessKeyInfo[] {
+export function getAccessKeys(input: Args_getAccessKeys): AccessKeyInfo[] {
   // prepare params
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
@@ -288,13 +288,13 @@ export function getAccessKeys(input: Input_getAccessKeys): AccessKeyInfo[] {
   return accessKeysInfo;
 }
 
-export function viewFunction(input: Input_viewFunction): JSON.Obj {
+export function viewFunction(input: Args_viewFunction): JSON.Obj {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   return provider.viewFunction(input.contractId, input.methodName, input.args);
 }
 
 export function createTransaction(
-  input: Input_createTransaction
+  input: Args_createTransaction
 ): Near_Transaction {
   if (input.signerId == null) {
     return Near_Module.createTransactionWithWallet({
@@ -336,7 +336,7 @@ export function createTransaction(
 }
 
 export function lightClientProof(
-  input: Input_lightClientProof
+  input: Args_lightClientProof
 ): LightClientProof {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const lightClientProof = provider.lightClientProof(input.request);
@@ -344,7 +344,7 @@ export function lightClientProof(
 }
 
 export function signTransaction(
-  input: Input_signTransaction
+  input: Args_signTransaction
 ): Near_SignTransactionResult {
   return Near_Module.signTransaction({
     transaction: input.transaction,
@@ -357,27 +357,27 @@ export function status(): NodeStatusResult {
   return toNodeStatus(statusJson);
 }
 
-export function txStatus(input: Input_txStatus): Near_FinalExecutionOutcome {
+export function txStatus(input: Args_txStatus): Near_FinalExecutionOutcome {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const txStatus = provider.txStatus(input.txHash, input.accountId);
   return toFinalExecutionOutcome(txStatus);
 }
 
 export function txStatusReceipts(
-  input: Input_txStatusReceipts
+  input: Args_txStatusReceipts
 ): Near_FinalExecutionOutcomeWithReceipts {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const txStatus = provider.txStatusReceipts(input.txHash, input.accountId);
   return toFinalExecutionOutcomeWithReceipts(txStatus);
 }
 
-export function chunk(input: Input_chunk): ChunkResult {
+export function chunk(input: Args_chunk): ChunkResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const chunk = provider.getChunk(input.chunkId);
   return toChunkResult(chunk);
 }
 
-export function gasPrice(input: Input_gasPrice): BigInt {
+export function gasPrice(input: Args_gasPrice): BigInt {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   let blockId: string | null = null;
   if (input.blockId !== null) {
@@ -387,7 +387,7 @@ export function gasPrice(input: Input_gasPrice): BigInt {
   return BigInt.fromString(gasPrice.getString("gas_price")!.valueOf());
 }
 
-export function accessKeyChanges(input: Input_accessKeyChanges): ChangeResult {
+export function accessKeyChanges(input: Args_accessKeyChanges): ChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const accessKeyChanges = provider.accessKeyChanges(
     input.accountIdArray,
@@ -396,7 +396,7 @@ export function accessKeyChanges(input: Input_accessKeyChanges): ChangeResult {
   return toChangeResult(accessKeyChanges);
 }
 
-export function accountChanges(input: Input_accountChanges): ChangeResult {
+export function accountChanges(input: Args_accountChanges): ChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const accountChanges = provider.accountChanges(
     input.accountIdArray,
@@ -405,7 +405,7 @@ export function accountChanges(input: Input_accountChanges): ChangeResult {
   return toChangeResult(accountChanges);
 }
 
-export function blockChanges(input: Input_blockChanges): BlockChangeResult {
+export function blockChanges(input: Args_blockChanges): BlockChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
 
   const blockChanges = provider.blockChanges(input.blockQuery);
@@ -413,7 +413,7 @@ export function blockChanges(input: Input_blockChanges): BlockChangeResult {
 }
 
 export function contractStateChanges(
-  input: Input_contractStateChanges
+  input: Args_contractStateChanges
 ): ChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
 
@@ -426,7 +426,7 @@ export function contractStateChanges(
 }
 
 export function contractCodeChanges(
-  input: Input_contractCodeChanges
+  input: Args_contractCodeChanges
 ): ChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
 
@@ -438,7 +438,7 @@ export function contractCodeChanges(
 }
 
 export function singleAccessKeyChanges(
-  input: Input_singleAccessKeyChanges
+  input: Args_singleAccessKeyChanges
 ): ChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const singleAccessKeyChanges = provider.singleAccessKeyChanges(
@@ -448,7 +448,7 @@ export function singleAccessKeyChanges(
   return toChangeResult(singleAccessKeyChanges);
 }
 
-export function validators(input: Input_validators): EpochValidatorInfo {
+export function validators(input: Args_validators): EpochValidatorInfo {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   let blockId: string | null = null;
   if (input.blockId !== null) {
@@ -459,16 +459,16 @@ export function validators(input: Input_validators): EpochValidatorInfo {
 }
 
 export function experimental_protocolConfig(
-  input: Input_experimental_protocolConfig
+  input: Args_experimental_protocolConfig
 ): NearProtocolConfig {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   return provider.protocolConfig(input.blockReference);
 }
 
-export function parseNearAmount(input: Input_parseNearAmount): String {
+export function parseNearAmount(input: Args_parseNearAmount): String {
   return formatUtils.parseNearAmount(input.amount);
 }
 
-export function formatNearAmount(input: Input_formatNearAmount): String {
+export function formatNearAmount(input: Args_formatNearAmount): String {
   return formatUtils.formatNearAmount(input.amount);
 }

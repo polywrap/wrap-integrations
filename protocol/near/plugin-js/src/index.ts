@@ -9,33 +9,34 @@ import {
   FinalExecutionOutcome,
   PublicKey,
   Json,
-  Input_requestSignIn,
-  Input_sendJsonRpc,
-  Input_getAccountId,
-  Input_sendTransactionAsync,
-  Input_createKey,
-  Input_requestSignTransactions,
-  Input_signTransaction,
-  Input_isSignedIn,
-  Input_signOut,
-  Input_sendTransaction,
-  Input_signMessage, Input_createTransactionWithWallet, Input_getPublicKey
+  Args_requestSignIn,
+  Args_sendJsonRpc,
+  Args_getAccountId,
+  Args_sendTransactionAsync,
+  Args_createKey,
+  Args_requestSignTransactions,
+  Args_signTransaction,
+  Args_isSignedIn,
+  Args_signOut,
+  Args_sendTransaction,
+  Args_signMessage,
+  Args_createTransactionWithWallet,
+  Args_getPublicKey,
 } from "./wrap";
 import { fromAction, fromSignedTx, fromTx, toPublicKey } from "./typeMapping";
 import { parseJsonFinalExecutionOutcome } from "./jsonMapping";
 import { JsonFinalExecutionOutcome } from "./jsonTypes";
 
 import { ConnectConfig } from "near-api-js";
-import {
-  PluginFactory,
-  PluginPackageManifest,
-} from "@polywrap/core-js";
+import { PluginFactory, PluginPackageManifest } from "@polywrap/core-js";
 import * as nearApi from "near-api-js";
 import sha256 from "js-sha256";
 
 export { keyStores as KeyStores, KeyPair } from "near-api-js";
 
-export interface NearPluginConfig extends ConnectConfig, Record<string, unknown> {}
+export interface NearPluginConfig
+  extends ConnectConfig,
+    Record<string, unknown> {}
 
 export class NearPlugin extends Module<NearPluginConfig> {
   private near: nearApi.Near;
@@ -51,9 +52,7 @@ export class NearPlugin extends Module<NearPluginConfig> {
     return manifest;
   }
 
-  public async requestSignIn(
-    input: Input_requestSignIn
-  ): Promise<boolean> {
+  public async requestSignIn(input: Args_requestSignIn): Promise<boolean> {
     if (!this.wallet) {
       throw Error(
         "Near wallet is unavailable, likely because the NEAR plugin is operating outside of a browser."
@@ -70,24 +69,24 @@ export class NearPlugin extends Module<NearPluginConfig> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async signOut(input?: Input_signOut): Promise<boolean> {
+  public async signOut(input?: Args_signOut): Promise<boolean> {
     this.wallet?.signOut();
     return true;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async isSignedIn(input?: Input_isSignedIn): Promise<boolean> {
+  public async isSignedIn(input?: Args_isSignedIn): Promise<boolean> {
     return this.wallet?.isSignedIn() ?? false;
   }
 
   public async getAccountId(
-    input?: Input_getAccountId // eslint-disable-line @typescript-eslint/no-unused-vars
+    input?: Args_getAccountId // eslint-disable-line @typescript-eslint/no-unused-vars
   ): Promise<string | null> {
     return this.wallet?.getAccountId() ?? null;
   }
 
   public async getPublicKey(
-    input: Input_getPublicKey
+    input: Args_getPublicKey
   ): Promise<PublicKey | null> {
     const { accountId } = input;
     const keyPair = await this._nearConfig.keyStore!.getKey(
@@ -101,7 +100,7 @@ export class NearPlugin extends Module<NearPluginConfig> {
   }
 
   public async createTransactionWithWallet(
-    input: Input_createTransactionWithWallet
+    input: Args_createTransactionWithWallet
   ): Promise<Transaction> {
     const { receiverId, actions } = input;
     if (!this.wallet || !this.wallet.isSignedIn()) {
@@ -150,7 +149,7 @@ export class NearPlugin extends Module<NearPluginConfig> {
   }
 
   public async signTransaction(
-    input: Input_signTransaction
+    input: Args_signTransaction
   ): Promise<SignTransactionResult> {
     const { transaction } = input;
     const tx: nearApi.transactions.Transaction = fromTx(transaction);
@@ -174,7 +173,7 @@ export class NearPlugin extends Module<NearPluginConfig> {
     return { hash, signedTx };
   }
 
-  public async createKey(input: Input_createKey): Promise<PublicKey> {
+  public async createKey(input: Args_createKey): Promise<PublicKey> {
     const { networkId, accountId } = input;
     const keyPair = await this._nearConfig.keyStore!.getKey(
       this._nearConfig.networkId,
@@ -184,7 +183,7 @@ export class NearPlugin extends Module<NearPluginConfig> {
     return toPublicKey(keyPair.getPublicKey());
   }
 
-  public async sendJsonRpc(input: Input_sendJsonRpc): Promise<Json> {
+  public async sendJsonRpc(input: Args_sendJsonRpc): Promise<Json> {
     const method = input.method;
     const params = JSON.parse(input.params);
     const result = await this._sendJsonRpc({ method, params });
@@ -192,7 +191,7 @@ export class NearPlugin extends Module<NearPluginConfig> {
   }
 
   public async requestSignTransactions(
-    input: Input_requestSignTransactions
+    input: Args_requestSignTransactions
   ): Promise<boolean> {
     if (!this.wallet) {
       return false;
@@ -205,7 +204,7 @@ export class NearPlugin extends Module<NearPluginConfig> {
     });
     return true;
   }
-  public async signMessage(input: Input_signMessage): Promise<Signature> {
+  public async signMessage(input: Args_signMessage): Promise<Signature> {
     const { message, signerId } = input;
     const {
       signature,
@@ -223,7 +222,7 @@ export class NearPlugin extends Module<NearPluginConfig> {
   }
 
   public async sendTransaction(
-    input: Input_sendTransaction
+    input: Args_sendTransaction
   ): Promise<FinalExecutionOutcome> {
     const { signedTx } = input;
     const nearSignedTx = fromSignedTx(signedTx);
@@ -236,7 +235,7 @@ export class NearPlugin extends Module<NearPluginConfig> {
   }
 
   public async sendTransactionAsync(
-    input: Input_sendTransactionAsync
+    input: Args_sendTransactionAsync
   ): Promise<string> {
     const { signedTx } = input;
     const nearSignedTx = fromSignedTx(signedTx);

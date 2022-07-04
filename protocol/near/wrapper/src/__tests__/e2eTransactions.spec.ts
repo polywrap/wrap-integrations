@@ -7,20 +7,21 @@ import {
   Action,
 } from "./tsTypes";
 import * as testUtils from "./testUtils";
-import {  NearPluginConfig } from "../../../plugin-js";
+import { NearPluginConfig } from "../../../plugin-js";
 
 import * as nearApi from "near-api-js";
 import { PolywrapClient } from "@polywrap/client-js";
 import {
   buildAndDeployWrapper,
+  ensAddresses,
   initTestEnvironment,
   providers,
-  stopTestEnvironment
+  stopTestEnvironment,
 } from "@polywrap/test-env-js";
 import path from "path";
 
 jest.setTimeout(360000);
-jest.retryTimes(3)
+jest.retryTimes(3);
 
 describe("e2e", () => {
   let client: PolywrapClient;
@@ -34,38 +35,50 @@ describe("e2e", () => {
   const prepActions = (): Action[] => {
     const setCallValue = testUtils.generateUniqueString("setCallPrefix");
     const args = { value: setCallValue };
-    const stringify = (obj: unknown): Buffer => Buffer.from(JSON.stringify(obj));
+    const stringify = (obj: unknown): Buffer =>
+      Buffer.from(JSON.stringify(obj));
     const value: Buffer = stringify(args);
-    return [{ methodName: "setValue", args: value, gas: "3000000000000", deposit: "0" }];
+    return [
+      {
+        methodName: "setValue",
+        args: value,
+        gas: "3000000000000",
+        deposit: "0",
+      },
+    ];
   };
 
   beforeAll(async () => {
     // set up test env and deploy api
-    const { ethereum, ensAddress, ipfs } = await initTestEnvironment();
+    await initTestEnvironment();
     const apiPath: string = path.resolve(__dirname + "/../../");
     const api = await buildAndDeployWrapper({
       wrapperAbsPath: apiPath,
       ipfsProvider: providers.ipfs,
-      ethereumProvider: providers.ethereum
+      ethereumProvider: providers.ethereum,
     });
     apiUri = `ens/testnet/${api.ensDomain}`;
     // set up client
     nearConfig = await testUtils.setUpTestConfig();
     near = await nearApi.connect(nearConfig);
 
-    const polywrapConfig = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
+    const polywrapConfig = testUtils.getPlugins(
+      providers.ethereum,
+      ensAddresses.ensAddress,
+      providers.ipfs,
+      nearConfig
+    );
     client = new PolywrapClient(polywrapConfig);
 
     // set up contract account
     contractId = testUtils.generateUniqueString("test");
     workingAccount = await testUtils.createAccount(near);
     await testUtils.deployContract(workingAccount, contractId);
-
   });
 
   afterAll(async () => {
     await stopTestEnvironment();
-    await workingAccount.deleteAccount(testUtils.testAccountId)
+    await workingAccount.deleteAccount(testUtils.testAccountId);
   });
 
   it("Creates a transaction without wallet", async () => {
@@ -97,7 +110,9 @@ describe("e2e", () => {
     expect(transaction.blockHash).toBeTruthy();
     expect(transaction.actions.length).toEqual(1);
     expect(transaction.actions[0].methodName).toEqual(actions[0].methodName);
-    expect(transaction.actions[0].args).toEqual(Uint8Array.from(actions[0].args!));
+    expect(transaction.actions[0].args).toEqual(
+      Uint8Array.from(actions[0].args!)
+    );
     expect(transaction.actions[0].gas).toEqual(actions[0].gas);
     expect(transaction.actions[0].deposit).toEqual(actions[0].deposit);
     expect(transaction.actions[0].publicKey).toBeFalsy();
@@ -177,11 +192,13 @@ describe("e2e", () => {
     const status: ExecutionStatus = result.data!.signAndSendTransaction.status;
     expect(status.SuccessValue).toBeTruthy();
     expect(status.failure).toBeFalsy();
-    const txOutcome: ExecutionOutcomeWithId = result.data!.signAndSendTransaction.transaction_outcome;
+    const txOutcome: ExecutionOutcomeWithId = result.data!
+      .signAndSendTransaction.transaction_outcome;
     expect(txOutcome.id).toBeTruthy();
     expect(txOutcome.outcome.status.SuccessReceiptId).toBeTruthy();
     expect(txOutcome.outcome.status.failure).toBeFalsy();
-    const receiptsOutcome: ExecutionOutcomeWithId[] = result.data!.signAndSendTransaction.receipts_outcome;
+    const receiptsOutcome: ExecutionOutcomeWithId[] = result.data!
+      .signAndSendTransaction.receipts_outcome;
     expect(receiptsOutcome.length).toBeGreaterThan(0);
   });
 

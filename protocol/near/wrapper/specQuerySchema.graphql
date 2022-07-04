@@ -1,4 +1,4 @@
-#import { Query, Transaction, Action, PublicKey, KeyType, Signature } into Near from "w3://ens/nearPlugin.web3api.eth"
+#import { Query, Transaction, Action, PublicKey, KeyType, Signature } into Near from "wrap://ens/nearPlugin.web3api.eth"
 
 type Query {
 """

@@ -34,7 +34,7 @@ import {
   getIdTypeKey,
   KeyValuePair,
 } from "../wrap";
-import { BigInt, JSON, JSONEncoder } from "@cbrzn/wasm-as";
+import { BigInt, JSON, JSONEncoder } from "@polywrap/wasm-as";
 import { publicKeyFromStr } from "./typeUtils";
 import * as bs58 from "as-base58";
 import * as bs64 from "as-base64";

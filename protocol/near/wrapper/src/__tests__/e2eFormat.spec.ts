@@ -4,7 +4,13 @@ import * as testUtils from "./testUtils";
 import { PolywrapClient } from "@polywrap/client-js";
 import { BigInt } from "@polywrap/wasm-as";
 import * as nearApi from "near-api-js";
-import { buildAndDeployWrapper, initTestEnvironment, stopTestEnvironment, providers } from "@polywrap/test-env-js";
+import {
+  buildAndDeployWrapper,
+  initTestEnvironment,
+  stopTestEnvironment,
+  providers,
+  ensAddresses,
+} from "@polywrap/test-env-js";
 import path from "path";
 
 jest.setTimeout(360000);
@@ -21,12 +27,17 @@ describe("e2e", () => {
     const api = await buildAndDeployWrapper({
       wrapperAbsPath: apiPath,
       ipfsProvider: providers.ipfs,
-      ethereumProvider: providers.ethereum
+      ethereumProvider: providers.ethereum,
     });
 
     // set up client
     apiUri = `ens/testnet/${api.ensDomain}`;
-    const polywrapConfig = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
+    const polywrapConfig = testUtils.getPlugins(
+      providers.ethereum,
+      ensAddresses.ensAddress,
+      providers.ipfs,
+      nearConfig
+    );
     client = new PolywrapClient(polywrapConfig);
   });
 
@@ -52,7 +63,9 @@ describe("e2e", () => {
     const formatted: string = result.data!.formatNearAmount;
     expect(formatted).toBeTruthy();
 
-    expect(formatted).toEqual(nearApi.utils.format.formatNearAmount(amount, 24));
+    expect(formatted).toEqual(
+      nearApi.utils.format.formatNearAmount(amount, 24)
+    );
   });
 
   it.each(testUtils.valuesToParse)("Parse near amount", async (amount) => {

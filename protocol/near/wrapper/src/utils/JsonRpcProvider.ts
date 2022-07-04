@@ -6,7 +6,7 @@ import {
   NearProtocolConfig,
   Near_Module
 } from "../wrap";
-import { JSON, JSONEncoder } from "@cbrzn/wasm-as";
+import { JSON, JSONEncoder } from "@polywrap/wasm-as";
 import {
   fromBlockReference,
   fromLightClientProofRequest,

@@ -2,10 +2,20 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Input_requestSignIn, Input_signOut, Input_isSignedIn, Input_getAccountId } from "../query/w3";
+import {
+  Input_requestSignIn,
+  Input_signOut,
+  Input_isSignedIn,
+  Input_getAccountId,
+} from "../wrap";
 import * as testUtils from "./testUtils";
 import "localstorage-polyfill";
-import {buildAndDeployWrapper, initTestEnvironment, providers} from "@polywrap/test-env-js";
+import {
+  buildAndDeployWrapper,
+  ensAddresses,
+  initTestEnvironment,
+  providers,
+} from "@polywrap/test-env-js";
 import { PolywrapClient } from "@polywrap/client-js";
 import * as nearApi from "near-api-js";
 import { NearPluginConfig } from "../../../plugin-js/build";
@@ -14,7 +24,7 @@ import path from "path";
 const MockBrowser = require("mock-browser").mocks.MockBrowser;
 
 jest.setTimeout(360000);
-jest.retryTimes(3)
+jest.retryTimes(3);
 
 describe("e2e", () => {
   let apiUri: string;
@@ -38,15 +48,20 @@ describe("e2e", () => {
     const api = await buildAndDeployWrapper({
       wrapperAbsPath: apiPath,
       ipfsProvider: providers.ipfs,
-      ethereumProvider: providers.ethereum
+      ethereumProvider: providers.ethereum,
     });
     apiUri = `ens/testnet/${api.ensDomain}`;
     // set up client
     nearConfig = await testUtils.setUpTestConfig();
     near = await nearApi.connect(nearConfig);
 
-    const plugins = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
-    client = new PolywrapClient(plugins);
+    const polywrapConfig = testUtils.getPlugins(
+      providers.ethereum,
+      ensAddresses.ensAddress,
+      providers.ipfs,
+      nearConfig
+    );
+    client = new PolywrapClient(polywrapConfig);
 
     // set up contract account
     contractId = testUtils.generateUniqueString("test");
