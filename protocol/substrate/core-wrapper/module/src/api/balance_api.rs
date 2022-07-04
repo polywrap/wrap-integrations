@@ -1,3 +1,4 @@
+//! Contains the api specific to balances pallet
 //! Balance transfer, set_balance api
 use crate::{
     error::Error,
