@@ -9,3 +9,6 @@ config:
     - src/schema.graphql
     - src/contracts
     - src/utils.ts
+linked_packages:
+  - name: "@polywrap/wasm-as"
+    path: ../../../../../monorepo/packages/wasm/as

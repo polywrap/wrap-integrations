@@ -1378,7 +1378,7 @@
   resolved "https://registry.yarnpkg.com/@polywrap/asyncify-js/-/asyncify-js-0.0.1-prealpha.91.tgz#06b42fe2b92e3fc2fb486347dff1080656bdc649"
   integrity sha512-fQxSMzOA46v6GlJ+7RfoPD2z0f+gMf/FJmAf5YUUJBWNJnlTxJXKBDTNakRoUsehC+810OsBGesV6KtP3hMMtA==
 
-"@polywrap/client-js@0.0.1-prealpha.91", "@polywrap/client-js@^0.0.1-prealpha.91":
+"@polywrap/client-js@0.0.1-prealpha.91":
   version "0.0.1-prealpha.91"
   resolved "https://registry.yarnpkg.com/@polywrap/client-js/-/client-js-0.0.1-prealpha.91.tgz#519a311f1e6fffcaf2279e28b0748323bf2749dd"
   integrity sha512-3IjDTuukvrvS2X4kPmI70JHQwCPy0apqMH8tCve/+OXrATAzULsAQLZDtyYa2M6phGztTok6ghWi11Hpn8y2yQ==

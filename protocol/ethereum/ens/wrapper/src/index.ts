@@ -1,19 +1,25 @@
-import { namehash, keccak256 } from "./utils";
+import {keccak256, namehash} from "./utils";
 import {
-  Args_getResolver,
-  Args_getExpiryTimes,
-  Args_getOwner,
   Args_checkIfRecordExists,
+  Args_configureOpenDomain,
+  Args_createSubdomainInOpenDomain,
+  Args_createSubdomainInOpenDomainAndSetContentHash,
+  Args_deployFIFSRegistrar,
   Args_getAddress,
-  Args_getContentHash,
-  Args_getReverseResolver,
-  Args_getNameFromReverseResolver,
-  Args_getNameFromAddress,
-  Args_getContentHashFromDomain,
   Args_getAddressFromDomain,
+  Args_getContentHash,
+  Args_getContentHashFromDomain,
+  Args_getExpiryTimes,
+  Args_getNameFromAddress,
+  Args_getNameFromReverseResolver,
+  Args_getOwner,
+  Args_getResolver,
+  Args_getReverseResolver,
   Args_getTextRecord,
-  Ethereum_Module,
   Args_registerDomain,
+  Args_registerDomainAndSubdomainsRecursively,
+  Args_registerSubdomainsRecursively,
+  Args_registerSubnodeOwnerWithFIFSRegistrar,
   Args_reverseRegisterDomain,
   Args_setAddress,
   Args_setAddressFromDomain,
@@ -21,57 +27,51 @@ import {
   Args_setContentHashFromDomain,
   Args_setName,
   Args_setOwner,
+  Args_setRecord,
   Args_setResolver,
   Args_setSubdomainOwner,
   Args_setSubdomainRecord,
-  Args_setRecord,
-  Args_deployFIFSRegistrar,
-  Args_registerSubnodeOwnerWithFIFSRegistrar,
   Args_setTextRecord,
-  Args_configureOpenDomain,
-  Args_createSubdomainInOpenDomain,
-  Args_createSubdomainInOpenDomainAndSetContentHash,
-  Ethereum_TxResponse,
   ConfigureOpenDomainResponse,
-  CreateSubdomainInOpenDomainResponse,
   CreateSubdomainInOpenDomainAndSetContentHashResponse,
-  TxOverrides,
+  CreateSubdomainInOpenDomainResponse,
+  Ethereum_Module,
+  Ethereum_TxResponse,
   RegistrationResult,
-  Args_registerDomainAndSubdomainsRecursively,
-  Args_registerSubdomainsRecursively,
+  TxOverrides,
 } from "./wrap";
-import { abi, bytecode } from "./contracts/FIFSRegistrar"
+import {abi, bytecode} from "./contracts/FIFSRegistrar"
 
-export function getResolver(input: Args_getResolver): string {
-  const domain = namehash(input.domain);
+export function getResolver(args: Args_getResolver): string {
+  const domain = namehash(args.domain);
 
   const resolverAddress = Ethereum_Module.callContractView({
-    address: input.registryAddress,
+    address: args.registryAddress,
     method: "function resolver(bytes32 node) external view returns (address)",
     args: [domain],
-    connection: input.connection,
+    connection: args.connection,
   });
 
   return resolverAddress.unwrap();
 }
 
-export function getOwner(input: Args_getOwner): string {
+export function getOwner(args: Args_getOwner): string {
   const owner = Ethereum_Module.callContractView({
-    address: input.registryAddress,
+    address: args.registryAddress,
     method: "function owner(bytes32 node) external view returns (address)",
-    args: [namehash(input.domain)],
-    connection: input.connection,
+    args: [namehash(args.domain)],
+    connection: args.connection,
   });
 
   return owner.unwrap();
 }
 
-export function checkIfRecordExists(input: Args_checkIfRecordExists): bool {
+export function checkIfRecordExists(args: Args_checkIfRecordExists): bool {
   const recordExists = Ethereum_Module.callContractView({
-    address: input.registryAddress,
+    address: args.registryAddress,
     method: "function recordExists(bytes32 node) external view returns (address)",
-    args: [namehash(input.domain)],
-    connection: input.connection,
+    args: [namehash(args.domain)],
+    connection: args.connection,
   });
 
   const result = recordExists.unwrap();
@@ -79,148 +79,148 @@ export function checkIfRecordExists(input: Args_checkIfRecordExists): bool {
   return result == "0x0000000000000000000000000000000000000001";
 }
 
-export function getAddress(input: Args_getAddress): string {
+export function getAddress(args: Args_getAddress): string {
   const address = Ethereum_Module.callContractView({
-    address: input.resolverAddress,
+    address: args.resolverAddress,
     method: "function addr(bytes32 node) external view returns (address)",
-    args: [namehash(input.domain)],
-    connection: input.connection,
+    args: [namehash(args.domain)],
+    connection: args.connection,
   });
 
   return address.unwrap();
 }
 
-export function getContentHash(input: Args_getContentHash): string {
+export function getContentHash(args: Args_getContentHash): string {
   const hash = Ethereum_Module.callContractView({
-    address: input.resolverAddress,
+    address: args.resolverAddress,
     method: "function contenthash(bytes32 node) external view returns (bytes)",
-    args: [namehash(input.domain)],
-    connection: input.connection,
+    args: [namehash(args.domain)],
+    connection: args.connection,
   });
 
   return hash.unwrap();
 }
 
 export function getAddressFromDomain(
-  input: Args_getAddressFromDomain
+  args: Args_getAddressFromDomain
 ): string {
   const resolverAddress = getResolver({
-    registryAddress: input.registryAddress,
-    domain: input.domain,
-    connection: input.connection,
+    registryAddress: args.registryAddress,
+    domain: args.domain,
+    connection: args.connection,
   });
 
   const address = Ethereum_Module.callContractView({
     address: resolverAddress,
     method: "function addr(bytes32 node) external view returns (address)",
-    args: [namehash(input.domain)],
-    connection: input.connection,
+    args: [namehash(args.domain)],
+    connection: args.connection,
   });
 
   return address.unwrap();
 }
 
 export function getContentHashFromDomain(
-  input: Args_getContentHashFromDomain
+  args: Args_getContentHashFromDomain
 ): string {
   const resolverAddress = getResolver({
-    registryAddress: input.registryAddress,
-    domain: input.domain,
-    connection: input.connection,
+    registryAddress: args.registryAddress,
+    domain: args.domain,
+    connection: args.connection,
   });
 
   const hash = Ethereum_Module.callContractView({
     address: resolverAddress,
     method: "function contenthash(bytes32 node) external view returns (bytes)",
-    args: [namehash(input.domain)],
-    connection: input.connection,
+    args: [namehash(args.domain)],
+    connection: args.connection,
   });
 
   return hash.unwrap();
 }
 
-export function getExpiryTimes(input: Args_getExpiryTimes): string {
-  const label = input.domain.split(".")[0];
+export function getExpiryTimes(args: Args_getExpiryTimes): string {
+  const label = args.domain.split(".")[0];
 
   const expiryTime = Ethereum_Module.callContractView({
-    address: input.registrarAddress,
+    address: args.registrarAddress,
     method:
       "function expiryTimes(bytes32 label) external view returns (uint256)",
     args: [keccak256(label)],
-    connection: input.connection,
+    connection: args.connection,
   });
 
   return expiryTime.unwrap();
 }
 
-export function getReverseResolver(input: Args_getReverseResolver): string {
-  const address = namehash(input.address.substr(2) + ".addr.reverse");
+export function getReverseResolver(args: Args_getReverseResolver): string {
+  const address = namehash(args.address.substr(2) + ".addr.reverse");
 
   const resolverAddress = Ethereum_Module.callContractView({
-    address: input.registryAddress,
+    address: args.registryAddress,
     method: "function resolver(bytes32 node) external view returns (address)",
     args: [address],
-    connection: input.connection,
+    connection: args.connection,
   });
 
   return resolverAddress.unwrap();
 }
 
-export function getNameFromAddress(input: Args_getNameFromAddress): string {
-  const address = namehash(input.address.substr(2) + ".addr.reverse");
+export function getNameFromAddress(args: Args_getNameFromAddress): string {
+  const address = namehash(args.address.substr(2) + ".addr.reverse");
 
   const resolverAddress = getReverseResolver({
-    registryAddress: input.registryAddress,
-    address: input.address,
-    connection: input.connection,
+    registryAddress: args.registryAddress,
+    address: args.address,
+    connection: args.connection,
   });
 
   const name = Ethereum_Module.callContractView({
     address: resolverAddress,
     method: "function name(bytes32 node) external view returns (string)",
     args: [address],
-    connection: input.connection,
+    connection: args.connection,
   });
 
   return name.unwrap();
 }
 
 export function getNameFromReverseResolver(
-  input: Args_getNameFromReverseResolver
+  args: Args_getNameFromReverseResolver
 ): string {
-  const address = namehash(input.address.substr(2) + ".addr.reverse");
+  const address = namehash(args.address.substr(2) + ".addr.reverse");
 
   const name = Ethereum_Module.callContractView({
-    address: input.resolverAddress,
+    address: args.resolverAddress,
     method: "function name(bytes32 node) external view returns (string)",
     args: [address],
-    connection: input.connection,
+    connection: args.connection,
   });
 
   return name.unwrap();
 }
 
-export function getTextRecord(input: Args_getTextRecord): string {
+export function getTextRecord(args: Args_getTextRecord): string {
   const value = Ethereum_Module.callContractView({
-    address: input.resolverAddress,
+    address: args.resolverAddress,
     method: "function text(bytes32 node, string value) external view returns (string)",
-    args: [namehash(input.domain), input.key],
-    connection: input.connection,
+    args: [namehash(args.domain), args.key],
+    connection: args.connection,
   });
 
   return value.unwrap();
 }
 
-export function setResolver(input: Args_setResolver): Ethereum_TxResponse {
+export function setResolver(args: Args_setResolver): Ethereum_TxResponse {
   const txOverrides: TxOverrides =
-    input.txOverrides === null
-      ? { gasLimit: null, gasPrice: null }
-      : input.txOverrides!;
+    args.txOverrides === null
+      ? {gasLimit: null, gasPrice: null}
+      : args.txOverrides!;
   const setResolverTx = Ethereum_Module.callContractMethod({
-    address: input.registryAddress,
+    address: args.registryAddress,
     method: "function setResolver(bytes32 node, address owner)",
-    args: [namehash(input.domain), input.resolverAddress],
-    connection: input.connection,
+    args: [namehash(args.domain), args.resolverAddress],
+    connection: args.connection,
     txOverrides: {
       value: null,
       gasPrice: txOverrides.gasPrice,
@@ -232,18 +232,18 @@ export function setResolver(input: Args_setResolver): Ethereum_TxResponse {
 }
 
 export function registerDomain(
-  input: Args_registerDomain
+  args: Args_registerDomain
 ): Ethereum_TxResponse {
-  const label = input.domain.split(".")[0];
+  const label = args.domain.split(".")[0];
   const txOverrides: TxOverrides =
-    input.txOverrides === null
-      ? { gasLimit: null, gasPrice: null }
-      : input.txOverrides!;
+    args.txOverrides === null
+      ? {gasLimit: null, gasPrice: null}
+      : args.txOverrides!;
   const tx = Ethereum_Module.callContractMethod({
-    address: input.registrarAddress,
+    address: args.registrarAddress,
     method: "function register(bytes32 label, address owner)",
-    args: [keccak256(label), input.owner],
-    connection: input.connection,
+    args: [keccak256(label), args.owner],
+    connection: args.connection,
     txOverrides: {
       value: null,
       gasPrice: txOverrides.gasPrice,
@@ -254,16 +254,16 @@ export function registerDomain(
   return tx.unwrap();
 }
 
-export function setOwner(input: Args_setOwner): Ethereum_TxResponse {
+export function setOwner(args: Args_setOwner): Ethereum_TxResponse {
   const txOverrides: TxOverrides =
-    input.txOverrides === null
-      ? { gasLimit: null, gasPrice: null }
-      : input.txOverrides!;
+    args.txOverrides === null
+      ? {gasLimit: null, gasPrice: null}
+      : args.txOverrides!;
   const tx = Ethereum_Module.callContractMethod({
-    address: input.registryAddress,
+    address: args.registryAddress,
     method: "function setOwner(bytes32 node, address owner) external",
-    args: [namehash(input.domain), input.newOwner],
-    connection: input.connection,
+    args: [namehash(args.domain), args.newOwner],
+    connection: args.connection,
     txOverrides: {
       gasLimit: txOverrides.gasLimit,
       gasPrice: txOverrides.gasPrice,
@@ -275,22 +275,22 @@ export function setOwner(input: Args_setOwner): Ethereum_TxResponse {
 }
 
 export function setSubdomainOwner(
-  input: Args_setSubdomainOwner
+  args: Args_setSubdomainOwner
 ): Ethereum_TxResponse {
-  const splitDomain = input.subdomain.split(".");
+  const splitDomain = args.subdomain.split(".");
   const subdomainLabel = splitDomain[0];
   const domain = splitDomain.slice(1, splitDomain.length).join(".");
 
   const txOverrides: TxOverrides =
-    input.txOverrides === null
-      ? { gasLimit: null, gasPrice: null }
-      : input.txOverrides!;
+    args.txOverrides === null
+      ? {gasLimit: null, gasPrice: null}
+      : args.txOverrides!;
   const tx = Ethereum_Module.callContractMethod({
-    address: input.registryAddress,
+    address: args.registryAddress,
     method:
       "function setSubnodeOwner(bytes32 node, bytes32 label, address owner) external",
-    args: [namehash(domain), keccak256(subdomainLabel), input.owner],
-    connection: input.connection,
+    args: [namehash(domain), keccak256(subdomainLabel), args.owner],
+    connection: args.connection,
     txOverrides: {
       gasLimit: txOverrides.gasLimit,
       gasPrice: txOverrides.gasPrice,
@@ -302,24 +302,24 @@ export function setSubdomainOwner(
 }
 
 export function setSubdomainRecord(
-  input: Args_setSubdomainRecord
+  args: Args_setSubdomainRecord
 ): Ethereum_TxResponse {
   const txOverrides: TxOverrides =
-    input.txOverrides === null
-      ? { gasLimit: null, gasPrice: null }
-      : input.txOverrides!;
+    args.txOverrides === null
+      ? {gasLimit: null, gasPrice: null}
+      : args.txOverrides!;
   const tx = Ethereum_Module.callContractMethod({
-    address: input.registryAddress,
+    address: args.registryAddress,
     method:
       "function setSubnodeRecord(bytes32 node, bytes32 label, address owner, address resolver, uint64 ttl)",
     args: [
-      namehash(input.domain),
-      keccak256(input.label),
-      input.owner,
-      input.resolverAddress,
-      input.ttl,
+      namehash(args.domain),
+      keccak256(args.label),
+      args.owner,
+      args.resolverAddress,
+      args.ttl,
     ],
-    connection: input.connection,
+    connection: args.connection,
     txOverrides: {
       gasLimit: txOverrides.gasLimit,
       gasPrice: txOverrides.gasPrice,
@@ -331,20 +331,43 @@ export function setSubdomainRecord(
 }
 
 export function registerDomainAndSubdomainsRecursively(
-  input: Args_registerDomainAndSubdomainsRecursively
+  args: Args_registerDomainAndSubdomainsRecursively
 ): RegistrationResult[] {
   const registrationResults: RegistrationResult[] = []
-  const splitDomain = input.domain.split(".");
+  const splitDomain = args.domain.split(".");
 
   if (splitDomain.length < 3) {
-    throw new Error("Expected subdomain name. Example: foo.bar.eth")
+    const isRegistered = checkIfRecordExists({
+      registryAddress: args.registryAddress,
+      domain: splitDomain[0],
+      connection: args.connection
+    })
+
+    if (isRegistered) {
+      throw new Error("Domain: " + splitDomain[0] + " is already registered")
+    }
+
+    const tx = registerDomain({
+      domain: splitDomain[0],
+      registrarAddress: args.registrarAddress,
+      registryAddress: args.registryAddress,
+      owner: args.owner,
+      connection: args.connection,
+      txOverrides: args.txOverrides
+    })
+
+    return [{
+      name: splitDomain[0],
+      didRegister: true,
+      tx: tx,
+    }]
   }
 
   let rootDomain = splitDomain.slice(-1)[0];
   let subdomains = splitDomain.slice(0, -1).reverse();
 
   for (let i = 0; i < subdomains.length; i++) {
-    subdomains[i] = `${subdomains[i]}.${i === 0? rootDomain: subdomains[i - 1]}`
+    subdomains[i] = `${subdomains[i]}.${i === 0 ? rootDomain : subdomains[i - 1]}`
   }
 
   for (let i = 0; i < subdomains.length; i++) {
@@ -355,37 +378,37 @@ export function registerDomainAndSubdomainsRecursively(
     }
 
     const isRegistered = checkIfRecordExists({
-      registryAddress: input.registryAddress,
+      registryAddress: args.registryAddress,
       domain: subdomains[i],
-      connection: input.connection
+      connection: args.connection
     });
 
     if (!isRegistered) {
-      if(i === 0) {
+      if (i === 0) {
         // Main domain case
         result.tx = registerDomain({
           domain: subdomains[i],
-          registrarAddress: input.registrarAddress,
-          registryAddress: input.registryAddress,
-          owner: input.owner,
-          connection: input.connection,
-          txOverrides: input.txOverrides
+          registrarAddress: args.registrarAddress,
+          registryAddress: args.registryAddress,
+          owner: args.owner,
+          connection: args.connection,
+          txOverrides: args.txOverrides
         })
 
       } else {
         // Subdomain case
         const label = subdomains[i].split('.')[0]
         const domain = subdomains[i].split('.').slice(1).join('.')
-  
+
         result.tx = setSubdomainRecord({
           domain,
           label,
-          owner: input.owner,
-          resolverAddress: input.resolverAddress,
-          ttl: input.ttl,
-          registryAddress: input.registryAddress,
-          connection: input.connection,
-          txOverrides: input.txOverrides
+          owner: args.owner,
+          resolverAddress: args.resolverAddress,
+          ttl: args.ttl,
+          registryAddress: args.registryAddress,
+          connection: args.connection,
+          txOverrides: args.txOverrides
         })
       }
 
@@ -399,10 +422,10 @@ export function registerDomainAndSubdomainsRecursively(
 }
 
 export function registerSubdomainsRecursively(
-  input: Args_registerSubdomainsRecursively
+  args: Args_registerSubdomainsRecursively
 ): RegistrationResult[] {
   const registrationResults: RegistrationResult[] = []
-  const splitDomain = input.domain.split(".");
+  const splitDomain = args.domain.split(".");
 
   if (splitDomain.length < 3) {
     throw new Error("Expected subdomain name. Example: foo.bar.eth")
@@ -412,7 +435,7 @@ export function registerSubdomainsRecursively(
   let subdomains = splitDomain.slice(0, -2).reverse();
 
   for (let i = 0; i < subdomains.length; i++) {
-    subdomains[i] = `${subdomains[i]}.${i === 0? rootDomain: subdomains[i - 1]}`
+    subdomains[i] = `${subdomains[i]}.${i === 0 ? rootDomain : subdomains[i - 1]}`
   }
 
   for (let i = 0; i < subdomains.length; i++) {
@@ -423,9 +446,9 @@ export function registerSubdomainsRecursively(
     }
 
     const isRegistered = checkIfRecordExists({
-      registryAddress: input.registryAddress,
+      registryAddress: args.registryAddress,
       domain: subdomains[i],
-      connection: input.connection
+      connection: args.connection
     });
 
     if (!isRegistered) {
@@ -435,12 +458,12 @@ export function registerSubdomainsRecursively(
       result.tx = setSubdomainRecord({
         domain,
         label,
-        owner: input.owner,
-        resolverAddress: input.resolverAddress,
-        ttl: input.ttl,
-        registryAddress: input.registryAddress,
-        connection: input.connection,
-        txOverrides: input.txOverrides
+        owner: args.owner,
+        resolverAddress: args.resolverAddress,
+        ttl: args.ttl,
+        registryAddress: args.registryAddress,
+        connection: args.connection,
+        txOverrides: args.txOverrides
       })
 
       result.didRegister = true;
@@ -453,22 +476,22 @@ export function registerSubdomainsRecursively(
 }
 
 //TODO: Where could this be used on mainnet?
-export function setRecord(input: Args_setRecord): Ethereum_TxResponse {
+export function setRecord(args: Args_setRecord): Ethereum_TxResponse {
   const txOverrides: TxOverrides =
-    input.txOverrides === null
-      ? { gasLimit: null, gasPrice: null }
-      : input.txOverrides!;
+    args.txOverrides === null
+      ? {gasLimit: null, gasPrice: null}
+      : args.txOverrides!;
   const tx = Ethereum_Module.callContractMethod({
-    address: input.registryAddress,
+    address: args.registryAddress,
     method:
       "function setRecord(bytes32 node, address owner, address resolver, uint64 ttl)",
     args: [
-      namehash(input.domain),
-      input.owner,
-      input.resolverAddress,
-      input.ttl,
+      namehash(args.domain),
+      args.owner,
+      args.resolverAddress,
+      args.ttl,
     ],
-    connection: input.connection,
+    connection: args.connection,
     txOverrides: {
       gasLimit: txOverrides.gasLimit,
       gasPrice: txOverrides.gasPrice,
@@ -479,16 +502,16 @@ export function setRecord(input: Args_setRecord): Ethereum_TxResponse {
   return tx.unwrap();
 }
 
-export function setName(input: Args_setName): Ethereum_TxResponse {
+export function setName(args: Args_setName): Ethereum_TxResponse {
   const txOverrides: TxOverrides =
-    input.txOverrides === null
-      ? { gasLimit: null, gasPrice: null }
-      : input.txOverrides!;
+    args.txOverrides === null
+      ? {gasLimit: null, gasPrice: null}
+      : args.txOverrides!;
   const setNameTx = Ethereum_Module.callContractMethod({
-    address: input.reverseRegistryAddress,
+    address: args.reverseRegistryAddress,
     method: "function setName(string name)",
-    args: [input.domain],
-    connection: input.connection,
+    args: [args.domain],
+    connection: args.connection,
     txOverrides: {
       gasLimit: txOverrides.gasLimit,
       gasPrice: txOverrides.gasPrice,
@@ -500,17 +523,17 @@ export function setName(input: Args_setName): Ethereum_TxResponse {
 }
 
 export function reverseRegisterDomain(
-  input: Args_reverseRegisterDomain
+  args: Args_reverseRegisterDomain
 ): Ethereum_TxResponse {
   const txOverrides: TxOverrides =
-    input.txOverrides === null
-      ? { gasLimit: null, gasPrice: null }
-      : input.txOverrides!;
+    args.txOverrides === null
+      ? {gasLimit: null, gasPrice: null}
+      : args.txOverrides!;
   Ethereum_Module.callContractMethod({
-    address: input.reverseRegistryAddress,
+    address: args.reverseRegistryAddress,
     method: "function claim(address owner)",
-    args: [input.owner],
-    connection: input.connection,
+    args: [args.owner],
+    connection: args.connection,
     txOverrides: {
       gasLimit: txOverrides.gasLimit,
       gasPrice: txOverrides.gasPrice,
@@ -519,9 +542,9 @@ export function reverseRegisterDomain(
   });
 
   const setNameTx = setName({
-    reverseRegistryAddress: input.reverseRegistryAddress,
-    domain: input.domain,
-    connection: input.connection,
+    reverseRegistryAddress: args.reverseRegistryAddress,
+    domain: args.domain,
+    connection: args.connection,
     txOverrides: {
       gasLimit: txOverrides.gasLimit,
       gasPrice: txOverrides.gasPrice,
@@ -531,16 +554,16 @@ export function reverseRegisterDomain(
   return setNameTx;
 }
 
-export function setAddress(input: Args_setAddress): Ethereum_TxResponse {
+export function setAddress(args: Args_setAddress): Ethereum_TxResponse {
   const txOverrides: TxOverrides =
-    input.txOverrides === null
-      ? { gasLimit: null, gasPrice: null }
-      : input.txOverrides!;
+    args.txOverrides === null
+      ? {gasLimit: null, gasPrice: null}
+      : args.txOverrides!;
   const setAddrTx = Ethereum_Module.callContractMethod({
-    address: input.resolverAddress,
+    address: args.resolverAddress,
     method: "function setAddr(bytes32 node, address addr)",
-    args: [namehash(input.domain), input.address],
-    connection: input.connection,
+    args: [namehash(args.domain), args.address],
+    connection: args.connection,
     txOverrides: {
       gasLimit: txOverrides.gasLimit,
       gasPrice: txOverrides.gasPrice,
@@ -552,17 +575,17 @@ export function setAddress(input: Args_setAddress): Ethereum_TxResponse {
 }
 
 export function setContentHash(
-  input: Args_setContentHash
+  args: Args_setContentHash
 ): Ethereum_TxResponse {
   const txOverrides: TxOverrides =
-    input.txOverrides === null
-      ? { gasLimit: null, gasPrice: null }
-      : input.txOverrides!;
+    args.txOverrides === null
+      ? {gasLimit: null, gasPrice: null}
+      : args.txOverrides!;
   const setContentHash = Ethereum_Module.callContractMethod({
-    address: input.resolverAddress,
+    address: args.resolverAddress,
     method: "function setContenthash(bytes32 node, bytes hash)",
-    args: [namehash(input.domain), input.cid],
-    connection: input.connection,
+    args: [namehash(args.domain), args.cid],
+    connection: args.connection,
     txOverrides: {
       gasLimit: txOverrides.gasLimit,
       gasPrice: txOverrides.gasPrice,
@@ -574,23 +597,23 @@ export function setContentHash(
 }
 
 export function setAddressFromDomain(
-  input: Args_setAddressFromDomain
+  args: Args_setAddressFromDomain
 ): Ethereum_TxResponse {
   const resolverAddress = getResolver({
-    domain: input.domain,
-    registryAddress: input.registryAddress,
-    connection: input.connection,
+    domain: args.domain,
+    registryAddress: args.registryAddress,
+    connection: args.connection,
   });
 
   const txOverrides: TxOverrides =
-    input.txOverrides === null
-      ? { gasLimit: null, gasPrice: null }
-      : input.txOverrides!;
+    args.txOverrides === null
+      ? {gasLimit: null, gasPrice: null}
+      : args.txOverrides!;
   const setAddrTx = Ethereum_Module.callContractMethod({
     address: resolverAddress,
     method: "function setAddr(bytes32 node, address addr)",
-    args: [namehash(input.domain), input.address],
-    connection: input.connection,
+    args: [namehash(args.domain), args.address],
+    connection: args.connection,
     txOverrides: {
       gasLimit: txOverrides.gasLimit,
       gasPrice: txOverrides.gasPrice,
@@ -602,23 +625,23 @@ export function setAddressFromDomain(
 }
 
 export function setContentHashFromDomain(
-  input: Args_setContentHashFromDomain
+  args: Args_setContentHashFromDomain
 ): Ethereum_TxResponse {
   const resolverAddress = getResolver({
-    domain: input.domain,
-    registryAddress: input.registryAddress,
-    connection: input.connection,
+    domain: args.domain,
+    registryAddress: args.registryAddress,
+    connection: args.connection,
   });
 
   const txOverrides: TxOverrides =
-    input.txOverrides === null
-      ? { gasLimit: null, gasPrice: null }
-      : input.txOverrides!;
+    args.txOverrides === null
+      ? {gasLimit: null, gasPrice: null}
+      : args.txOverrides!;
   const setContentHash = Ethereum_Module.callContractMethod({
     address: resolverAddress,
     method: "function setContenthash(bytes32 node, bytes hash)",
-    args: [namehash(input.domain), input.cid],
-    connection: input.connection,
+    args: [namehash(args.domain), args.cid],
+    connection: args.connection,
     txOverrides: {
       gasLimit: txOverrides.gasLimit,
       gasPrice: txOverrides.gasPrice,
@@ -629,29 +652,29 @@ export function setContentHashFromDomain(
   return setContentHash.unwrap();
 }
 
-export function deployFIFSRegistrar(input: Args_deployFIFSRegistrar): string {
+export function deployFIFSRegistrar(args: Args_deployFIFSRegistrar): string {
   const address = Ethereum_Module.deployContract({
     abi,
     bytecode,
-    args: [input.registryAddress, namehash(input.tld)],
-    connection: input.connection,
+    args: [args.registryAddress, namehash(args.tld)],
+    connection: args.connection,
   });
 
   return address.unwrap();
 }
 
 export function registerSubnodeOwnerWithFIFSRegistrar(
-  input: Args_registerSubnodeOwnerWithFIFSRegistrar
+  args: Args_registerSubnodeOwnerWithFIFSRegistrar
 ): Ethereum_TxResponse {
   const txOverrides: TxOverrides =
-    input.txOverrides === null
-      ? { gasLimit: null, gasPrice: null }
-      : input.txOverrides!;
+    args.txOverrides === null
+      ? {gasLimit: null, gasPrice: null}
+      : args.txOverrides!;
   const txHash = Ethereum_Module.callContractMethod({
-    address: input.fifsRegistrarAddress,
+    address: args.fifsRegistrarAddress,
     method: "function register(bytes32 label, address owner) external",
-    args: [keccak256(input.label), input.owner],
-    connection: input.connection,
+    args: [keccak256(args.label), args.owner],
+    connection: args.connection,
     txOverrides: {
       gasLimit: txOverrides.gasLimit,
       gasPrice: txOverrides.gasPrice,
@@ -662,16 +685,16 @@ export function registerSubnodeOwnerWithFIFSRegistrar(
   return txHash.unwrap();
 }
 
-export function setTextRecord(input: Args_setTextRecord): Ethereum_TxResponse {
+export function setTextRecord(args: Args_setTextRecord): Ethereum_TxResponse {
   const txOverrides: TxOverrides =
-    input.txOverrides === null
-      ? { gasLimit: null, gasPrice: null }
-      : input.txOverrides!;
+    args.txOverrides === null
+      ? {gasLimit: null, gasPrice: null}
+      : args.txOverrides!;
   const txHash = Ethereum_Module.callContractMethod({
-    address: input.resolverAddress,
+    address: args.resolverAddress,
     method: "function setText(bytes32 node, string key, string value)",
-    args: [namehash(input.domain), input.key, input.value],
-    connection: input.connection,
+    args: [namehash(args.domain), args.key, args.value],
+    connection: args.connection,
     txOverrides: {
       gasLimit: txOverrides.gasLimit,
       gasPrice: txOverrides.gasPrice,
@@ -683,30 +706,30 @@ export function setTextRecord(input: Args_setTextRecord): Ethereum_TxResponse {
 }
 
 export function configureOpenDomain(
-  input: Args_configureOpenDomain
+  args: Args_configureOpenDomain
 ): ConfigureOpenDomainResponse {
   const txOverrides: TxOverrides =
-    input.txOverrides === null
-      ? { gasLimit: null, gasPrice: null }
-      : input.txOverrides!;
+    args.txOverrides === null
+      ? {gasLimit: null, gasPrice: null}
+      : args.txOverrides!;
 
   const fifsRegistrarAddress = deployFIFSRegistrar({
-    registryAddress: input.registryAddress,
-    tld: input.tld,
-    connection: input.connection,
+    registryAddress: args.registryAddress,
+    tld: args.tld,
+    connection: args.connection,
     txOverrides,
   });
 
-  const splitDomain = input.tld.split(".");
+  const splitDomain = args.tld.split(".");
   const tldLabel = splitDomain[0];
   const tld = splitDomain.slice(1, splitDomain.length).join(".");
 
   const registerOpenDomainTxReceipt = registerDomain({
-    registrarAddress: input.registrarAddress,
-    registryAddress: input.registryAddress,
-    domain: input.tld,
-    owner: input.owner,
-    connection: input.connection,
+    registrarAddress: args.registrarAddress,
+    registryAddress: args.registryAddress,
+    domain: args.tld,
+    owner: args.owner,
+    connection: args.connection,
     txOverrides,
   });
 
@@ -714,10 +737,10 @@ export function configureOpenDomain(
     domain: tld,
     label: tldLabel,
     owner: fifsRegistrarAddress,
-    registryAddress: input.registryAddress,
-    resolverAddress: input.resolverAddress,
+    registryAddress: args.registryAddress,
+    resolverAddress: args.resolverAddress,
     ttl: "0",
-    connection: input.connection,
+    connection: args.connection,
     txOverrides,
   });
 
@@ -729,56 +752,56 @@ export function configureOpenDomain(
 }
 
 export function createSubdomainInOpenDomain(
-  input: Args_createSubdomainInOpenDomain
+  args: Args_createSubdomainInOpenDomain
 ): CreateSubdomainInOpenDomainResponse {
   const txOverrides: TxOverrides =
-    input.txOverrides === null
-      ? { gasLimit: null, gasPrice: null }
-      : input.txOverrides!;
+    args.txOverrides === null
+      ? {gasLimit: null, gasPrice: null}
+      : args.txOverrides!;
 
   const registerSubdomainTxReceipt = registerSubnodeOwnerWithFIFSRegistrar({
-    label: input.label,
-    owner: input.owner,
-    fifsRegistrarAddress: input.fifsRegistrarAddress,
-    connection: input.connection,
+    label: args.label,
+    owner: args.owner,
+    fifsRegistrarAddress: args.fifsRegistrarAddress,
+    connection: args.connection,
     txOverrides,
   });
 
   const setResolverTxReceipt = setResolver({
-    domain: input.label + "." + input.domain,
-    registryAddress: input.registryAddress,
-    resolverAddress: input.resolverAddress,
-    connection: input.connection,
+    domain: args.label + "." + args.domain,
+    registryAddress: args.registryAddress,
+    resolverAddress: args.resolverAddress,
+    connection: args.connection,
     txOverrides,
   });
 
-  return { registerSubdomainTxReceipt, setResolverTxReceipt };
+  return {registerSubdomainTxReceipt, setResolverTxReceipt};
 }
 
 export function createSubdomainInOpenDomainAndSetContentHash(
-  input: Args_createSubdomainInOpenDomainAndSetContentHash
+  args: Args_createSubdomainInOpenDomainAndSetContentHash
 ): CreateSubdomainInOpenDomainAndSetContentHashResponse {
   const txOverrides: TxOverrides =
-    input.txOverrides === null
-      ? { gasLimit: null, gasPrice: null }
-      : input.txOverrides!;
+    args.txOverrides === null
+      ? {gasLimit: null, gasPrice: null}
+      : args.txOverrides!;
 
   const createSubdomainInOpenDomainTxReceipt = createSubdomainInOpenDomain({
-    label: input.label,
-    domain: input.domain,
-    resolverAddress: input.resolverAddress,
-    registryAddress: input.registryAddress,
-    owner: input.owner,
-    fifsRegistrarAddress: input.fifsRegistrarAddress,
-    connection: input.connection,
+    label: args.label,
+    domain: args.domain,
+    resolverAddress: args.resolverAddress,
+    registryAddress: args.registryAddress,
+    owner: args.owner,
+    fifsRegistrarAddress: args.fifsRegistrarAddress,
+    connection: args.connection,
     txOverrides,
   });
 
   const setContentHashReceiptTx = setContentHash({
-    domain: input.label + "." + input.domain,
-    cid: input.cid,
-    resolverAddress: input.resolverAddress,
-    connection: input.connection,
+    domain: args.label + "." + args.domain,
+    cid: args.cid,
+    resolverAddress: args.resolverAddress,
+    connection: args.connection,
     txOverrides,
   });
 
