@@ -6,6 +6,5 @@ config:
   include:
     - ./package.json
     - src/index.ts
-    - src/common
     - src/contracts
     - src/utils.ts
