@@ -104,4 +104,31 @@ impl Api {
             }
         }
     }
+
+    pub fn execute_extrinsic<P, Params, Tip, Call>(
+        &self,
+        signer: Option<P>,
+        call: Call,
+        head_hash: Option<H256>,
+        extrinsic_params: Option<Params::OtherParams>,
+    ) -> Result<Option<H256>, Error>
+    where
+        P: sp_core::crypto::Pair,
+        MultiSigner: From<P::Public>,
+        MultiSignature: From<P::Signature>,
+        Params: ExtrinsicParams<OtherParams = BaseExtrinsicParamsBuilder<Tip>>,
+        u128: From<Tip>,
+        Tip: Encode + Default,
+        Call: Clone + fmt::Debug + Encode,
+    {
+        let xt = self.compose_extrinsics::<P, Params, Tip, Call>(
+            signer,
+            call,
+            head_hash,
+            extrinsic_params,
+        )?;
+
+        let encoded = xt.hex_encode();
+        self.author_submit_extrinsic(&encoded)
+    }
 }

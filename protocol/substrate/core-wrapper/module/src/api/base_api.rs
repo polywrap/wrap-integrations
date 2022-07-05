@@ -177,11 +177,15 @@ impl BaseApi {
         }
     }
 
-    pub fn submit_extrinsic(
-        &self,
-        hex_extrinsic: &str,
-    ) -> Result<Option<serde_json::Value>, Error> {
-        self.json_request_value("author_submitExtrinsic", vec![hex_extrinsic])
+    pub fn submit_extrinsic(&self, hex_extrinsic: &str) -> Result<Option<H256>, Error> {
+        let value = self.json_request_value("author_submitExtrinsic", vec![hex_extrinsic])?;
+        match value {
+            Some(value) => {
+                let value_str = value.as_str().expect("must be a string");
+                Ok(Some(H256::from_hex(value_str)?))
+            }
+            None => Ok(None),
+        }
     }
 
     /// Make a rpc request and return the result.result if it has value

@@ -46,3 +46,14 @@ pub fn chain_get_metadata(url: ArgsChainGetMetadata) -> Option<ChainMetadataOutp
         errors: vec![],
     })
 }
+
+pub fn state_get_runtime_version() {}
+
+pub fn rpc_methods() {}
+
+pub fn block() {}
+
+pub fn balance_transfer() {}
+
+pub fn state_get_storage_value() {}
+pub fn state_get_storage_map() {}
