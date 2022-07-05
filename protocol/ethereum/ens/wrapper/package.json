@@ -11,8 +11,7 @@
     "deploy:polywrap": "npx polywrap deploy",
     "deploy:contract": "node ./scripts/deploy-contracts.js",
     "test": "yarn test:e2e && yarn test:env:up && yarn deploy && yarn test:env:down",
-    "test:e2e": "jest --passWithNoTests --runInBand --verbose",
-    "test:recipe": "npx polywrap query ./recipes/e2e.json"
+    "test:e2e": "jest --passWithNoTests --runInBand --verbose"
   },
   "dependencies": {
     "@polywrap/wasm-as": "0.0.1-prealpha.92"
