@@ -1,19 +1,20 @@
 //! Contains the api specific to balances pallet
 //! Balance transfer, set_balance api
 use crate::types::account_info::BlockNumber;
+use crate::types::extrinsic_params::PlainTipExtrinsicParamsBuilder;
 use crate::{
     error::Error,
     types::{
         extrinsic_params::{PlainTip, PlainTipExtrinsicParams},
         extrinsics::GenericAddress,
     },
-    Api, Metadata,
+    Api,
 };
 use codec::Compact;
 use sp_core::crypto::AccountId32;
 use sp_core::Pair;
 use sp_core::H256;
-use sp_keyring::AccountKeyring;
+use sp_runtime::generic::Era;
 use sp_runtime::generic::Header;
 use sp_runtime::traits::BlakeTwo256;
 use sp_runtime::MultiSignature;

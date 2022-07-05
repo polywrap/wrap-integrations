@@ -1,6 +1,7 @@
+#![allow(warnings)]
+
 use crate::{Error, Metadata};
 pub use base_api::BaseApi;
-use codec::Decode;
 use delegate::delegate;
 use serde::de::DeserializeOwned;
 use sp_core::H256;
