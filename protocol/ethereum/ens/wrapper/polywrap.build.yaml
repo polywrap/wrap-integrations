@@ -5,8 +5,7 @@ config:
   node_version: "14.16.0"
   include:
     - ./package.json
-    - src/query
-    - src/mutation
+    - src/index.ts
     - src/common
     - src/contracts
     - src/utils.ts
