@@ -1,6 +1,6 @@
 {
-  "name": "@polywrap/ens-api",
-  "description": "ENS Web3API",
+  "name": "@polywrap/ens-wrapper",
+  "description": "ENS wrapper",
   "private": true,
   "version": "0.0.1-prealpha.92",
   "scripts": {
