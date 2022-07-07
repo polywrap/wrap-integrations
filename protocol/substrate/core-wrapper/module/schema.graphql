@@ -4,6 +4,8 @@ type Module {
   chainGetMetadata(
     url: String
   ): ChainMetadataOutput
+  
+  blockHash(url: String): String
 }
 
 type ChainMetadataOutput {

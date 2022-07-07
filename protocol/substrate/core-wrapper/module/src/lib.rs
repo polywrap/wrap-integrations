@@ -1,5 +1,4 @@
 pub mod wrap;
-use polywrap_wasm_rs::wrap_debug_log;
 use wrap::imported::*;
 pub use wrap::*;
 
@@ -51,7 +50,11 @@ pub fn state_get_runtime_version() {}
 
 pub fn rpc_methods() {}
 
-pub fn block() {}
+pub fn block_hash(arg: ArgsBlockHash) -> Option<String> {
+    let api = BaseApi::new("http://localhost:9933");
+    let block_hash = api.fetch_block_hash(0);
+    block_hash.ok().flatten().map(|h| h.to_string())
+}
 
 pub fn balance_transfer() {}
 
