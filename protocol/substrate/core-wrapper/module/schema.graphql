@@ -2,10 +2,10 @@
 
 type Module {
   chainGetMetadata(
-    url: String
+    url: String!
   ): ChainMetadataOutput
   
-  blockHash(url: String): String
+  blockHash(url: String!): String
 }
 
 type ChainMetadataOutput {
