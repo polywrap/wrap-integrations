@@ -2,13 +2,15 @@
 
 type Module {
   chainGetMetadata(
-    url: String
+    url: String!
   ): ChainMetadataOutput
+  
+  blockHash(url: String!): String
 }
 
 type ChainMetadataOutput {
   metadata: JSON!
   pallets: JSON!
-  events: [JSON!]!
-  errors: [JSON!]!
+  events: JSON!
+  errors: JSON!
 }
