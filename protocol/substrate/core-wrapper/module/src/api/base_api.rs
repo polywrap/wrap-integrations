@@ -213,14 +213,6 @@ impl BaseApi {
             method: method.to_string(),
             params: serde_json::to_value(params)?,
         };
-        println!("param: {:#?}", param);
-        debug!("param: {:#?}", param);
-        debug!("url: {}", self.url);
-        debug!(
-            "display param: {:?}",
-            serde_json::to_string(&param).unwrap()
-        );
-
         let response: Result<Option<HttpResponse>, String> =
             HttpModule::post(&http_module::ArgsPost {
                 url: self.url.clone(),
@@ -234,8 +226,6 @@ impl BaseApi {
                     body: Some(serde_json::to_string(&param)?),
                 }),
             });
-
-        debug!("response: {:#?}", response);
 
         let response = match response {
             Ok(response) => response,
