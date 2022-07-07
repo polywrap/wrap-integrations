@@ -33,7 +33,6 @@ pub fn custom_random_number(buf: &mut [u8]) -> Result<(), getrandom::Error> {
 
 pub fn chain_get_metadata(arg: ArgsChainGetMetadata) -> Option<ChainMetadataOutput> {
     let metadata = BaseApi::new(&arg.url).fetch_metadata();
-    debug!("metadata: {:?}", metadata);
     let meta = metadata.ok().flatten().expect("must have a metadata");
 
     let meta_json = serde_json::to_value(meta.metadata).expect("unable to convert to json");
@@ -43,8 +42,6 @@ pub fn chain_get_metadata(arg: ArgsChainGetMetadata) -> Option<ChainMetadataOutp
     let events_json = serde_json::to_value(events).expect("unable to convert to json");
     let errors = meta.errors.into_values().collect::<Vec<_>>();
     let errors_json = serde_json::to_value(errors).expect("unable to convert to json");
-
-    debug!("meta_json: {}", meta_json);
 
     Some(ChainMetadataOutput {
         metadata: meta_json,
@@ -60,7 +57,7 @@ pub fn rpc_methods() {}
 
 pub fn block_hash(arg: ArgsBlockHash) -> Option<String> {
     let api = BaseApi::new(&arg.url);
-    let block_hash = api.fetch_block_hash(0);
+    let block_hash = api.fetch_block_hash(arg.number);
     block_hash.ok().flatten().map(|h| h.to_string())
 }
 

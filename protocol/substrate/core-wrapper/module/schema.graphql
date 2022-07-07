@@ -5,7 +5,7 @@ type Module {
     url: String!
   ): ChainMetadataOutput
   
-  blockHash(url: String!): String
+  blockHash(url: String!, number: UInt32!): String
 }
 
 type ChainMetadataOutput {

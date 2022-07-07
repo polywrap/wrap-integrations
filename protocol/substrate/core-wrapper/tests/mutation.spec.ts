@@ -40,7 +40,8 @@ describe("e2e", () => {
     // Or use the test app's codegen types (see web3api.app.yaml)
     const result = await Substrate_Module.blockHash(
       {
-        argument: "argument value"
+          url: "http://localhost:9933",
+          number: 0
       },
       client,
       uri
