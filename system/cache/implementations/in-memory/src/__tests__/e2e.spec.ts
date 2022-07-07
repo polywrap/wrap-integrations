@@ -21,7 +21,7 @@ describe("e2e", () => {
     const setResult = await client.invoke({
       uri,
       method: "set",
-      input: {
+      args: {
         key: "a",
         value: "1"
       }
@@ -33,7 +33,7 @@ describe("e2e", () => {
     const hasResult = await client.invoke({
       uri,
       method: "has",
-      input: {
+      args: {
         key: "a",
       }
     });    
@@ -45,7 +45,7 @@ describe("e2e", () => {
     const getResult = await client.invoke({
       uri,
       method: "get",
-      input: {
+      args: {
         key: "a",
       }
     });    
@@ -59,7 +59,7 @@ describe("e2e", () => {
     const setResult = await client.invoke({
       uri,
       method: "set",
-      input: {
+      args: {
         key: "a",
         value: "1"
       }
@@ -71,7 +71,7 @@ describe("e2e", () => {
     const deleteResult = await client.invoke({
       uri,
       method: "delete",
-      input: {
+      args: {
         key: "a",
       }
     });    
@@ -82,7 +82,7 @@ describe("e2e", () => {
     const hasResult = await client.invoke({
       uri,
       method: "has",
-      input: {
+      args: {
         key: "a",
       }
     });    

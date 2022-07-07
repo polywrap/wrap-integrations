@@ -1,10 +1,16 @@
-### Sample Plugin
+# In-memory cache plugin
+in-memory cache is an in-memory plugin implementation for the cache interface. it allows storig and retriveing data by keys in-memory. 
 
-This is a sample plugin with sample query/mutation.
-You can add new functionalities to it by following steps.
+## How to Build, Deploy, and Test
+### Install Dependencies
+`nvm install && nvm use`  
+`yarn`
 
-1. Add queries/mutations the `schema.graphql` file
-2. Add resolvers for that to the `resolvers.ts` file.
-   Use the Plugin class in the `index.ts` file to add helpers/methods to handle queries/mutations.
-3. Update the `manifest.ts` file.
-4. Run `yarn build`
+### Build
+`yarn build` 
+
+### Deploy
+`yarn deploy`
+
+### Test
+`yarn test`
