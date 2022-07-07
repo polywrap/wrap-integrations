@@ -23,6 +23,7 @@ macro_rules! debug {
 getrandom::register_custom_getrandom!(custom_random_number);
 
 /// TODO: use polywraps random plugin for this
+/// [#901](https://github.com/polywrap/monorepo/issues/901)
 pub fn custom_random_number(buf: &mut [u8]) -> Result<(), getrandom::Error> {
     for b in buf.iter_mut() {
         *b = 4;
@@ -30,19 +31,26 @@ pub fn custom_random_number(buf: &mut [u8]) -> Result<(), getrandom::Error> {
     Ok(())
 }
 
-pub fn chain_get_metadata(url: ArgsChainGetMetadata) -> Option<ChainMetadataOutput> {
-    debug!("url: {:?}", url);
-    let metadata = BaseApi::new("http://localhost:9933").fetch_metadata();
+pub fn chain_get_metadata(arg: ArgsChainGetMetadata) -> Option<ChainMetadataOutput> {
+    let metadata = BaseApi::new(&arg.url).fetch_metadata();
     debug!("metadata: {:?}", metadata);
+    let meta = metadata.ok().flatten().expect("must have a metadata");
 
-    let api = BaseApi::new("http://localhost:9933");
-    let block_hash = api.fetch_block_hash(0);
-    debug!("block_hash: {:?}", block_hash);
+    let meta_json = serde_json::to_value(meta.metadata).expect("unable to convert to json");
+    let pallet_json = serde_json::to_value(meta.pallets).expect("unable to convert to json");
+
+    let events = meta.events.into_values().collect::<Vec<_>>();
+    let events_json = serde_json::to_value(events).expect("unable to convert to json");
+    let errors = meta.errors.into_values().collect::<Vec<_>>();
+    let errors_json = serde_json::to_value(errors).expect("unable to convert to json");
+
+    debug!("meta_json: {}", meta_json);
+
     Some(ChainMetadataOutput {
-        metadata: Value::Null,
-        pallets: Value::Null,
-        events: vec![],
-        errors: vec![],
+        metadata: meta_json,
+        pallets: pallet_json,
+        events: events_json,
+        errors: errors_json,
     })
 }
 
@@ -51,7 +59,7 @@ pub fn state_get_runtime_version() {}
 pub fn rpc_methods() {}
 
 pub fn block_hash(arg: ArgsBlockHash) -> Option<String> {
-    let api = BaseApi::new("http://localhost:9933");
+    let api = BaseApi::new(&arg.url);
     let block_hash = api.fetch_block_hash(0);
     block_hash.ok().flatten().map(|h| h.to_string())
 }

@@ -11,6 +11,6 @@ type Module {
 type ChainMetadataOutput {
   metadata: JSON!
   pallets: JSON!
-  events: [JSON!]!
-  errors: [JSON!]!
+  events: JSON!
+  errors: JSON!
 }
