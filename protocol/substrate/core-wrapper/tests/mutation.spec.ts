@@ -30,17 +30,16 @@ describe("e2e", () => {
     client = new PolywrapClient();
   });
 
-      /*
-  it("chainGetBlockHash", async () => {
+  it("blockHash", async () => {
     // You can use the client directly
     await client.invoke({
       uri,
       module: "mutation",
-      method: "chainGetBlockHash"
+      method: "blockHash"
     });
 
     // Or use the test app's codegen types (see web3api.app.yaml)
-    const result = await Substrate_Module.chainGetBlockHash(
+    const result = await Substrate_Module.blockHash(
       {
         argument: "argument value"
       },
@@ -48,14 +47,9 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
-    expect(result.data?.prop).toBeTruthy();
+      console.log("result:", result);
 
-    const httpResponse = JSON.parse(result.data?.prop || "");
-    expect(httpResponse.url).toContain("https://via.placeholder.com/");
   });
-  */
 
   it("chainGetMetadata", async () => {
     // You can use the client directly
