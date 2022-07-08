@@ -8,9 +8,9 @@ import {
 import { KeyTypeEnum, PublicKey } from "./tsTypes";
 
 import { ClientConfig } from "@polywrap/client-js";
-import { ensPlugin } from "@polywrap/ens-plugin-js";
+import { ensResolverPlugin } from "@polywrap/ens-resolver-plugin-js";
 import { ethereumPlugin } from "@polywrap/ethereum-plugin-js";
-import { ipfsPlugin } from "@polywrap/ipfs-plugin-js";
+import { ipfsResolverPlugin } from "@polywrap/ipfs-resolver-plugin-js";
 import * as fs from "fs/promises";
 import * as nearApi from "near-api-js";
 import * as path from "path";
@@ -127,13 +127,11 @@ export const getPlugins = (
       },
       {
         uri: "wrap://ens/ipfs.polywrap.eth",
-        plugin: ipfsPlugin({ provider: ipfs }),
+        plugin: ipfsResolverPlugin({ provider: ipfs }),
       },
       {
         uri: "wrap://ens/ens.polywrap.eth",
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-ignore
-        plugin: ensPlugin({ addresses: { testnet: ensAddress } }),
+        plugin: ensResolverPlugin({ addresses: { testnet: ensAddress } }),
       },
       {
         uri: "wrap://ens/ethereum.polywrap.eth",

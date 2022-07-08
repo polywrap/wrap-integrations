@@ -40,8 +40,8 @@ describe("e2e", () => {
     nearConfig = await testUtils.setUpTestConfig();
     near = await nearApi.connect(nearConfig);
     // set up client
-    console.log(__dirname);
-    apiUri = `fs/../../build`;
+    const absPath = __dirname + "/../../build";
+    apiUri = `fs/${absPath}`;
     const polywrapConfig = testUtils.getPlugins(
       providers.ethereum,
       ensAddresses.ensAddress,

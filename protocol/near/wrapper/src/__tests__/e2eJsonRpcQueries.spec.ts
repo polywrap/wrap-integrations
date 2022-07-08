@@ -15,14 +15,11 @@ import { PolywrapClient } from "@polywrap/client-js";
 import * as nearApi from "near-api-js";
 import { BlockResult as NearBlockResult } from "near-api-js/lib/providers/provider";
 import {
-  buildAndDeployWrapper,
   initTestEnvironment,
   stopTestEnvironment,
   providers,
   ensAddresses,
 } from "@polywrap/test-env-js";
-import path from "path";
-
 const BN = require("bn.js");
 
 jest.setTimeout(360000);
@@ -44,13 +41,8 @@ describe("e2e", () => {
   beforeAll(async () => {
     // set up test env and deploy api
     await initTestEnvironment();
-    const apiPath: string = path.resolve(__dirname + "/../../");
-    const api = await buildAndDeployWrapper({
-      wrapperAbsPath: apiPath,
-      ipfsProvider: providers.ipfs,
-      ethereumProvider: providers.ethereum,
-    });
-    apiUri = `ens/testnet/${api.ensDomain}`;
+    const absPath = __dirname + "/../../build";
+    apiUri = `fs/${absPath}`;
     // set up client
     nearConfig = await testUtils.setUpTestConfig();
     near = await nearApi.connect(nearConfig);
@@ -268,7 +260,7 @@ describe("e2e", () => {
       //@ts-ignore
       (status: any) =>
         status.sync_info.latest_block_hash !==
-        transactionOutcome.transaction_outcome.block_hash
+        transactionOutcome.transaction_outcome?.block_hash
     );
     const BLOCKS_UNTIL_FINAL = 2;
     const finalizedStatus = await waitForStatusMatching(

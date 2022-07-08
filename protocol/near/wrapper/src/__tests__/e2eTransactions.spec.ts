@@ -51,13 +51,8 @@ describe("e2e", () => {
   beforeAll(async () => {
     // set up test env and deploy api
     await initTestEnvironment();
-    const apiPath: string = path.resolve(__dirname + "/../../");
-    const api = await buildAndDeployWrapper({
-      wrapperAbsPath: apiPath,
-      ipfsProvider: providers.ipfs,
-      ethereumProvider: providers.ethereum,
-    });
-    apiUri = `ens/testnet/${api.ensDomain}`;
+    const absPath = __dirname + "/../../build";
+    apiUri = `fs/${absPath}`;
     // set up client
     nearConfig = await testUtils.setUpTestConfig();
     near = await nearApi.connect(nearConfig);

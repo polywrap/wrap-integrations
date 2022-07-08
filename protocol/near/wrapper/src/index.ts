@@ -38,7 +38,6 @@ import {
   BlockChangeResult,
   LightClientProof,
   NearProtocolConfig,
-  KeyValuePair,
   Args_viewContractState,
   ContractStateResult,
   ViewContractCode,
@@ -48,12 +47,23 @@ import {
   Args_getAccountDetails,
   Args_viewFunction,
   Args_viewContractCode,
-  AccountAuthorizedApp
+  AccountAuthorizedApp,
+  Near_AccessKey,
+  Near_Action,
+  Args_sendMoney,
+  Args_signAndSendTransactionAsync,
+  Args_deleteKey,
+  Args_createAndDeployContract,
+  Args_signAndSendTransaction,
+  Args_createAccount,
+  Args_deployContract,
+  Args_functionCall,
+  Args_addKey, Args_deleteAccount
 } from "./wrap";
 import JsonRpcProvider from "./utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
 import { BigInt, JSON, JSONEncoder } from "@polywrap/wasm-as";
-import { publicKeyFromStr, publicKeyToStr } from "./utils/typeUtils";
+import {fullAccessKey, functionCallAccessKey, publicKeyFromStr, publicKeyToStr} from "./utils/typeUtils";
 import {
   toAccessKey,
   toAccessKeyInfo,
@@ -68,13 +78,20 @@ import {
   toNodeStatus,
 } from "./utils/jsonMap";
 import * as formatUtils from "./utils/format";
+import * as action from "./utils/actionCreators"
 
-export function requestSignIn(input: Args_requestSignIn): boolean {
+import {
+  Args_requestSignTransactions,
+  Args_sendJsonRpc, Args_sendTransaction,
+  Args_sendTransactionAsync
+} from "./wrap/imported/Near_Module/serialization";
+
+export function requestSignIn(args: Args_requestSignIn): boolean {
   return Near_Module.requestSignIn({
-    contractId: input.contractId,
-    methodNames: input.methodNames,
-    successUrl: input.successUrl,
-    failureUrl: input.failureUrl,
+    contractId: args.contractId,
+    methodNames: args.methodNames,
+    successUrl: args.successUrl,
+    failureUrl: args.failureUrl,
   }).unwrap();
 }
 
@@ -90,17 +107,17 @@ export function getAccountId(): string | null {
   return Near_Module.getAccountId({}).unwrap();
 }
 
-export function getBlock(input: Args_getBlock): BlockResult {
+export function getBlock(args: Args_getBlock): BlockResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  return provider.block(input.blockQuery);
+  return provider.block(args.blockQuery);
 }
 
-export function getAccountState(input: Args_getAccountState): AccountView {
+export function getAccountState(args: Args_getAccountState): AccountView {
   // prepare params
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
   encoder.setString("request_type", "view_account");
-  encoder.setString("account_id", input.accountId);
+  encoder.setString("account_id", args.accountId);
   encoder.setString("finality", "optimistic");
   encoder.popObject();
   const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
@@ -126,19 +143,19 @@ export function getAccountState(input: Args_getAccountState): AccountView {
 }
 
 export function viewContractState(
-  input: Args_viewContractState
+  args: Args_viewContractState
 ): ContractStateResult {
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
   encoder.setString("request_type", "view_state");
   // encoder.setString("account_id", '');
-  if (input.blockQuery.block_id != null) {
-    encoder.setString("block_id", input.blockQuery.block_id!);
+  if (args.blockQuery.block_id != null) {
+    encoder.setString("block_id", args.blockQuery.block_id!);
   }
-  if (input.blockQuery.finality != null) {
-    encoder.setString("finality", input.blockQuery.finality!);
+  if (args.blockQuery.finality != null) {
+    encoder.setString("finality", args.blockQuery.finality!);
   }
-  encoder.setString("account_id", input.accountId);
+  encoder.setString("account_id", args.accountId);
   encoder.setString("prefix_base64", "");
   encoder.popObject();
   const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
@@ -149,12 +166,12 @@ export function viewContractState(
 }
 
 export function viewContractCode(
-  input: Args_viewContractCode
+  args: Args_viewContractCode
 ): ViewContractCode {
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
   encoder.setString("request_type", "view_code");
-  encoder.setString("account_id", input.accountId);
+  encoder.setString("account_id", args.accountId);
   encoder.setString("finality", "optimistic");
   encoder.popObject();
   const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
@@ -171,11 +188,11 @@ export function viewContractCode(
 }
 
 export function findAccessKey(
-  input: Args_findAccessKey
+  args: Args_findAccessKey
 ): AccessKeyInfo | null {
   // get public key
   const publicKey: Near_PublicKey | null = getPublicKey({
-    accountId: input.accountId,
+    accountId: args.accountId,
   });
   if (publicKey == null) {
     return null;
@@ -184,7 +201,7 @@ export function findAccessKey(
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
   encoder.setString("request_type", "view_access_key");
-  encoder.setString("account_id", input.accountId);
+  encoder.setString("account_id", args.accountId);
   encoder.setString("public_key", publicKeyToStr(publicKey));
   encoder.setString("finality", "optimistic");
   encoder.popObject();
@@ -198,18 +215,18 @@ export function findAccessKey(
   };
 }
 
-export function getPublicKey(input: Args_getPublicKey): Near_PublicKey | null {
-  return Near_Module.getPublicKey({ accountId: input.accountId }).unwrap();
+export function getPublicKey(args: Args_getPublicKey): Near_PublicKey | null {
+  return Near_Module.getPublicKey({ accountId: args.accountId }).unwrap();
 }
 
 export function getAccountBalance(
-  input: Args_getAccountBalance
+  args: Args_getAccountBalance
 ): AccountBalance {
   // prepare params
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
   encoder.setString("request_type", "view_account");
-  encoder.setString("account_id", input.accountId);
+  encoder.setString("account_id", args.accountId);
   encoder.setString("finality", "optimistic");
   encoder.popObject();
   const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
@@ -217,7 +234,7 @@ export function getAccountBalance(
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const result: JSON.Obj = provider.sendJsonRpc("query", params);
   // parse and return result
-  const state = getAccountState({ accountId: input.accountId });
+  const state = getAccountState({ accountId: args.accountId });
 
   const protocolConfig = provider.protocolConfig();
 
@@ -238,9 +255,9 @@ export function getAccountBalance(
 }
 
 export function getAccountDetails(
-  input: Args_getAccountDetails
+  args: Args_getAccountDetails
 ): AccountAuthorizedApp[] {
-  const accessKeys = getAccessKeys({ accountId: input.accountId });
+  const accessKeys = getAccessKeys({ accountId: args.accountId });
 
   const authorizedApps: AccountAuthorizedApp[] = [];
 
@@ -264,12 +281,12 @@ export function getAccountDetails(
   return authorizedApps;
 }
 
-export function getAccessKeys(input: Args_getAccessKeys): AccessKeyInfo[] {
+export function getAccessKeys(args: Args_getAccessKeys): AccessKeyInfo[] {
   // prepare params
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
   encoder.setString("request_type", "view_access_key_list");
-  encoder.setString("account_id", input.accountId);
+  encoder.setString("account_id", args.accountId);
   encoder.setString("finality", "optimistic");
   encoder.popObject();
   const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
@@ -288,21 +305,21 @@ export function getAccessKeys(input: Args_getAccessKeys): AccessKeyInfo[] {
   return accessKeysInfo;
 }
 
-export function viewFunction(input: Args_viewFunction): JSON.Obj {
+export function viewFunction(args: Args_viewFunction): JSON.Obj {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  return provider.viewFunction(input.contractId, input.methodName, input.args);
+  return provider.viewFunction(args.contractId, args.methodName, args.args);
 }
 
 export function createTransaction(
-  input: Args_createTransaction
+  args: Args_createTransaction
 ): Near_Transaction {
-  if (input.signerId == null) {
+  if (args.signerId == null) {
     return Near_Module.createTransactionWithWallet({
-      receiverId: input.receiverId,
-      actions: input.actions,
+      receiverId: args.receiverId,
+      actions: args.actions,
     }).unwrap();
   }
-  const signerId: string = input.signerId!;
+  const signerId: string = args.signerId!;
   const accessKeyInfo: AccessKeyInfo | null = findAccessKey({
     accountId: signerId,
   });
@@ -328,26 +345,26 @@ export function createTransaction(
     signerId: signerId,
     publicKey: publicKeyFromStr(publicKey),
     nonce: nonce,
-    receiverId: input.receiverId,
+    receiverId: args.receiverId,
     blockHash: blockHash,
-    actions: input.actions,
+    actions: args.actions,
     hash: null,
   };
 }
 
 export function lightClientProof(
-  input: Args_lightClientProof
+  args: Args_lightClientProof
 ): LightClientProof {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  const lightClientProof = provider.lightClientProof(input.request);
+  const lightClientProof = provider.lightClientProof(args.request);
   return toLightClientProof(lightClientProof);
 }
 
 export function signTransaction(
-  input: Args_signTransaction
+  args: Args_signTransaction
 ): Near_SignTransactionResult {
   return Near_Module.signTransaction({
-    transaction: input.transaction,
+    transaction: args.transaction,
   }).unwrap();
 }
 
@@ -357,118 +374,249 @@ export function status(): NodeStatusResult {
   return toNodeStatus(statusJson);
 }
 
-export function txStatus(input: Args_txStatus): Near_FinalExecutionOutcome {
+export function txStatus(args: Args_txStatus): Near_FinalExecutionOutcome {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  const txStatus = provider.txStatus(input.txHash, input.accountId);
+  const txStatus = provider.txStatus(args.txHash, args.accountId);
   return toFinalExecutionOutcome(txStatus);
 }
 
 export function txStatusReceipts(
-  input: Args_txStatusReceipts
+  args: Args_txStatusReceipts
 ): Near_FinalExecutionOutcomeWithReceipts {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  const txStatus = provider.txStatusReceipts(input.txHash, input.accountId);
+  const txStatus = provider.txStatusReceipts(args.txHash, args.accountId);
   return toFinalExecutionOutcomeWithReceipts(txStatus);
 }
 
-export function chunk(input: Args_chunk): ChunkResult {
+export function chunk(args: Args_chunk): ChunkResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  const chunk = provider.getChunk(input.chunkId);
+  const chunk = provider.getChunk(args.chunkId);
   return toChunkResult(chunk);
 }
 
-export function gasPrice(input: Args_gasPrice): BigInt {
+export function gasPrice(args: Args_gasPrice): BigInt {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   let blockId: string | null = null;
-  if (input.blockId !== null) {
-    blockId = input.blockId!;
+  if (args.blockId !== null) {
+    blockId = args.blockId!;
   }
   const gasPrice = provider.gasPrice(blockId);
   return BigInt.fromString(gasPrice.getString("gas_price")!.valueOf());
 }
 
-export function accessKeyChanges(input: Args_accessKeyChanges): ChangeResult {
+export function accessKeyChanges(args: Args_accessKeyChanges): ChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const accessKeyChanges = provider.accessKeyChanges(
-    input.accountIdArray,
-    input.blockQuery
+    args.accountIdArray,
+    args.blockQuery
   );
   return toChangeResult(accessKeyChanges);
 }
 
-export function accountChanges(input: Args_accountChanges): ChangeResult {
+export function accountChanges(args: Args_accountChanges): ChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const accountChanges = provider.accountChanges(
-    input.accountIdArray,
-    input.blockQuery
+    args.accountIdArray,
+    args.blockQuery
   );
   return toChangeResult(accountChanges);
 }
 
-export function blockChanges(input: Args_blockChanges): BlockChangeResult {
+export function blockChanges(args: Args_blockChanges): BlockChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
 
-  const blockChanges = provider.blockChanges(input.blockQuery);
+  const blockChanges = provider.blockChanges(args.blockQuery);
   return toBlockChanges(blockChanges);
 }
 
 export function contractStateChanges(
-  input: Args_contractStateChanges
+  args: Args_contractStateChanges
 ): ChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
 
   const contractStateChanges = provider.contractStateChanges(
-    input.accountIdArray,
-    input.blockQuery,
-    input.keyPrefix!
+    args.accountIdArray,
+    args.blockQuery,
+    args.keyPrefix!
   );
   return toChangeResult(contractStateChanges);
 }
 
 export function contractCodeChanges(
-  input: Args_contractCodeChanges
+  args: Args_contractCodeChanges
 ): ChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
 
   const contractCodeChanges = provider.contractCodeChanges(
-    input.accountIdArray,
-    input.blockQuery
+    args.accountIdArray,
+    args.blockQuery
   );
   return toChangeResult(contractCodeChanges);
 }
 
 export function singleAccessKeyChanges(
-  input: Args_singleAccessKeyChanges
+  args: Args_singleAccessKeyChanges
 ): ChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const singleAccessKeyChanges = provider.singleAccessKeyChanges(
-    input.accessKeyArray,
-    input.blockQuery!
+    args.accessKeyArray,
+    args.blockQuery!
   );
   return toChangeResult(singleAccessKeyChanges);
 }
 
-export function validators(input: Args_validators): EpochValidatorInfo {
+export function validators(args: Args_validators): EpochValidatorInfo {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   let blockId: string | null = null;
-  if (input.blockId !== null) {
-    blockId = input.blockId!;
+  if (args.blockId !== null) {
+    blockId = args.blockId!;
   }
   const validators = provider.validators(blockId);
   return toEpochValidatorInfo(validators);
 }
 
 export function experimental_protocolConfig(
-  input: Args_experimental_protocolConfig
+  args: Args_experimental_protocolConfig
 ): NearProtocolConfig {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  return provider.protocolConfig(input.blockReference);
+  return provider.protocolConfig(args.blockReference);
 }
 
-export function parseNearAmount(input: Args_parseNearAmount): String {
-  return formatUtils.parseNearAmount(input.amount);
+export function parseNearAmount(args: Args_parseNearAmount): String {
+  return formatUtils.parseNearAmount(args.amount);
 }
 
-export function formatNearAmount(input: Args_formatNearAmount): String {
-  return formatUtils.formatNearAmount(input.amount);
+export function formatNearAmount(args: Args_formatNearAmount): String {
+  return formatUtils.formatNearAmount(args.amount);
 }
+
+
+
+export function sendJsonRpc(args: Args_sendJsonRpc): JSON.Obj {
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+  return provider.sendJsonRpc(args.method, args.params as JSON.Obj);
+}
+
+export function requestSignTransactions(args: Args_requestSignTransactions): boolean {
+  return Near_Module.requestSignTransactions({
+    transactions: args.transactions,
+    callbackUrl: args.callbackUrl,
+    meta: args.meta,
+  }).unwrap();
+}
+
+export function sendTransaction(args: Args_sendTransaction): Near_FinalExecutionOutcome {
+  return Near_Module.sendTransaction({ signedTx: args.signedTx }).unwrap();
+}
+
+export function sendTransactionAsync(args: Args_sendTransactionAsync): string {
+  return Near_Module.sendTransactionAsync({ signedTx: args.signedTx }).unwrap();
+}
+
+export function signAndSendTransaction(args: Args_signAndSendTransaction): Near_FinalExecutionOutcome {
+  const transaction: Near_Transaction = createTransaction({
+    receiverId: args.receiverId,
+    actions: args.actions,
+    signerId: args.signerId,
+  });
+  const signedTxResult: Near_SignTransactionResult = signTransaction({ transaction: transaction });
+  return sendTransaction({ signedTx: signedTxResult.signedTx });
+}
+
+export function signAndSendTransactionAsync(args: Args_signAndSendTransactionAsync): string {
+  const transaction: Near_Transaction = createTransaction({
+    receiverId: args.receiverId,
+    actions: args.actions,
+    signerId: args.signerId,
+  });
+  const signedTxResult: Near_SignTransactionResult = signTransaction({ transaction: transaction });
+  return sendTransactionAsync({ signedTx: signedTxResult.signedTx });
+}
+
+export function addKey(args: Args_addKey): Near_FinalExecutionOutcome {
+  // https://github.com/near/near-api-js/blob/e29a41812ac79579cc12b051f8ef04d2f3606a75/src/account.ts#L445
+  let methodNames: string[] = [];
+  if (args.methodNames !== null) {
+    methodNames = <string[]>args.methodNames;
+  }
+  let accessKey: Near_AccessKey;
+  if (args.contractId !== null && args.amount !== null) {
+    accessKey = functionCallAccessKey(<string>args.contractId, methodNames, <BigInt>args.amount);
+  } else {
+    accessKey = fullAccessKey();
+  }
+  return signAndSendTransaction({
+    receiverId: args.signerId,
+    signerId: args.signerId,
+    actions: [{ publicKey: args.publicKey, accessKey: accessKey } as Near_Action],
+  });
+}
+
+export function createAccount(args: Args_createAccount): Near_FinalExecutionOutcome {
+  return signAndSendTransaction({
+    receiverId: args.newAccountId,
+    signerId: args.signerId,
+    actions: [action.createAccount(), action.transfer(args.amount), action.addKey(args.publicKey, fullAccessKey())],
+  });
+}
+
+export function deleteAccount(args: Args_deleteAccount): Near_FinalExecutionOutcome {
+  return signAndSendTransaction({
+    receiverId: args.accountId,
+    signerId: args.signerId,
+    actions: [action.deleteAccount(args.beneficiaryId)],
+  });
+}
+
+export function deployContract(args: Args_deployContract): Near_FinalExecutionOutcome {
+  return signAndSendTransaction({
+    receiverId: args.contractId,
+    signerId: args.signerId,
+    actions: [action.deployContract(args.data)],
+  });
+}
+
+export function sendMoney(args: Args_sendMoney): Near_FinalExecutionOutcome {
+  return signAndSendTransaction({
+    receiverId: args.receiverId,
+    signerId: args.signerId,
+    actions: [action.transfer(args.amount)],
+  });
+}
+
+export function functionCall(args: Args_functionCall): Near_FinalExecutionOutcome {
+  const actions = [action.functionCall(args.methodName, args.args, args.gas, args.deposit)];
+  if (args.signerId !== null) {
+    return signAndSendTransaction({ receiverId: args.contractId, signerId: args.signerId!, actions: actions });
+  }
+  const transaction = createTransaction({
+    receiverId: args.contractId,
+    actions: actions,
+  } as Args_createTransaction);
+
+  const signedTxResult: Near_SignTransactionResult = signTransaction({ transaction: transaction });
+  return sendTransaction({ signedTx: signedTxResult.signedTx });
+}
+
+export function deleteKey(args: Args_deleteKey): Near_FinalExecutionOutcome {
+  return signAndSendTransaction({
+    receiverId: args.signerId,
+    signerId: args.signerId,
+    actions: [action.deleteKey(args.publicKey)],
+  });
+}
+
+export function createAndDeployContract(args: Args_createAndDeployContract): Near_FinalExecutionOutcome {
+  return signAndSendTransaction({
+    receiverId: args.contractId,
+    signerId: args.signerId,
+    actions: [
+      action.createAccount(),
+      action.transfer(args.amount),
+      action.addKey(args.publicKey, fullAccessKey()),
+      action.deployContract(args.data),
+    ],
+  });
+}
+
+

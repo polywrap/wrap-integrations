@@ -3,15 +3,14 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable @typescript-eslint/naming-convention */
 import {
-  Input_requestSignIn,
-  Input_signOut,
-  Input_isSignedIn,
-  Input_getAccountId,
+  Args_requestSignIn,
+  Args_signOut,
+  Args_isSignedIn,
+  Args_getAccountId,
 } from "../wrap";
 import * as testUtils from "./testUtils";
 import "localstorage-polyfill";
 import {
-  buildAndDeployWrapper,
   ensAddresses,
   initTestEnvironment,
   providers,
@@ -19,7 +18,6 @@ import {
 import { PolywrapClient } from "@polywrap/client-js";
 import * as nearApi from "near-api-js";
 import { NearPluginConfig } from "../../../plugin-js/build";
-import path from "path";
 
 const MockBrowser = require("mock-browser").mocks.MockBrowser;
 
@@ -43,15 +41,9 @@ describe("e2e", () => {
 
     // set up test env and deploy api
     await initTestEnvironment();
-    const apiPath: string = path.resolve(__dirname + "/../../");
 
-    const api = await buildAndDeployWrapper({
-      wrapperAbsPath: apiPath,
-      ipfsProvider: providers.ipfs,
-      ethereumProvider: providers.ethereum,
-    });
-    apiUri = `ens/testnet/${api.ensDomain}`;
-    // set up client
+    const absPath = __dirname + "/../../build";
+    apiUri = `fs/${absPath}`;
     nearConfig = await testUtils.setUpTestConfig();
     near = await nearApi.connect(nearConfig);
 
@@ -77,7 +69,7 @@ describe("e2e", () => {
   // requestSignIn +
   it("Request sign in", async () => {
     const result = await client.query<{
-      requestSignIn: Input_requestSignIn;
+      requestSignIn: Args_requestSignIn;
     }>({
       uri: apiUri,
       query: `query {
@@ -106,7 +98,7 @@ describe("e2e", () => {
   // signOut +
   it("Sign out", async () => {
     const result = await client.query<{
-      signOut: Input_signOut;
+      signOut: Args_signOut;
     }>({
       uri: apiUri,
       query: `query {
@@ -126,12 +118,12 @@ describe("e2e", () => {
   // isSignedIn +
   it("Is signed in", async () => {
     const result = await client.query<{
-      isSignedIn: Input_isSignedIn;
+      isSignedIn: Args_isSignedIn;
     }>({
       uri: apiUri,
       query: `query {
         isSignedIn
-          }`,
+      }`,
       variables: {},
     });
     expect(result.errors).toBeFalsy();
@@ -141,7 +133,7 @@ describe("e2e", () => {
   // getAccountId +
   it("Get account id", async () => {
     const result = await client.query<{
-      getAccountId: Input_getAccountId;
+      getAccountId: Args_getAccountId;
     }>({
       uri: apiUri,
       query: `query {

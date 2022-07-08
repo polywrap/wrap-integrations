@@ -5,13 +5,11 @@ import { PolywrapClient } from "@polywrap/client-js";
 import { BigInt } from "@polywrap/wasm-as";
 import * as nearApi from "near-api-js";
 import {
-  buildAndDeployWrapper,
   initTestEnvironment,
   stopTestEnvironment,
   providers,
   ensAddresses,
 } from "@polywrap/test-env-js";
-import path from "path";
 
 jest.setTimeout(360000);
 
@@ -23,15 +21,9 @@ describe("e2e", () => {
   beforeAll(async () => {
     // set up test env and deploy api
     await initTestEnvironment();
-    const apiPath: string = path.resolve(__dirname + "/../../");
-    const api = await buildAndDeployWrapper({
-      wrapperAbsPath: apiPath,
-      ipfsProvider: providers.ipfs,
-      ethereumProvider: providers.ethereum,
-    });
 
-    // set up client
-    apiUri = `ens/testnet/${api.ensDomain}`;
+    const absPath = __dirname + "/../../build";
+    apiUri = `fs/${absPath}`;
     const polywrapConfig = testUtils.getPlugins(
       providers.ethereum,
       ensAddresses.ensAddress,
