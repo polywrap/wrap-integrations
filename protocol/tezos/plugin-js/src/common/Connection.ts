@@ -1,5 +1,5 @@
 import { getProvider } from "./Networks";
-import { Connection as SchemaConnection } from "../query/w3";
+import { Connection as SchemaConnection } from "../wrap";
 
 import {
   ContractAbstraction,
@@ -9,7 +9,7 @@ import {
 } from "@taquito/taquito";
 import { InMemorySigner } from "@taquito/signer";
 import { Tzip16Module } from "@taquito/tzip16"
-import { TezosPluginConfigs } from "..";
+import { TezosPluginConfig } from "..";
 
 export type Address = string;
 export type AccountIndex = number;
@@ -158,7 +158,7 @@ export async function getConnection(
   return result;
 }
 
-export const getConnections = (config: TezosPluginConfigs) => {
+export const getConnections = (config: TezosPluginConfig) => {
   let defaultNetwork;
   const connections = Connection.fromConfigs(config.networks);
   // Assign the default network (mainnet if not provided)

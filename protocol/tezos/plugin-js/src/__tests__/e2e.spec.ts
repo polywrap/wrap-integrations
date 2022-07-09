@@ -1,22 +1,22 @@
 import { tezosPlugin } from "..";
-import * as QueryTypes from "../query/w3/types";
-import * as MutationTypes from "../mutation/w3/types";
+import * as QueryTypes from "../wrap/types";
+import * as MutationTypes from "../wrap/types";
 import { SIMPLE_CONTRACT, SIMPLE_CONTRACT_STORAGE } from "./contracts/simple-contract"
 import { up, down, Account, Node, deployContract } from "@blockwatch-cc/tezos-test-env"
-import { Web3ApiClient } from "@web3api/client-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import { InMemorySigner } from "@taquito/signer";
 
 jest.setTimeout(360000)
 
 describe("Tezos Plugin", () => {  
-  let client: Web3ApiClient;
+  let client: PolywrapClient;
   let uri: string;
   let accounts: Account[];
   let node: Node;
   let simpleContractAddress: string | undefined;
 
   beforeAll(async () => {
-    uri = "w3://ens/tezos.web3api.eth"
+    uri = "wrap://ens/tezos.web3api.eth"
     const response = await up()
     node = response.node
     accounts = response.accounts
@@ -25,7 +25,7 @@ describe("Tezos Plugin", () => {
       storage: SIMPLE_CONTRACT_STORAGE
     }, 1)
     simpleContractAddress = deployedResponse.contractAddress
-    client = new Web3ApiClient({
+    client = new PolywrapClient({
       plugins: [
         {
           uri,

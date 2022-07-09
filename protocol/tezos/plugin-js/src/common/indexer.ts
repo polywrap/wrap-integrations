@@ -1,4 +1,4 @@
-import { OperationStatus } from "../query/w3";
+import { OperationStatus } from "../wrap";
 
 import axios from "axios"
 
