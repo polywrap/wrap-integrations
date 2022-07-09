@@ -4,7 +4,6 @@ import {
   Args_accountChanges,
   Args_getAccountState,
   Args_createTransaction,
-  Args_requestSignIn,
   Args_findAccessKey,
   Args_signTransaction,
   Args_getPublicKey,
@@ -58,8 +57,16 @@ import {
   Args_createAccount,
   Args_deployContract,
   Args_functionCall,
-  Args_addKey, Args_deleteAccount
+  Args_addKey,
+  Args_deleteAccount,
+  Args_status
 } from "./wrap";
+import {
+  Args_requestSignIn,
+  Args_isSignedIn,
+  Args_getAccountId,
+  Args_signOut
+} from "./wrap/imported/Near_Module/serialization"
 import JsonRpcProvider from "./utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
 import { BigInt, JSON, JSONEncoder } from "@polywrap/wasm-as";
@@ -82,7 +89,8 @@ import * as action from "./utils/actionCreators"
 
 import {
   Args_requestSignTransactions,
-  Args_sendJsonRpc, Args_sendTransaction,
+  Args_sendJsonRpc,
+  Args_sendTransaction,
   Args_sendTransactionAsync
 } from "./wrap/imported/Near_Module/serialization";
 
@@ -95,16 +103,16 @@ export function requestSignIn(args: Args_requestSignIn): boolean {
   }).unwrap();
 }
 
-export function signOut(): boolean {
-  return Near_Module.signOut({}).unwrap();
+export function signOut(args: Args_signOut): boolean {
+  return Near_Module.signOut(args).unwrap();
 }
 
-export function isSignedIn(): boolean {
-  return Near_Module.isSignedIn({}).unwrap();
+export function isSignedIn(args: Args_isSignedIn): boolean {
+  return Near_Module.isSignedIn(args).unwrap();
 }
 
-export function getAccountId(): string | null {
-  return Near_Module.getAccountId({}).unwrap();
+export function getAccountId(args: Args_getAccountId): string | null {
+  return Near_Module.getAccountId(args).unwrap();
 }
 
 export function getBlock(args: Args_getBlock): BlockResult {
@@ -368,7 +376,7 @@ export function signTransaction(
   }).unwrap();
 }
 
-export function status(): NodeStatusResult {
+export function status(args: Args_status): NodeStatusResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const statusJson = provider.status();
   return toNodeStatus(statusJson);
