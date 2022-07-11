@@ -459,4 +459,3 @@ export const tezosPlugin: PluginFactory<TezosPluginConfig> = (
 } 
 
 export const plugin = tezosPlugin;
-

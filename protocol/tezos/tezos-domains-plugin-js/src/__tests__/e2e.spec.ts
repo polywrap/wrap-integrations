@@ -1,18 +1,18 @@
 import { tezosDomainsPlugin } from "..";
-import * as QuerySchema from "../query/w3";
+import { AcquisitionInfo } from "../wrap";
 
-import { Web3ApiClient } from "@web3api/client-js";
+import { PolywrapClient } from "@polywrap/client-js";
 
 jest.setTimeout(360000)
 
 describe("Tezos Domains Plugin", () => {
-  let client: Web3ApiClient;
+  let client: PolywrapClient;
   let uri: string;
 
   beforeAll(async () => {
-    uri = "w3://ens/tezos-domains.web3api.eth"
+    uri = "w3://ens/tezos-domains.polywrap.eth"
 
-    client = new Web3ApiClient({
+    client = new PolywrapClient({
       plugins: [
         {
           uri,
@@ -27,7 +27,7 @@ describe("Tezos Domains Plugin", () => {
   describe("Query", () => {
     describe("getAcquisitionInfo", () => {
       it("returns the acquisition state of the domain name", async () => {
-        const response  = await client.query<{ getAcquisitionInfo: QuerySchema.AcquisitionInfo }>({
+        const response  = await client.query<{ getAcquisitionInfo: AcquisitionInfo }>({
           uri,
           query: `
             query {
@@ -44,7 +44,7 @@ describe("Tezos Domains Plugin", () => {
       })
 
       it("returns the acquisition state of the domain name", async () => {
-        const response  = await client.query<{ getAcquisitionInfo: QuerySchema.AcquisitionInfo }>({
+        const response  = await client.query<{ getAcquisitionInfo: AcquisitionInfo }>({
           uri,
           query: `
             query {
