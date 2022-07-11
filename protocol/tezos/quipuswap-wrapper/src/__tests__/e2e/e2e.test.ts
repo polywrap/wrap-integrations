@@ -31,7 +31,7 @@ describe("e2e", () => {
     client = new Web3ApiClient({
         plugins: [
           {
-            uri: "w3://ens/tezos.web3api.eth",
+            uri: "wrap://ens/tezos.polywrap.eth",
             plugin: tezosPlugin({
                 networks: {
                     mainnet: {
@@ -299,7 +299,7 @@ describe("e2e", () => {
         expect(swapResponse.data?.swapDirect).toHaveLength(3)
         
         const batchContractCallResponse = await client.query<{ batchContractCalls: string }>({
-          uri: "w3://ens/tezos.web3api.eth",
+          uri: "wrap://ens/tezos.polywrap.eth",
           query: `
             mutation {
               batchContractCalls(
@@ -350,7 +350,7 @@ describe("e2e", () => {
         expect(transferResponse.data?.transfer.parameter).toBeDefined()
         // batch contract calls
         const batchContractCallResponse = await client.query<{ batchContractCalls: string }>({
-          uri: "w3://ens/tezos.web3api.eth",
+          uri: "wrap://ens/tezos.polywrap.eth",
           query: `
             mutation {
               batchContractCalls(
@@ -437,7 +437,7 @@ describe("e2e", () => {
         expect(investResponse.data?.invest).toHaveLength(5)
         // batch contract calls
         const batchContractCallResponse = await client.query<{ batchContractCalls: string }>({
-          uri: "w3://ens/tezos.web3api.eth",
+          uri: "wrap://ens/tezos.polywrap.eth",
           query: `
             mutation {
               batchContractCalls(
@@ -489,7 +489,7 @@ describe("e2e", () => {
         expect(divestResponse.data?.divest.parameter).toBeDefined()
         // batch contract calls
         const batchContractCallResponse = await client.query<{ batchContractCalls: string }>({
-          uri: "w3://ens/tezos.web3api.eth",
+          uri: "wrap://ens/tezos.polywrap.eth",
           query: `
             mutation {
               batchContractCalls(

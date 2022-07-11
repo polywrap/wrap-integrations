@@ -1,0 +1,10 @@
+format: 0.1.0
+name: quipuswap-wrapper-config
+language: wasm/assemblyscript
+build: ./polywrap.build.yaml
+deploy: ./polywrap.deploy.yaml
+schema: ./src/schema.graphql
+module: ./src/index.ts
+import_redirects:
+  - uri: wrap://ens/tezos.polywrap.eth
+    schema: ../plugin-js/build/schema.graphql

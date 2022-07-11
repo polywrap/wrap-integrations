@@ -1,11 +1,11 @@
 import { 
   Tezos_Connection,
-  Tezos_Query,
+  Tezos_Module,
   Tezos_TransferParams
-} from "../query/w3";
+} from "./wrap";
 import { getString } from "./utils";
 
-import { JSON } from "@web3api/wasm-as";
+import { JSON } from "@polywrap/wasm-as";
 
 export function isFA2(parsedToken: JSON.Value): boolean {
   if (parsedToken.isObj) {
@@ -41,7 +41,7 @@ export class FA2 {
   }
 
   generateAddOperation(connection: Tezos_Connection, owner: string, operator: string): Tezos_TransferParams {
-    return Tezos_Query.getContractCallTransferParams({
+    return Tezos_Module.getContractCallTransferParams({
       address: this.address,
       method: "update_operators",
       args: generateFA2UpdateOperationArg('add_operator', owner, operator, this.tokenId),
@@ -51,7 +51,7 @@ export class FA2 {
   }
 
   generateRemoveOperation(connection: Tezos_Connection, owner: string, operator: string): Tezos_TransferParams {
-    return Tezos_Query.getContractCallTransferParams({
+    return Tezos_Module.getContractCallTransferParams({
       address: this.address,
       method: "update_operators",
       args: generateFA2UpdateOperationArg('remove_operator', owner, operator, this.tokenId),

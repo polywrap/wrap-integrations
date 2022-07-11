@@ -6,12 +6,17 @@ import {
   getSwapDirectionKey,
   InvestParams,
   SwapDirection,
-} from "./w3"
-import { getPair } from "../query";
-import { Tezos_Query } from "../query/w3"
-import { Address, FA12, FA2 } from "../common";
+  Tezos_Module,
+  CustomConnection,
+  Network,
+  Tezos_Connection
+} from "./wrap"
+import { getPair } from ".";
 
-import { BigInt, JSON } from "@web3api/wasm-as";
+import { BigInt, JSON } from "@polywrap/wasm-as";
+import { Address } from "./address";
+import { FA12 } from "./FA12";
+import { FA2 } from "./FA2";
 
 export function generateTransferArg(from: string, to: string, tokenId: u32, amount: BigInt): string {
   return `[[{
@@ -99,7 +104,7 @@ function generateSwapArg(hops: SwapPair[], swapParams: SwapParams): string {
 }
 
 function generateSwapTransferParams(hops: SwapPair[], swapParams: SwapParams, address: Address, sendParams: Tezos_SendParams | null): Tezos_TransferParams {
-  return Tezos_Query.getContractCallTransferParams({
+  return Tezos_Module.getContractCallTransferParams({
     address: address.contractAddress,
     method: "swap",
     args: generateSwapArg(hops, swapParams),
@@ -142,4 +147,32 @@ class GetOperations {
 class GetAddAndRemoveOperationResult {
   addOperation: Tezos_TransferParams
   removeOperation: Tezos_TransferParams
+}
+
+export function getString(object: JSON.Obj, key: string): string {
+  let value = ""
+  const initValue = <JSON.Str>object.getString(key);
+  if (initValue != null) {
+    value = initValue.valueOf();
+  }
+  return value;
+}
+
+export function parseTokenType(token: JSON.Obj, field: string): JSON.Obj {
+  const parsedToken = <JSON.Obj>JSON.parse(getString(token, field));
+  if (parsedToken.has('fa2')) {
+    const fa2 = <JSON.Obj>JSON.parse(getString(parsedToken, "fa2"))
+    parsedToken.set("fa2", fa2);
+  }
+  return parsedToken;
+}
+
+export function getConnection(network: Network, custom: CustomConnection | null): Address {
+  if (network == Network.custom && custom == null) {
+    throw new Error(`custom network should have a valid connection and contract address.`)
+  }
+  if (network == Network.custom) {
+    return new Address(<Tezos_Connection>custom!.connection, custom!.contractAddress);
+  }
+  return Address.getAddress(network);
 }

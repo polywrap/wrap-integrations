@@ -1,4 +1,4 @@
-import { Network, Tezos_Connection } from "../query/w3";
+import { Network, Tezos_Connection } from "./wrap";
 export class Address {
   connection: Tezos_Connection;
   contractAddress: string;

@@ -1,5 +1,20 @@
-#import { Mutation, SendParams, TransferParams } into Tezos from "w3://ens/tezos.web3api.eth"
-#import { Network, CustomConnection } from "../common/schema.graphql"
+#import { Module, Connection, SendParams, TransferParams } into Tezos from "wrap://ens/tezos.polywrap.eth"
+
+""" Network supported by wrapper """
+enum Network {
+  custom
+  mainnet
+  hangzhounet
+  ithacanet
+}
+
+""" CustomConnection """
+type CustomConnection {
+  """ Tezos connection """
+  connection: Tezos_Connection!
+  """ Contract address """
+  contractAddress: String!
+}
 
 """ Describes the direction to swap """
 enum SwapDirection {
@@ -91,8 +106,58 @@ type TransferParams {
     amount: BigInt!
 }
 
-type Mutation {
-    """ Add an operator """
+""" Describe token supply in pool """
+type GetTokenSupplyResponse {
+  """ Tokens A available """ 
+  token_a_pool: String!
+  """ Tokens B available """
+  token_b_pool: String!
+  """ Total supply """
+  total_supply: String!
+}
+
+type Module {
+  """ Get token pair """
+  getTokenPair(
+    """ Network """
+    network: Network!
+    """ Id of token pair """
+    pairId: String!
+    """ CustomConnection """
+    custom: CustomConnection
+  ): JSON! 
+  
+  """ Token pair list """
+  listTokenPairs(
+    """ Network """
+    network: Network!
+    """ CustomConnection """
+    custom: CustomConnection
+  ): JSON!
+
+  """ Get token supply """
+  getTokenSupply(
+    """ Network """
+    network: Network!
+    """ CustomConnection """
+    custom: CustomConnection
+    """ Id of token pair """
+    pairId: String!
+  ): GetTokenSupplyResponse!
+
+  """ Get token balance """
+  getLPTokenBalance(
+    """ Network """
+    network: Network!
+    """ CustomConnection """
+    custom: CustomConnection
+    """ Owner """
+    owner: String!
+    """ Id of token pair """
+    pairId: String!
+  ): String!
+
+  """ Add an operator """
     addOperator(
         """ Network to query """
         network: Network!
