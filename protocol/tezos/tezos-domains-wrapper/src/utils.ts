@@ -1,10 +1,10 @@
-import { JSON, Nullable } from "@polywrap/wasm-as";
+import { JSON, Option } from "@polywrap/wasm-as";
 import { Address } from "./address";
 import {
   CustomConnection,
   Network,
   Tezos_Connection,
-  TezosDomainsPlugin_Query,
+  TezosDomainsPlugin_Module,
   SendParams,
   Tezos_SendParams,
 } from "./wrap";
@@ -66,7 +66,7 @@ export function parseDomainMetadata(value: JSON.Obj): JSON.Obj {
       continue;
     }
     const val: JSON.Obj = JSON.Value.Object();
-    const byteValue = TezosDomainsPlugin_Query.char2Bytes({
+    const byteValue = TezosDomainsPlugin_Module.char2Bytes({
       text: getString(value, key),
     });
     val.set("key", key);
@@ -86,13 +86,13 @@ export function getSendParams(
     to: address,
     amount: 0,
     source: "",
-    fee: new Nullable<u32>(),
-    gasLimit: new Nullable<u32>(),
-    storageLimit: new Nullable<u32>(),
-    mutez: new Nullable<boolean>(),
+    fee: Option.None<u32>(),
+    gasLimit: Option.None<u32>(),
+    storageLimit: Option.None<u32>(),
+    mutez: Option.None<bool>()
   };
   if (!!input) {
-    params.amount = input.amount.isNull ? 0 : input.amount.value;
+    params.amount = input.amount.isNone ? 0 : input.amount.unwrap();
     params.source = input.source ? input.source : "";
     params.fee = input.fee;
     params.gasLimit = input.gasLimit;

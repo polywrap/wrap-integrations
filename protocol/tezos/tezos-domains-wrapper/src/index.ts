@@ -1,11 +1,11 @@
 import {
-  Input_commit,
+  Args_commit,
   Tezos_Module,
-  Input_buy,
+  Args_buy,
   TezosDomainsPlugin_Module,
   Network,
-  Input_resolveAddress,
-  Input_resolveDomain,
+  Args_resolveAddress,
+  Args_resolveDomain,
   DomainInfo,
 } from "./wrap";
 
@@ -34,7 +34,7 @@ export function encodeCommitment(
   return bytes;
 }
 
-export function resolveAddress(input: Input_resolveAddress): DomainInfo | null {
+export function resolveAddress(input: Args_resolveAddress): DomainInfo | null {
   if (input.network == Network.custom && input.custom === null) {
     throw new Error(
       `custom network should have a valid connection and contract address`
@@ -59,7 +59,7 @@ export function resolveAddress(input: Input_resolveAddress): DomainInfo | null {
   };
 }
 
-export function resolveDomain(input: Input_resolveDomain): DomainInfo | null {
+export function resolveDomain(input: Args_resolveDomain): DomainInfo | null {
   if (input.network == Network.custom && input.custom === null) {
     throw new Error(
       `custom network should have a valid connection and contract address`
@@ -85,7 +85,7 @@ export function resolveDomain(input: Input_resolveDomain): DomainInfo | null {
   };
 }
 
-export function commit(input: Input_commit): string {
+export function commit(input: Args_commit): string {
   const label = TezosDomainsPlugin_Module.char2Bytes({
     text: input.params.label,
   }).unwrap();
@@ -108,7 +108,7 @@ export function commit(input: Input_commit): string {
   return hash;
 }
 
-export function buy(input: Input_buy): string {
+export function buy(input: Args_buy): string {
   const label = TezosDomainsPlugin_Module.char2Bytes({
     text: input.params.label,
   }).unwrap();

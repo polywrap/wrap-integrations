@@ -1,6 +1,5 @@
 #import { Connection, Module, SendParams } into Tezos from "wrap://ens/tezos.polywrap.eth"
 #import { Module } into TezosDomainsPlugin from "wrap://ens/tezosDomainsPlugin.polywrap.eth"
-#import { Network, CustomConnection, DomainInfo } from "../common/schema.graphql"
 
 """ Networks supported by wrapper """
 enum Network {
