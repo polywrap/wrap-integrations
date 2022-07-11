@@ -76,21 +76,11 @@ describe('Route', () => {
       const inputToken = inputTokens[i];
       const outputToken = outputTokens[i];
       // actual route
-      const actualRoute = await client.query<{
-        createRoute: Route;
-      }>({
+      const actualRoute = await client.invoke<Route>({
         uri: fsUri,
-        query: `
-        query {
-          createRoute(
-            pairs: $pairs
-            input: $input
-            output: $output
-          )
-        }
-      `,
-        variables: {
-          pairs: pairs,
+        method: "createRoute",
+        args: {
+          pairs,
           input: inputToken,
           output: outputToken,
         }
@@ -112,15 +102,15 @@ describe('Route', () => {
       )
       const expectedRoute = new uni.Route(uniPairs, uniInputToken, uniOutputToken);
       // compare input
-      const actualRouteInput: string = actualRoute.data?.createRoute?.input.address ?? "";
+      const actualRouteInput: string = actualRoute.data?.input.address ?? "";
       const expectedRouteInput: string = (expectedRoute.input as uni.Token).address;
       expect(actualRouteInput).toStrictEqual(expectedRouteInput);
       // compare output
-      const actualRouteOutput: string = actualRoute.data?.createRoute?.output.address ?? "";
+      const actualRouteOutput: string = actualRoute.data?.output.address ?? "";
       const expectedRouteOutput: string = (expectedRoute.output as uni.Token).address;
       expect(actualRouteOutput).toStrictEqual(expectedRouteOutput);
       // compare path
-      const actualRoutePath: string[] = actualRoute.data?.createRoute?.path?.map(token => token.address) ?? [];
+      const actualRoutePath: string[] = actualRoute.data?.path?.map(token => token.address) ?? [];
       const expectedRoutePath: string[] = expectedRoute.path.map(token => token.address);
       expect(actualRoutePath).toStrictEqual(expectedRoutePath);
     }
@@ -133,21 +123,11 @@ describe('Route', () => {
       const inputToken = inputTokens[i];
       const outputToken = outputTokens[i];
       // actual route
-      const actualRoute = await client.query<{
-        createRoute: Route;
-      }>({
+      const actualRoute = await client.invoke<Route>({
         uri: fsUri,
-        query: `
-        query {
-          createRoute(
-            pairs: $pairs
-            input: $input
-            output: $output
-          )
-        }
-      `,
-        variables: {
-          pairs: pairs,
+        method: "createRoute",
+        args: {
+          pairs,
           input: inputToken,
           output: outputToken,
         }
@@ -169,23 +149,15 @@ describe('Route', () => {
       )
       const expectedRoute = new uni.Route(uniPairs, uniInputToken, uniOutputToken);
       // actual midPrice
-      const actualMidPrice = await client.query<{
-        routeMidPrice: string;
-      }>({
+      const actualMidPrice = await client.invoke<string>({
         uri: fsUri,
-        query: `
-          query {
-            routeMidPrice(
-              route: $route
-            )
-          }
-        `,
-        variables: {
-          route: actualRoute?.data?.createRoute,
+        method: "routeMidPrice",
+        args: {
+          route: actualRoute?.data,
         }
       });
       // make sure price is correct
-      const actualRouteMidPrice: string = actualMidPrice.data?.routeMidPrice!
+      const actualRouteMidPrice: string = actualMidPrice.data!
       const expectedRouteMidPrice: string = expectedRoute.midPrice.toFixed(18);
       expect(actualRouteMidPrice).toStrictEqual(expectedRouteMidPrice);
     }

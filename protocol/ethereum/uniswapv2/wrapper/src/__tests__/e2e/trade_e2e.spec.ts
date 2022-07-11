@@ -78,40 +78,20 @@ describe('trade e2e', () => {
     const tokenIn: Token = tokens[1];
     const tokenOut: Token = tokens[6];
     const amountIn: TokenAmount = { token: tokenIn, amount: "1000000000000000000" };
-    const route = await client.query<{
-      createRoute: Route;
-    }>({
+    const route = await client.invoke<Route>({
       uri: fsUri,
-      query: `
-        query {
-          createRoute(
-            pairs: $pairs
-            input: $input
-            output: $output
-          )
-        }
-      `,
-      variables: {
+      method: "createRoute",
+      args: {
         pairs: routePairs,
         input: tokenIn,
         output: tokenOut,
       }
     });
-    const actualTrade = await client.query<{
-      createTrade: Trade;
-    }>({
+    const actualTrade = await client.invoke<Trade>({
       uri: fsUri,
-      query: `
-        query {
-          createTrade(
-            route: $route
-            amount: $inAmount
-            tradeType: $tradeType
-          )
-        }
-      `,
-      variables: {
-        route: route.data?.createRoute,
+      method: "createTrade",
+      args: {
+        route: route.data,
         inAmount: amountIn,
         tradeType: "EXACT_INPUT",
       }
@@ -134,11 +114,11 @@ describe('trade e2e', () => {
     const expectedRoute: uni.Route = new uni.Route(uniRoutePairs, uniAmountIn.currency, uniTokenOut)
     const expectedTrade: uni.Trade = new uni.Trade(expectedRoute, uniAmountIn, 0);
     // compare paths
-    const actualPath: string[] = actualTrade.data?.createTrade.route.path.map(token => token.currency.symbol || "")!;
+    const actualPath: string[] = actualTrade.data?.route.path.map(token => token.currency.symbol || "")!;
     const expectedPath: string[] = expectedTrade.route.path.map(token => token.symbol ?? "");
     expect(actualPath).toStrictEqual(expectedPath);
     // compare output amounts
-    expect(actualTrade.data?.createTrade.outputAmount.amount).toStrictEqual(expectedTrade.outputAmount.numerator.toString());
+    expect(actualTrade.data?.outputAmount.amount).toStrictEqual(expectedTrade.outputAmount.numerator.toString());
   });
 
   it('finds the best trade for exact input (default options)', async () => {
@@ -153,27 +133,17 @@ describe('trade e2e', () => {
           amount: "1000000000000000000"
         }
         const tokenOut = tokens[j];
-        const query = await client.query<{
-          bestTradeExactIn: Trade[];
-        }>({
+        const invocation = await client.invoke<Trade[]>({
           uri: fsUri,
-          query: `
-            query {
-              bestTradeExactIn(
-                pairs: $pairs
-                amountIn: $input
-                tokenOut: $output
-                options: null
-              )
-            }
-          `,
-          variables: {
+          method: "bestTradeExactIn",
+          args: {
             pairs: pairs,
             input: amountIn,
             output: tokenOut,
+            options: null
           }
         });
-        const actualTrades: Trade[] = query.data?.bestTradeExactIn ?? [];
+        const actualTrades: Trade[] = invocation.data ?? [];
         // expected best trades
         const uniAmountIn: uni.TokenAmount = new uni.TokenAmount(new uni.Token(
           1,
@@ -223,27 +193,16 @@ describe('trade e2e', () => {
           token: tokens[j],
           amount: "1000000000000000000"
         }
-        const query = await client.query<{
-          bestTradeExactOut: Trade[];
-        }>({
+        const invocation = await client.invoke<Trade[]>({
           uri: fsUri,
-          query: `
-            query {
-              bestTradeExactOut(
-                pairs: $pairs
-                tokenIn: $input
-                amountOut: $output
-                options: null
-              )
-            }
-          `,
-          variables: {
-            pairs: pairs,
+          method: "bestTradeExactOut",
+          args: {
+            pairs,
             input: tokenIn,
             output: amountOut,
           }
         });
-        const actualTrades: Trade[] = query.data?.bestTradeExactOut ?? [];
+        const actualTrades: Trade[] = invocation.data ?? [];
         // expected best trades
         const uniTokenIn: uni.Token = new uni.Token(
           1,
@@ -264,7 +223,7 @@ describe('trade e2e', () => {
         if (actualTrades.length !== expectedTrades.length) {
           console.log("actual path: " + actualTrades[0]?.route.path.map(token => token.currency.symbol).toString())
           console.log("expected path: " + expectedTrades[0]?.route.path.map(token => token.symbol).toString())
-          query.errors?.forEach(e => console.log(e));
+          console.log(invocation.error);
         }
         expect(actualTrades.length).toStrictEqual(expectedTrades.length);
         if (actualTrades.length === 0 && expectedTrades.length === 0) {
@@ -295,27 +254,19 @@ describe('trade e2e', () => {
       amount: "1000000000000000000"
     }
     const tokenOut: Token = tokens.filter(token => token.currency.symbol === "COMP")[0];
-    const query = await client.query<{
+    const invocation = await client.invoke<{
       bestTradeExactIn: Trade[];
     }>({
       uri: fsUri,
-      query: `
-        query {
-          bestTradeExactIn(
-            pairs: $pairs
-            amountIn: $input
-            tokenOut: $output
-            options: null
-          )
-        }
-      `,
-      variables: {
+      method: "bestTradeExactIn",
+      args: {
         pairs: pairs,
         input: amountIn,
         output: tokenOut,
+        options: "null"
       }
     });
-    const actualTrades: Trade[] = query.data?.bestTradeExactIn ?? [];
+    const actualTrades: Trade[] = invocation.data?.bestTradeExactIn ?? [];
     // expected best trades
     const uniAmountIn: uni.CurrencyAmount = uni.CurrencyAmount.ether(amountIn.amount);
     const uniTokenOut: uni.Token = new uni.Token(
@@ -330,7 +281,7 @@ describe('trade e2e', () => {
     if (actualTrades.length !== expectedTrades.length) {
       console.log("actual path: " + actualTrades[0]?.route.path.map(token => token.currency.symbol).toString())
       console.log("expected path: " + expectedTrades[0]?.route.path.map(token => token.symbol).toString())
-      query.errors?.forEach(e => console.log(e));
+      console.log(invocation.error);
     }
     expect(actualTrades.length).toStrictEqual(expectedTrades.length);
     expect(actualTrades[0].tradeType).toStrictEqual(expectedTrades[0].tradeType);
@@ -362,27 +313,17 @@ describe('trade e2e', () => {
       amount: "1000000000000000000"
     }
     const tokenOut: Token = ethToken
-    const query = await client.query<{
-      bestTradeExactIn: Trade[];
-    }>({
+    const invocation = await client.invoke<Trade[]>({
       uri: fsUri,
-      query: `
-        query {
-          bestTradeExactIn(
-            pairs: $pairs
-            amountIn: $input
-            tokenOut: $output
-            options: null
-          )
-        }
-      `,
-      variables: {
+      method: "bestTradeExactIn",
+      args: {
         pairs: pairs,
         input: amountIn,
         output: tokenOut,
+        options: null
       }
     });
-    const actualTrades: Trade[] = query.data?.bestTradeExactIn ?? [];
+    const actualTrades: Trade[] = invocation.data ?? [];
     // expected best trades
     const uniAmountIn: uni.TokenAmount = new uni.TokenAmount(new uni.Token(
       1,
@@ -397,7 +338,7 @@ describe('trade e2e', () => {
     if (actualTrades.length !== expectedTrades.length) {
       console.log("actual path: " + actualTrades[0]?.route.path.map(token => token.currency.symbol).toString())
       console.log("expected path: " + expectedTrades[0]?.route.path.map(token => token.symbol).toString())
-      query.errors?.forEach(e => console.log(e));
+      console.log(invocation.error);
     }
     expect(actualTrades.length).toStrictEqual(expectedTrades.length);
     expect(actualTrades[0].tradeType).toStrictEqual(expectedTrades[0].tradeType);
@@ -429,27 +370,16 @@ describe('trade e2e', () => {
       token: tokens.filter(token => token.currency.symbol === "COMP")[0],
       amount: "1000000000000000000"
     }
-    const query = await client.query<{
-      bestTradeExactOut: Trade[];
-    }>({
+    const invocation = await client.invoke<Trade[]>({
       uri: fsUri,
-      query: `
-        query {
-          bestTradeExactOut(
-            pairs: $pairs
-            tokenIn: $input
-            amountOut: $output
-            options: null
-          )
-        }
-      `,
-      variables: {
-        pairs: pairs,
+      method: "bestTradeExactOut",
+      args: {
+        pairs,
         input: tokenIn,
         output: amountOut,
       }
     });
-    const actualTrades: Trade[] = query.data?.bestTradeExactOut ?? [];
+    const actualTrades: Trade[] = invocation.data ?? [];
     // expected best trades
     const uniTokenIn: uni.Currency = uni.ETHER;
     const uniAmountOut: uni.TokenAmount = new uni.TokenAmount(new uni.Token(
@@ -464,7 +394,7 @@ describe('trade e2e', () => {
     if (actualTrades.length !== expectedTrades.length) {
       console.log("actual path: " + actualTrades[0]?.route.path.map(token => token.currency.symbol).toString())
       console.log("expected path: " + expectedTrades[0]?.route.path.map(token => token.symbol).toString())
-      query.errors?.forEach(e => console.log(e));
+      console.log(invocation.error);
     }
     expect(actualTrades.length).toStrictEqual(expectedTrades.length);
     expect(actualTrades[0].tradeType).toStrictEqual(expectedTrades[0].tradeType);
@@ -496,27 +426,16 @@ describe('trade e2e', () => {
       token: ethToken,
       amount: "1000000000000000000"
     }
-    const query = await client.query<{
-      bestTradeExactOut: Trade[];
-    }>({
+    const invocation = await client.invoke<Trade[]>({
       uri: fsUri,
-      query: `
-        query {
-          bestTradeExactOut(
-            pairs: $pairs
-            tokenIn: $input
-            amountOut: $output
-            options: null
-          )
-        }
-      `,
-      variables: {
-        pairs: pairs,
+      method: "bestTradeExactOut",
+      args: {
+        pairs,
         input: tokenIn,
         output: amountOut,
       }
     });
-    const actualTrades: Trade[] = query.data?.bestTradeExactOut ?? [];
+    const actualTrades: Trade[] = invocation.data ?? [];
     // expected best trades
     const uniTokenIn: uni.Currency = new uni.Token(
       1,
@@ -531,7 +450,7 @@ describe('trade e2e', () => {
     if (actualTrades.length !== expectedTrades.length) {
       console.log("actual path: " + actualTrades[0]?.route.path.map(token => token.currency.symbol).toString())
       console.log("expected path: " + expectedTrades[0]?.route.path.map(token => token.symbol).toString())
-      query.errors?.forEach(e => console.log(e));
+      console.log(invocation.error)
     }
     expect(actualTrades.length).toStrictEqual(expectedTrades.length);
     expect(actualTrades[0].tradeType).toStrictEqual(expectedTrades[0].tradeType);

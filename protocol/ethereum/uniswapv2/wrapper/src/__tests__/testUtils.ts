@@ -68,29 +68,20 @@ export async function getTokenList(): Promise<Token[]> {
 }
 
 export async function getPairData(token0: Token, token1: Token, client: PolywrapClient, ensUri: string): Promise<Pair | undefined> {
-  const pairData = await client.query<{
-    fetchPairData: Pair;
-  }>({
+  const pairData = await client.invoke<Pair>({
     uri: ensUri,
-    query: `
-        query {
-          fetchPairData(
-            token0: $token0
-            token1: $token1
-          )
-        }
-      `,
-    variables: {
+    method: "fetchPairData",
+    args: {
       token0: token0,
       token1: token1
     },
   });
 
-  if (pairData.errors) {
-    throw pairData.errors;
+  if (pairData.error) {
+    throw pairData.error;
   }
 
-  return pairData.data?.fetchPairData;
+  return pairData.data;
 }
 
 export function getUniPairs(pairs: Pair[], chainId: number): uni.Pair[] {
@@ -128,27 +119,19 @@ export async function getBestTradeExactIn(
   client: PolywrapClient,
   ensUri: string
 ): Promise<Trade[]> {
-  const query = await client.query<{
-    bestTradeExactIn: Trade[]
-  }>({
+  const invocation = await client.invoke<Trade[]>({
     uri: ensUri,
-    query: `query {
-        bestTradeExactIn(
-          pairs: $pairs
-          amountIn: $amountIn
-          tokenOut: $tokenOut
-          options: ${bestTradeOptions ?? "null"}
-         )
-       }`,
-    variables: {
+    method: "bestTradeExactIn",
+    args: {
       pairs: allowedPairs,
       amountIn: currencyAmountIn,
       tokenOut: currencyOut,
+      options: bestTradeOptions ?? null
     }
   })
-  const result: Trade[] | undefined = query.data?.bestTradeExactIn
-  if (query.errors) {
-    query.errors.forEach(console.log)
+  const result: Trade[] | undefined = invocation.data
+  if (invocation.error) {
+    console.log(invocation.error)
   }
   return result!
 }
@@ -161,27 +144,19 @@ export async function getBestTradeExactOut(
   client: PolywrapClient,
   ensUri: string
 ): Promise<Trade[]> {
-  const query = await client.query<{
-    bestTradeExactOut: Trade[]
-  }>({
+  const invocation = await client.invoke<Trade[]>({
     uri: ensUri,
-    query: `query {
-        bestTradeExactOut(
-          pairs: $pairs
-          tokenIn: $tokenIn
-          amountOut: $amountOut
-          options: ${bestTradeOptions ?? "null"}
-         )
-       }`,
-    variables: {
+    method: "bestTradeExactOut",
+    args: {
       pairs: allowedPairs,
       tokenIn: currencyIn,
       amountOut: currencyAmountOut,
+      options: bestTradeOptions ?? null
     }
   })
-  const result: Trade[] | undefined = query.data?.bestTradeExactOut
-  if (query.errors) {
-    query.errors.forEach(console.log)
+  const result: Trade[] | undefined = invocation.data
+  if (invocation.error) {
+    console.log(invocation.error)
   }
   return result!
 }
@@ -191,22 +166,16 @@ export async function approveToken(
   client: PolywrapClient,
   ensUri: string
 ): Promise<TxResponse> {
-  const query = await client.query<{approve: TxResponse}>({
+  const invocation = await client.invoke<TxResponse>({
     uri: ensUri,
-    query: `
-        mutation {
-          approve(
-            token: $token
-          )
-        }
-      `,
-    variables: {
-      token: token,
+    method: "approve",
+    args: {
+      token,
     },
   });
-  const result: TxResponse | undefined = query.data?.approve
-  if (query.errors) {
-    query.errors.forEach(console.log)
+  const result: TxResponse | undefined = invocation.data
+  if (invocation.error) {
+    console.log(invocation.error)
   }
   return result!;
 }
@@ -217,24 +186,17 @@ export async function execTrade(
   client: PolywrapClient,
   ensUri: string
 ): Promise<TxResponse> {
-  const query = await client.query<{ exec: TxResponse}>({
+  const invocation = await client.invoke<TxResponse>({
     uri: ensUri,
-    query: `
-          mutation {
-            exec (
-              trade: $trade
-              tradeOptions: $tradeOptions
-            )
-          }
-        `,
-    variables: {
-      trade: trade,
-      tradeOptions: tradeOptions,
+    method: "exec",
+    args: {
+      trade,
+      tradeOptions,
     },
   });
-  const result: TxResponse | undefined = query.data?.exec
-  if (query.errors) {
-    query.errors.forEach(console.log)
+  const result: TxResponse | undefined = invocation.data
+  if (invocation.error) {
+    console.log(invocation.error)
   }
   return result!;
 }
@@ -248,20 +210,10 @@ export async function execSwap(
   client: PolywrapClient,
   ensUri: string
 ): Promise<TxResponse> {
-  const query = await client.query<{ swap: TxResponse}>({
+  const invocation = await client.invoke<TxResponse>({
     uri: ensUri,
-    query: `
-        mutation {
-          swap (
-            tokenIn: $token0
-            tokenOut: $token1
-            amount: $amount
-            tradeType: $tradeType
-            tradeOptions: $tradeOptions
-          )
-        }
-      `,
-    variables: {
+    method: "swap",
+    args: {
       token0: tokenIn,
       token1: tokenOut,
       amount: amount,
@@ -269,9 +221,9 @@ export async function execSwap(
       tradeOptions: tradeOptions
     },
   });
-  const result: TxResponse | undefined = query.data?.swap
-  if (query.errors) {
-    query.errors.forEach(console.log)
+  const result: TxResponse | undefined = invocation.data
+  if (invocation.error) {
+    console.log(invocation.error)
   }
   return result!;
 }

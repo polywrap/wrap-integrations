@@ -59,28 +59,19 @@ describe("Fetch", () => {
   it("Fetches token data", async () => {
     for (let i = 0; i < 10; i++) {
       // actual token
-      const tokenData = await client.query<{
-        fetchTokenData: Token;
-      }>({
+      const tokenData = await client.invoke<Token>({
         uri: fsUri,
-        query: `
-          query {
-            fetchTokenData(
-              chainId: $chainId
-              address: $address
-            )
-          }
-        `,
-        variables: {
+        method: "fetchTokenData",
+        args: {
           chainId: tokens[i].chainId,
           address: tokens[i].address,
         },
       });
       // compare results
-      expect(tokenData.errors).toBeFalsy();
+      expect(tokenData.error).toBeFalsy();
       expect(tokenData.data).toBeTruthy();
-      expect(tokenData.data?.fetchTokenData.currency.symbol).toStrictEqual(tokens[i].currency.symbol);
-      expect(tokenData.data?.fetchTokenData.currency.decimals).toStrictEqual(tokens[i].currency.decimals);
+      expect(tokenData.data?.currency.symbol).toStrictEqual(tokens[i].currency.symbol);
+      expect(tokenData.data?.currency.decimals).toStrictEqual(tokens[i].currency.decimals);
       // fetched name can vary from token list, e.g. "Aave" vs "Aave Token", so not testing (can verify it works with console.log)
       // expect(tokenData.data?.fetchTokenData.currency.name).toStrictEqual(tokens[i].currency.name);
     }
@@ -93,19 +84,10 @@ describe("Fetch", () => {
       const uniTokenI: uni.Token = uniTokens.filter(token => token.address === pairs[i][0].address)[0];
       const uniTokenJ: uni.Token = uniTokens.filter(token => token.address === pairs[i][1].address)[0];
       // actual pair data
-      const pairData = await client.query<{
-        fetchPairData: Pair;
-      }>({
+      const pairData = await client.invoke<Pair>({
         uri: fsUri,
-        query: `
-          query {
-            fetchPairData(
-              token0: $token0
-              token1: $token1
-            )
-          }
-        `,
-        variables: {
+        method: "fetchPairData",
+        args: {
           token0: pairs[i][0],
           token1: pairs[i][1]
         },
@@ -113,10 +95,10 @@ describe("Fetch", () => {
       // expected pair data
       const uniPair: uni.Pair = await uni.Fetcher.fetchPairData(uniTokenI, uniTokenJ, ethersProvider);
       // compare results
-      expect(pairData.errors).toBeFalsy();
+      expect(pairData.error).toBeFalsy();
       expect(pairData.data).toBeTruthy();
-      expect(pairData.data?.fetchPairData.tokenAmount0.amount).toStrictEqual(uniPair.reserve0.numerator.toString());
-      expect(pairData.data?.fetchPairData.tokenAmount1.amount).toStrictEqual(uniPair.reserve1.numerator.toString());
+      expect(pairData.data?.tokenAmount0.amount).toStrictEqual(uniPair.reserve0.numerator.toString());
+      expect(pairData.data?.tokenAmount1.amount).toStrictEqual(uniPair.reserve1.numerator.toString());
     }
   });
 
@@ -126,27 +108,19 @@ describe("Fetch", () => {
       const abi = ["function totalSupply() external view returns (uint)"];
       const contract = new ethers.Contract(tokens[i].address, abi, ethersProvider);
       // actual totalSupply
-      const totalSupply = await client.query<{
-        fetchTotalSupply: TokenAmount;
-      }>({
+      const totalSupply = await client.invoke<TokenAmount>({
         uri: fsUri,
-        query: `
-          query {
-            fetchTotalSupply(
-              token: $token
-            )
-          }
-        `,
-        variables: {
+        method: "fetchTotalSupply",
+        args: {
           token: tokens[i],
         },
       });
       // expected totalSupply
       const expectedTotalSupply: string = (await contract.totalSupply()).toString();
       // compare results
-      expect(totalSupply.errors).toBeFalsy();
+      expect(totalSupply.error).toBeFalsy();
       expect(totalSupply.data).toBeTruthy();
-      expect(totalSupply.data?.fetchTotalSupply.amount).toStrictEqual(expectedTotalSupply);
+      expect(totalSupply.data?.amount).toStrictEqual(expectedTotalSupply);
     }
   });
 
@@ -160,24 +134,15 @@ describe("Fetch", () => {
       const abi = ["function kLast() external view returns (uint)"];
       const contract = new ethers.Contract(uniPairAddress, abi, ethersProvider);
       // get pair address
-      const pairAddress = await client.query<{
-        pairAddress: string;
-      }>({
+      const pairAddress = await client.invoke<string>({
         uri: fsUri,
-        query: `
-          query {
-            pairAddress(
-              token0: $token0
-              token1: $token1
-            )
-          }
-        `,
-        variables: {
+        method: "pairAddress",
+        args: {
           token0: pairs[i][0],
           token1: pairs[i][1]
         },
       });
-      const actualPairAddress: string = pairAddress.data?.pairAddress ?? "";
+      const actualPairAddress: string = pairAddress.data ?? "";
       // create pair token using pair address
       const pairToken: Token = {
         chainId: ChainId.MAINNET,
@@ -189,28 +154,20 @@ describe("Fetch", () => {
         },
       };
       // get actual kLast
-      const kLast = await client.query<{
-        fetchKLast: string;
-      }>({
+      const kLast = await client.invoke<string>({
         uri: fsUri,
-        query: `
-          query {
-            fetchKLast(
-              token: $token
-            )
-          }
-        `,
-        variables: {
+        method: "fetchKLast",
+        args: {
           token: pairToken,
         },
       });
       // expected kLast
       const expectedKLast: string = (await contract.kLast()).toString();
       // compare results
-      expect(kLast.errors).toBeFalsy();
+      expect(kLast.error).toBeFalsy();
       expect(kLast.data).toBeTruthy();
       expect(actualPairAddress).toStrictEqual(uniPairAddress);
-      expect(kLast.data?.fetchKLast).toStrictEqual(expectedKLast);
+      expect(kLast.data).toStrictEqual(expectedKLast);
     }
   });
 

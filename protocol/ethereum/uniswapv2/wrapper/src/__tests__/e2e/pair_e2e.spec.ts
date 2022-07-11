@@ -58,29 +58,17 @@ describe('Pair', () => {
   it("off-chain pairAddress", async () => {
     for (let i = 0; i < pairs.length; i++) {
       const pair = pairs[i];
-      const actualOutput = await client.query<{
-        pairAddress: string;
-      }>({
+      const actualOutput = await client.invoke<string>({
         uri: fsUri,
-        query: `
-        query {
-          pairAddress(
-            token0: $token0
-            token1: $token1
-          )
-        }
-      `,
-        variables: {
+        method: "pairAddress",
+        args: {
           token0: pair.tokenAmount0.token,
           token1: pair.tokenAmount1.token
         },
       });
-      if (actualOutput.errors) {
-        actualOutput.errors.forEach(e => console.log(e.message));
-      }
 
       const expectedOutput: string = uni.Pair.getAddress(uniPairs[i].token0, uniPairs[i].token1);
-      expect(actualOutput.data?.pairAddress).toStrictEqual(expectedOutput);
+      expect(actualOutput.data).toStrictEqual(expectedOutput);
     }
   });
 
@@ -91,30 +79,18 @@ describe('Pair', () => {
         token: pair.tokenAmount0.token,
         amount: "1000000000000000000"
       }
-      const actualOutput = await client.query<{
-        pairOutputAmount: TokenAmount;
-      }>({
+      const actualOutput = await client.invoke<TokenAmount>({
         uri: fsUri,
-        query: `
-          query {
-            pairOutputAmount(
-              pair: $pair
-              inputAmount: $input
-            )
-          }
-        `,
-        variables: {
-          pair: pair,
-          input: inputAmount
+        method: "pairOutputAmount",
+        args: {
+          pair,
+          inputAmount
         },
       });
-      if (actualOutput.errors) {
-        actualOutput.errors.forEach(e => console.log(e.message));
-      }
       const expectedOutput = uniPairs[i].getOutputAmount(new uni.TokenAmount(uniPairs[i].token0, inputAmount.amount));
       const expectedAmount = expectedOutput[0].numerator.toString();
-      expect(actualOutput.data?.pairOutputAmount?.token).toStrictEqual(pair.tokenAmount1.token);
-      expect(actualOutput.data?.pairOutputAmount?.amount).toStrictEqual(expectedAmount);
+      expect(actualOutput.data?.token).toStrictEqual(pair.tokenAmount1.token);
+      expect(actualOutput.data?.amount).toStrictEqual(expectedAmount);
     }
   });
 
@@ -125,31 +101,19 @@ describe('Pair', () => {
         token: pair.tokenAmount0.token,
         amount: "1000000000000000000"
       }
-      const actualNextPair = await client.query<{
-        pairOutputNextPair: Pair;
-      }>({
+      const actualNextPair = await client.invoke<Pair>({
         uri: fsUri,
-        query: `
-          query {
-            pairOutputNextPair(
-              pair: $pair
-              inputAmount: $input
-            )
-          }
-        `,
-        variables: {
-          pair: pair,
-          input: inputAmount
+        method: "pairOutputNextPair",
+        args: {
+          pair,
+          inputAmount
         },
       });
-      if (actualNextPair.errors) {
-        actualNextPair.errors.forEach(e => console.log(e.message));
-      }
       const expectedOutput = uniPairs[i].getOutputAmount(new uni.TokenAmount(uniPairs[i].token0, inputAmount.amount));
       const expectedNextReserve0 = expectedOutput[1].reserve0.numerator.toString();
       const expectedNextReserve1 = expectedOutput[1].reserve1.numerator.toString();
-      expect(actualNextPair.data?.pairOutputNextPair.tokenAmount0.amount).toStrictEqual(expectedNextReserve0);
-      expect(actualNextPair.data?.pairOutputNextPair.tokenAmount1.amount).toStrictEqual(expectedNextReserve1);
+      expect(actualNextPair.data?.tokenAmount0.amount).toStrictEqual(expectedNextReserve0);
+      expect(actualNextPair.data?.tokenAmount1.amount).toStrictEqual(expectedNextReserve1);
     }
   });
 
@@ -160,30 +124,18 @@ describe('Pair', () => {
         token: pair.tokenAmount0.token,
         amount: "100"
       }
-      const actualInput = await client.query<{
-        pairInputAmount: TokenAmount;
-      }>({
+      const actualInput = await client.invoke<TokenAmount>({
         uri: fsUri,
-        query: `
-          query {
-            pairInputAmount(
-              pair: $pair
-              outputAmount: $output
-            )
-          }
-        `,
-        variables: {
-          pair: pair,
-          output: outputAmount
+        method: "pairInputAmount",
+        args: {
+          pair,
+          outputAmount
         },
       });
-      if (actualInput.errors) {
-        actualInput.errors.forEach(e => console.log(e.message));
-      }
       const expectedInput = uniPairs[i].getInputAmount(new uni.TokenAmount(uniPairs[i].token0, outputAmount.amount));
       const expectedAmount = expectedInput[0].numerator.toString();
-      expect(actualInput.data?.pairInputAmount?.token).toStrictEqual(pair.tokenAmount1.token);
-      expect(actualInput.data?.pairInputAmount?.amount).toStrictEqual(expectedAmount);
+      expect(actualInput.data?.token).toStrictEqual(pair.tokenAmount1.token);
+      expect(actualInput.data?.amount).toStrictEqual(expectedAmount);
     }
   });
 
@@ -194,31 +146,20 @@ describe('Pair', () => {
         token: pair.tokenAmount0.token,
         amount: "100"
       }
-      const actualNextPair = await client.query<{
-        pairInputNextPair: Pair;
-      }>({
+      const actualNextPair = await client.invoke<Pair>({
         uri: fsUri,
-        query: `
-          query {
-            pairInputNextPair(
-              pair: $pair
-              outputAmount: $output
-            )
-          }
-        `,
-        variables: {
-          pair: pair,
-          output: outputAmount
+        method: "pairInputNextPair",
+        args: {
+          pair,
+          outputAmount
         },
       });
-      if (actualNextPair.errors) {
-        actualNextPair.errors.forEach(e => console.log(e.message));
-      }
+      console.log(actualNextPair)
       const expectedInput = uniPairs[i].getInputAmount(new uni.TokenAmount(uniPairs[i].token0, outputAmount.amount));
       const expectedNextReserve0 = expectedInput[1].reserve0.numerator.toString();
       const expectedNextReserve1 = expectedInput[1].reserve1.numerator.toString();
-      expect(actualNextPair.data?.pairInputNextPair.tokenAmount0.amount).toStrictEqual(expectedNextReserve0);
-      expect(actualNextPair.data?.pairInputNextPair.tokenAmount1.amount).toStrictEqual(expectedNextReserve1);
+      expect(actualNextPair.data?.tokenAmount0.amount).toStrictEqual(expectedNextReserve0);
+      expect(actualNextPair.data?.tokenAmount1.amount).toStrictEqual(expectedNextReserve1);
     }
   });
 

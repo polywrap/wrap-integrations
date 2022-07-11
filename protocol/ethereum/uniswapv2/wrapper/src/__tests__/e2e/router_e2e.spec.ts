@@ -87,24 +87,14 @@ describe("Router", () => {
 
     // approve token transfers
     for (let token of tokens) {
-      const txResponse = await client.query<{approve: TxResponse}>({
+      const txResponse = await client.invoke<TxResponse>({
         uri: fsUri,
-        query: `
-        mutation {
-          approve(
-            token: $token
-          )
-        }
-      `,
-        variables: {
+        method: 'approve',
+        args: {
           token: token,
         },
       });
-      if (txResponse.errors) {
-        console.log("approval error(s) for " + token.currency.symbol)
-        txResponse.errors.forEach(console.log)
-      }
-      const approvedHash: string = txResponse.data?.approve.hash ?? "";
+      const approvedHash: string = txResponse.data?.hash ?? "";
       if (!approvedHash) {
         throw new Error("Failed to approve token: " + token.currency.symbol);
       }
@@ -166,25 +156,15 @@ describe("Router", () => {
         deadline: parseInt((new Date().getTime() / 1000).toFixed(0)) + 1800
       }
 
-      const swapParametersQuery = await client.query<{ swapCallParameters: SwapParameters }>({
+      const swapParametersInvocation = await client.invoke<SwapParameters>({
         uri: fsUri,
-        query: `
-          query {
-            swapCallParameters(
-              trade: $trade
-              tradeOptions: $tradeOptions
-            )
-          }
-        `,
-        variables: {
+        method: "swapCallParameters",
+        args: {
           trade: bestTrade,
           tradeOptions: tradeOptions
         },
       });
-      if (swapParametersQuery.errors) {
-        swapParametersQuery.errors.forEach(console.log)
-      }
-      const swapParameters: SwapParameters = swapParametersQuery.data?.swapCallParameters!;
+      const swapParameters: SwapParameters = swapParametersInvocation.data!;
       const parsedArgs: (string | string[])[] = swapParameters.args.map((arg: string) =>
         arg.startsWith("[") && arg.endsWith("]") ? JSON.parse(arg) : arg
       );
@@ -249,25 +229,15 @@ describe("Router", () => {
         deadline: parseInt((new Date().getTime() / 1000).toFixed(0)) + 1800
       }
 
-      const swapParametersQuery = await client.query<{ swapCallParameters: SwapParameters }>({
+      const swapParametersInvocation = await client.invoke<SwapParameters>({
         uri: fsUri,
-        query: `
-          query {
-            swapCallParameters(
-              trade: $trade
-              tradeOptions: $tradeOptions
-            )
-          }
-        `,
-        variables: {
+        method: "swapCallParameters",
+        args: {
           trade: bestTrade,
           tradeOptions: tradeOptions
         },
       });
-      if (swapParametersQuery.errors) {
-        swapParametersQuery.errors.forEach(console.log)
-      }
-      const swapParameters: SwapParameters = swapParametersQuery.data?.swapCallParameters!;
+      const swapParameters: SwapParameters = swapParametersInvocation.data!;
       const parsedArgs: (string | string[])[] = swapParameters.args.map((arg: string) =>
         arg.startsWith("[") && arg.endsWith("]") ? JSON.parse(arg) : arg
       );
@@ -286,7 +256,7 @@ describe("Router", () => {
   });
 
   it("successfully constructs swap call parameters with inexact eth in/out", async () => {
-    // we3api tokens and trades
+    // wrapper tokens and trades
     const token0 = tokens.filter(token => token.currency.symbol === "WBTC")[0];
     const token1 = ethToken;
     const tokenAmount: TokenAmount = {
@@ -331,25 +301,15 @@ describe("Router", () => {
         deadline: parseInt((new Date().getTime() / 1000).toFixed(0)) + 1800
       }
 
-      const swapParametersQuery = await client.query<{ swapCallParameters: SwapParameters }>({
+      const swapParametersInvocation = await client.invoke<SwapParameters>({
         uri: fsUri,
-        query: `
-          query {
-            swapCallParameters(
-              trade: $trade
-              tradeOptions: $tradeOptions
-            )
-          }
-        `,
-        variables: {
+        method: "swapCallParameters",
+        args: {
           trade: bestTrade,
           tradeOptions: tradeOptions
         },
       });
-      if (swapParametersQuery.errors) {
-        swapParametersQuery.errors.forEach(console.log)
-      }
-      const swapParameters: SwapParameters = swapParametersQuery.data?.swapCallParameters!;
+      const swapParameters: SwapParameters = swapParametersInvocation.data!;
       const parsedArgs: (string | string[])[] = swapParameters.args.map((arg: string) =>
         arg.startsWith("[") && arg.endsWith("]") ? JSON.parse(arg) : arg
       );
@@ -385,45 +345,25 @@ describe("Router", () => {
       ttl: 1800
     }
 
-    const swapParametersQuery = await client.query<{ swapCallParameters: SwapParameters}>({
+    const swapParametersInvocation = await client.invoke<SwapParameters>({
       uri: fsUri,
-      query: `
-        query {
-          swapCallParameters(
-            trade: $trade
-            tradeOptions: $tradeOptions
-          )
-        }
-      `,
-      variables: {
+      method: "swapCallParameters",
+      args: {
         trade: bestTradeIn,
         tradeOptions: tradeOptions,
       },
     });
-    if (swapParametersQuery.errors) {
-      swapParametersQuery.errors.forEach(console.log)
-    }
-    const swapParameters: SwapParameters = swapParametersQuery.data?.swapCallParameters!;
+    const swapParameters: SwapParameters = swapParametersInvocation.data!;
 
-    const gasEstimateQuery = await client.query<{ estimateGas: string}>({
+    const gasEstimateQuery = await client.invoke<string>({
       uri: fsUri,
-      query: `
-        query {
-          estimateGas(
-            parameters: $parameters
-            chainId: $chainId
-          )
-        }
-      `,
-      variables: {
+      method: "estimateGas",
+      args: {
         parameters: swapParameters,
         chainId: token0.chainId
       },
     });
-    const actualGasEstimate: string = gasEstimateQuery.data?.estimateGas ?? "";
-    if (gasEstimateQuery.errors) {
-      gasEstimateQuery.errors.forEach(console.log);
-    }
+    const actualGasEstimate: string = gasEstimateQuery.data ?? "";
 
     // parse swap parameters args
     const parsedArgs: (string | string[])[] = swapParameters.args.map((arg: string) =>
@@ -454,17 +394,10 @@ describe("Router", () => {
       const bestTradeInArray: Trade[] = await getBestTradeExactIn(pairs, tokenAmount, tokenOut, null, client, fsUri);
       const bestTrade: Trade = bestTradeInArray[0];
 
-      const swapParametersQuery = await client.query<{ swapCallParameters: SwapParameters }>({
+      const swapParametersInvocation = await client.invoke<SwapParameters>({
         uri: fsUri,
-        query: `
-        query {
-          swapCallParameters(
-            trade: $trade
-            tradeOptions: $tradeOptions
-          )
-        }
-      `,
-        variables: {
+        method: "swapCallParameters",
+        args: {
           trade: bestTrade,
           tradeOptions: {
             allowedSlippage: "0.1",
@@ -474,32 +407,17 @@ describe("Router", () => {
           }
         },
       });
-      if (swapParametersQuery.errors) {
-        console.log("swap parameter errors")
-        swapParametersQuery.errors.forEach(console.log)
-      }
-      const swapParameters: SwapParameters = swapParametersQuery.data?.swapCallParameters!;
+      const swapParameters: SwapParameters = swapParametersInvocation.data!;
 
-      const swapStatic = await client.query<{ execCallStatic: StaticTxResult }>({
+      const swapStatic = await client.invoke<StaticTxResult>({
         uri: fsUri,
-        query: `
-        query {
-          execCallStatic(
-            parameters: $parameters
-            chainId: $chainId
-          )
-        }
-    `,
-        variables: {
+        method: "execCallStatic",
+        args: {
           parameters: swapParameters,
           chainId: tokenIn.chainId,
         },
       });
-      if (swapStatic.errors) {
-        console.log("callStatic errors");
-        swapStatic.errors.forEach(console.log)
-      }
-      const exception: StaticTxResult | undefined = swapStatic.data?.execCallStatic;
+      const exception: StaticTxResult | undefined = swapStatic.data;
       expect(exception?.error).toStrictEqual(true)
 
       // parse swap parameters args
