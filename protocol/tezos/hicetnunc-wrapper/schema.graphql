@@ -1,4 +1,4 @@
-#import { Query, Connection } into Tezos from "w3://ens/tezos.web3api.eth"
+#import { Module, Connection } into Tezos from "wrap://ens/tezos.polywrap.eth"
 
 """ Wrapper supported networks """
 enum Network {
@@ -46,7 +46,7 @@ type SwapData {
   royalties: String!
 }
 
-type Query {
+type Module {
   """ Read the number of NFTs of a specific token id owned by an address """
   getBalanceOf(
     """ Network to query """

@@ -1,9 +1,9 @@
-format: 0.0.1-prealpha.1
+format: 0.1.0
 docker:
   name: hicetnunc-wrapper-build
 config:
   node_version: "14.17.0"
   include:
     - ./package.json
-    - ./src/query
+    - ./src/index.ts
     - ./src/utils

@@ -1,17 +1,17 @@
 import {
   Network,
-  Tezos_Query,
+  Tezos_Module,
   Tezos_Connection,
-  Input_getBalanceOf,
-  Input_getTokenMetadata,
-  Input_getTokenCountData,
-  Input_getSwapData,
+  Args_getBalanceOf,
+  Args_getTokenMetadata,
+  Args_getTokenCountData,
+  Args_getSwapData,
   CustomConnection,
   TokenBalance,
   TokenMetadata,
   SwapData
-} from "./w3";
-import { getString } from "../utils/common"
+} from "./wrap";
+import { getString } from "./utils/common"
 
 import { JSON } from "assemblyscript-json"; 
 
@@ -20,12 +20,12 @@ class ConnectionDetails {
   contractAddress: string;
 }
 
-export function getBalanceOf(input: Input_getBalanceOf): TokenBalance {
+export function getBalanceOf(input: Args_getBalanceOf): TokenBalance {
   if (input.network == Network.custom && input.custom === null) {
     throw new Error(`custom network should have a valid connection and contract address`);
   }
   const connectionDetails = getConnectionDetails(input.network, input.custom, false);
-  const balance = Tezos_Query.getContractStorage({
+  const balance = Tezos_Module.getContractStorage({
     address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
     key: "ledger",
@@ -38,9 +38,9 @@ export function getBalanceOf(input: Input_getBalanceOf): TokenBalance {
   };
 } 
 
-export function getTokenMetadata(input: Input_getTokenMetadata): TokenMetadata {
+export function getTokenMetadata(input: Args_getTokenMetadata): TokenMetadata {
   const connectionDetails = getConnectionDetails(input.network, input.custom, false);
-  const storage = Tezos_Query.getContractStorage({
+  const storage = Tezos_Module.getContractStorage({
     address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
     key: "token_metadata",
@@ -54,9 +54,9 @@ export function getTokenMetadata(input: Input_getTokenMetadata): TokenMetadata {
   };
 }
 
-export function getTokenCountData(input: Input_getTokenCountData): string {
+export function getTokenCountData(input: Args_getTokenCountData): string {
   const connectionDetails = getConnectionDetails(input.network, input.custom, false);
-  return Tezos_Query.getContractStorage({
+  return Tezos_Module.getContractStorage({
     address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
     key: "all_tokens",
@@ -64,9 +64,9 @@ export function getTokenCountData(input: Input_getTokenCountData): string {
   }).unwrap();
 }
 
-export function getSwapData(input: Input_getSwapData): SwapData {
+export function getSwapData(input: Args_getSwapData): SwapData {
   const connectionDetails = getConnectionDetails(input.network, input.custom, true);
-  const storage = Tezos_Query.getContractStorage({
+  const storage = Tezos_Module.getContractStorage({
     address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
     key: "swaps",
