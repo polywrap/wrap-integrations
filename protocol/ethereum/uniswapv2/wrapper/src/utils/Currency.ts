@@ -1,4 +1,4 @@
-import { Currency } from "../query/w3";
+import { Currency } from "../wrap";
 
 export const ETHER: Currency = {
   decimals: 18,

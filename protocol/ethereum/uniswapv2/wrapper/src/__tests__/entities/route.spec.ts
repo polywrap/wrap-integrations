@@ -1,5 +1,5 @@
-import { ChainId, Pair, Route, Token } from "../../query/w3";
-import { createRoute, routeMidPrice } from "../../query";
+import { ChainId, Pair, Route, Token } from "../../wrap";
+import { createRoute, routeMidPrice } from "../..";
 import { BigFloat } from "as-bigfloat";
 import { BigInt } from "as-bigint";
 

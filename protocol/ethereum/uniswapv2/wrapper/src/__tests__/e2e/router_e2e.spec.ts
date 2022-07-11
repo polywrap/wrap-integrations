@@ -1,5 +1,5 @@
-import { buildAndDeployApi, providers, ensAddresses, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
-import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
+import { buildWrapper, providers, ensAddresses, initTestEnvironment, stopTestEnvironment } from "@polywrap/test-env-js";
+import { ClientConfig, PolywrapClient } from "@polywrap/client-js";
 import {
   ChainId,
   Pair,
@@ -22,15 +22,14 @@ import {
 } from "../testUtils";
 import { ethers } from "ethers";
 import * as uni from "@uniswap/sdk";
-import { getSwapMethodAbi } from "../../mutation/abi";
-
+import { getSwapMethodAbi } from "../../utils";
 jest.setTimeout(120000);
 
 describe("Router", () => {
 
-  let client: Web3ApiClient;
+  let client: PolywrapClient;
   let recipient: string;
-  let ensUri: string;
+  let fsUri: string;
   let ethersProvider: ethers.providers.JsonRpcProvider;
   let tokens: Token[] = [];
   let pairs: Pair[] = [];
@@ -40,12 +39,12 @@ describe("Router", () => {
   beforeAll(async () => {
     await initTestEnvironment();
     // get client
-    const config: ClientConfig = getPlugins(providers.ethereum, providers.ipfs, ensAddresses.ensAddress);
-    client = new Web3ApiClient(config);
+    const config: Partial<ClientConfig> = getPlugins(providers.ethereum, providers.ipfs, ensAddresses.ensAddress);
+    client = new PolywrapClient(config);
     // deploy api
-    const apiAbsPath: string = path.resolve(__dirname + "/../../../");
-    const api = await buildAndDeployApi({ apiAbsPath, ipfsProvider: providers.ipfs, ethereumProvider: providers.ethereum });
-    ensUri = `ens/testnet/${api.ensDomain}`;
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../..");
+    await buildWrapper(wrapperAbsPath);
+    fsUri = "fs/" + wrapperAbsPath + '/build';
     ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546") as ethers.providers.JsonRpcProvider;
     recipient = await ethersProvider.getSigner().getAddress();
 
@@ -70,13 +69,13 @@ describe("Router", () => {
     }
     tokens = [aave, dai, usdc, comp, weth, wbtc, uniswap, link];
     // create test case pairs
-    const aave_dai: Pair | undefined = await getPairData(aave, dai, client, ensUri);
-    const usdc_dai: Pair | undefined = await getPairData(usdc, dai, client, ensUri);
-    const link_usdc: Pair | undefined = await getPairData(link, usdc, client, ensUri);
-    const comp_weth: Pair | undefined = await getPairData(comp, weth, client, ensUri);
-    const uni_link: Pair | undefined = await getPairData(uniswap, link, client, ensUri);
-    const uni_wbtc: Pair | undefined = await getPairData(uniswap, wbtc, client, ensUri);
-    const wbtc_weth: Pair | undefined = await getPairData(wbtc, weth, client, ensUri);
+    const aave_dai: Pair | undefined = await getPairData(aave, dai, client, fsUri);
+    const usdc_dai: Pair | undefined = await getPairData(usdc, dai, client, fsUri);
+    const link_usdc: Pair | undefined = await getPairData(link, usdc, client, fsUri);
+    const comp_weth: Pair | undefined = await getPairData(comp, weth, client, fsUri);
+    const uni_link: Pair | undefined = await getPairData(uniswap, link, client, fsUri);
+    const uni_wbtc: Pair | undefined = await getPairData(uniswap, wbtc, client, fsUri);
+    const wbtc_weth: Pair | undefined = await getPairData(wbtc, weth, client, fsUri);
     [aave_dai, usdc_dai, link_usdc, uni_link, uni_wbtc, wbtc_weth, comp_weth].forEach(pair => {
       if (pair) {
         pairs.push(pair)
@@ -89,7 +88,7 @@ describe("Router", () => {
     // approve token transfers
     for (let token of tokens) {
       const txResponse = await client.query<{approve: TxResponse}>({
-        uri: ensUri,
+        uri: fsUri,
         query: `
         mutation {
           approve(
@@ -124,9 +123,9 @@ describe("Router", () => {
         token: token0,
         amount: "100000000"
       };
-    const bestTradeInArray: Trade[] = await getBestTradeExactIn(pairs, tokenAmount, token1, null, client, ensUri);
+    const bestTradeInArray: Trade[] = await getBestTradeExactIn(pairs, tokenAmount, token1, null, client, fsUri);
     const bestTradeIn: Trade = bestTradeInArray[0];
-    const bestTradeOutArray: Trade[] = await getBestTradeExactOut(pairs, token1, tokenAmount, null, client, ensUri);
+    const bestTradeOutArray: Trade[] = await getBestTradeExactOut(pairs, token1, tokenAmount, null, client, fsUri);
     const bestTradeOut: Trade = bestTradeOutArray[0];
 
     // uni tokens and trades
@@ -168,7 +167,7 @@ describe("Router", () => {
       }
 
       const swapParametersQuery = await client.query<{ swapCallParameters: SwapParameters }>({
-        uri: ensUri,
+        uri: fsUri,
         query: `
           query {
             swapCallParameters(
@@ -211,9 +210,9 @@ describe("Router", () => {
       token: token0,
       amount: "1000000000000000000"
     };
-    const bestTradeInArray: Trade[] = await getBestTradeExactIn(pairs, tokenAmount, token1, null, client, ensUri);
+    const bestTradeInArray: Trade[] = await getBestTradeExactIn(pairs, tokenAmount, token1, null, client, fsUri);
     const bestTradeIn: Trade = bestTradeInArray[0];
-    const bestTradeOutArray: Trade[] = await getBestTradeExactOut(pairs, token1, tokenAmount, null, client, ensUri);
+    const bestTradeOutArray: Trade[] = await getBestTradeExactOut(pairs, token1, tokenAmount, null, client, fsUri);
     const bestTradeOut: Trade = bestTradeOutArray[0];
 
     // uni tokens and trades
@@ -251,7 +250,7 @@ describe("Router", () => {
       }
 
       const swapParametersQuery = await client.query<{ swapCallParameters: SwapParameters }>({
-        uri: ensUri,
+        uri: fsUri,
         query: `
           query {
             swapCallParameters(
@@ -294,9 +293,9 @@ describe("Router", () => {
       token: token0,
       amount: "100000000"
     };
-    const bestTradeInArray: Trade[] = await getBestTradeExactIn(pairs, tokenAmount, token1, null, client, ensUri);
+    const bestTradeInArray: Trade[] = await getBestTradeExactIn(pairs, tokenAmount, token1, null, client, fsUri);
     const bestTradeIn: Trade = bestTradeInArray[0];
-    const bestTradeOutArray: Trade[] = await getBestTradeExactOut(pairs, token1, tokenAmount, null, client, ensUri);
+    const bestTradeOutArray: Trade[] = await getBestTradeExactOut(pairs, token1, tokenAmount, null, client, fsUri);
     const bestTradeOut: Trade = bestTradeOutArray[0];
 
     // uni tokens and trades
@@ -333,7 +332,7 @@ describe("Router", () => {
       }
 
       const swapParametersQuery = await client.query<{ swapCallParameters: SwapParameters }>({
-        uri: ensUri,
+        uri: fsUri,
         query: `
           query {
             swapCallParameters(
@@ -375,7 +374,7 @@ describe("Router", () => {
       token: token0,
       amount: "1000000000000000000"
     };
-    const bestTradeInArray: Trade[] = await getBestTradeExactIn(pairs, tokenAmount, token1, null, client, ensUri);
+    const bestTradeInArray: Trade[] = await getBestTradeExactIn(pairs, tokenAmount, token1, null, client, fsUri);
     const bestTradeIn: Trade = bestTradeInArray[0];
 
     const tradeOptions: TradeOptions = {
@@ -387,7 +386,7 @@ describe("Router", () => {
     }
 
     const swapParametersQuery = await client.query<{ swapCallParameters: SwapParameters}>({
-      uri: ensUri,
+      uri: fsUri,
       query: `
         query {
           swapCallParameters(
@@ -407,7 +406,7 @@ describe("Router", () => {
     const swapParameters: SwapParameters = swapParametersQuery.data?.swapCallParameters!;
 
     const gasEstimateQuery = await client.query<{ estimateGas: string}>({
-      uri: ensUri,
+      uri: fsUri,
       query: `
         query {
           estimateGas(
@@ -452,11 +451,11 @@ describe("Router", () => {
         amount: "10000000000000000000000000000000000000000000000"
       };
 
-      const bestTradeInArray: Trade[] = await getBestTradeExactIn(pairs, tokenAmount, tokenOut, null, client, ensUri);
+      const bestTradeInArray: Trade[] = await getBestTradeExactIn(pairs, tokenAmount, tokenOut, null, client, fsUri);
       const bestTrade: Trade = bestTradeInArray[0];
 
       const swapParametersQuery = await client.query<{ swapCallParameters: SwapParameters }>({
-        uri: ensUri,
+        uri: fsUri,
         query: `
         query {
           swapCallParameters(
@@ -482,7 +481,7 @@ describe("Router", () => {
       const swapParameters: SwapParameters = swapParametersQuery.data?.swapCallParameters!;
 
       const swapStatic = await client.query<{ execCallStatic: StaticTxResult }>({
-        uri: ensUri,
+        uri: fsUri,
         query: `
         query {
           execCallStatic(

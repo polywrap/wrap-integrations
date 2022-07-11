@@ -1,41 +1,37 @@
 import { BestTradeOptions, ChainId, Pair, Token, TokenAmount, Trade, TxResponse, TradeOptions } from "./e2e/types";
-import { ClientConfig, coreInterfaceUris, Web3ApiClient } from "@web3api/client-js";
-import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
-import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
-import { ensPlugin } from "@web3api/ens-plugin-js";
-import { initTestEnvironment as initWeb3ApiTestEnvironment, stopTestEnvironment as stopWeb3ApiTestEnvironment } from "@web3api/test-env-js";
+import { ClientConfig, PolywrapClient } from "@polywrap/client-js";
+import { ethereumPlugin } from "@polywrap/ethereum-plugin-js";
+import { ipfsResolverPlugin } from "@polywrap/ipfs-resolver-plugin-js";
+import { ensResolverPlugin }  from "@polywrap/ens-resolver-plugin-js";
+import { initTestEnvironment as initPolywrapTestEnvironment, stopTestEnvironment as stopPolywrapTestEnvironment } from "@polywrap/test-env-js";
 import * as uni from "@uniswap/sdk";
 import tokenList from "./e2e/testData/tokenList.json";
 import { spawn } from "child_process";
 
 export async function initTestEnvironment(): Promise<void> {
-  console.log({ __dirname })
-  const { stderr, stdout } = spawn("docker-compose up", { cwd: __dirname})
-  console.log({stderr})
-  console.log({stdout})
-  
-  await initWeb3ApiTestEnvironment()
+  await initPolywrapTestEnvironment()
+  spawn("docker-compose up", { cwd: __dirname})
 }
 
 export async function stopTestEnvironment(): Promise<void> {
-  await stopWeb3ApiTestEnvironment()
+  await stopPolywrapTestEnvironment()
   spawn("docker-compose down", { cwd: __dirname + "../"})
 }
 
-export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): ClientConfig {
+export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): Partial<ClientConfig> {
   return {
     redirects: [],
     plugins: [
      {
-       uri: "w3://ens/ipfs.web3api.eth",
-       plugin: ipfsPlugin({ provider: ipfs }),
+       uri: "wrap://ens/ipfs-resolver.polywrap.eth",
+       plugin: ipfsResolverPlugin({ provider: ipfs }),
      },
      {
-       uri: "w3://ens/ens.web3api.eth",
-       plugin: ensPlugin({ query: { addresses: { testnet: ensAddress } } }),
+       uri: "wrap://ens/ens-resolver.polywrap.eth",
+       plugin: ensResolverPlugin({ addresses: { testnet: ensAddress } }),
      },
      {
-      uri: "w3://ens/ethereum.web3api.eth",
+      uri: "wrap://ens/ethereum.polywrap.eth",
       plugin: ethereumPlugin({
           networks: {
             testnet: {
@@ -48,22 +44,7 @@ export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): 
           defaultNetwork: "testnet"
         }),
       },
-    ],
-    interfaces: [
-      {
-        interface: coreInterfaceUris.uriResolver.uri,
-        implementations: [
-          "w3://ens/ipfs.web3api.eth",
-          "w3://ens/ens.web3api.eth",
-        ],
-      },
-      {
-        interface: coreInterfaceUris.logger.uri,
-        implementations: ["w3://ens/js-logger.web3api.eth"],
-      },
-    ],
-    envs: [],
-    uriResolvers: []
+    ]
   };
 }
 
@@ -86,7 +67,7 @@ export async function getTokenList(): Promise<Token[]> {
   return tokens;
 }
 
-export async function getPairData(token0: Token, token1: Token, client: Web3ApiClient, ensUri: string): Promise<Pair | undefined> {
+export async function getPairData(token0: Token, token1: Token, client: PolywrapClient, ensUri: string): Promise<Pair | undefined> {
   const pairData = await client.query<{
     fetchPairData: Pair;
   }>({
@@ -144,7 +125,7 @@ export async function getBestTradeExactIn(
   currencyAmountIn: TokenAmount,
   currencyOut: Token,
   bestTradeOptions: BestTradeOptions | null,
-  client: Web3ApiClient,
+  client: PolywrapClient,
   ensUri: string
 ): Promise<Trade[]> {
   const query = await client.query<{
@@ -177,7 +158,7 @@ export async function getBestTradeExactOut(
   currencyIn: Token,
   currencyAmountOut: TokenAmount,
   bestTradeOptions: BestTradeOptions | null,
-  client: Web3ApiClient,
+  client: PolywrapClient,
   ensUri: string
 ): Promise<Trade[]> {
   const query = await client.query<{
@@ -207,7 +188,7 @@ export async function getBestTradeExactOut(
 
 export async function approveToken(
   token: Token,
-  client: Web3ApiClient,
+  client: PolywrapClient,
   ensUri: string
 ): Promise<TxResponse> {
   const query = await client.query<{approve: TxResponse}>({
@@ -233,7 +214,7 @@ export async function approveToken(
 export async function execTrade(
   trade: Trade,
   tradeOptions: TradeOptions,
-  client: Web3ApiClient,
+  client: PolywrapClient,
   ensUri: string
 ): Promise<TxResponse> {
   const query = await client.query<{ exec: TxResponse}>({
@@ -264,7 +245,7 @@ export async function execSwap(
   amount: string,
   tradeType: string,
   tradeOptions: TradeOptions,
-  client: Web3ApiClient,
+  client: PolywrapClient,
   ensUri: string
 ): Promise<TxResponse> {
   const query = await client.query<{ swap: TxResponse}>({

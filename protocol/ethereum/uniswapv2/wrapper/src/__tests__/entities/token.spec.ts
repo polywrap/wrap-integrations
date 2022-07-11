@@ -1,5 +1,5 @@
-import { tokenAmountEquals, tokenEquals, tokenSortsBefore } from "../../query";
-import { ChainId } from "../../query/w3";
+import { tokenAmountEquals, tokenEquals, tokenSortsBefore } from "../..";
+import { ChainId } from "../../wrap";
 
 import { BigInt } from "as-bigint";
 

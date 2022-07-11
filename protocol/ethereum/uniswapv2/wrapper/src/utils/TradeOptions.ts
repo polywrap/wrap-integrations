@@ -1,4 +1,4 @@
-import { BestTradeOptions } from "../query/w3";
+import { BestTradeOptions } from "../wrap";
 
 export class TradeOptions {
   maxNumResults: u32;
@@ -9,8 +9,10 @@ export class TradeOptions {
       this.maxNumResults = 3;
       this.maxHops = 3;
     } else {
-      this.maxNumResults = options.maxNumResults.isNull ? 3 : options.maxNumResults.value;
-      this.maxHops = options.maxHops.isNull ? 3 : options.maxHops.value;
+      this.maxNumResults = options.maxNumResults.isNone
+        ? 3
+        : options.maxNumResults.unwrap();
+      this.maxHops = options.maxHops.isNone ? 3 : options.maxHops.unwrap();
     }
   }
 }

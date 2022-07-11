@@ -1,8 +1,8 @@
 // translated to AS from https://github.com/Uniswap/uniswap-sdk-core/blob/main/src/entities/fractions/fraction.ts
 
-import { Rounding } from "../query/w3";
+import { Rounding } from "../wrap";
 
-import { BigInt } from "@web3api/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
 import { BigFloat } from "as-bigfloat";
 
 export default class Fraction {

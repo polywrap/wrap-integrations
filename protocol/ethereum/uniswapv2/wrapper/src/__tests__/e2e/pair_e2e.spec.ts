@@ -1,5 +1,5 @@
-import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment, providers, ensAddresses } from "@web3api/test-env-js";
+import { ClientConfig, PolywrapClient } from "@polywrap/client-js";
+import { buildWrapper, initTestEnvironment, stopTestEnvironment, providers, ensAddresses } from "@polywrap/test-env-js";
 import * as path from "path";
 import { Pair, Token, TokenAmount } from "./types";
 import { getPairData, getPlugins, getTokenList, getUniPairs } from "../testUtils";
@@ -9,21 +9,20 @@ jest.setTimeout(150000);
 
 describe('Pair', () => {
 
-  let client: Web3ApiClient;
-  let ensUri: string;
+  let client: PolywrapClient;
+  let fsUri: string;
   let pairs: Pair[] = [];
   let uniPairs: uni.Pair[];
 
   beforeAll(async () => {
     await initTestEnvironment();
     // get client
-    const config: ClientConfig = getPlugins(providers.ethereum, providers.ipfs, ensAddresses.ensAddress);
-    client = new Web3ApiClient(config);
+    const config: Partial<ClientConfig> = getPlugins(providers.ethereum, providers.ipfs, ensAddresses.ensAddress);
+    client = new PolywrapClient(config);
     // deploy api
-    const apiAbsPath: string = path.resolve(__dirname + "/../../../");
-    const api = await buildAndDeployApi({ apiAbsPath, ipfsProvider: providers.ipfs, ethereumProvider: providers.ethereum });
-    ensUri = `ens/testnet/${api.ensDomain}`;
-
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../..");
+    await buildWrapper(wrapperAbsPath);
+    fsUri = "fs/" + wrapperAbsPath + '/build';
     // pick some test case tokens
     const tokens: Token[] = await getTokenList();
     const aave: Token = tokens.filter(token => token.currency.symbol === "AAVE")[0];
@@ -35,13 +34,13 @@ describe('Pair', () => {
     const uniswap: Token = tokens.filter(token => token.currency.symbol === "UNI")[0];
     const link: Token = tokens.filter(token => token.currency.symbol === "LINK")[0];
     // create and push test case pairs
-    const aave_dai: Pair | undefined = await getPairData(aave, dai, client, ensUri);
-    const usdc_dai: Pair | undefined = await getPairData(usdc, dai, client, ensUri);
-    const aave_usdc: Pair | undefined = await getPairData(aave, usdc, client, ensUri);
-    const comp_weth: Pair | undefined = await getPairData(comp, weth, client, ensUri);
-    const uni_link: Pair | undefined = await getPairData(uniswap, link, client, ensUri);
-    const uni_wbtc: Pair | undefined = await getPairData(uniswap, wbtc, client, ensUri);
-    const wbtc_weth: Pair | undefined = await getPairData(wbtc, weth, client, ensUri);
+    const aave_dai: Pair | undefined = await getPairData(aave, dai, client, fsUri);
+    const usdc_dai: Pair | undefined = await getPairData(usdc, dai, client, fsUri);
+    const aave_usdc: Pair | undefined = await getPairData(aave, usdc, client, fsUri);
+    const comp_weth: Pair | undefined = await getPairData(comp, weth, client, fsUri);
+    const uni_link: Pair | undefined = await getPairData(uniswap, link, client, fsUri);
+    const uni_wbtc: Pair | undefined = await getPairData(uniswap, wbtc, client, fsUri);
+    const wbtc_weth: Pair | undefined = await getPairData(wbtc, weth, client, fsUri);
     [aave_dai, usdc_dai, aave_usdc, comp_weth, uni_link, uni_wbtc, wbtc_weth].forEach(pair => {
       if (pair) {
         pairs.push(pair)
@@ -62,7 +61,7 @@ describe('Pair', () => {
       const actualOutput = await client.query<{
         pairAddress: string;
       }>({
-        uri: ensUri,
+        uri: fsUri,
         query: `
         query {
           pairAddress(
@@ -95,7 +94,7 @@ describe('Pair', () => {
       const actualOutput = await client.query<{
         pairOutputAmount: TokenAmount;
       }>({
-        uri: ensUri,
+        uri: fsUri,
         query: `
           query {
             pairOutputAmount(
@@ -129,7 +128,7 @@ describe('Pair', () => {
       const actualNextPair = await client.query<{
         pairOutputNextPair: Pair;
       }>({
-        uri: ensUri,
+        uri: fsUri,
         query: `
           query {
             pairOutputNextPair(
@@ -164,7 +163,7 @@ describe('Pair', () => {
       const actualInput = await client.query<{
         pairInputAmount: TokenAmount;
       }>({
-        uri: ensUri,
+        uri: fsUri,
         query: `
           query {
             pairInputAmount(
@@ -198,7 +197,7 @@ describe('Pair', () => {
       const actualNextPair = await client.query<{
         pairInputNextPair: Pair;
       }>({
-        uri: ensUri,
+        uri: fsUri,
         query: `
           query {
             pairInputNextPair(

@@ -1,4 +1,4 @@
-import { ChainId, Pair, Token, TokenAmount } from "../../query/w3";
+import { ChainId, Pair, Token, TokenAmount } from "../../wrap";
 import {
   pairLiquidityMinted,
   pairLiquidityValue,
@@ -6,8 +6,8 @@ import {
   pairToken0Price,
   pairToken1Price,
   tokenSortsBefore
-} from "../../query";
-import { Nullable } from "@web3api/wasm-as";
+} from "../../";
+import { Option } from "@polywrap/wasm-as";
 import { BigFloat } from "as-bigfloat";
 import { BigInt } from "as-bigint";
 
@@ -223,7 +223,7 @@ describe('Pair miscellaneous', () => {
       },
       amount: BigInt.fromString("500") };
 
-    const liquidityValueA = pairLiquidityValue({ pair: pair, totalSupply: totalSupply, liquidity: liquidity1000, feeOn: Nullable.fromNull<boolean>(), kLast: null });
+    const liquidityValueA = pairLiquidityValue({ pair: pair, totalSupply: totalSupply, liquidity: liquidity1000, feeOn: new Option(null), kLast: null });
     expect(liquidityValueA[0].token).toStrictEqual(token0);
     expect(liquidityValueA[1].token).toStrictEqual(token1);
     expect(liquidityValueA[0].amount.toString()).toStrictEqual("1000");

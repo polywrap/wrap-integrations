@@ -1,5 +1,5 @@
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment, providers, ensAddresses } from "@web3api/test-env-js";
-import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
+import { buildWrapper, initTestEnvironment, stopTestEnvironment, providers, ensAddresses } from "@polywrap/test-env-js";
+import { ClientConfig, PolywrapClient } from "@polywrap/client-js";
 import { ChainId, Pair, Token, TokenAmount } from "./types";
 import path from "path";
 import { getPlugins, getTokenList } from "../testUtils";
@@ -11,8 +11,8 @@ jest.setTimeout(90000);
 
 describe("Fetch", () => {
 
-  let client: Web3ApiClient;
-  let ensUri: string;
+  let client: PolywrapClient;
+  let fsUri: string;
   let tokens: Token[];
   let uniTokens: uni.Token[];
   let pairs: Token[][];
@@ -21,13 +21,12 @@ describe("Fetch", () => {
   beforeAll(async () => {
     await initTestEnvironment();
     // get client
-    const config: ClientConfig = getPlugins(providers.ethereum, providers.ipfs, ensAddresses.ensAddress);
-    client = new Web3ApiClient(config);
+    const config: Partial<ClientConfig> = getPlugins(providers.ethereum, providers.ipfs, ensAddresses.ensAddress);
+    client = new PolywrapClient(config);
     // deploy api
-    const apiAbsPath: string = path.resolve(__dirname + "/../../../");
-    const api = await buildAndDeployApi({ apiAbsPath, ipfsProvider: providers.ipfs, ethereumProvider: providers.ethereum });
-    ensUri = `ens/testnet/${api.ensDomain}`;
-    // ipfsUri = `ipfs/${api.ipfsCid}`;
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../..");
+    await buildWrapper(wrapperAbsPath);
+    fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data -> tokens
     tokens = await getTokenList();
     uniTokens = tokens.map(token => {
@@ -63,7 +62,7 @@ describe("Fetch", () => {
       const tokenData = await client.query<{
         fetchTokenData: Token;
       }>({
-        uri: ensUri,
+        uri: fsUri,
         query: `
           query {
             fetchTokenData(
@@ -97,7 +96,7 @@ describe("Fetch", () => {
       const pairData = await client.query<{
         fetchPairData: Pair;
       }>({
-        uri: ensUri,
+        uri: fsUri,
         query: `
           query {
             fetchPairData(
@@ -130,7 +129,7 @@ describe("Fetch", () => {
       const totalSupply = await client.query<{
         fetchTotalSupply: TokenAmount;
       }>({
-        uri: ensUri,
+        uri: fsUri,
         query: `
           query {
             fetchTotalSupply(
@@ -164,7 +163,7 @@ describe("Fetch", () => {
       const pairAddress = await client.query<{
         pairAddress: string;
       }>({
-        uri: ensUri,
+        uri: fsUri,
         query: `
           query {
             pairAddress(
@@ -193,7 +192,7 @@ describe("Fetch", () => {
       const kLast = await client.query<{
         fetchKLast: string;
       }>({
-        uri: ensUri,
+        uri: fsUri,
         query: `
           query {
             fetchKLast(

@@ -28,11 +28,10 @@
     "./src/__tests__/e2e/**/*.ts"
   ],
   "exclude": [
-    "./src/query/**/*.ts",
-    "./src/mutation/**/*.ts",
+    "./src/entities/**/*.ts",
     "./src/utils/**/*.ts",
-    "./src/__tests__/query/**/*.ts",
-    "./src/__tests__/mutation/**/*.ts",
+    "./src/wrap/**/*.ts",
+    "./src/__tests__/entities/**/*.ts",
     "./src/__tests__/utils/**/*.ts"
   ]
 }

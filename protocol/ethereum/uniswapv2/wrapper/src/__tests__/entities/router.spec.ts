@@ -1,7 +1,7 @@
-import { Nullable } from "@web3api/wasm-as";
+import { Option } from "@polywrap/wasm-as";
 
-import { createRoute, createTrade, swapCallParameters, toHex } from "../../query";
-import { ChainId, Pair, Token, TradeType, } from "../../query/w3";
+import { createRoute, createTrade, swapCallParameters, toHex } from "../../";
+import { ChainId, Pair, Token, TradeType, } from "../../wrap";
 import { ETHER } from "../../utils/Currency";
 import { getWETH9 } from "../../utils/utils";
 import { BigInt } from "as-bigint";
@@ -80,12 +80,12 @@ describe("swapCallParameters", () => {
       const result = swapCallParameters({
         trade: exactIn,
         tradeOptions: {
-          ttl: Nullable.fromValue<u32>(50),
+          ttl: new Option(50),
           recipient: "0x0000000000000000000000000000000000000004",
           unixTimestamp: <u32>Date.now() / 1000,
           allowedSlippage: "0.01",
-          deadline: Nullable.fromNull<u32>(),
-          feeOnTransfer: Nullable.fromNull<boolean>()
+          deadline: new Option<u32>(),
+          feeOnTransfer: new Option<boolean>()
         }
       })
 
@@ -124,12 +124,12 @@ describe("swapCallParameters", () => {
       const result = swapCallParameters({
         trade: exactIn,
         tradeOptions: {
-          ttl: Nullable.fromNull<u32>(),
+          ttl: new Option<u32>(),
           recipient: "0x0000000000000000000000000000000000000004",
           unixTimestamp: <u32>Date.now() / 1000,
           allowedSlippage: "0.01",
-          deadline: Nullable.fromValue<u32>(50),
-          feeOnTransfer: Nullable.fromNull<boolean>()
+          deadline: new Option(50),
+          feeOnTransfer: new Option<boolean>()
         }
       })
 
@@ -162,12 +162,12 @@ describe("swapCallParameters", () => {
       const result = swapCallParameters({
         trade: exactIn,
         tradeOptions: {
-          ttl: Nullable.fromValue<u32>(50),
+          ttl: new Option(50),
           recipient: "0x0000000000000000000000000000000000000004",
           unixTimestamp: <u32>Date.now() / 1000,
           allowedSlippage: "0.01",
-          deadline: Nullable.fromNull<u32>(),
-          feeOnTransfer: Nullable.fromNull<boolean>()
+          deadline: new Option<u32>(),
+          feeOnTransfer: new Option<boolean>()
         }
       })
 
@@ -199,12 +199,12 @@ describe("swapCallParameters", () => {
       const result = swapCallParameters({
         trade: exactIn,
         tradeOptions: {
-          ttl: Nullable.fromValue<u32>(50),
+          ttl: new Option(50),
           recipient: "0x0000000000000000000000000000000000000004",
           unixTimestamp: <u32>Date.now() / 1000,
           allowedSlippage: "0.01",
-          deadline: Nullable.fromNull<u32>(),
-          feeOnTransfer: Nullable.fromNull<boolean>()
+          deadline: new Option<u32>(),
+          feeOnTransfer: new Option<boolean>()
         }
       })
 
@@ -242,12 +242,12 @@ describe("swapCallParameters", () => {
       const result = swapCallParameters({
         trade: exactOut,
         tradeOptions: {
-          ttl: Nullable.fromValue<u32>(50),
+          ttl: new Option(50),
           recipient: "0x0000000000000000000000000000000000000004",
           unixTimestamp: <u32>Date.now() / 1000,
           allowedSlippage: "0.01",
-          deadline: Nullable.fromNull<u32>(),
-          feeOnTransfer: Nullable.fromNull<boolean>()
+          deadline: new Option<u32>(),
+          feeOnTransfer: new Option<boolean>()
         }
       })
 
@@ -286,12 +286,12 @@ describe("swapCallParameters", () => {
       const result = swapCallParameters({
         trade: exactOut,
         tradeOptions: {
-          ttl: Nullable.fromValue<u32>(50),
+          ttl: new Option(50),
           recipient: "0x0000000000000000000000000000000000000004",
           unixTimestamp: <u32>Date.now() / 1000,
           allowedSlippage: "0.01",
-          deadline: Nullable.fromNull<u32>(),
-          feeOnTransfer: Nullable.fromNull<boolean>()
+          deadline: new Option<u32>(),
+          feeOnTransfer: new Option<boolean>()
         }
       })
 
@@ -323,12 +323,12 @@ describe("swapCallParameters", () => {
       const result = swapCallParameters({
         trade: exactOut,
         tradeOptions: {
-          ttl: Nullable.fromValue<u32>(50),
+          ttl: new Option(50),
           recipient: "0x0000000000000000000000000000000000000004",
           unixTimestamp: <u32>Date.now() / 1000,
           allowedSlippage: "0.01",
-          deadline: Nullable.fromNull<u32>(),
-          feeOnTransfer: Nullable.fromNull<boolean>()
+          deadline: new Option<u32>(),
+          feeOnTransfer: new Option<boolean>()
         }
       })
 
@@ -371,12 +371,12 @@ describe("swapCallParameters", () => {
         const result = swapCallParameters({
           trade: exactIn,
           tradeOptions: {
-            ttl: Nullable.fromValue<u32>(50),
+            ttl: new Option(50),
             recipient: "0x0000000000000000000000000000000000000004",
             unixTimestamp: <u32>Date.now() / 1000,
             allowedSlippage: "0.01",
-            deadline: Nullable.fromNull<u32>(),
-            feeOnTransfer: Nullable.fromValue<boolean>(true)
+            deadline: new Option<u32>(),
+            feeOnTransfer: new Option<boolean>(true)
           }
         })
 
@@ -411,12 +411,12 @@ describe("swapCallParameters", () => {
         const result = swapCallParameters({
           trade: exactIn,
           tradeOptions: {
-            ttl: Nullable.fromValue<u32>(50),
+            ttl: new Option(50),
             recipient: "0x0000000000000000000000000000000000000004",
             unixTimestamp: <u32>Date.now() / 1000,
             allowedSlippage: "0.01",
-            deadline: Nullable.fromNull<u32>(),
-            feeOnTransfer: Nullable.fromValue<boolean>(true)
+            deadline: new Option<u32>(),
+            feeOnTransfer: new Option<boolean>(true)
           }
         })
 
@@ -448,12 +448,12 @@ describe("swapCallParameters", () => {
         const result = swapCallParameters({
           trade: exactIn,
           tradeOptions: {
-            ttl: Nullable.fromValue<u32>(50),
+            ttl: new Option(50),
             recipient: "0x0000000000000000000000000000000000000004",
             unixTimestamp: <u32>Date.now() / 1000,
             allowedSlippage: "0.01",
-            deadline: Nullable.fromNull<u32>(),
-            feeOnTransfer: Nullable.fromValue<boolean>(true)
+            deadline: new Option<u32>(),
+            feeOnTransfer: new Option<boolean>(true)
           }
         })
 
@@ -492,12 +492,12 @@ describe("swapCallParameters", () => {
           swapCallParameters({
             trade: exactOut,
             tradeOptions: {
-              ttl: Nullable.fromValue<u32>(50),
+              ttl: new Option(50),
               recipient: "0x0000000000000000000000000000000000000004",
               unixTimestamp: <u32>Date.now() / 1000,
               allowedSlippage: "0.01",
-              deadline: Nullable.fromNull<u32>(),
-              feeOnTransfer: Nullable.fromValue<boolean>(true)
+              deadline: new Option<u32>(),
+              feeOnTransfer: new Option<boolean>(true)
             }
           });
         });
@@ -528,12 +528,12 @@ describe("swapCallParameters", () => {
           swapCallParameters({
             trade: exactOut,
             tradeOptions: {
-              ttl: Nullable.fromValue<u32>(50),
+              ttl: new Option(50),
               recipient: "0x0000000000000000000000000000000000000004",
               unixTimestamp: <u32>Date.now() / 1000,
               allowedSlippage: "0.01",
-              deadline: Nullable.fromNull<u32>(),
-              feeOnTransfer: Nullable.fromValue<boolean>(true)
+              deadline: new Option<u32>(),
+              feeOnTransfer: new Option<boolean>(true)
             }
           });
         }).toThrow();
@@ -556,12 +556,12 @@ describe("swapCallParameters", () => {
           swapCallParameters({
             trade: exactOut,
             tradeOptions: {
-              ttl: Nullable.fromValue<u32>(50),
+              ttl: new Option(50),
               recipient: "0x0000000000000000000000000000000000000004",
               unixTimestamp: <u32>Date.now() / 1000,
               allowedSlippage: "0.01",
-              deadline: Nullable.fromNull<u32>(),
-              feeOnTransfer: Nullable.fromValue<boolean>(true)
+              deadline: new Option<u32>(),
+              feeOnTransfer: new Option<boolean>(true)
             }
           });
         });
