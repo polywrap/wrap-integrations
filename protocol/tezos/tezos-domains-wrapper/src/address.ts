@@ -1,4 +1,4 @@
-import { Network, Tezos_Connection } from "../query/w3";
+import { Network, Tezos_Connection } from "./wrap";
 import { SupportedActions, DefaultAddresses } from "./default-address"
 
 export class Address {

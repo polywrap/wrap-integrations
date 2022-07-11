@@ -4,6 +4,7 @@ import {
   Args_getNormalizedPrice,
   Providers,
   Args_listAssets,
+  Args_listProviders,
   Args_getCandle,
   AssetCandle,
 } from "./wrap";
@@ -22,7 +23,7 @@ import { JSON } from "assemblyscript-json";
 // MainNet    -> KT1Jr5t9UvGiqkvvsuUbPJHaYx24NzdUwNW9
 // Granadanet -> KT1ENR6CK7cBWCtZt1G3PovwTw3FgSW472mS
 
-export function listProviders(): Providers[] {
+export function listProviders(_: Args_listProviders): Providers[] {
   return [
     {
       Provider: "Coinbase",

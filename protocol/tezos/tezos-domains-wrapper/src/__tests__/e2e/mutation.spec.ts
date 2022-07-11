@@ -32,7 +32,7 @@ describe("Mutation", () => {
     client = new Web3ApiClient({
       plugins: [
         {
-          uri: "w3://ens/tezos.web3api.eth",
+          uri: "wrap://ens/tezos.web3api.eth",
           plugin: tezosPlugin({
               networks: {
                   mainnet: {

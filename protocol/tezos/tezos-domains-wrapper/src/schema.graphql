@@ -1,6 +1,35 @@
-#import { Connection, Mutation, Query, SendParams } into Tezos from "w3://ens/tezos.web3api.eth"
-#import { Query } into TezosDomainsPlugin from "w3://ens/tezosDomainsPlugin.web3api.eth"
-#import { Network, CustomConnection } from "../common/schema.graphql"
+#import { Connection, Module, SendParams } into Tezos from "wrap://ens/tezos.polywrap.eth"
+#import { Module } into TezosDomainsPlugin from "wrap://ens/tezosDomainsPlugin.polywrap.eth"
+#import { Network, CustomConnection, DomainInfo } from "../common/schema.graphql"
+
+""" Networks supported by wrapper """
+enum Network {
+  custom
+  mainnet
+  granadanet
+  hangzhounet
+  ithacanet
+}
+
+""" Describes domain information """
+type DomainInfo {
+  """ Name of domain """
+  Name: String!
+  """ Tezos address """ 
+  Address: String!
+  """ Metadata of domain """
+  Data: String!
+  """ Expiry of domain """
+  Expiry: String!
+}
+
+""" Describes custom connection """
+type CustomConnection {
+  """ Connection """
+  connection: Tezos_Connection!
+  """ Contract Address """
+  contractAddress: String!
+}
 
 """ Describes commit parameters """
 type CommitParams {
@@ -45,7 +74,7 @@ type SendParams {
   mutez: Boolean
 }
 
-type Mutation {
+type Module {
   """ Commit domain name """
   commit (
     """ Supported network """
@@ -69,4 +98,24 @@ type Mutation {
     """ CustomConnection """
     custom: CustomConnection
   ): String!
+
+  """ Resolve address domain name """
+  resolveAddress(
+    """ Supported Network """
+    network: Network!
+    """ Tezos address """ 
+    address: String!
+    """ CustomConnection """
+    custom: CustomConnection
+  ): DomainInfo
+
+  """ Resolve domain name to address """
+  resolveDomain(
+    """ Supported Network """
+    network: Network!
+    """ Domain name """
+    domain: String!
+    """ Custom Connection """
+    custom: CustomConnection
+  ): DomainInfo
 }

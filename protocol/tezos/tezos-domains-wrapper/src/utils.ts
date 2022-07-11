@@ -1,42 +1,55 @@
-import { JSON, Nullable } from "@web3api/wasm-as"
-import { Address } from ".";
-import { CustomConnection, Network, Tezos_Connection } from "../query/w3";
-import { TezosDomainsPlugin_Query, SendParams, Tezos_SendParams } from "../mutation/w3"
+import { JSON, Nullable } from "@polywrap/wasm-as";
+import { Address } from "./address";
+import {
+  CustomConnection,
+  Network,
+  Tezos_Connection,
+  TezosDomainsPlugin_Query,
+  SendParams,
+  Tezos_SendParams,
+} from "./wrap";
 
 export function getString(object: JSON.Obj, key: string): string {
-    let initValue = <JSON.Str>object.getString(key)
-    let value = ""
-    if (initValue != null) {
-      value = initValue.valueOf()
-    }
-    return value
+  let initValue = <JSON.Str>object.getString(key);
+  let value = "";
+  if (initValue != null) {
+    value = initValue.valueOf();
+  }
+  return value;
 }
 
 export function generateNonce(): number {
-    return crypto.getRandomValues(new Uint8Array(1))[0];
+  return crypto.getRandomValues(new Uint8Array(1))[0];
 }
 
 export function encodeToHex(data: string): string {
   const array = Uint8Array.wrap(String.UTF8.encode(data));
-  let hex = '';
+  let hex = "";
   for (let i = 0; i < array.length; i++) {
-      hex += array[i].toString(16);
-  };
+    hex += array[i].toString(16);
+  }
   return hex;
 }
 
 export function decodeFromHex(data: string): string {
   let array = new Uint8Array(data.length >>> 1);
   for (let i = 0; i < data.length >>> 1; ++i) {
-    array.fill(i32(parseInt('0x' + data.substr(i * 2, 2), 16)), i, i + 1);
+    array.fill(i32(parseInt("0x" + data.substr(i * 2, 2), 16)), i, i + 1);
   }
   return String.UTF8.decode(array.buffer);
 }
 
-export function getConnection(network: Network, action: string, custom: CustomConnection | null): Address {
+export function getConnection(
+  network: Network,
+  action: string,
+  custom: CustomConnection | null
+): Address {
   let address: Address;
   if (network == Network.custom) {
-    address = new Address(<Tezos_Connection>custom!.connection, custom!.contractAddress);
+    address = new Address(
+      <Tezos_Connection>custom!.connection,
+      custom!.contractAddress
+    );
   } else {
     address = Address.getAddress(network, action);
   }
@@ -54,7 +67,7 @@ export function parseDomainMetadata(value: JSON.Obj): JSON.Obj {
     }
     const val: JSON.Obj = JSON.Value.Object();
     const byteValue = TezosDomainsPlugin_Query.char2Bytes({
-      text: getString(value, key)
+      text: getString(value, key),
     });
     val.set("key", key);
     val.set("value", byteValue);
@@ -65,7 +78,10 @@ export function parseDomainMetadata(value: JSON.Obj): JSON.Obj {
   return parsed;
 }
 
-export function getSendParams(input: SendParams | null, address: string): Tezos_SendParams {
+export function getSendParams(
+  input: SendParams | null,
+  address: string
+): Tezos_SendParams {
   const params: Tezos_SendParams = {
     to: address,
     amount: 0,
@@ -73,7 +89,7 @@ export function getSendParams(input: SendParams | null, address: string): Tezos_
     fee: new Nullable<u32>(),
     gasLimit: new Nullable<u32>(),
     storageLimit: new Nullable<u32>(),
-    mutez: new Nullable<boolean>()
+    mutez: new Nullable<boolean>(),
   };
   if (!!input) {
     params.amount = input.amount.isNull ? 0 : input.amount.value;
@@ -82,6 +98,6 @@ export function getSendParams(input: SendParams | null, address: string): Tezos_
     params.gasLimit = input.gasLimit;
     params.storageLimit = input.storageLimit;
     params.mutez = input.mutez;
-  };
+  }
   return params;
 }
