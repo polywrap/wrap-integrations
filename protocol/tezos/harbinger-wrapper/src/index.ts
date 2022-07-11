@@ -1,17 +1,17 @@
 import {
-  Tezos_Query,
-  Input_getAssetData,
-  Input_getNormalizedPrice,
+  Tezos_Module,
+  Args_getAssetData,
+  Args_getNormalizedPrice,
   Providers,
-  Input_listAssets,
-  Input_getCandle,
+  Args_listAssets,
+  Args_getCandle,
   AssetCandle,
-} from "./w3";
+} from "./wrap";
 import { 
   getString, 
   getConnection,
   normalizeValue,
-} from "../utils/common"
+} from "./utils/common"
 
 import { JSON } from "assemblyscript-json"; 
 
@@ -82,9 +82,9 @@ export function listProviders(): Providers[] {
   ]
 };
 
-export function listAssets(input: Input_listAssets): string {
+export function listAssets(input: Args_listAssets): string {
   const connectionDetails = getConnection(input.network, input.providerAddress, input.custom);
-  return Tezos_Query.getContractStorage({
+  return Tezos_Module.getContractStorage({
     address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
     key: "assetCodes",
@@ -92,9 +92,9 @@ export function listAssets(input: Input_listAssets): string {
   }).unwrap();
 }
 
-export function getCandle(input: Input_getCandle): AssetCandle {
+export function getCandle(input: Args_getCandle): AssetCandle {
   const connectionDetails = getConnection(input.network, input.providerAddress, input.custom);
-  const storage = Tezos_Query.getContractStorage({
+  const storage = Tezos_Module.getContractStorage({
     address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
     key: "oracleData",
@@ -113,9 +113,9 @@ export function getCandle(input: Input_getCandle): AssetCandle {
   };
 }
 
-export function getNormalizedPrice(input: Input_getNormalizedPrice): string {
+export function getNormalizedPrice(input: Args_getNormalizedPrice): string {
   const connectionDetails = getConnection(input.network, input.providerAddress, input.custom);
-  const storage = Tezos_Query.getContractStorage({
+  const storage = Tezos_Module.getContractStorage({
     address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
     key: "assetMap",
@@ -127,9 +127,9 @@ export function getNormalizedPrice(input: Input_getNormalizedPrice): string {
 
 
 
-export function getAssetData(input: Input_getAssetData): AssetCandle {
+export function getAssetData(input: Args_getAssetData): AssetCandle {
   const connectionDetails = getConnection(input.network, input.providerAddress, input.custom);
-  const storageValue = Tezos_Query.getContractStorage({
+  const storageValue = Tezos_Module.getContractStorage({
     address: connectionDetails.contractAddress,
     connection: connectionDetails.connection,
     key: "oracleData",

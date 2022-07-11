@@ -1,7 +1,7 @@
 import path from "path"
 import { tezosPlugin } from "@blockwatch-cc/tezos-plugin-js"
-import { Web3ApiClient } from "@web3api/client-js"
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js"
+import { PolywrapClient } from "@polywrap/client-js"
+import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@polywrap/test-env-js"
 
 import * as QuerySchema from "../../query/w3"
 import { getPlugins } from "../testUtils"
@@ -9,7 +9,7 @@ import { getPlugins } from "../testUtils"
 jest.setTimeout(150000)
 
 describe("Query", () => {
-  let client: Web3ApiClient;
+  let client: PolywrapClient;
   let ensUri: string;
   
   beforeAll(async () => {
@@ -24,10 +24,10 @@ describe("Query", () => {
         ethereumProvider: testEnv.ethereum,
       });
       ensUri = `ens/testnet/${api.ensDomain}`;
-      client = new Web3ApiClient({
+      client = new PolywrapClient({
           plugins: [
             {
-              uri: "w3://ens/tezos.web3api.eth",
+              uri: "wrap://ens/tezos.polywrap.eth",
               plugin: tezosPlugin({
                   networks: {
                       mainnet: {

@@ -2,7 +2,7 @@ import {
   Tezos_Connection,
   CustomConnection,
   Network
-} from "../query/w3"
+} from "../wrap"
 
 import { JSON } from "assemblyscript-json"; 
 

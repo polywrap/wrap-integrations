@@ -1,4 +1,4 @@
-#import { Query, Connection } into Tezos from "w3://ens/tezos.web3api.eth"
+#import { Module, Connection } into Tezos from "wrap://ens/tezos.polywrap.eth"
 
 """ Describes asset candle """
 type AssetCandle {
@@ -43,7 +43,7 @@ type CustomConnection {
   connection: Tezos_Connection!
 }
 
-type Query {
+type Module {
   """ Get asset data """
   getAssetData(
     """ Network """
