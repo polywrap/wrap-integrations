@@ -58,7 +58,7 @@ impl Api {
         }
     }
 
-    pub fn fetch_opaque_storage_value<V>(
+    pub fn fetch_opaque_storage_value(
         &self,
         module: &str,
         storage_name: &str,

@@ -8,6 +8,8 @@ type Module {
   blockHash(url: String!, number: UInt32!): String
 
   chainGetBlock(url: String!, number: UInt32!): BlockOutput
+
+  getStorageValue(url: String!, pallet: String!, storage: String!): [UInt8!]
 }
 
 type ChainMetadataOutput {

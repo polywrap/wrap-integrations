@@ -90,4 +90,34 @@ describe("e2e", () => {
 
       console.log("http response: ", result);
   });
+
+
+  it("storage value", async () => {
+    // You can use the client directly
+    const invoke_result = await client.invoke({
+      uri,
+      method: "getStorageValue"
+      args: {
+          url: "http://localhost:9933",
+          pallet: "TemplateModule",
+          storage: "Something"
+      },
+    });
+
+    console.log("invoke result: {}", invoke_result);
+
+    // Or use the test app's codegen types (see web3api.app.yaml)
+    const result = await Substrate_Module.getStorageValue(
+      {
+          url: "http://localhost:9933",
+          pallet: "TemplateModule",
+          storage: "Something"
+      },
+      client,
+      uri
+    );
+
+      console.log("template module Something:", result);
+
+  });
 });

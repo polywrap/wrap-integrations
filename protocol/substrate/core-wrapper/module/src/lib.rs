@@ -70,5 +70,13 @@ pub fn chain_get_block(arg: ArgsChainGetBlock) -> Option<BlockOutput> {
 
 pub fn balance_transfer() {}
 
-pub fn state_get_storage_value() {}
-pub fn state_get_storage_map() {}
+pub fn get_storage_value(arg: ArgsGetStorageValue) -> Option<Vec<u8>> {
+    if let Ok(api) = Api::new(&arg.url) {
+        api.fetch_opaque_storage_value(&arg.pallet, &arg.storage)
+            .ok()
+            .flatten()
+    } else {
+        None
+    }
+}
+pub fn get_storage_map() {}
