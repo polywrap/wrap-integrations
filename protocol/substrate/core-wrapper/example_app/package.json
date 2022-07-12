@@ -1,6 +1,6 @@
 {
   "name": "forum-app",
-  "description": "Counter Smart Contract\n\nThis project contains implementation of counter backed by blockchain, written in Rust.",
+  "description": "A forum app backed by a blockchain",
   "version": "0.0.1",
   "license": "(MIT AND Apache-2.0)",
   "scripts": {
@@ -19,6 +19,7 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "polywrap": "0.1.0"
+    "polywrap": "0.1.0",
+    "@polywrap/ipfs-plugin-js": "0.1.0"
   }
 }

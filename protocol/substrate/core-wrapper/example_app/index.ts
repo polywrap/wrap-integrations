@@ -1,13 +1,27 @@
 import { Uri, PolywrapClient } from "@polywrap/client-js";
 import { Substrate_Module } from "./wrap";
+import { ipfsPlugin } from "@polywrap/ipfs-plugin-js";
 
 
 
 (async () => {
+
+    //let client = new PolywrapClient();
+    let client = new PolywrapClient({
+      plugins: [
+        {
+              uri: new Uri("wrap://ens/ipfs.polywrap.eth").uri,
+              plugin: ipfsPlugin({
+                provider: "http://localhost:8000",
+              })
+        }
+      ]
+    });
+
     let uri = new Uri("wrap://ipfs/QmYYKkBcxVHCBbuCtMZ57ZE2NsKzZyLVskv8cX4nSzB27P").uri;
+    //let uri = "ipfs/QmYYKkBcxVHCBbuCtMZ57ZE2NsKzZyLVskv8cX4nSzB27P";
     console.log("uri:", uri);
 
-    let client = new PolywrapClient();
     let result = await client.invoke({
       uri,
       method: "chainGetMetadata",
