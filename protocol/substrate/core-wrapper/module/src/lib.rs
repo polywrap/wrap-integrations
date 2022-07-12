@@ -6,6 +6,7 @@ pub use api::Api;
 use api::BaseApi;
 pub use error::Error;
 use serde_json::Value;
+use sp_runtime::traits::BlakeTwo256;
 pub use types::metadata::Metadata;
 
 mod api;
@@ -59,6 +60,12 @@ pub fn block_hash(arg: ArgsBlockHash) -> Option<String> {
     let api = BaseApi::new(&arg.url);
     let block_hash = api.fetch_block_hash(arg.number);
     block_hash.ok().flatten().map(|h| h.to_string())
+}
+
+pub fn chain_get_block(arg: ArgsChainGetBlock) -> Option<BlockOutput> {
+    let api = BaseApi::new(&arg.url);
+    let block = api.fetch_opaque_block(arg.number);
+    block.ok().flatten().map(|block| BlockOutput { block })
 }
 
 pub fn balance_transfer() {}

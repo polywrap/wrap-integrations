@@ -6,6 +6,8 @@ type Module {
   ): ChainMetadataOutput
   
   blockHash(url: String!, number: UInt32!): String
+
+  chainGetBlock(url: String!, number: UInt32!): BlockOutput
 }
 
 type ChainMetadataOutput {
@@ -13,4 +15,8 @@ type ChainMetadataOutput {
   pallets: JSON!
   events: JSON!
   errors: JSON!
+}
+
+type BlockOutput {
+  block: JSON!
 }

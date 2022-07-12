@@ -159,11 +159,27 @@ impl BaseApi {
     where
         B: Block + DeserializeOwned,
     {
-        let value = self.json_request_value("chain_getBlock", vec![hash])?;
+        let value = self.fetch_opaque_block_by_hash(hash)?;
         match value {
             Some(value) => Ok(serde_json::from_value(value)?),
             None => Ok(None),
         }
+    }
+
+    pub fn fetch_opaque_block(&self, n: u32) -> Result<Option<serde_json::Value>, Error> {
+        let block_hash = self.fetch_block_hash(n)?;
+        match block_hash {
+            Some(block_hash) => self.fetch_opaque_block_by_hash(block_hash),
+            None => Ok(None),
+        }
+    }
+
+    pub fn fetch_opaque_block_by_hash(
+        &self,
+        hash: H256,
+    ) -> Result<Option<serde_json::Value>, Error> {
+        let value = self.json_request_value("chain_getBlock", vec![hash])?;
+        Ok(value)
     }
 
     pub fn fetch_runtime_version(&self) -> Result<Option<RuntimeVersion>, Error> {
