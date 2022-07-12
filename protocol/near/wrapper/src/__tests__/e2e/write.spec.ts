@@ -260,7 +260,7 @@ describe("Write operations", () => {
     const data = fs.readFileSync(testUtils.HELLO_WASM_PATH);
 
     const { amount } = await masterAccount.state();
-    const newAmount = new BN(amount).div(new BN(100)).toString();
+    const newAmount = new BN(amount).div(new BN(10)).toString();
 
     const signerPublicKey = await masterAccount.connection.signer.getPublicKey(
       masterAccount.accountId,
