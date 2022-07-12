@@ -92,7 +92,7 @@ describe('trade e2e', () => {
       method: "createTrade",
       args: {
         route: route.data,
-        inAmount: amountIn,
+        amount: amountIn,
         tradeType: "EXACT_INPUT",
       }
     });
@@ -137,9 +137,9 @@ describe('trade e2e', () => {
           uri: fsUri,
           method: "bestTradeExactIn",
           args: {
-            pairs: pairs,
-            input: amountIn,
-            output: tokenOut,
+            pairs,
+            amountIn,
+            tokenOut,
             options: null
           }
         });
@@ -198,8 +198,9 @@ describe('trade e2e', () => {
           method: "bestTradeExactOut",
           args: {
             pairs,
-            input: tokenIn,
-            output: amountOut,
+            tokenIn,
+            amountOut,
+            options: null
           }
         });
         const actualTrades: Trade[] = invocation.data ?? [];
@@ -260,10 +261,10 @@ describe('trade e2e', () => {
       uri: fsUri,
       method: "bestTradeExactIn",
       args: {
-        pairs: pairs,
-        input: amountIn,
-        output: tokenOut,
-        options: "null"
+        pairs,
+        amountIn,
+        tokenOut,
+        options: null
       }
     });
     const actualTrades: Trade[] = invocation.data?.bestTradeExactIn ?? [];
@@ -317,9 +318,9 @@ describe('trade e2e', () => {
       uri: fsUri,
       method: "bestTradeExactIn",
       args: {
-        pairs: pairs,
-        input: amountIn,
-        output: tokenOut,
+        pairs,
+        amountIn,
+        tokenOut,
         options: null
       }
     });
@@ -375,8 +376,9 @@ describe('trade e2e', () => {
       method: "bestTradeExactOut",
       args: {
         pairs,
-        input: tokenIn,
-        output: amountOut,
+        tokenIn,
+        amountOut,
+        options: null
       }
     });
     const actualTrades: Trade[] = invocation.data ?? [];
@@ -431,8 +433,9 @@ describe('trade e2e', () => {
       method: "bestTradeExactOut",
       args: {
         pairs,
-        input: tokenIn,
-        output: amountOut,
+        tokenIn,
+        amountOut,
+        options: null
       }
     });
     const actualTrades: Trade[] = invocation.data ?? [];

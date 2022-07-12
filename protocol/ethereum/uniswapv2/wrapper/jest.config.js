@@ -3,7 +3,7 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   testMatch: ["**/__tests__/e2e/**/?(*.)+(spec|test).[jt]s?(x)"],
-  modulePathIgnorePatterns: ['./src/__tests__/entities', './src/__tests__/utils', './src/wrap'],
+  modulePathIgnorePatterns: ['./src/__tests__/entities', './src/__tests__/utils'],
   globals: {
     'ts-jest': {
       tsconfig: "tsconfig.ts.json",

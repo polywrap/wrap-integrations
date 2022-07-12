@@ -30,7 +30,7 @@
   "exclude": [
     "./src/entities/**/*.ts",
     "./src/utils/**/*.ts",
-    "./src/wrap/**/*.ts",
+    "./src/__tests__/entities/**/*.ts",
     "./src/__tests__/utils/**/*.ts"
   ]
 }

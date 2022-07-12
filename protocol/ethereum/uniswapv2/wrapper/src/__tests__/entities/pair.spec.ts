@@ -228,7 +228,7 @@ describe('Pair miscellaneous', () => {
     expect(liquidityValueA[1].token).toStrictEqual(token1);
     expect(liquidityValueA[0].amount.toString()).toStrictEqual("1000");
     expect(liquidityValueA[1].amount.toString()).toStrictEqual("1000");
-    const liquidityValueB = pairLiquidityValue({ pair: pair, totalSupply: totalSupply, liquidity: liquidity500, feeOn: Nullable.fromValue(false), kLast: null });
+    const liquidityValueB = pairLiquidityValue({ pair: pair, totalSupply: totalSupply, liquidity: liquidity500, feeOn: new Option(false), kLast: null });
     expect(liquidityValueB[0].token).toStrictEqual(token0);
     expect(liquidityValueB[0].amount.toString()).toStrictEqual("500");
   })
@@ -259,7 +259,7 @@ describe('Pair miscellaneous', () => {
       amount: BigInt.fromString("500") };
     const kLast: BigInt = BigInt.fromString("250000");
 
-    const liquidityValue = pairLiquidityValue({ pair: pair, totalSupply: totalSupply, liquidity: liquidity, feeOn: Nullable.fromValue(true), kLast: kLast });
+    const liquidityValue = pairLiquidityValue({ pair: pair, totalSupply: totalSupply, liquidity: liquidity, feeOn: new Option(true), kLast: kLast });
     expect(liquidityValue[0].token).toStrictEqual(token0);
     expect(liquidityValue[0].amount.toString()).toStrictEqual("917"); // ceiling(1000 - (500 * (1 / 6)))
   })
