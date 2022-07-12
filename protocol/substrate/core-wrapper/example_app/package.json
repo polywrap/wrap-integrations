@@ -1,0 +1,24 @@
+{
+  "name": "forum-app",
+  "description": "Counter Smart Contract\n\nThis project contains implementation of counter backed by blockchain, written in Rust.",
+  "version": "0.0.1",
+  "license": "(MIT AND Apache-2.0)",
+  "scripts": {
+    "codegen": "npx polywrap app codegen -g wrap",
+    "build": "yarn codegen && parcel index.html",
+    "start": "ts-node index.ts"
+  },
+  "devDependencies": {
+    "parcel-bundler": "~1.12.5",
+    "@types/jest": "27.0.2",
+    "@polywrap/client-js": "0.1.0",
+    "@polywrap/test-env-js": "0.1.0",
+    "jest": "27.0.6",
+    "ts-jest": "27.0.4",
+    "ts-node": "^10.8.2",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "polywrap": "0.1.0"
+  }
+}
