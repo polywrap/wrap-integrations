@@ -51,6 +51,27 @@ describe("e2e", () => {
 
   });
 
+  it("block", async () => {
+    // You can use the client directly
+    await client.invoke({
+      uri,
+      method: "chainGetBlock"
+    });
+
+    // Or use the test app's codegen types (see web3api.app.yaml)
+    const result = await Substrate_Module.chainGetBlock(
+      {
+          url: "http://localhost:9933",
+          number: 0
+      },
+      client,
+      uri
+    );
+
+      console.log("block result:", result);
+
+  });
+
   it("chainGetMetadata", async () => {
     // You can use the client directly
     await client.invoke({
