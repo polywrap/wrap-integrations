@@ -1,29 +1,21 @@
 import path from "path"
-import { tezosPlugin } from "@blockwatch-cc/tezos-plugin-js"
 import { PolywrapClient } from "@polywrap/client-js"
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@polywrap/test-env-js"
+import { buildWrapper } from "@polywrap/test-env-js"
+import { AssetCandle, Providers } from "../../wrap"
 
-import * as QuerySchema from "../../query/w3"
-import { getPlugins } from "../testUtils"
+const { tezosPlugin } = require("../../../../plugin-js")
 
 jest.setTimeout(150000)
 
 describe("Query", () => {
   let client: PolywrapClient;
-  let ensUri: string;
+  let wrapperUri: string;
   
   beforeAll(async () => {
-      const testEnv = await initTestEnvironment();
-      const apiPath = path.join(__dirname, "/../../../");
-      const api = await buildAndDeployApi({
-        apiAbsPath: apiPath,
-        ipfsProvider: testEnv.ipfs,
-        ensRegistryAddress: testEnv.ensAddress,
-        ensRegistrarAddress: testEnv.registrarAddress,
-        ensResolverAddress: testEnv.resolverAddress,
-        ethereumProvider: testEnv.ethereum,
-      });
-      ensUri = `ens/testnet/${api.ensDomain}`;
+      const wrapperPath = path.join(__dirname, "/../../../");
+      wrapperUri = `fs/${wrapperPath}/build`;
+      await buildWrapper(wrapperPath);
+
       client = new PolywrapClient({
           plugins: [
             {
@@ -40,19 +32,16 @@ describe("Query", () => {
                   defaultNetwork: "testnet"
                 })
             },
-            ...getPlugins(testEnv.ipfs, testEnv.ensAddress, testEnv.ethereum),
         ]
       })
   })
   
-  afterAll(async () => {
-      await stopTestEnvironment()
-  })
+  afterAll(async () => { })
 
   describe("getAssetData", () => {
     it("should get asset data for `XTZ-USD` on mainnet", async () => {
-        const response =  await client.query<{ getAssetData: QuerySchema.AssetCandle}>({
-          uri: ensUri,
+        const response =  await client.query<{ getAssetData: AssetCandle}>({
+          uri: wrapperUri,
           query: `
             query {
               getAssetData(
@@ -82,8 +71,8 @@ describe("Query", () => {
     })
 
     it.skip("should get asset data for `XTZ-USD` on granadanet", async () => {
-      const response =  await client.query<{ getAssetData: QuerySchema.AssetCandle}>({
-        uri: ensUri,
+      const response =  await client.query<{ getAssetData: AssetCandle}>({
+        uri: wrapperUri,
         query: `
         query {
           getAssetData(
@@ -113,8 +102,8 @@ describe("Query", () => {
     })
 
     it("should get asset data for `XTZ-USD` on custom network", async () => {
-      const response =  await client.query<{ getAssetData: QuerySchema.AssetCandle}>({
-        uri: ensUri,
+      const response =  await client.query<{ getAssetData: AssetCandle}>({
+        uri: wrapperUri,
         query: `
         query {
             getAssetData(
@@ -151,8 +140,8 @@ describe("Query", () => {
     })
 
     it("should fail if get connection and oracle address is not provided when using custom network", async () => {
-      const response =  await client.query<{ getAssetData: QuerySchema.AssetCandle}>({
-        uri: ensUri,
+      const response =  await client.query<{ getAssetData: AssetCandle}>({
+        uri: wrapperUri,
         query: `
         query {
             getAssetData(
@@ -174,8 +163,8 @@ describe("Query", () => {
 
   describe("listProviders", () => {
     it("should get a list of Assets fron a Provider", async () => {
-      const response =  await client.query<{ listProviders: QuerySchema.Providers[]}>({
-        uri: ensUri,
+      const response =  await client.query<{ listProviders: Providers[]}>({
+        uri: wrapperUri,
         query: `
           query {
             listProviders
@@ -194,7 +183,7 @@ describe("Query", () => {
   describe("listAssets", () => {
     it("should get a list of Assets from a Provider", async () => {
       const response =  await client.query<{ listAssets: string }>({
-        uri: ensUri,
+        uri: wrapperUri,
           query: `
             query {
               listAssets(
@@ -217,8 +206,8 @@ describe("Query", () => {
 
   describe("getCandle", () => {
     it("should get Candle data from a Provider", async () => {
-      const response =  await client.query<{ getCandle: QuerySchema.AssetCandle}>({
-        uri: ensUri,
+      const response =  await client.query<{ getCandle: AssetCandle}>({
+        uri: wrapperUri,
           query: `
             query {
               getCandle(
@@ -252,7 +241,7 @@ describe("Query", () => {
   describe("getNormalizedPrice", () => {
     it("should get Normalized Price of a crypto pair from a Provider", async () => {
       const response =  await client.query<{ getNormalizedPrice: string }>({
-        uri: ensUri,
+        uri: wrapperUri,
           query: `
             query {
               getNormalizedPrice(
