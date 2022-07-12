@@ -4,7 +4,7 @@ import { PolywrapClient } from "@polywrap/client-js";
 import { InMemorySigner } from "@taquito/signer";
 import { TransferParams, OperationStatus, RevealParams, EstimateResult, SendParams, OriginateParams, TxOperation, TransferConfirmation, SignResult, OriginationResponse, OriginationConfirmationResponse } from "../wrap";
 
-const { up, down, Account, Node, deployContract } = require("../../../plugin-js")
+const { up, down, Account, Node, deployContract } = require("../../../test-env")
 
 jest.setTimeout(360000)
 

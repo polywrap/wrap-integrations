@@ -119,8 +119,9 @@ export class TezosPlugin extends Module<TezosPluginConfig> {
     const connection = await this._getConnection(input.connection);
     const contract = await connection.getProvider().contract.at(input.address);
     const regex = /(\[[_,a-zA-Z.0-9\s"]+\])|([_a-zA-Z0-9]+)|([0-9]+)/g
+
     let storage = await contract.storage();
-    let key = input.key.replaceAll("'", '"');
+    let key = input.key.replace(/\'/g, '"');
     const keys = key.match(regex) || [];
     for (let newKey of keys) {
       try {
