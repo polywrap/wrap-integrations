@@ -32,9 +32,13 @@ describe("e2e", () => {
 
   it("blockHash", async () => {
     // You can use the client directly
-    await client.invoke({
+    let result_alt = await client.invoke({
       uri,
-      method: "blockHash"
+      method: "blockHash",
+        args: {
+          url: "http://localhost:9933",
+          number: 0
+        }
     });
 
     // Or use the test app's codegen types (see web3api.app.yaml)
@@ -47,15 +51,22 @@ describe("e2e", () => {
       uri
     );
 
-      console.log("result:", result);
 
+      console.log("result:", result);
+      console.log("result_alt: ", result_alt);
+
+      expect(JSON.stringify(result_alt) == JSON.stringify(result)).toBe(true);
   });
 
   it("block", async () => {
     // You can use the client directly
-    await client.invoke({
+    const result_alt = await client.invoke({
       uri,
-      method: "chainGetBlock"
+      method: "chainGetBlock",
+        args: {
+          url: "http://localhost:9933",
+          number: 0
+        },
     });
 
     // Or use the test app's codegen types (see web3api.app.yaml)
@@ -69,14 +80,18 @@ describe("e2e", () => {
     );
 
       console.log("block result:", result);
+      expect(JSON.stringify(result_alt) == JSON.stringify(result)).toBe(true);
 
   });
 
   it("chainGetMetadata", async () => {
     // You can use the client directly
-    await client.invoke({
+    const result_alt = await client.invoke({
       uri,
-      method: "chainGetMetadata"
+      method: "chainGetMetadata",
+        args: {
+          url: "http://localhost:9933"
+        }
     });
 
     // Or use the test app's codegen types (see web3api.app.yaml)
@@ -89,6 +104,7 @@ describe("e2e", () => {
     );
 
       console.log("http response: ", result);
+      expect(JSON.stringify(result_alt) == JSON.stringify(result)).toBe(true);
   });
 
 
@@ -118,6 +134,7 @@ describe("e2e", () => {
     );
 
       console.log("template module Something:", result);
+      expect(JSON.stringify(result_alt) == JSON.stringify(result)).toBe(true);
 
   });
 
