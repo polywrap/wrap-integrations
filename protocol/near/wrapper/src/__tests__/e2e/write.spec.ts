@@ -59,7 +59,11 @@ describe("Write operations", () => {
 
   afterAll(async () => {
     await stopTestEnvironment();
-    await workingAccount.deleteAccount(testUtils.testAccountId);
+    try {
+      await workingAccount.deleteAccount(testUtils.testAccountId);
+    } catch (e) {
+      console.log(e);
+    }
   });
 
   it("Create account", async () => {

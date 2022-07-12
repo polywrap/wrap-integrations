@@ -16,6 +16,7 @@ import {
   ensAddresses,
   initTestEnvironment,
   providers,
+  stopTestEnvironment,
 } from "@polywrap/test-env-js";
 import { PolywrapClient } from "@polywrap/client-js";
 import * as nearApi from "near-api-js";
@@ -64,7 +65,12 @@ describe("Wallet", () => {
   });
 
   afterAll(async () => {
-    await workingAccount.deleteAccount(testUtils.testAccountId);
+    await stopTestEnvironment();
+    try {
+      await workingAccount.deleteAccount(testUtils.testAccountId);
+    } catch (e) {
+      console.log(e);
+    }
   });
 
   it("Request sign in", async () => {

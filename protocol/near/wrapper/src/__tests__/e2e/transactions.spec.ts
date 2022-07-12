@@ -69,7 +69,11 @@ describe("Transactions", () => {
 
   afterAll(async () => {
     await stopTestEnvironment();
-    await workingAccount.deleteAccount(testUtils.testAccountId);
+    try {
+      await workingAccount.deleteAccount(testUtils.testAccountId);
+    } catch (e) {
+      console.log(e);
+    }
   });
 
   it("Creates a transaction without wallet", async () => {

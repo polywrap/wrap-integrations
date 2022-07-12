@@ -72,9 +72,13 @@ describe("JSON RPC requests", () => {
 
   afterAll(async () => {
     await stopTestEnvironment();
-    await sender.deleteAccount(testUtils.testAccountId);
-    await receiver.deleteAccount(testUtils.testAccountId);
-    await workingAccount.deleteAccount(testUtils.testAccountId);
+    try {
+      await sender.deleteAccount(testUtils.testAccountId);
+      await receiver.deleteAccount(testUtils.testAccountId);
+      await workingAccount.deleteAccount(testUtils.testAccountId);
+    } catch (e) {
+      console.log(e);
+    }
   });
 
   it("Get node status", async () => {
