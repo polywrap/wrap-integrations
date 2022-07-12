@@ -1,18 +1,18 @@
 import { tezosPlugin } from "..";
-import * as QueryTypes from "../wrap/types";
-import * as MutationTypes from "../wrap/types";
 import { SIMPLE_CONTRACT, SIMPLE_CONTRACT_STORAGE } from "./contracts/simple-contract"
-import { up, down, Account, Node, deployContract } from "@blockwatch-cc/tezos-test-env"
 import { PolywrapClient } from "@polywrap/client-js";
 import { InMemorySigner } from "@taquito/signer";
+import { TransferParams, OperationStatus, RevealParams, EstimateResult, SendParams, OriginateParams, TxOperation, TransferConfirmation, SignResult, OriginationResponse, OriginationConfirmationResponse } from "../wrap";
+
+const { up, down, Account, Node, deployContract } = require("../../../plugin-js")
 
 jest.setTimeout(360000)
 
 describe("Tezos Plugin", () => {  
   let client: PolywrapClient;
   let uri: string;
-  let accounts: Account[];
-  let node: Node;
+  let accounts: typeof Account[];
+  let node: typeof Node;
   let simpleContractAddress: string | undefined;
 
   beforeAll(async () => {
@@ -56,7 +56,7 @@ describe("Tezos Plugin", () => {
   describe("Query", () => {
     describe("getContractCallTransferParams", () => {
       it("should get the transferParams of a contract call", async () => {
-        const response = await client.query<{ getContractCallTransferParams: QueryTypes.TransferParams }>({
+        const response = await client.query<{ getContractCallTransferParams: TransferParams }>({
           uri,
           query: `
             query {
@@ -317,7 +317,7 @@ describe("Tezos Plugin", () => {
 
     describe("getOperationStatus", () => {
       it("should get operation status", async () => {
-        const response =  await client.query<{ getOperationStatus: QueryTypes.OperationStatus }>({
+        const response =  await client.query<{ getOperationStatus: OperationStatus }>({
           uri,
           query: `
             query {
@@ -346,7 +346,7 @@ describe("Tezos Plugin", () => {
       })
 
       it("should get operation status on ithaca", async () => {
-        const response =  await client.query<{ getOperationStatus: QueryTypes.OperationStatus }>({
+        const response =  await client.query<{ getOperationStatus: OperationStatus }>({
           uri,
           query: `
             query {
@@ -461,8 +461,8 @@ describe("Tezos Plugin", () => {
 
     describe("getRevealEstimate", () => {
       it("should return an error if account is already revealed", async () => {
-        const params: QueryTypes.RevealParams = {}
-        const response = await client.query<{ getRevealEstimate: QueryTypes.EstimateResult }>({
+        const params: RevealParams = {}
+        const response = await client.query<{ getRevealEstimate: EstimateResult }>({
           uri,
           query:`
             query {
@@ -482,11 +482,11 @@ describe("Tezos Plugin", () => {
 
     describe("getTransferEstimate", () => {
       it("should estimate the cost to make a transfer operation", async () => {
-        const params: QueryTypes.SendParams = {
+        const params: SendParams = {
           to: 'tz1QQyn4VqqD9KGShaWDHPSVQnDuzq47tvSj',
           amount: 100
         }
-        const response = await client.query<{ getTransferEstimate: QueryTypes.EstimateResult }>({
+        const response = await client.query<{ getTransferEstimate: EstimateResult }>({
           uri,
           query:`
             query {
@@ -514,11 +514,11 @@ describe("Tezos Plugin", () => {
       })
 
       it("should fail to estimate the cost to make a transfer if address is invalid", async () => {
-        const params: QueryTypes.SendParams = {
+        const params: SendParams = {
           to: 'invalid-address',
           amount: 100
         }
-        const response = await client.query<{ getTransferEstimate: QueryTypes.EstimateResult }>({
+        const response = await client.query<{ getTransferEstimate: EstimateResult }>({
           uri,
           query:`
             query {
@@ -540,11 +540,11 @@ describe("Tezos Plugin", () => {
 
     describe("getOriginateEstimate", () => {
       it("should fail if code parameter is invalid", async () => {
-        const params: QueryTypes.OriginateParams = {
+        const params: OriginateParams = {
           code: '',
           storage: ''
         }
-        const response = await client.query<{ getOriginateEstimate: QueryTypes.EstimateResult }>({
+        const response = await client.query<{ getOriginateEstimate: EstimateResult }>({
           uri,
           query:`
             query {
@@ -564,7 +564,7 @@ describe("Tezos Plugin", () => {
       })
 
       it("should estimate the cost to make an origination operation", async () => {
-        const params: QueryTypes.OriginateParams = {
+        const params: OriginateParams = {
           code: `
           parameter unit;
           
@@ -594,7 +594,7 @@ describe("Tezos Plugin", () => {
           `,
           storage: ''
         }
-        const response = await client.query<{ getOriginateEstimate: QueryTypes.EstimateResult }>({
+        const response = await client.query<{ getOriginateEstimate: EstimateResult }>({
           uri,
           query:`
             query {
@@ -626,7 +626,7 @@ describe("Tezos Plugin", () => {
   describe("Mutation", () => {
     describe("callContractMethod", () => {
       it("should be able to call contract's method", async () => {
-        const response = await client.query<{ callContractMethod: MutationTypes.TxOperation }>({
+        const response = await client.query<{ callContractMethod: TxOperation }>({
           uri,
           query: `
             mutation {
@@ -703,7 +703,7 @@ describe("Tezos Plugin", () => {
 
     describe("transferAndConfirm", () => {
       it("should make a transfer and confirm", async () => {
-        const response = await client.query<{ transferAndConfirm: MutationTypes.TransferConfirmation }>({
+        const response = await client.query<{ transferAndConfirm: TransferConfirmation }>({
           uri,
           query: `
             mutation {
@@ -734,7 +734,7 @@ describe("Tezos Plugin", () => {
     describe("signMessage", () => {
       it("signs a message", async () => {
         const message = "random-message"
-        const response = await client.query<{ signMessage: MutationTypes.SignResult }>({
+        const response = await client.query<{ signMessage: SignResult }>({
           uri,
           query: `
             mutation {
@@ -756,7 +756,7 @@ describe("Tezos Plugin", () => {
 
     describe("originate", () => {
       it("should fail if provided with invalid init value", async () => {
-        const response = await client.query<{ originate: MutationTypes.OriginationResponse }>({
+        const response = await client.query<{ originate: OriginationResponse }>({
           uri,
           query: `
             mutation {
@@ -802,7 +802,7 @@ describe("Tezos Plugin", () => {
       })
 
       it("should originate a contract", async () => {
-        const response = await client.query<{ originate: MutationTypes.OriginationResponse }>({
+        const response = await client.query<{ originate: OriginationResponse }>({
           uri,
           query: `
             mutation {
@@ -856,7 +856,7 @@ describe("Tezos Plugin", () => {
 
     describe("originateAndConfirm", () => {
       it("should originate a contract and confirm", async () => {
-        const response = await client.query<{ originateAndConfirm: MutationTypes.OriginationConfirmationResponse }>({
+        const response = await client.query<{ originateAndConfirm: OriginationConfirmationResponse }>({
           uri,
           query: `
             mutation {
@@ -915,7 +915,7 @@ describe("Tezos Plugin", () => {
     describe("batchContractCalls and batchWalletContractCalls",  () => {
       it("should batch multiple contract calls", async () => {
         const transferParamsResponse = await Promise.all([
-          client.query<{ getContractCallTransferParams: QueryTypes.TransferParams }>({
+          client.query<{ getContractCallTransferParams: TransferParams }>({
             uri,
             query: `
               query {
@@ -936,7 +936,7 @@ describe("Tezos Plugin", () => {
               }
             }
           }),
-          client.query<{ getContractCallTransferParams: QueryTypes.TransferParams }>({
+          client.query<{ getContractCallTransferParams: TransferParams }>({
             uri,
             query: `
               query {
