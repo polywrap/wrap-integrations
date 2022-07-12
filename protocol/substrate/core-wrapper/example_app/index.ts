@@ -4,7 +4,7 @@ import { Substrate_Module } from "./wrap";
 
 
 (async () => {
-    let uri = new Uri("./build").uri;
+    let uri = new Uri("wrap://ipfs/QmYYKkBcxVHCBbuCtMZ57ZE2NsKzZyLVskv8cX4nSzB27P").uri;
     console.log("uri:", uri);
 
     let client = new PolywrapClient();
@@ -19,7 +19,7 @@ import { Substrate_Module } from "./wrap";
     console.log("result: ", result);
 
 
-    const result = await Substrate_Module.chainGetMetadata(
+    const result_alt = await Substrate_Module.chainGetMetadata(
       {
           url: "http://localhost:9933"
       },
@@ -27,5 +27,5 @@ import { Substrate_Module } from "./wrap";
       uri
     );
 
-      console.log("http response: ", result);
+      console.log("http response: ", result_alt);
 })()
