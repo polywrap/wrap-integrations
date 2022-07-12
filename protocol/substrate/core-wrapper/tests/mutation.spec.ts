@@ -96,7 +96,7 @@ describe("e2e", () => {
     // You can use the client directly
     const invoke_result = await client.invoke({
       uri,
-      method: "getStorageValue"
+      method: "getStorageValue",
       args: {
           url: "http://localhost:9933",
           pallet: "TemplateModule",
@@ -120,4 +120,5 @@ describe("e2e", () => {
       console.log("template module Something:", result);
 
   });
+
 });
