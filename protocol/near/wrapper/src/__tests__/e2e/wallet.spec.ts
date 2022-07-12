@@ -115,10 +115,6 @@ describe("Wallet", () => {
       method: "getAccountId",
     });
     expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
-
-    const getAccountIdSuccess = result.data;
-
-    expect(getAccountIdSuccess).toBeDefined();
+    expect(result.data).toBeDefined();
   });
 });
