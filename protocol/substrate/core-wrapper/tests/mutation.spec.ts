@@ -31,6 +31,7 @@ describe("e2e", () => {
   });
 
   it("blockHash", async () => {
+      console.log("uri: ", uri);
     // You can use the client directly
     let result_alt = await client.invoke({
       uri,
@@ -110,7 +111,7 @@ describe("e2e", () => {
 
   it("storage value", async () => {
     // You can use the client directly
-    const invoke_result = await client.invoke({
+    const result_alt = await client.invoke({
       uri,
       method: "getStorageValue",
       args: {
@@ -119,8 +120,6 @@ describe("e2e", () => {
           storage: "Something"
       },
     });
-
-    console.log("invoke result: {}", invoke_result);
 
     // Or use the test app's codegen types (see web3api.app.yaml)
     const result = await Substrate_Module.getStorageValue(
