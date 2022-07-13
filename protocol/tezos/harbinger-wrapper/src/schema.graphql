@@ -34,7 +34,7 @@ type Providers {
 enum Network {
   custom
   mainnet
-  hangzhounet
+  ghostnet
 }
 
 """ Custom Connection """
