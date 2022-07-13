@@ -279,16 +279,6 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@blockwatch-cc/tezos-test-env@0.0.1-prealpha.77":
-  version "0.0.1-prealpha.77"
-  resolved "https://registry.yarnpkg.com/@blockwatch-cc/tezos-test-env/-/tezos-test-env-0.0.1-prealpha.77.tgz#d216de1596340c27ca02249f385914814bc6febd"
-  integrity sha512-c8ZKJJi/zlFLw/TTed6OzY3LK9RVieH00DfIMtzGO+QKPM1rc1wwENWmpf9US2pv5jgnMYHbOP+xWsinfg9tYg==
-  dependencies:
-    "@taquito/signer" "12.1.0"
-    "@taquito/taquito" "12.1.0"
-    chalk "4.1.0"
-    dotenv "10.0.0"
-
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/@cnakazawa/watch/-/watch-1.0.4.tgz#f864ae85004d0fcab6f50be9141c4da368d1656a"
@@ -3148,11 +3138,6 @@ domexception@^2.0.1:
   integrity sha512-yxJ2mFy/sibVQlu5qHjOkf9J3K6zgmCxgJ94u2EdvDOV09H+32LtRswEcUsmUWN72pVLOEnTSRaIVVzVQgS0dg==
   dependencies:
     webidl-conversions "^5.0.0"
-
-dotenv@10.0.0:
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-10.0.0.tgz#3d4227b8fb95f81096cdd2b66653fb2c7085ba81"
-  integrity sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==
 
 ejs@^2.6.1:
   version "2.7.4"
