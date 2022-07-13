@@ -1,40 +1,6 @@
-import { ensPlugin } from "@polywrap/ens-plugin-js"
-import { ipfsPlugin } from "@polywrap/ipfs-plugin-js"
-import { ethereumPlugin  } from "@polywrap/ethereum-plugin-js"
-import { PluginRegistration, Subscription, PolywrapClient } from "@polywrap/client-js"
-import { tezosDomainsPlugin } from "@blockwatch-cc/tezos-domains-plugin-js"
+import { Subscription, PolywrapClient } from "@polywrap/client-js"
 
 import { Tezos_OperationStatus } from "../wrap"
-
-export const getPlugins = (ipfs: string, ensAddress: string, ethereum: string): PluginRegistration<string>[] => {
-    return [
-        {
-            uri: "wrap://ens/tezosDomainsPlugin.polywrap.eth",
-            plugin: tezosDomainsPlugin({
-                defaultNetwork: "ithacanet"
-            })
-        },
-        {
-            uri: "wrap://ens/ipfs.polywrap.eth",
-            plugin: ipfsPlugin({ provider: ipfs }),
-        },
-        {
-            uri: "wrap://ens/ens.polywrap.eth",
-            plugin: ensPlugin({ query: { addresses: { testnet: ensAddress } } }),
-        },
-        {
-            uri: "wrap://ens/ethereum.polywrap.eth",
-            plugin: ethereumPlugin({
-                networks: {
-                    testnet: {
-                        provider: ethereum
-                    },
-                },
-                defaultNetwork: "testnet"
-            }),
-        },
-    ]
-}
 
 export const getRandomString = () => {
     return (Math.floor(Math.random() * 1000000)).toString()
@@ -47,25 +13,19 @@ export const waitForConfirmation = async (client: PolywrapClient, hash: string, 
         getOperationStatus: Tezos_OperationStatus;
       }>({
         uri: "wrap://ens/tezos.polywrap.eth",
-        query: `
-          query {
-            getOperationStatus(
-              hash: $hash
-              network: ithacanet
-            )
-          }
-        `,
-        variables: {
+        method: "getOperationStatus",
+        args: {
           hash,
+          network: "ithacanet"
         },
         frequency: { ms: 4500 },
       });
 
       for await (let query of getSubscription) {
-        if (query.errors) {
+        if (query.error) {
           continue
         }
-        expect(query.errors).toBeUndefined();
+        expect(query.error).toBeUndefined();
         const operationStatus = query.data?.getOperationStatus;
         if (operationStatus !== undefined) {
           if (operationStatus.confirmations > confirmations) {

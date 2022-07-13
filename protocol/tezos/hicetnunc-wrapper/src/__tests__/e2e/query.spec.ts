@@ -1,33 +1,26 @@
 import path from "path"
 import { tezosPlugin } from "@blockwatch-cc/tezos-plugin-js"
-import { Web3ApiClient } from "@web3api/client-js"
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js"
+import { PolywrapClient } from "@polywrap/client-js"
+import { buildWrapper } from "@polywrap/test-env-js"
 
-import * as QuerySchema from "../../query/w3"
-import { getPlugins } from "../testUtils"
+import { SwapData, TokenBalance, TokenMetadata } from "../../wrap"
 
 jest.setTimeout(150000)
 
 describe("Query", () => {
-  let client: Web3ApiClient;
-  let ensUri: string;
+  let client: PolywrapClient;
+  let wrapperUri: string;
 
   beforeAll(async () => {
-    const testEnv = await initTestEnvironment();
-    const apiPath = path.join(__dirname, "/../../../");
-    const api = await buildAndDeployApi({
-      apiAbsPath: apiPath,
-      ipfsProvider: testEnv.ipfs,
-      ensRegistryAddress: testEnv.ensAddress,
-      ensRegistrarAddress: testEnv.registrarAddress,
-      ensResolverAddress: testEnv.resolverAddress,
-      ethereumProvider: testEnv.ethereum,
-    });
-    ensUri = `ens/testnet/${api.ensDomain}`;
-    client = new Web3ApiClient({
+    const wrapperPath = path.join(__dirname, "/../../../");
+    wrapperUri = `fs/${wrapperPath}/build`;
+
+    await buildWrapper(wrapperPath);
+
+    client = new PolywrapClient({
         plugins: [
           {
-            uri: "wrap://ens/tezos.web3api.eth",
+            uri: "wrap://ens/tezos.polywrap.eth",
             plugin: tezosPlugin({
                 networks: {
                     mainnet: {
@@ -39,20 +32,15 @@ describe("Query", () => {
                 },
                 defaultNetwork: "testnet"
               })
-        },
-        ...getPlugins(testEnv.ipfs, testEnv.ensAddress, testEnv.ethereum),
+          }
         ]
     })
   })
 
-  afterAll(async () => {
-    await stopTestEnvironment()
-  })
-
   describe("getBalanceOfData", () => {
     it("should return balance", async () => {
-      const response =  await client.query<{ getBalanceOf: QuerySchema.TokenBalance }>({
-        uri: ensUri,
+      const response =  await client.query<{ getBalanceOf: TokenBalance }>({
+        uri: wrapperUri,
         query: `
           query {
             getBalanceOf(
@@ -79,8 +67,8 @@ describe("Query", () => {
 
   describe("getTokenMetadata", () => {
     it("should get token metadata on mainnet", async () => {
-      const response =  await client.query<{ getTokenMetadata: QuerySchema.TokenMetadata }>({
-        uri: ensUri,
+      const response =  await client.query<{ getTokenMetadata: TokenMetadata }>({
+        uri: wrapperUri,
         query: `
           query {
             getTokenMetadata(
@@ -104,7 +92,7 @@ describe("Query", () => {
   describe("getTokenCountData", () => {
     it("should count token on mainnet", async () => {
       const response = await client.query<{ getTokenCountData: string }>({
-        uri: ensUri,
+        uri: wrapperUri,
         query: `
           query {
             getTokenCountData(
@@ -121,8 +109,8 @@ describe("Query", () => {
 
   describe("getSwapData", () => {
     it("should swap data", async () => {
-      const response =  await client.query<{ getSwapData: QuerySchema.SwapData }>({
-        uri: ensUri,
+      const response =  await client.query<{ getSwapData: SwapData }>({
+        uri: wrapperUri,
         query: `
           query {
             getSwapData(

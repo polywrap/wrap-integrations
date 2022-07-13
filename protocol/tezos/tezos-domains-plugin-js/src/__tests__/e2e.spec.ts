@@ -10,7 +10,7 @@ describe("Tezos Domains Plugin", () => {
   let uri: string;
 
   beforeAll(async () => {
-    uri = "w3://ens/tezos-domains.polywrap.eth"
+    uri = "wrap://ens/tezos-domains.polywrap.eth"
 
     client = new PolywrapClient({
       plugins: [
