@@ -31,8 +31,7 @@ export class TezosDomainPlugin extends Module<TezosDomainPluginConfig> {
   private static defaultNetwork: NetworkString = "mainnet";
   private _connections: Record<NetworkString, string> = {
     mainnet: 'https://rpc.tzstats.com',
-    hangzhounet: 'https://rpc.hangzhou.tzstats.com',
-    ithacanet: 'https://rpc.ithaca.tzstats.com',
+    ghostnet: 'https://rpc.ghost.tzstats.com',
   }
 
   constructor(config: TezosDomainPluginConfig) {
