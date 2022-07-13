@@ -7,6 +7,6 @@ DefaultAddresses.set("Mainnet.Buy", "KT191reDVKrLxU9rjTSxg53wRqj6zh8pnHgr");
 DefaultAddresses.set("Mainnet.NameRegistry", "KT1GBZmSxmnKJXGMdMLbugPfLyUPmuLSMwKS");
 
 // Ghostnet
-DefaultAddresses.set("Ithacanet.Commit", "KT1WffvKqRGaPtVWYR1ZkG2GQY42B7a8x3kk");
-DefaultAddresses.set("Ithacanet.Buy", "KT1Fea9sCJ4BKjEYHLoEja7JuhXxKZkv9XDp");
-DefaultAddresses.set("Ithacanet.NameRegistry", "KT1GFYUFQRT4RsNbtG2NU23woUyMp5tx9gx2");
+DefaultAddresses.set("Ghostnet.Commit", "KT1WffvKqRGaPtVWYR1ZkG2GQY42B7a8x3kk");
+DefaultAddresses.set("Ghostnet.Buy", "KT1Fea9sCJ4BKjEYHLoEja7JuhXxKZkv9XDp");
+DefaultAddresses.set("Ghostnet.NameRegistry", "KT1GFYUFQRT4RsNbtG2NU23woUyMp5tx9gx2");
