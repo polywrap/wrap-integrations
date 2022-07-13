@@ -16,7 +16,7 @@ export const waitForConfirmation = async (client: PolywrapClient, hash: string, 
         method: "getOperationStatus",
         args: {
           hash,
-          network: "ithacanet"
+          network: "ghostnet"
         },
         frequency: { ms: 4500 },
       });

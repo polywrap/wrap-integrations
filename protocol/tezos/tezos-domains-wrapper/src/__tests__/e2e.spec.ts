@@ -33,12 +33,12 @@ describe("Tezos Domains Wrapper", () => {
                   mainnet: {
                       provider: "https://rpc.tzstats.com"
                   },  
-                  ithacanet: {
-                      provider: "https://rpc.ithaca.tzstats.com",
+                  ghostnet: {
+                      provider: "https://rpc.ghost.tzstats.com",
                       signer,
                   }
               },
-              defaultNetwork: "ithacanet"
+              defaultNetwork: "ghostnet"
             })
         },
       ]
@@ -52,7 +52,7 @@ describe("Tezos Domains Wrapper", () => {
         query: `
           mutation {
             commit(
-              network: ithacanet,
+              network: ghostnet,
               params: $params
             )
           }
@@ -94,7 +94,7 @@ describe("Tezos Domains Wrapper", () => {
         query: `
           mutation {
             commit(
-              network: ithacanet,
+              network: ghostnet,
               params: $params
             )
           }
@@ -119,7 +119,7 @@ describe("Tezos Domains Wrapper", () => {
         query: `
           mutation {
             buy(
-              network: ithacanet,
+              network: ghostnet,
               params: $params,
               sendParams: $sendParams
             )
