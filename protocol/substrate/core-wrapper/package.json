@@ -9,7 +9,7 @@
     "clean": "rm -rf module/src/wrap && rm -rf test/wrap",
     "rebuild": "yarn clean && yarn codegen && yarn build",
     "deploy": "npx polywrap deploy",
-    "infra":"npx polywrap infra up --modules=eth-ens-ipfs"
+    "infra":"npx polywrap infra up --modules=eth-ens-ipfs -v"
   },
   "dependencies": {
     "polywrap": "0.2.0"
