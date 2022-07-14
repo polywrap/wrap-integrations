@@ -5,7 +5,7 @@ import {
   BindOutput,
   BindModuleOptions,
   BindModuleOutput,
-} from "@web3api/schema-bind";
+} from "@polywrap/schema-bind";
 import {
   transformTypeInfo,
   extendType,
@@ -13,7 +13,7 @@ import {
   toPrefixedGraphQLType,
   methodParentPointers,
   TypeInfo,
-} from "@web3api/schema-parse";
+} from "@polywrap/schema-parse";
 import Mustache from "mustache";
 import { readFileSync } from "fs";
 import * as path from "path";
@@ -87,27 +87,7 @@ function generateModuleBindings(module: BindModuleOptions): BindModuleOutput {
     ...typeInfo,
     schema,
   };
-  renderTemplate("./meta-manifest.mustache", rootContext, "./../../web3api.meta.yaml");
-
-  // generate queries
-  for (const moduleType of typeInfo.moduleTypes) {
-    for (const method of moduleType.methods) {
-      const methodContext = {
-        ...method,
-        schema,
-      };
-      renderTemplate(
-        "./meta-query.mustache",
-        methodContext,
-        `${method.name}.graphql`
-      );
-      renderTemplate(
-        "./meta-vars.mustache",
-        methodContext,
-        `${method.name}.json`
-      );
-    }
-  }
+  renderTemplate("./meta-manifest.mustache", rootContext, "./../../polywrap.meta.yaml");
 
   return result;
 }

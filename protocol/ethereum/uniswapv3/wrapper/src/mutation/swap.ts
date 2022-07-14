@@ -2,9 +2,9 @@ import {
   Ethereum_TxResponse,
   FeeAmount,
   GasOptions,
-  Input_execSwap,
-  Input_swap,
-  Input_swapWithPool,
+  Args_execSwap,
+  Args_swap,
+  Args_swapWithPool,
   MethodParameters,
   Pool,
   Route,
@@ -13,7 +13,7 @@ import {
   TokenAmount,
   Trade,
   TradeType,
-} from "./w3";
+} from "../wrap";
 import {
   swapCallParameters,
   createTradeExactIn,
@@ -27,12 +27,12 @@ import { ROUTER_ADDRESS } from "../utils/constants";
 import { execCall } from "./call";
 import { _wrapToken } from "../utils/tokenUtils";
 
-import { BigInt } from "@web3api/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
 
-export function execSwap(input: Input_execSwap): Ethereum_TxResponse {
-  const trades: Trade[] = input.trades;
-  const swapOptions: SwapOptions = input.swapOptions;
-  const gasOptions: GasOptions | null = input.gasOptions;
+export function execSwap(args: Args_execSwap): Ethereum_TxResponse {
+  const trades: Trade[] = args.trades;
+  const swapOptions: SwapOptions = args.swapOptions;
+  const gasOptions: GasOptions | null = args.gasOptions;
 
   const parameters: MethodParameters = swapCallParameters({
     trades,
@@ -41,19 +41,19 @@ export function execSwap(input: Input_execSwap): Ethereum_TxResponse {
   return execCall({
     parameters,
     address: ROUTER_ADDRESS,
-    chainId: input.trades[0].inputAmount.token.chainId,
+    chainId: args.trades[0].argsAmount.token.chainId,
     gasOptions,
   });
 }
 
-export function swap(input: Input_swap): Ethereum_TxResponse {
-  const inToken: Token = input.inToken;
-  const outToken: Token = input.outToken;
-  const fee: FeeAmount = input.fee;
-  const amountNum: BigInt = input.amount;
-  const tradeType: TradeType = input.tradeType;
-  const swapOptions: SwapOptions = input.swapOptions;
-  const gasOptions: GasOptions | null = input.gasOptions;
+export function swap(args: Args_swap): Ethereum_TxResponse {
+  const inToken: Token = args.inToken;
+  const outToken: Token = args.outToken;
+  const fee: FeeAmount = args.fee;
+  const amountNum: BigInt = args.amount;
+  const tradeType: TradeType = args.tradeType;
+  const swapOptions: SwapOptions = args.swapOptions;
+  const gasOptions: GasOptions | null = args.gasOptions;
 
   const address: string = getPoolAddress({
     tokenA: _wrapToken(inToken),
@@ -101,12 +101,12 @@ export function swap(input: Input_swap): Ethereum_TxResponse {
   });
 }
 
-export function swapWithPool(input: Input_swapWithPool): Ethereum_TxResponse {
-  const address: string = input.address;
-  const amount: TokenAmount = input.amount;
-  const tradeType: TradeType = input.tradeType;
-  const swapOptions: SwapOptions = input.swapOptions;
-  const gasOptions: GasOptions | null = input.gasOptions;
+export function swapWithPool(args: Args_swapWithPool): Ethereum_TxResponse {
+  const address: string = args.address;
+  const amount: TokenAmount = args.amount;
+  const tradeType: TradeType = args.tradeType;
+  const swapOptions: SwapOptions = args.swapOptions;
+  const gasOptions: GasOptions | null = args.gasOptions;
 
   const pool: Pool = fetchPoolFromAddress({
     chainId: amount.token.chainId,

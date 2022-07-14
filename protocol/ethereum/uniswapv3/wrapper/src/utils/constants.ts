@@ -1,4 +1,4 @@
-import { BigInt } from "@web3api/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
 
 /* SDK CORE CONSTANTS */
 

@@ -1,5 +1,5 @@
 // https://github.com/ethers-io/ethers.js/blob/master/packages/address/src.ts/index.ts#L143
-import { SHA3_Query } from "../query/w3";
+import { SHA3_Query } from "../wrap";
 
 export function getChecksumAddress(address: string): string {
   if (address.startsWith("0x")) {

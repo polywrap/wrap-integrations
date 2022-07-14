@@ -2,7 +2,7 @@
 
 import { Rounding } from "./enumUtils";
 
-import { BigInt } from "@web3api/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
 import { BigFloat } from "as-bigfloat";
 
 export default class Fraction {

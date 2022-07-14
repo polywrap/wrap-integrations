@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   ChainId,
-  Ethereum_Query,
+  Ethereum_Module,
   FeeAmount,
   getChainIdKey,
-  Subgraph_Query,
+  Subgraph_Module,
   Tick,
-} from "../query/w3";
+} from "../wrap";
 import { getFeeAmountEnum } from "./enumUtils";
 
-import { BigInt, JSON } from "@web3api/wasm-as";
+import { BigInt, JSON } from "@polywrap/wasm-as";
 
 export class PoolImmutables {
   token0: string;
@@ -65,7 +65,7 @@ export function ethCallView(
   chainId: ChainId,
   method: string
 ): string {
-  return Ethereum_Query.callContractView({
+  return Ethereum_Module.callContractView({
     address: address,
     method: method,
     args: [],
@@ -106,7 +106,7 @@ export function fetchPoolTicksSubgraph(
   chainId: ChainId
 ): Tick[] {
   const endpoint: SubgraphEndpoint = getSubgraphEndpoint(chainId);
-  const query: JSON.Value = Subgraph_Query.subgraphQuery({
+  const query: JSON.Value = Subgraph_Module.subgraphQuery({
     subgraphAuthor: endpoint.author,
     subgraphName: endpoint.name,
     query: `

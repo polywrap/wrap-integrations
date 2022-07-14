@@ -1,4 +1,4 @@
-import { FeeAmount, PermitV } from "../query/w3";
+import { FeeAmount, PermitV } from "../wrap";
 
 export enum Rounding {
   ROUND_DOWN,

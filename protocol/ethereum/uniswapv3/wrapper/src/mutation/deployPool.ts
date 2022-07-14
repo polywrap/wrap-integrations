@@ -2,12 +2,12 @@ import {
   Ethereum_TxResponse,
   FeeAmount,
   GasOptions,
-  Input_deployPool,
-  Input_deployPoolFromTokens,
+  Args_deployPool,
+  Args_deployPoolFromTokens,
   MethodParameters,
   Pool,
   Token,
-} from "./w3";
+} from "../wrap";
 import {
   createCallParameters,
   createPool,
@@ -17,11 +17,11 @@ import {
 import { execCall } from "./call";
 import { NFPM_ADDRESS } from "../utils/constants";
 
-import { BigInt } from "@web3api/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
 
-export function deployPool(input: Input_deployPool): Ethereum_TxResponse {
-  const pool: Pool = input.pool;
-  const gasOptions: GasOptions | null = input.gasOptions;
+export function deployPool(args: Args_deployPool): Ethereum_TxResponse {
+  const pool: Pool = args.pool;
+  const gasOptions: GasOptions | null = args.gasOptions;
 
   const parameters: MethodParameters = createCallParameters({ pool });
   return execCall({
@@ -33,12 +33,12 @@ export function deployPool(input: Input_deployPool): Ethereum_TxResponse {
 }
 
 export function deployPoolFromTokens(
-  input: Input_deployPoolFromTokens
+  args: Args_deployPoolFromTokens
 ): Ethereum_TxResponse {
-  const tokenA: Token = input.tokenA;
-  const tokenB: Token = input.tokenB;
-  const fee: FeeAmount = input.fee;
-  const gasOptions: GasOptions | null = input.gasOptions;
+  const tokenA: Token = args.tokenA;
+  const tokenB: Token = args.tokenB;
+  const fee: FeeAmount = args.fee;
+  const gasOptions: GasOptions | null = args.gasOptions;
 
   const pool: Pool = createPool({
     tokenA,

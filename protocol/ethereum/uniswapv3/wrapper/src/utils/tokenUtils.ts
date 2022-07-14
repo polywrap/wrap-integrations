@@ -1,4 +1,4 @@
-import { ChainId, Currency, Token, TokenAmount } from "../w3";
+import { ChainId, Currency, Token, TokenAmount } from "../wrap";
 import { currencyEquals } from "../query";
 
 export const ETHER: Currency = {

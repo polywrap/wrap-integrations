@@ -1,8 +1,8 @@
 import {
-  Input_feeAmountToTickSpacing,
-  Input_getFeeAmount,
-  Input_getPermitV,
-} from "./w3";
+  Args_feeAmountToTickSpacing,
+  Args_getFeeAmount,
+  Args_getPermitV,
+} from "../wrap";
 import {
   _feeAmountToTickSpacing,
   _getFeeAmount,
@@ -10,15 +10,15 @@ import {
 } from "../utils/enumUtils";
 
 export function feeAmountToTickSpacing(
-  input: Input_feeAmountToTickSpacing
+  args: Args_feeAmountToTickSpacing
 ): i32 {
-  return _feeAmountToTickSpacing(input.feeAmount);
+  return _feeAmountToTickSpacing(args.feeAmount);
 }
 
-export function getFeeAmount(input: Input_getFeeAmount): u32 {
-  return _getFeeAmount(input.feeAmount);
+export function getFeeAmount(args: Args_getFeeAmount): u32 {
+  return _getFeeAmount(args.feeAmount);
 }
 
-export function getPermitV(input: Input_getPermitV): i32 {
-  return _getPermitV(input.permitV);
+export function getPermitV(args: Args_getPermitV): i32 {
+  return _getPermitV(args.permitV);
 }
