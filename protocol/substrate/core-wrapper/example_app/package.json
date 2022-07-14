@@ -11,15 +11,15 @@
   "devDependencies": {
     "parcel-bundler": "~1.12.5",
     "@types/jest": "27.0.2",
-    "@polywrap/client-js": "0.1.0",
-    "@polywrap/test-env-js": "0.1.0",
+    "@polywrap/client-js": "0.2.0",
+    "@polywrap/test-env-js": "0.2.0",
     "jest": "27.0.6",
     "ts-jest": "27.0.4",
     "ts-node": "^10.8.2",
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "polywrap": "0.1.0",
-    "@polywrap/ipfs-plugin-js": "0.1.0"
+    "polywrap": "0.2.0",
+    "@polywrap/ipfs-plugin-js": "0.2.0"
   }
 }

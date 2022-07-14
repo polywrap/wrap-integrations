@@ -12,12 +12,12 @@
     "infra":"npx polywrap infra up --modules=eth-ens-ipfs"
   },
   "dependencies": {
-    "polywrap": "0.1.0"
+    "polywrap": "0.2.0"
   },
   "devDependencies": {
     "@types/jest": "27.0.2",
-    "@polywrap/client-js": "0.1.0",
-    "@polywrap/test-env-js": "0.1.0",
+    "@polywrap/client-js": "0.2.0",
+    "@polywrap/test-env-js": "0.2.0",
     "jest": "27.0.6",
     "ts-jest": "27.0.4",
     "ts-node": "8.10.2",
