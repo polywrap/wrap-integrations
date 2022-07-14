@@ -1,4 +1,4 @@
-import { Option } from "@polywrap/wasm-as";
+import { Option, BigInt } from "@polywrap/wasm-as";
 import {
   createRoute,
   bestTradeExactIn,
@@ -8,8 +8,6 @@ import {
   tradeMinimumAmountOut
 } from "../..";
 import { ChainId, Pair, Token, TradeType } from "../../wrap";
-
-import { BigInt } from "as-bigint";
 
 const token0: Token = {
   chainId: ChainId.MAINNET,

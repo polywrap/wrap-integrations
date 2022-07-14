@@ -1,48 +1,41 @@
 import { ClientConfig, PolywrapClient } from "@polywrap/client-js";
-import {
-  buildWrapper,
-  ensAddresses,
-  initTestEnvironment,
-  providers as localProviders,
-  stopTestEnvironment
-} from "@polywrap/test-env-js";
 import * as path from "path";
-import { ChainId, Pair, Route, Token, TokenAmount, Trade } from "./types";
-import { getPairData, getPlugins, getTokenList, getUniPairs } from "../testUtils";
+import { getPairData, getTokenList, getUniPairs } from "../testUtils";
+import { getPlugins, initInfra, stopInfra } from "../infraUtils";
 import * as uni from "@uniswap/sdk";
+import * as App from "./types/wrap";
 
-jest.setTimeout(120000);
+jest.setTimeout(180000);
 
 describe('trade e2e', () => {
 
   let client: PolywrapClient;
   let fsUri: string;
-  let tokens: Token[] = [];
-  let pairs: Pair[] = [];
+  let tokens: App.Token[] = [];
+  let pairs: App.Pair[] = [];
   let uniPairs: uni.Pair[];
-  let ethToken: Token;
+  let ethToken: App.Token;
 
   beforeAll(async () => {
-    await initTestEnvironment();
+    await initInfra();
     // get client
-    const config: Partial<ClientConfig> = getPlugins(localProviders.ethereum, localProviders.ipfs, ensAddresses.ensAddress);
+    const config: Partial<ClientConfig> = getPlugins();
     client = new PolywrapClient(config);
     // deploy api
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../..");
-    await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // pick some test case tokens
-    const allTokens: Token[] = await getTokenList();
-    const aave: Token = allTokens.filter(token => token.currency.symbol === "AAVE")[0];
-    const dai: Token = allTokens.filter(token => token.currency.symbol === "DAI")[0];
-    const usdc: Token = allTokens.filter(token => token.currency.symbol === "USDC")[0];
-    const comp: Token = allTokens.filter(token => token.currency.symbol === "COMP")[0];
-    const weth: Token = allTokens.filter(token => token.currency.symbol === "WETH")[0];
-    const wbtc: Token = allTokens.filter(token => token.currency.symbol === "WBTC")[0];
-    const uniswap: Token = allTokens.filter(token => token.currency.symbol === "UNI")[0];
-    const link: Token = allTokens.filter(token => token.currency.symbol === "LINK")[0];
+    const allTokens: App.Token[] = await getTokenList();
+    const aave: App.Token = allTokens.filter(token => token.currency.symbol === "AAVE")[0];
+    const dai: App.Token = allTokens.filter(token => token.currency.symbol === "DAI")[0];
+    const usdc: App.Token = allTokens.filter(token => token.currency.symbol === "USDC")[0];
+    const comp: App.Token = allTokens.filter(token => token.currency.symbol === "COMP")[0];
+    const weth: App.Token = allTokens.filter(token => token.currency.symbol === "WETH")[0];
+    const wbtc: App.Token = allTokens.filter(token => token.currency.symbol === "WBTC")[0];
+    const uniswap: App.Token = allTokens.filter(token => token.currency.symbol === "UNI")[0];
+    const link: App.Token = allTokens.filter(token => token.currency.symbol === "LINK")[0];
     ethToken = {
-      chainId: ChainId.MAINNET,
+      chainId: App.ChainIdEnum.MAINNET,
       address: "",
       currency: {
         decimals: 18,
@@ -52,13 +45,13 @@ describe('trade e2e', () => {
     }
     tokens = [aave, dai, usdc, comp, weth, wbtc, uniswap, link];
     // create test case pairs
-    const aave_dai: Pair | undefined = await getPairData(aave, dai, client, fsUri);
-    const usdc_dai: Pair | undefined = await getPairData(usdc, dai, client, fsUri);
-    const link_usdc: Pair | undefined = await getPairData(link, usdc, client, fsUri);
-    const comp_weth: Pair | undefined = await getPairData(comp, weth, client, fsUri);
-    const uni_link: Pair | undefined = await getPairData(uniswap, link, client, fsUri);
-    const uni_wbtc: Pair | undefined = await getPairData(uniswap, wbtc, client, fsUri);
-    const wbtc_weth: Pair | undefined = await getPairData(wbtc, weth, client, fsUri);
+    const aave_dai: App.Pair | undefined = await getPairData(aave, dai, client, fsUri);
+    const usdc_dai: App.Pair | undefined = await getPairData(usdc, dai, client, fsUri);
+    const link_usdc: App.Pair | undefined = await getPairData(link, usdc, client, fsUri);
+    const comp_weth: App.Pair | undefined = await getPairData(comp, weth, client, fsUri);
+    const uni_link: App.Pair | undefined = await getPairData(uniswap, link, client, fsUri);
+    const uni_wbtc: App.Pair | undefined = await getPairData(uniswap, wbtc, client, fsUri);
+    const wbtc_weth: App.Pair | undefined = await getPairData(wbtc, weth, client, fsUri);
     [aave_dai, usdc_dai, link_usdc, uni_link, uni_wbtc, wbtc_weth, comp_weth].forEach(pair => {
       if (pair) {
         pairs.push(pair)
@@ -69,16 +62,16 @@ describe('trade e2e', () => {
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   })
 
   it('creates a trade', async () => {
-    const routePairs: Pair[] = [pairs[1], pairs[2], pairs[3]];
+    const routePairs: App.Pair[] = [pairs[1], pairs[2], pairs[3]];
     const uniRoutePairs: uni.Pair[] = [uniPairs[1], uniPairs[2], uniPairs[3]];
-    const tokenIn: Token = tokens[1];
-    const tokenOut: Token = tokens[6];
-    const amountIn: TokenAmount = { token: tokenIn, amount: "1000000000000000000" };
-    const route = await client.invoke<Route>({
+    const tokenIn: App.Token = tokens[1];
+    const tokenOut: App.Token = tokens[6];
+    const amountIn: App.TokenAmount = { token: tokenIn, amount: "1000000000000000000" };
+    const route = await client.invoke<App.Route>({
       uri: fsUri,
       method: "createRoute",
       args: {
@@ -87,7 +80,7 @@ describe('trade e2e', () => {
         output: tokenOut,
       }
     });
-    const actualTrade = await client.invoke<Trade>({
+    const actualTrade = await client.invoke<App.Trade>({
       uri: fsUri,
       method: "createTrade",
       args: {
@@ -128,12 +121,12 @@ describe('trade e2e', () => {
           continue;
         }
         // get best trades
-        const amountIn: TokenAmount = {
+        const amountIn: App.TokenAmount = {
           token: tokens[i],
           amount: "1000000000000000000"
         }
         const tokenOut = tokens[j];
-        const invocation = await client.invoke<Trade[]>({
+        const invocation = await client.invoke<App.Trade[]>({
           uri: fsUri,
           method: "bestTradeExactIn",
           args: {
@@ -143,7 +136,7 @@ describe('trade e2e', () => {
             options: null
           }
         });
-        const actualTrades: Trade[] = invocation.data ?? [];
+        const actualTrades: App.Trade[] = invocation.data ?? [];
         // expected best trades
         const uniAmountIn: uni.TokenAmount = new uni.TokenAmount(new uni.Token(
           1,
@@ -160,6 +153,12 @@ describe('trade e2e', () => {
           tokenOut.currency.name || ""
         );
         const expectedTrades = uni.Trade.bestTradeExactIn(uniPairs, uniAmountIn, uniTokenOut);
+        // compare trade array lengths and trade type
+        if (actualTrades.length !== expectedTrades.length) {
+          console.log("actual path: " + actualTrades[0]?.route.path.map(token => token.currency.symbol).toString())
+          console.log("expected path: " + expectedTrades[0]?.route.path.map(token => token.symbol).toString())
+          console.log(invocation.error);
+        }
         expect(actualTrades.length).toStrictEqual(expectedTrades.length);
         if (actualTrades.length === 0 && expectedTrades.length === 0) {
           continue;
@@ -189,11 +188,11 @@ describe('trade e2e', () => {
         }
         // get best trades
         const tokenIn = tokens[i];
-        const amountOut: TokenAmount = {
+        const amountOut: App.TokenAmount = {
           token: tokens[j],
           amount: "1000000000000000000"
         }
-        const invocation = await client.invoke<Trade[]>({
+        const invocation = await client.invoke<App.Trade[]>({
           uri: fsUri,
           method: "bestTradeExactOut",
           args: {
@@ -203,7 +202,7 @@ describe('trade e2e', () => {
             options: null
           }
         });
-        const actualTrades: Trade[] = invocation.data ?? [];
+        const actualTrades: App.Trade[] = invocation.data ?? [];
         // expected best trades
         const uniTokenIn: uni.Token = new uni.Token(
           1,
@@ -250,14 +249,12 @@ describe('trade e2e', () => {
 
   it('finds the best trade for exact input with Eth input', async () => {
     // get best trades
-    const amountIn: TokenAmount = {
+    const amountIn: App.TokenAmount = {
       token: ethToken,
       amount: "1000000000000000000"
     }
-    const tokenOut: Token = tokens.filter(token => token.currency.symbol === "COMP")[0];
-    const invocation = await client.invoke<{
-      bestTradeExactIn: Trade[];
-    }>({
+    const tokenOut: App.Token = tokens.filter(token => token.currency.symbol === "COMP")[0];
+    const invocation = await client.invoke<App.Trade[]>({
       uri: fsUri,
       method: "bestTradeExactIn",
       args: {
@@ -267,7 +264,7 @@ describe('trade e2e', () => {
         options: null
       }
     });
-    const actualTrades: Trade[] = invocation.data?.bestTradeExactIn ?? [];
+    const actualTrades: App.Trade[] = invocation.data ?? [];
     // expected best trades
     const uniAmountIn: uni.CurrencyAmount = uni.CurrencyAmount.ether(amountIn.amount);
     const uniTokenOut: uni.Token = new uni.Token(
@@ -309,12 +306,12 @@ describe('trade e2e', () => {
 
   it('finds the best trade for exact input with Eth output', async () => {
     // get best trades
-    const amountIn: TokenAmount = {
+    const amountIn: App.TokenAmount = {
       token: tokens.filter(token => token.currency.symbol === "COMP")[0],
       amount: "1000000000000000000"
     }
-    const tokenOut: Token = ethToken
-    const invocation = await client.invoke<Trade[]>({
+    const tokenOut: App.Token = ethToken
+    const invocation = await client.invoke<App.Trade[]>({
       uri: fsUri,
       method: "bestTradeExactIn",
       args: {
@@ -324,7 +321,7 @@ describe('trade e2e', () => {
         options: null
       }
     });
-    const actualTrades: Trade[] = invocation.data ?? [];
+    const actualTrades: App.Trade[] = invocation.data ?? [];
     // expected best trades
     const uniAmountIn: uni.TokenAmount = new uni.TokenAmount(new uni.Token(
       1,
@@ -366,12 +363,12 @@ describe('trade e2e', () => {
 
   it('finds the best trade for exact output with Eth input', async () => {
     // get best trades
-    const tokenIn: Token = ethToken;
-    const amountOut: TokenAmount = {
+    const tokenIn: App.Token = ethToken;
+    const amountOut: App.TokenAmount = {
       token: tokens.filter(token => token.currency.symbol === "COMP")[0],
       amount: "1000000000000000000"
     }
-    const invocation = await client.invoke<Trade[]>({
+    const invocation = await client.invoke<App.Trade[]>({
       uri: fsUri,
       method: "bestTradeExactOut",
       args: {
@@ -381,7 +378,7 @@ describe('trade e2e', () => {
         options: null
       }
     });
-    const actualTrades: Trade[] = invocation.data ?? [];
+    const actualTrades: App.Trade[] = invocation.data ?? [];
     // expected best trades
     const uniTokenIn: uni.Currency = uni.ETHER;
     const uniAmountOut: uni.TokenAmount = new uni.TokenAmount(new uni.Token(
@@ -423,12 +420,12 @@ describe('trade e2e', () => {
 
   it('finds the best trade for exact output with Eth output', async () => {
     // get best trades
-    const tokenIn: Token = tokens.filter(token => token.currency.symbol === "COMP")[0];
-    const amountOut: TokenAmount = {
+    const tokenIn: App.Token = tokens.filter(token => token.currency.symbol === "COMP")[0];
+    const amountOut: App.TokenAmount = {
       token: ethToken,
       amount: "1000000000000000000"
     }
-    const invocation = await client.invoke<Trade[]>({
+    const invocation = await client.invoke<App.Trade[]>({
       uri: fsUri,
       method: "bestTradeExactOut",
       args: {
@@ -438,7 +435,7 @@ describe('trade e2e', () => {
         options: null
       }
     });
-    const actualTrades: Trade[] = invocation.data ?? [];
+    const actualTrades: App.Trade[] = invocation.data ?? [];
     // expected best trades
     const uniTokenIn: uni.Currency = new uni.Token(
       1,

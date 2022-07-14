@@ -1,62 +1,17 @@
-import { BestTradeOptions, ChainId, Pair, Token, TokenAmount, Trade, TxResponse, TradeOptions } from "./e2e/types";
-import { ClientConfig, PolywrapClient } from "@polywrap/client-js";
-import { ethereumPlugin } from "@polywrap/ethereum-plugin-js";
-import { ipfsResolverPlugin } from "@polywrap/ipfs-resolver-plugin-js";
-import { ensResolverPlugin }  from "@polywrap/ens-resolver-plugin-js";
-import { initTestEnvironment as initPolywrapTestEnvironment, stopTestEnvironment as stopPolywrapTestEnvironment } from "@polywrap/test-env-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import * as uni from "@uniswap/sdk";
 import tokenList from "./e2e/testData/tokenList.json";
-import { spawn } from "child_process";
+import * as App from "./e2e/types/wrap"
 
-export async function initTestEnvironment(): Promise<void> {
-  await initPolywrapTestEnvironment()
-  spawn("docker-compose up", { cwd: __dirname})
-}
-
-export async function stopTestEnvironment(): Promise<void> {
-  await stopPolywrapTestEnvironment()
-  spawn("docker-compose down", { cwd: __dirname + "../"})
-}
-
-export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): Partial<ClientConfig> {
-  return {
-    redirects: [],
-    plugins: [
-     {
-       uri: "wrap://ens/ipfs-resolver.polywrap.eth",
-       plugin: ipfsResolverPlugin({ provider: ipfs }),
-     },
-     {
-       uri: "wrap://ens/ens-resolver.polywrap.eth",
-       plugin: ensResolverPlugin({ addresses: { testnet: ensAddress } }),
-     },
-     {
-      uri: "wrap://ens/ethereum.polywrap.eth",
-      plugin: ethereumPlugin({
-          networks: {
-            testnet: {
-              provider: ethereum
-            },
-            MAINNET: {
-              provider: "http://localhost:8546"
-            },
-          },
-          defaultNetwork: "testnet"
-        }),
-      },
-    ]
-  };
-}
-
-export async function getTokenList(): Promise<Token[]> {
-  let tokens: Token[] = [];
+export async function getTokenList(): Promise<App.Token[]> {
+  let tokens: App.Token[] = [];
   tokenList.forEach((token: {
     address: string;
     decimals: number;
     symbol: string;
     name: string;
   }) => tokens.push({
-    chainId: ChainId.MAINNET,
+    chainId: App.ChainIdEnum.MAINNET,
     address: token.address,
     currency: {
       decimals: token.decimals,
@@ -67,8 +22,8 @@ export async function getTokenList(): Promise<Token[]> {
   return tokens;
 }
 
-export async function getPairData(token0: Token, token1: Token, client: PolywrapClient, ensUri: string): Promise<Pair | undefined> {
-  const pairData = await client.invoke<Pair>({
+export async function getPairData(token0: App.Token, token1: App.Token, client: PolywrapClient, ensUri: string): Promise<App.Pair | undefined> {
+  const pairData = await client.invoke<App.Pair>({
     uri: ensUri,
     method: "fetchPairData",
     args: {
@@ -84,7 +39,7 @@ export async function getPairData(token0: Token, token1: Token, client: Polywrap
   return pairData.data;
 }
 
-export function getUniPairs(pairs: Pair[], chainId: number): uni.Pair[] {
+export function getUniPairs(pairs: App.Pair[], chainId: number): uni.Pair[] {
   return pairs.map(pair => {
     return new uni.Pair(
       new uni.TokenAmount(
@@ -112,14 +67,14 @@ export function getUniPairs(pairs: Pair[], chainId: number): uni.Pair[] {
 }
 
 export async function getBestTradeExactIn(
-  allowedPairs: Pair[],
-  currencyAmountIn: TokenAmount,
-  currencyOut: Token,
-  bestTradeOptions: BestTradeOptions | null,
+  allowedPairs: App.Pair[],
+  currencyAmountIn: App.TokenAmount,
+  currencyOut: App.Token,
+  bestTradeOptions: App.BestTradeOptions | null,
   client: PolywrapClient,
   ensUri: string
-): Promise<Trade[]> {
-  const invocation = await client.invoke<Trade[]>({
+): Promise<App.Trade[]> {
+  const invocation = await client.invoke<App.Trade[]>({
     uri: ensUri,
     method: "bestTradeExactIn",
     args: {
@@ -129,7 +84,7 @@ export async function getBestTradeExactIn(
       options: bestTradeOptions ?? null
     }
   })
-  const result: Trade[] | undefined = invocation.data
+  const result: App.Trade[] | undefined = invocation.data
   if (invocation.error) {
     console.log(invocation.error)
   }
@@ -137,14 +92,14 @@ export async function getBestTradeExactIn(
 }
 
 export async function getBestTradeExactOut(
-  allowedPairs: Pair[],
-  currencyIn: Token,
-  currencyAmountOut: TokenAmount,
-  bestTradeOptions: BestTradeOptions | null,
+  allowedPairs: App.Pair[],
+  currencyIn: App.Token,
+  currencyAmountOut: App.TokenAmount,
+  bestTradeOptions: App.BestTradeOptions | null,
   client: PolywrapClient,
   ensUri: string
-): Promise<Trade[]> {
-  const invocation = await client.invoke<Trade[]>({
+): Promise<App.Trade[]> {
+  const invocation = await client.invoke<App.Trade[]>({
     uri: ensUri,
     method: "bestTradeExactOut",
     args: {
@@ -154,7 +109,7 @@ export async function getBestTradeExactOut(
       options: bestTradeOptions ?? null
     }
   })
-  const result: Trade[] | undefined = invocation.data
+  const result: App.Trade[] | undefined = invocation.data
   if (invocation.error) {
     console.log(invocation.error)
   }
@@ -162,18 +117,18 @@ export async function getBestTradeExactOut(
 }
 
 export async function approveToken(
-  token: Token,
+  token: App.Token,
   client: PolywrapClient,
   ensUri: string
-): Promise<TxResponse> {
-  const invocation = await client.invoke<TxResponse>({
+): Promise<App.Ethereum_TxResponse> {
+  const invocation = await client.invoke<App.Ethereum_TxResponse>({
     uri: ensUri,
     method: "approve",
     args: {
       token,
     },
   });
-  const result: TxResponse | undefined = invocation.data
+  const result: App.Ethereum_TxResponse | undefined = invocation.data
   if (invocation.error) {
     console.log(invocation.error)
   }
@@ -181,20 +136,20 @@ export async function approveToken(
 }
 
 export async function execTrade(
-  trade: Trade,
-  tradeOptions: TradeOptions,
+  trade: App.Trade,
+  tradeOptions: App.TradeOptions,
   client: PolywrapClient,
-  ensUri: string
-): Promise<TxResponse> {
-  const invocation = await client.invoke<TxResponse>({
-    uri: ensUri,
+  uri: string
+): Promise<App.Ethereum_TxResponse> {
+  const invocation = await client.invoke<App.Ethereum_TxResponse>({
+    uri: uri,
     method: "exec",
     args: {
       trade,
       tradeOptions,
     },
   });
-  const result: TxResponse | undefined = invocation.data
+  const result: App.Ethereum_TxResponse | undefined = invocation.data
   if (invocation.error) {
     console.log(invocation.error)
   }
@@ -202,28 +157,54 @@ export async function execTrade(
 }
 
 export async function execSwap(
-  tokenIn: Token,
-  tokenOut: Token,
+  tokenIn: App.Token,
+  tokenOut: App.Token,
   amount: string,
-  tradeType: string,
-  tradeOptions: TradeOptions,
+  tradeType: App.TradeType,
+  tradeOptions: App.TradeOptions,
   client: PolywrapClient,
-  ensUri: string
-): Promise<TxResponse> {
-  const invocation = await client.invoke<TxResponse>({
-    uri: ensUri,
+  uri: string
+): Promise<App.Ethereum_TxResponse> {
+  const invocation = await client.invoke<App.Ethereum_TxResponse>({
+    uri: uri,
     method: "swap",
     args: {
-      token0: tokenIn,
-      token1: tokenOut,
+      tokenIn: tokenIn,
+      tokenOut: tokenOut,
       amount: amount,
       tradeType: tradeType,
       tradeOptions: tradeOptions
     },
   });
-  const result: TxResponse | undefined = invocation.data
+  const result: App.Ethereum_TxResponse | undefined = invocation.data
   if (invocation.error) {
     console.log(invocation.error)
   }
   return result!;
+}
+
+export function getSwapMethodAbi(methodName: string): string {
+  if (methodName == "swapExactTokensForTokens")
+    return `function swapExactTokensForTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline) external returns (uint[] memory amounts)`;
+  else if (methodName == "swapTokensForExactTokens")
+    return `function swapTokensForExactTokens(uint amountOut,uint amountInMax,address[] calldata path,address to,uint deadline) external returns (uint[] memory amounts)`;
+  else if (methodName == "swapExactETHForTokens")
+    return `function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)`;
+  else if (methodName == "swapTokensForExactETH")
+    return `function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)`;
+  else if (methodName == "swapExactTokensForETH")
+    return `function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)`;
+  else if (methodName == "swapETHForExactTokens")
+    return `function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)`;
+  else if (
+    methodName == "swapExactTokensForTokensSupportingFeeOnTransferTokens"
+  )
+    return `function swapExactTokensForTokensSupportingFeeOnTransferTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline) external`;
+  else if (methodName == "swapExactETHForTokensSupportingFeeOnTransferTokens")
+    return `function swapExactETHForTokensSupportingFeeOnTransferTokens(uint amountOutMin,address[] calldata path,address to,uint deadline) external payable`;
+  else if (methodName == "swapExactTokensForETHSupportingFeeOnTransferTokens")
+    return `function swapExactTokensForETHSupportingFeeOnTransferTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline) external`;
+  else {
+    throw new Error("Invalid method name " + methodName);
+  }
 }

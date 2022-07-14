@@ -135,7 +135,7 @@ export function fetchTotalSupply(args: Args_fetchTotalSupply): TokenAmount {
   };
 }
 
-// args token must be a pair liquidity token
+// input token must be a pair liquidity token
 // returns reserve0 * reserve1, as of immediately after the most recent liquidity event
 export function fetchKLast(args: Args_fetchKLast): BigInt {
   const token: Token = args.token;

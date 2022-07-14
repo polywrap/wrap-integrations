@@ -1,27 +1,20 @@
-import {
-  buildWrapper,
-  initTestEnvironment,
-  stopTestEnvironment,
-  providers as localProviders,
-  ensAddresses,
-} from "@polywrap/test-env-js";
 import {ClientConfig, PolywrapClient} from "@polywrap/client-js";
-import { Currency, Pair, Token, TokenAmount, Trade, TxResponse } from "./types";
 import path from "path";
 import {
   approveToken, execSwap, execTrade,
   getBestTradeExactIn,
   getBestTradeExactOut,
   getPairData,
-  getPlugins,
   getTokenList
 } from "../testUtils";
+import { getPlugins, initInfra, stopInfra } from "../infraUtils";
 import { Contract, ethers, providers } from "ethers";
 import erc20ABI from "./testData/erc20ABI.json";
+import * as App from "./types/wrap"
 
 jest.setTimeout(360000);
 
-const getTradeOptions = (recipient: string) => ({
+const getTradeOptions = (recipient: string): App.TradeOptions => ({
   allowedSlippage: "0.1",
   recipient: recipient,
   unixTimestamp: parseInt((new Date().getTime() / 1000).toFixed(0)),
@@ -33,21 +26,20 @@ describe("Swap", () => {
   let client: PolywrapClient;
   let recipient: string;
   let fsUri: string;
-  let tokens: Token[];
+  let tokens: App.Token[];
   let ethersProvider: providers.JsonRpcProvider;
-  let ethCurrency: Currency;
-  let dai: Token;
-  let weth: Token;
-  let usdc: Token;
+  let ethCurrency: App.Currency;
+  let dai: App.Token;
+  let weth: App.Token;
+  let usdc: App.Token;
 
   beforeAll(async () => {
-    await initTestEnvironment();
+    await initInfra();
     // get client
-    const config: Partial<ClientConfig> = getPlugins(localProviders.ethereum, localProviders.ipfs, ensAddresses.ensAddress);
+    const config: Partial<ClientConfig> = getPlugins();
     client = new PolywrapClient(config);
     // deploy api
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../..");
-    await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546") as providers.JsonRpcProvider;
     recipient = await ethersProvider.getSigner().getAddress();
@@ -56,7 +48,7 @@ describe("Swap", () => {
     tokens = await getTokenList();
 
     dai = tokens.filter(token => token.currency.symbol === "DAI")[0];
-    const daiTxResponse: TxResponse = await approveToken(dai, client, fsUri);
+    const daiTxResponse: App.Ethereum_TxResponse = await approveToken(dai, client, fsUri);
     const daiApproveTx = await ethersProvider.getTransaction(daiTxResponse.hash);
     await daiApproveTx.wait();
 
@@ -74,13 +66,13 @@ describe("Swap", () => {
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   });
 
   it("Should successfully EXEC ether -> dai -> usdc -> ether", async () => {
-    const weth_dai: Pair = await getPairData(weth, dai, client, fsUri) as Pair;
-    const dai_usdc: Pair = await getPairData(dai, usdc, client, fsUri) as Pair;
-    const usdc_weth: Pair = await getPairData(usdc, weth, client, fsUri) as Pair;
+    const weth_dai: App.Pair = await getPairData(weth, dai, client, fsUri) as App.Pair;
+    const dai_usdc: App.Pair = await getPairData(dai, usdc, client, fsUri) as App.Pair;
+    const usdc_weth: App.Pair = await getPairData(usdc, weth, client, fsUri) as App.Pair;
 
     const daiContract = new Contract(dai.address, erc20ABI, ethersProvider);
     const usdcContract = new Contract(usdc.address, erc20ABI, ethersProvider);
@@ -88,16 +80,16 @@ describe("Swap", () => {
     const etherDaiOut = "1000000000000000000000"; // $1,000
     const daiUsdcIn = "100000000000000000000"; // $100
     const usdcEthIn = "10000000"; // $10;
-    const daiUsdcSwapOut = "100000000"; // $100
-    const usdcDaiSwapIn = "100000000"; // $100
+    const daiUsdcSwapOut = "10000000"; // $10
+    const usdcDaiSwapIn = "10000000"; // $10
     
     // EXEC eth -> dai
-    const etherDaiAmountOut: TokenAmount = {
+    const etherDaiAmountOut: App.TokenAmount = {
         token: dai,
         amount: etherDaiOut,
       };
-    const etherDaiBestTrades: Trade[] = await getBestTradeExactOut([weth_dai], weth, etherDaiAmountOut, null, client, fsUri);
-    const etherDaiTrade: Trade = etherDaiBestTrades[0];
+    const etherDaiBestTrades: App.Trade[] = await getBestTradeExactOut([weth_dai], weth, etherDaiAmountOut, null, client, fsUri);
+    const etherDaiTrade: App.Trade = etherDaiBestTrades[0];
     etherDaiTrade.route.path[0].currency = ethCurrency;
     etherDaiTrade.route.pairs[0].tokenAmount1.token.currency = ethCurrency;
     etherDaiTrade.route.input.currency = ethCurrency;
@@ -109,12 +101,12 @@ describe("Swap", () => {
     expect((await daiContract.balanceOf(recipient)).gte(etherDaiOut)).toBeTruthy();
 
     // EXEC dai -> usdc
-    const daiUsdcAmountIn: TokenAmount = {
+    const daiUsdcAmountIn: App.TokenAmount = {
       token: dai,
       amount: daiUsdcIn,
     };
-    const daiUsdcBestTrades: Trade[] = await getBestTradeExactIn([dai_usdc], daiUsdcAmountIn, usdc, null, client, fsUri);
-    const daiUsdcTrade: Trade = daiUsdcBestTrades[0];
+    const daiUsdcBestTrades: App.Trade[] = await getBestTradeExactIn([dai_usdc], daiUsdcAmountIn, usdc, null, client, fsUri);
+    const daiUsdcTrade: App.Trade = daiUsdcBestTrades[0];
     const daiUsdcTxResponse = await execTrade(daiUsdcTrade, getTradeOptions(recipient), client, fsUri);
     const daiUsdcTx = await ethersProvider.getTransaction(daiUsdcTxResponse.hash);
     await daiUsdcTx.wait();
@@ -126,12 +118,12 @@ describe("Swap", () => {
     expect(usdcBalance.gt("0")).toBeTruthy();
 
     // EXEC usdc -> eth
-    const usdcEthAmountIn: TokenAmount = {
+    const usdcEthAmountIn: App.TokenAmount = {
       token: usdc,
       amount: usdcEthIn,
     };
-    const usdcEthBestTrades: Trade[] = await getBestTradeExactIn([usdc_weth], usdcEthAmountIn, weth, null, client, fsUri);
-    const usdcEthTrade: Trade = usdcEthBestTrades[0];
+    const usdcEthBestTrades: App.Trade[] = await getBestTradeExactIn([usdc_weth], usdcEthAmountIn, weth, null, client, fsUri);
+    const usdcEthTrade: App.Trade = usdcEthBestTrades[0];
     usdcEthTrade.route.path[1].currency = ethCurrency;
     usdcEthTrade.route.pairs[0].tokenAmount1.token.currency = ethCurrency;
     usdcEthTrade.route.output.currency = ethCurrency;
@@ -144,7 +136,7 @@ describe("Swap", () => {
     expect(usdcBalanceAfterUsdcEth.lt(usdcBalance)).toBeTruthy();
 
     // SWAP dai -> usdc
-    const daiUsdcSwapTxResponse = await execSwap(dai, usdc, daiUsdcSwapOut, "EXACT_OUTPUT", getTradeOptions(recipient), client, fsUri);
+    const daiUsdcSwapTxResponse = await execSwap(dai, usdc, daiUsdcSwapOut, App.TradeTypeEnum.EXACT_OUTPUT, getTradeOptions(recipient), client, fsUri);
     const daiUsdcSwapTx = await ethersProvider.getTransaction(daiUsdcSwapTxResponse.hash);
     await daiUsdcSwapTx.wait();
     // CHECK dai -> usdc swap
@@ -154,7 +146,7 @@ describe("Swap", () => {
     expect((await daiContract.balanceOf(recipient)).lt(daiBalanceAfterDaiUsdc)).toBeTruthy();
 
     // SWAP usdc -> dai
-    const usdcDaiSwapTxResponse = await execSwap(usdc,dai, usdcDaiSwapIn, "EXACT_INPUT", getTradeOptions(recipient), client, fsUri);
+    const usdcDaiSwapTxResponse = await execSwap(usdc,dai, usdcDaiSwapIn, App.TradeTypeEnum.EXACT_INPUT, getTradeOptions(recipient), client, fsUri);
     const usdcDaiSwapTx = await ethersProvider.getTransaction(usdcDaiSwapTxResponse.hash);
     await usdcDaiSwapTx.wait();
     // CHECK usdc -> dai swap

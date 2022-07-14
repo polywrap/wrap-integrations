@@ -7,9 +7,7 @@ import {
   pairToken1Price,
   tokenSortsBefore
 } from "../../";
-import { Option } from "@polywrap/wasm-as";
-import { BigFloat } from "as-bigfloat";
-import { BigInt } from "as-bigint";
+import { Option, BigInt, BigNumber } from "@polywrap/wasm-as";
 
 const token0: Token = {
   chainId: ChainId.MAINNET,
@@ -127,8 +125,8 @@ describe('Pair core', () => {
     for (let i = 0; i < pairs.length; i++) {
       const pair: Pair = pairs[i];
       const price: string = pairToken0Price({ pair });
-      const expectedPrice: BigFloat = BigFloat.fromFraction(pair.tokenAmount1.amount, pair.tokenAmount0.amount);
-      expect(BigFloat.fromString(price).toString()).toStrictEqual(expectedPrice.toString());
+      const expectedPrice: BigNumber = BigNumber.fromFraction(pair.tokenAmount1.amount, pair.tokenAmount0.amount);
+      expect(BigNumber.fromString(price).toString()).toStrictEqual(expectedPrice.toString());
     }
   });
 
@@ -136,7 +134,7 @@ describe('Pair core', () => {
     for (let i = 0; i < pairs.length; i++) {
       const pair = pairs[i];
       const price: string = pairToken1Price({ pair });
-      const expectedPrice: BigFloat = BigFloat.fromFraction(pair.tokenAmount0.amount, pair.tokenAmount1.amount);
+      const expectedPrice: BigNumber = BigNumber.fromFraction(pair.tokenAmount0.amount, pair.tokenAmount1.amount);
       expect(price).toStrictEqual(expectedPrice.toFixed(18));
     }
   });
@@ -223,7 +221,7 @@ describe('Pair miscellaneous', () => {
       },
       amount: BigInt.fromString("500") };
 
-    const liquidityValueA = pairLiquidityValue({ pair: pair, totalSupply: totalSupply, liquidity: liquidity1000, feeOn: new Option(null), kLast: null });
+    const liquidityValueA = pairLiquidityValue({ pair: pair, totalSupply: totalSupply, liquidity: liquidity1000, feeOn: Option.None<bool>(), kLast: null });
     expect(liquidityValueA[0].token).toStrictEqual(token0);
     expect(liquidityValueA[1].token).toStrictEqual(token1);
     expect(liquidityValueA[0].amount.toString()).toStrictEqual("1000");

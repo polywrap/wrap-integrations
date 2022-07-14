@@ -2,27 +2,27 @@
   "name": "@polywrap/uniswap-v2-api",
   "description": "Uniswap V2 Polywrap",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.2.0",
   "scripts": {
     "reset": "yarn clean && yarn && yarn build",
     "clean": "npx rimraf ./node_modules ./build ./coverage ./.wrap ./**/wrap",
     "build": "npx polywrap build",
     "deploy": "npx polywrap deploy",
-    "test:e2e": "docker-compose up -d && jest --passWithNoTests --runInBand --verbose && docker-compose down -d",
+    "codegen:app": "npx polywrap app codegen -m src/__tests__/e2e/types/polywrap.app.yaml -g src/__tests__/e2e/types/wrap",
+    "test:e2e": "yarn codegen:app && jest --passWithNoTests --runInBand --verbose",
     "test:unit": "asp --verbose",
     "test": "yarn test:unit && yarn test:e2e",
     "test:ci": "yarn test"
   },
   "dependencies": {
-    "as-bigfloat": "0.0.4"
+    "@polywrap/wasm-as": "0.2.x"
   },
   "devDependencies": {
     "@as-pect/cli": "6.2.4",
     "@ethersproject/providers": "5.6.4",
-    "@polywrap/client-js": "0.1.1",
-    "@polywrap/ethereum-plugin-js": "0.1.1",
-    "@polywrap/test-env-js": "0.1.1",
-    "@polywrap/wasm-as": "0.1.1",
+    "@polywrap/client-js": "0.2.x",
+    "@polywrap/ethereum-plugin-js": "0.2.x",
+    "@polywrap/test-env-js": "0.2.x",
     "@types/jest": "26.0.8",
     "@types/node": "12.6.9",
     "@types/node-fetch": "2.5.10",
@@ -46,6 +46,6 @@
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-prettier": "3.3.0",
     "prettier": "2.2.1",
-    "polywrap": "0.1.1"
+    "polywrap": "0.2.x"
   }
 }

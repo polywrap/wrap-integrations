@@ -35,7 +35,7 @@ export function swapCallParameters(
   });
 
   if (etherIn && etherOut) {
-    throw new Error("Ether can't be trade args and output");
+    throw new Error("Ether can't be trade input and output");
   }
 
   if (args.tradeOptions.ttl.isNone && args.tradeOptions.deadline.isNone) {
