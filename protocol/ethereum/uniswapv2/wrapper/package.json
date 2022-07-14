@@ -8,7 +8,8 @@
     "clean": "npx rimraf ./node_modules ./build ./coverage ./.wrap ./**/wrap",
     "build": "npx polywrap build",
     "deploy": "npx polywrap deploy",
-    "test:e2e": "jest --passWithNoTests --runInBand --verbose",
+    "codegen:app": "npx polywrap app codegen -m src/__tests__/e2e/types/polywrap.app.yaml -g src/__tests__/e2e/types/wrap",
+    "test:e2e": "yarn codegen:app && jest --passWithNoTests --runInBand --verbose",
     "test:unit": "asp --verbose",
     "test": "yarn test:unit && yarn test:e2e",
     "test:ci": "yarn test"

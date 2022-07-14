@@ -1,9 +1,9 @@
 import { ClientConfig, PolywrapClient } from "@polywrap/client-js";
 import * as path from "path";
-import { Pair, Route, Token } from "./types";
 import { getPairData, getTokenList, getUniPairs } from "../testUtils";
 import { getPlugins, initInfra, stopInfra } from "../infraUtils";
 import * as uni from "@uniswap/sdk";
+import * as App from "./types/wrap";
 
 jest.setTimeout(480000);
 
@@ -11,10 +11,10 @@ describe('Route', () => {
 
   let client: PolywrapClient;
   let fsUri: string;
-  let pairSets: Pair[][] = [];
+  let pairSets: App.Pair[][] = [];
   let uniPairSets: uni.Pair[][] = [];
-  let inputTokens: Token[] = [];
-  let outputTokens: Token[] = [];
+  let inputTokens: App.Token[] = [];
+  let outputTokens: App.Token[] = [];
 
   beforeAll(async () => {
     await initInfra();
@@ -25,25 +25,25 @@ describe('Route', () => {
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../..");
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // pick some test case tokens
-    const tokens: Token[] = await getTokenList();
-    const aave: Token = tokens.filter(token => token.currency.symbol === "AAVE")[0];
-    const dai: Token = tokens.filter(token => token.currency.symbol === "DAI")[0];
-    const usdc: Token = tokens.filter(token => token.currency.symbol === "USDC")[0];
-    const comp: Token = tokens.filter(token => token.currency.symbol === "COMP")[0];
-    const weth: Token = tokens.filter(token => token.currency.symbol === "WETH")[0];
-    const wbtc: Token = tokens.filter(token => token.currency.symbol === "WBTC")[0];
-    const uniswap: Token = tokens.filter(token => token.currency.symbol === "UNI")[0];
-    const link: Token = tokens.filter(token => token.currency.symbol === "LINK")[0];
+    const tokens: App.Token[] = await getTokenList();
+    const aave: App.Token = tokens.filter(token => token.currency.symbol === "AAVE")[0];
+    const dai: App.Token = tokens.filter(token => token.currency.symbol === "DAI")[0];
+    const usdc: App.Token = tokens.filter(token => token.currency.symbol === "USDC")[0];
+    const comp: App.Token = tokens.filter(token => token.currency.symbol === "COMP")[0];
+    const weth: App.Token = tokens.filter(token => token.currency.symbol === "WETH")[0];
+    const wbtc: App.Token = tokens.filter(token => token.currency.symbol === "WBTC")[0];
+    const uniswap: App.Token = tokens.filter(token => token.currency.symbol === "UNI")[0];
+    const link: App.Token = tokens.filter(token => token.currency.symbol === "LINK")[0];
     // create test case pairs
-    const aave_dai: Pair | undefined = await getPairData(aave, dai, client, fsUri);
-    const usdc_dai: Pair | undefined = await getPairData(usdc, dai, client, fsUri);
-    const link_usdc: Pair | undefined = await getPairData(link, usdc, client, fsUri);
-    const comp_weth: Pair | undefined = await getPairData(comp, weth, client, fsUri);
-    const uni_link: Pair | undefined = await getPairData(uniswap, link, client, fsUri);
-    const uni_wbtc: Pair | undefined = await getPairData(uniswap, wbtc, client, fsUri);
-    const wbtc_weth: Pair | undefined = await getPairData(wbtc, weth, client, fsUri);
+    const aave_dai: App.Pair | undefined = await getPairData(aave, dai, client, fsUri);
+    const usdc_dai: App.Pair | undefined = await getPairData(usdc, dai, client, fsUri);
+    const link_usdc: App.Pair | undefined = await getPairData(link, usdc, client, fsUri);
+    const comp_weth: App.Pair | undefined = await getPairData(comp, weth, client, fsUri);
+    const uni_link: App.Pair | undefined = await getPairData(uniswap, link, client, fsUri);
+    const uni_wbtc: App.Pair | undefined = await getPairData(uniswap, wbtc, client, fsUri);
+    const wbtc_weth: App.Pair | undefined = await getPairData(wbtc, weth, client, fsUri);
     // create pair sets that can form routes
-    let pairSet: Pair[];
+    let pairSet: App.Pair[];
     // usdc <--> uni
     pairSet = [link_usdc, uni_link].map(pair => pair!);
     pairSets.push(pairSet);
@@ -70,12 +70,12 @@ describe('Route', () => {
 
   it('constructs a route from an array of pairs', async () => {
     for (let i = 0; i < pairSets.length; i++) {
-      const pairs: Pair[] = pairSets[i];
+      const pairs: App.Pair[] = pairSets[i];
       const uniPairs: uni.Pair[] = uniPairSets[i];
       const inputToken = inputTokens[i];
       const outputToken = outputTokens[i];
       // actual route
-      const actualRoute = await client.invoke<Route>({
+      const actualRoute = await client.invoke<App.Route>({
         uri: fsUri,
         method: "createRoute",
         args: {
@@ -117,12 +117,12 @@ describe('Route', () => {
 
   it('calculates route midPrice', async () => {
     for (let i = 0; i < pairSets.length; i++) {
-      const pairs: Pair[] = pairSets[i];
+      const pairs: App.Pair[] = pairSets[i];
       const uniPairs: uni.Pair[] = uniPairSets[i];
       const inputToken = inputTokens[i];
       const outputToken = outputTokens[i];
       // actual route
-      const actualRoute = await client.invoke<Route>({
+      const actualRoute = await client.invoke<App.Route>({
         uri: fsUri,
         method: "createRoute",
         args: {

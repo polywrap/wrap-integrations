@@ -1,9 +1,9 @@
 import { ClientConfig, PolywrapClient } from "@polywrap/client-js";
 import * as path from "path";
-import { Pair, Token, TokenAmount } from "./types";
 import { getPairData, getTokenList, getUniPairs } from "../testUtils";
 import { getPlugins, initInfra, stopInfra } from "../infraUtils";
 import * as uni from "@uniswap/sdk";
+import * as App from "./types/wrap";
 
 jest.setTimeout(150000);
 
@@ -11,7 +11,7 @@ describe('Pair', () => {
 
   let client: PolywrapClient;
   let fsUri: string;
-  let pairs: Pair[] = [];
+  let pairs: App.Pair[] = [];
   let uniPairs: uni.Pair[];
 
   beforeAll(async () => {
@@ -23,23 +23,23 @@ describe('Pair', () => {
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../..");
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // pick some test case tokens
-    const tokens: Token[] = await getTokenList();
-    const aave: Token = tokens.filter(token => token.currency.symbol === "AAVE")[0];
-    const dai: Token = tokens.filter(token => token.currency.symbol === "DAI")[0];
-    const usdc: Token = tokens.filter(token => token.currency.symbol === "USDC")[0];
-    const comp: Token = tokens.filter(token => token.currency.symbol === "COMP")[0];
-    const weth: Token = tokens.filter(token => token.currency.symbol === "WETH")[0];
-    const wbtc: Token = tokens.filter(token => token.currency.symbol === "WBTC")[0];
-    const uniswap: Token = tokens.filter(token => token.currency.symbol === "UNI")[0];
-    const link: Token = tokens.filter(token => token.currency.symbol === "LINK")[0];
+    const tokens: App.Token[] = await getTokenList();
+    const aave: App.Token = tokens.filter(token => token.currency.symbol === "AAVE")[0];
+    const dai: App.Token = tokens.filter(token => token.currency.symbol === "DAI")[0];
+    const usdc: App.Token = tokens.filter(token => token.currency.symbol === "USDC")[0];
+    const comp: App.Token = tokens.filter(token => token.currency.symbol === "COMP")[0];
+    const weth: App.Token = tokens.filter(token => token.currency.symbol === "WETH")[0];
+    const wbtc: App.Token = tokens.filter(token => token.currency.symbol === "WBTC")[0];
+    const uniswap: App.Token = tokens.filter(token => token.currency.symbol === "UNI")[0];
+    const link: App.Token = tokens.filter(token => token.currency.symbol === "LINK")[0];
     // create and push test case pairs
-    const aave_dai: Pair | undefined = await getPairData(aave, dai, client, fsUri);
-    const usdc_dai: Pair | undefined = await getPairData(usdc, dai, client, fsUri);
-    const aave_usdc: Pair | undefined = await getPairData(aave, usdc, client, fsUri);
-    const comp_weth: Pair | undefined = await getPairData(comp, weth, client, fsUri);
-    const uni_link: Pair | undefined = await getPairData(uniswap, link, client, fsUri);
-    const uni_wbtc: Pair | undefined = await getPairData(uniswap, wbtc, client, fsUri);
-    const wbtc_weth: Pair | undefined = await getPairData(wbtc, weth, client, fsUri);
+    const aave_dai: App.Pair | undefined = await getPairData(aave, dai, client, fsUri);
+    const usdc_dai: App.Pair | undefined = await getPairData(usdc, dai, client, fsUri);
+    const aave_usdc: App.Pair | undefined = await getPairData(aave, usdc, client, fsUri);
+    const comp_weth: App.Pair | undefined = await getPairData(comp, weth, client, fsUri);
+    const uni_link: App.Pair | undefined = await getPairData(uniswap, link, client, fsUri);
+    const uni_wbtc: App.Pair | undefined = await getPairData(uniswap, wbtc, client, fsUri);
+    const wbtc_weth: App.Pair | undefined = await getPairData(wbtc, weth, client, fsUri);
     [aave_dai, usdc_dai, aave_usdc, comp_weth, uni_link, uni_wbtc, wbtc_weth].forEach(pair => {
       if (pair) {
         pairs.push(pair)
@@ -74,11 +74,11 @@ describe('Pair', () => {
   it("pairOutputAmount", async () => {
     for (let i = 0; i < pairs.length; i++) {
       const pair = pairs[i];
-      const inputAmount: TokenAmount = {
+      const inputAmount: App.TokenAmount = {
         token: pair.tokenAmount0.token,
         amount: "1000000000000000000"
       }
-      const actualOutput = await client.invoke<TokenAmount>({
+      const actualOutput = await client.invoke<App.TokenAmount>({
         uri: fsUri,
         method: "pairOutputAmount",
         args: {
@@ -96,11 +96,11 @@ describe('Pair', () => {
   it("pairOutputNextPair", async () => {
     for (let i = 0; i < pairs.length; i++) {
       const pair = pairs[i];
-      const inputAmount: TokenAmount = {
+      const inputAmount: App.TokenAmount = {
         token: pair.tokenAmount0.token,
         amount: "1000000000000000000"
       }
-      const actualNextPair = await client.invoke<Pair>({
+      const actualNextPair = await client.invoke<App.Pair>({
         uri: fsUri,
         method: "pairOutputNextPair",
         args: {
@@ -119,11 +119,11 @@ describe('Pair', () => {
   it("pairInputAmount", async () => {
     for (let i = 0; i < pairs.length; i++) {
       const pair = pairs[i];
-      const outputAmount: TokenAmount = {
+      const outputAmount: App.TokenAmount = {
         token: pair.tokenAmount0.token,
         amount: "100"
       }
-      const actualInput = await client.invoke<TokenAmount>({
+      const actualInput = await client.invoke<App.TokenAmount>({
         uri: fsUri,
         method: "pairInputAmount",
         args: {
@@ -141,11 +141,11 @@ describe('Pair', () => {
   it("pairInputNextPair", async () => {
     for (let i = 0; i < pairs.length; i++) {
       const pair = pairs[i];
-      const outputAmount: TokenAmount = {
+      const outputAmount: App.TokenAmount = {
         token: pair.tokenAmount0.token,
         amount: "100"
       }
-      const actualNextPair = await client.invoke<Pair>({
+      const actualNextPair = await client.invoke<App.Pair>({
         uri: fsUri,
         method: "pairInputNextPair",
         args: {
