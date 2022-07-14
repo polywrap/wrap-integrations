@@ -1,6 +1,7 @@
 import { ChainId, Token, TokenAmount } from "../wrap";
 import { currencyEquals } from "../entities";
 import { ETHER } from "./Currency";
+
 export function getWETH9(chainId: ChainId): Token {
   switch (chainId) {
     case ChainId.MAINNET:

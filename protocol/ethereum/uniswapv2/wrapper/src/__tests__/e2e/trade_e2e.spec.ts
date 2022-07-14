@@ -1,17 +1,11 @@
 import { ClientConfig, PolywrapClient } from "@polywrap/client-js";
-import {
-  buildWrapper,
-  ensAddresses,
-  initTestEnvironment,
-  providers as localProviders,
-  stopTestEnvironment
-} from "@polywrap/test-env-js";
 import * as path from "path";
 import { ChainId, Pair, Route, Token, TokenAmount, Trade } from "./types";
-import { getPairData, getPlugins, getTokenList, getUniPairs } from "../testUtils";
+import { getPairData, getTokenList, getUniPairs } from "../testUtils";
+import { getPlugins, initInfra, stopInfra } from "../infraUtils";
 import * as uni from "@uniswap/sdk";
 
-jest.setTimeout(120000);
+jest.setTimeout(180000);
 
 describe('trade e2e', () => {
 
@@ -23,13 +17,12 @@ describe('trade e2e', () => {
   let ethToken: Token;
 
   beforeAll(async () => {
-    await initTestEnvironment();
+    await initInfra();
     // get client
-    const config: Partial<ClientConfig> = getPlugins(localProviders.ethereum, localProviders.ipfs, ensAddresses.ensAddress);
+    const config: Partial<ClientConfig> = getPlugins();
     client = new PolywrapClient(config);
     // deploy api
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../..");
-    await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // pick some test case tokens
     const allTokens: Token[] = await getTokenList();
@@ -69,7 +62,7 @@ describe('trade e2e', () => {
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   })
 
   it('creates a trade', async () => {
@@ -160,6 +153,12 @@ describe('trade e2e', () => {
           tokenOut.currency.name || ""
         );
         const expectedTrades = uni.Trade.bestTradeExactIn(uniPairs, uniAmountIn, uniTokenOut);
+        // compare trade array lengths and trade type
+        if (actualTrades.length !== expectedTrades.length) {
+          console.log("actual path: " + actualTrades[0]?.route.path.map(token => token.currency.symbol).toString())
+          console.log("expected path: " + expectedTrades[0]?.route.path.map(token => token.symbol).toString())
+          console.log(invocation.error);
+        }
         expect(actualTrades.length).toStrictEqual(expectedTrades.length);
         if (actualTrades.length === 0 && expectedTrades.length === 0) {
           continue;
@@ -255,9 +254,7 @@ describe('trade e2e', () => {
       amount: "1000000000000000000"
     }
     const tokenOut: Token = tokens.filter(token => token.currency.symbol === "COMP")[0];
-    const invocation = await client.invoke<{
-      bestTradeExactIn: Trade[];
-    }>({
+    const invocation = await client.invoke<Trade[]>({
       uri: fsUri,
       method: "bestTradeExactIn",
       args: {
@@ -267,7 +264,7 @@ describe('trade e2e', () => {
         options: null
       }
     });
-    const actualTrades: Trade[] = invocation.data?.bestTradeExactIn ?? [];
+    const actualTrades: Trade[] = invocation.data ?? [];
     // expected best trades
     const uniAmountIn: uni.CurrencyAmount = uni.CurrencyAmount.ether(amountIn.amount);
     const uniTokenOut: uni.Token = new uni.Token(

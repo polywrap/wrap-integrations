@@ -1,52 +1,7 @@
 import { BestTradeOptions, ChainId, Pair, Token, TokenAmount, Trade, TxResponse, TradeOptions } from "./e2e/types";
-import { ClientConfig, PolywrapClient } from "@polywrap/client-js";
-import { ethereumPlugin } from "@polywrap/ethereum-plugin-js";
-import { ipfsResolverPlugin } from "@polywrap/ipfs-resolver-plugin-js";
-import { ensResolverPlugin }  from "@polywrap/ens-resolver-plugin-js";
-import { initTestEnvironment as initPolywrapTestEnvironment, stopTestEnvironment as stopPolywrapTestEnvironment } from "@polywrap/test-env-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import * as uni from "@uniswap/sdk";
 import tokenList from "./e2e/testData/tokenList.json";
-import { spawn } from "child_process";
-
-export async function initTestEnvironment(): Promise<void> {
-  await initPolywrapTestEnvironment()
-  spawn("docker-compose up", { cwd: __dirname})
-}
-
-export async function stopTestEnvironment(): Promise<void> {
-  await stopPolywrapTestEnvironment()
-  spawn("docker-compose down", { cwd: __dirname + "../"})
-}
-
-export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): Partial<ClientConfig> {
-  return {
-    redirects: [],
-    plugins: [
-     {
-       uri: "wrap://ens/ipfs-resolver.polywrap.eth",
-       plugin: ipfsResolverPlugin({ provider: ipfs }),
-     },
-     {
-       uri: "wrap://ens/ens-resolver.polywrap.eth",
-       plugin: ensResolverPlugin({ addresses: { testnet: ensAddress } }),
-     },
-     {
-      uri: "wrap://ens/ethereum.polywrap.eth",
-      plugin: ethereumPlugin({
-          networks: {
-            testnet: {
-              provider: ethereum
-            },
-            MAINNET: {
-              provider: "http://localhost:8546"
-            },
-          },
-          defaultNetwork: "testnet"
-        }),
-      },
-    ]
-  };
-}
 
 export async function getTokenList(): Promise<Token[]> {
   let tokens: Token[] = [];
@@ -184,10 +139,10 @@ export async function execTrade(
   trade: Trade,
   tradeOptions: TradeOptions,
   client: PolywrapClient,
-  ensUri: string
+  uri: string
 ): Promise<TxResponse> {
   const invocation = await client.invoke<TxResponse>({
-    uri: ensUri,
+    uri: uri,
     method: "exec",
     args: {
       trade,
@@ -208,10 +163,10 @@ export async function execSwap(
   tradeType: string,
   tradeOptions: TradeOptions,
   client: PolywrapClient,
-  ensUri: string
+  uri: string
 ): Promise<TxResponse> {
   const invocation = await client.invoke<TxResponse>({
-    uri: ensUri,
+    uri: uri,
     method: "swap",
     args: {
       token0: tokenIn,
@@ -226,4 +181,30 @@ export async function execSwap(
     console.log(invocation.error)
   }
   return result!;
+}
+
+export function getSwapMethodAbi(methodName: string): string {
+  if (methodName == "swapExactTokensForTokens")
+    return `function swapExactTokensForTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline) external returns (uint[] memory amounts)`;
+  else if (methodName == "swapTokensForExactTokens")
+    return `function swapTokensForExactTokens(uint amountOut,uint amountInMax,address[] calldata path,address to,uint deadline) external returns (uint[] memory amounts)`;
+  else if (methodName == "swapExactETHForTokens")
+    return `function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)`;
+  else if (methodName == "swapTokensForExactETH")
+    return `function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)`;
+  else if (methodName == "swapExactTokensForETH")
+    return `function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)`;
+  else if (methodName == "swapETHForExactTokens")
+    return `function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)`;
+  else if (
+    methodName == "swapExactTokensForTokensSupportingFeeOnTransferTokens"
+  )
+    return `function swapExactTokensForTokensSupportingFeeOnTransferTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline) external`;
+  else if (methodName == "swapExactETHForTokensSupportingFeeOnTransferTokens")
+    return `function swapExactETHForTokensSupportingFeeOnTransferTokens(uint amountOutMin,address[] calldata path,address to,uint deadline) external payable`;
+  else if (methodName == "swapExactTokensForETHSupportingFeeOnTransferTokens")
+    return `function swapExactTokensForETHSupportingFeeOnTransferTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline) external`;
+  else {
+    throw new Error("Invalid method name " + methodName);
+  }
 }

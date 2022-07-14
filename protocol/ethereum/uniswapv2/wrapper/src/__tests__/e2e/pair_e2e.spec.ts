@@ -1,8 +1,8 @@
 import { ClientConfig, PolywrapClient } from "@polywrap/client-js";
-import { buildWrapper, initTestEnvironment, stopTestEnvironment, providers, ensAddresses } from "@polywrap/test-env-js";
 import * as path from "path";
 import { Pair, Token, TokenAmount } from "./types";
-import { getPairData, getPlugins, getTokenList, getUniPairs } from "../testUtils";
+import { getPairData, getTokenList, getUniPairs } from "../testUtils";
+import { getPlugins, initInfra, stopInfra } from "../infraUtils";
 import * as uni from "@uniswap/sdk";
 
 jest.setTimeout(150000);
@@ -15,13 +15,12 @@ describe('Pair', () => {
   let uniPairs: uni.Pair[];
 
   beforeAll(async () => {
-    await initTestEnvironment();
+    await initInfra();
     // get client
-    const config: Partial<ClientConfig> = getPlugins(providers.ethereum, providers.ipfs, ensAddresses.ensAddress);
+    const config: Partial<ClientConfig> = getPlugins();
     client = new PolywrapClient(config);
     // deploy api
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../..");
-    await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // pick some test case tokens
     const tokens: Token[] = await getTokenList();
@@ -52,7 +51,7 @@ describe('Pair', () => {
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   })
 
   it("off-chain pairAddress", async () => {
@@ -154,7 +153,6 @@ describe('Pair', () => {
           outputAmount
         },
       });
-      console.log(actualNextPair)
       const expectedInput = uniPairs[i].getInputAmount(new uni.TokenAmount(uniPairs[i].token0, outputAmount.amount));
       const expectedNextReserve0 = expectedInput[1].reserve0.numerator.toString();
       const expectedNextReserve1 = expectedInput[1].reserve1.numerator.toString();

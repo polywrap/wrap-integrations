@@ -1,10 +1,8 @@
-import { Option } from "@polywrap/wasm-as";
-
 import { createRoute, createTrade, swapCallParameters, toHex } from "../../";
 import { ChainId, Pair, Token, TradeType, } from "../../wrap";
-import { ETHER } from "../../utils/Currency";
+import { ETHER } from "../../utils";
 import { getWETH9 } from "../../utils/utils";
-import { BigInt } from "as-bigint";
+import { Option, BigInt } from "@polywrap/wasm-as";
 
 const token0: Token = {
   chainId: ChainId.MAINNET,

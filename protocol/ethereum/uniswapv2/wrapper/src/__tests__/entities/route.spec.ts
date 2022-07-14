@@ -1,7 +1,6 @@
 import { ChainId, Pair, Route, Token } from "../../wrap";
 import { createRoute, routeMidPrice } from "../..";
-import { BigFloat } from "as-bigfloat";
-import { BigInt } from "as-bigint";
+import { BigInt, BigNumber } from "@polywrap/wasm-as";
 
 const token0: Token = {
   chainId: ChainId.MAINNET,
@@ -75,7 +74,7 @@ describe('Route', () => {
       output: token0,
     });
     const midPrice: string = routeMidPrice({ route });
-    const amount: string = BigFloat.fromString(midPrice).toString();
+    const amount: string = BigNumber.fromString(midPrice).toString();
     expect(amount).toStrictEqual("0.875");
   });
 
@@ -86,7 +85,7 @@ describe('Route', () => {
       output: token1,
     });
     const midPrice: string = routeMidPrice({ route });
-    const amount: string = BigFloat.fromString(midPrice).toString();
+    const amount: string = BigNumber.fromString(midPrice).toString();
     expect(amount).toStrictEqual("1.75");
   });
 

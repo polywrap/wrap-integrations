@@ -18,13 +18,10 @@ import Price from "../utils/Price";
 import { pairInputAmount, pairOutputAmount } from "./pair";
 import Fraction from "../utils/Fraction";
 import { currencyEquals, tokenAmountEquals, tokenEquals } from "./token";
-import { PriorityQueue } from "../utils/PriorityQueue";
-import { TradeOptions } from "../utils/TradeOptions";
-import { ETHER } from "../utils/Currency";
+import { PriorityQueue, TradeOptions, ETHER } from "../utils";
 import { copyTokenAmount, wrapIfEther } from "../utils/utils";
 
-import { BigInt, Option } from "@polywrap/wasm-as";
-import { BigFloat } from "as-bigfloat";
+import { BigInt, BigNumber, Option } from "@polywrap/wasm-as";
 
 export function createTrade(args: Args_createTrade): Trade {
   const amounts: TokenAmount[] = new Array(args.route.path.length);
@@ -36,7 +33,7 @@ export function createTrade(args: Args_createTrade): Trade {
       })
     ) {
       throw new Error(
-        "Trade args token must be the same as trade route args token"
+        "Trade input token must be the same as trade route input token"
       );
     }
 
@@ -169,9 +166,9 @@ export function tradeMaximumAmountIn(
 }
 
 /* Given a list of pairs, a fixed amount in, and token amount out, this method
- returns the best maxNumResults trades that swap an args token amount to an
+ returns the best maxNumResults trades that swap an input token amount to an
  output token, making at most maxHops hops. The returned trades are sorted by
- output amount, in decreasing order, and all share the given args amount. */
+ output amount, in decreasing order, and all share the given input amount. */
 export function bestTradeExactIn(args: Args_bestTradeExactIn): Trade[] {
   const pairs: Pair[] = args.pairs;
   const amountIn: TokenAmount = args.amountIn;
@@ -193,7 +190,7 @@ export function bestTradeExactIn(args: Args_bestTradeExactIn): Trade[] {
 }
 
 /* Similar to the above method, but targets a fixed output token amount. The
- returned trades are sorted by args amount, in increasing order, and all share
+ returned trades are sorted by input amount, in increasing order, and all share
  the given output amount. */
 export function bestTradeExactOut(args: Args_bestTradeExactOut): Trade[] {
   const pairs: Pair[] = args.pairs;
@@ -277,8 +274,8 @@ function _bestTradeExactIn(
         amountOut,
         currencyOut,
         new TradeOptions({
-          maxNumResults: new Option(options.maxNumResults),
-          maxHops: new Option(options.maxHops - 1),
+          maxNumResults: new Option(options.maxNumResults, false),
+          maxHops: new Option(options.maxHops - 1, false),
         }),
         currentPairs.concat([pair]),
         originalAmountIn,
@@ -361,8 +358,8 @@ function _bestTradeExactOut(
         currencyIn,
         amountIn,
         new TradeOptions({
-          maxNumResults: new Option(options.maxNumResults),
-          maxHops: new Option(options.maxHops - 1),
+          maxNumResults: new Option(options.maxNumResults, false),
+          maxHops: new Option(options.maxHops - 1, false),
         }),
         [pair].concat(currentPairs),
         originalAmountOut,
@@ -373,13 +370,13 @@ function _bestTradeExactOut(
   return bestTrades;
 }
 
-function computePriceImpact(trade: Trade): BigFloat {
+function computePriceImpact(trade: Trade): BigNumber {
   const slippage: string = tradeSlippage({ trade });
-  return BigFloat.fromString(slippage);
+  return BigNumber.fromString(slippage);
 }
 
 export function tradeComparator(b: Trade, a: Trade): i32 {
-  const ioCmp = argsOutputComparator(a, b);
+  const ioCmp = inputOutputComparator(a, b);
   if (ioCmp != 0) {
     return ioCmp;
   }
@@ -395,11 +392,11 @@ export function tradeComparator(b: Trade, a: Trade): i32 {
   return a.route.path.length - b.route.path.length;
 }
 
-export function argsOutputComparator(a: Trade, b: Trade): i32 {
+export function inputOutputComparator(a: Trade, b: Trade): i32 {
   const aInput = a.inputAmount;
   const bInput = b.inputAmount;
   if (!tokenEquals({ token: aInput.token, other: bInput.token })) {
-    throw new Error("To be compared, trades must the same args token");
+    throw new Error("To be compared, trades must the same input token");
   }
 
   const aOutput = a.outputAmount;

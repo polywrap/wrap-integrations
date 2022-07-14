@@ -33,7 +33,7 @@ export function createRoute(args: Args_createRoute): Route {
   };
 }
 
-// returns the full path from args token to output token.
+// returns the full path from input token to output token.
 export function routePath(args: Args_routePath): Token[] {
   const pairs: Pair[] = args.pairs;
   if (!(pairs.length > 0)) {

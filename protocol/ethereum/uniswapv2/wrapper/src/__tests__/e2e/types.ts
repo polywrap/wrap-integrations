@@ -109,10 +109,10 @@ export interface TxResponse {
   from: string;
   nonce: number;
   gasLimit: string;
-  gasPrice: string;
+  gasPrice?: string;
   data: string;
   value: string;
-  chainId: number;
+  chainId: string;
   blockNumber?: string;
   blockHash?: string;
   timestamp?: number;

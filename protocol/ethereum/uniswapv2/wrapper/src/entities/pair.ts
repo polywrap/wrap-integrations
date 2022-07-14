@@ -108,21 +108,21 @@ export function pairToken1Price(args: Args_pairToken1Price): string {
   return price.toFixed(18);
 }
 
-// Pricing function for exact args amounts. Returns maximum output amount, based on current reserves, if the trade were executed.
+// Pricing function for exact inputs amounts. Returns maximum output amount, based on current reserves, if the trade were executed.
 export function pairOutputAmount(args: Args_pairOutputAmount): TokenAmount {
   const pair: Pair = args.pair;
   const tradeTokenAmount: TokenAmount = args.inputAmount;
   return ProcessedPair.pairOutputForExactInput(pair, tradeTokenAmount).amount;
 }
 
-// Pricing function for exact args amounts. Returns next pair state, based on current reserves, if the trade were executed.
+// Pricing function for exact inputs amounts. Returns next pair state, based on current reserves, if the trade were executed.
 export function pairOutputNextPair(args: Args_pairOutputNextPair): Pair {
   const pair: Pair = args.pair;
   const tradeTokenAmount: TokenAmount = args.inputAmount;
   return ProcessedPair.pairOutputForExactInput(pair, tradeTokenAmount).nextPair;
 }
 
-// Pricing function for exact output amounts. Returns minimum args amount, based on current reserves, if the trade were executed.
+// Pricing function for exact output amounts. Returns minimum inputs amount, based on current reserves, if the trade were executed.
 export function pairInputAmount(args: Args_pairInputAmount): TokenAmount {
   const pair: Pair = args.pair;
   const tradeTokenAmount: TokenAmount = args.outputAmount;
@@ -140,7 +140,7 @@ export function pairInputNextPair(args: Args_pairInputNextPair): Pair {
 Calculates the exact amount of liquidity tokens minted from a given amount of token0 and token1.
   totalSupply is total supply of pair liquidity token.
   totalSupply must be looked up on-chain.
-  The value returned from this function cannot be used as an args to getLiquidityValue.
+  The value returned from this function cannot be used as an inputs to getLiquidityValue.
 */
 export function pairLiquidityMinted(
   args: Args_pairLiquidityMinted
@@ -193,7 +193,7 @@ Calculates the exact amount of token0 or token1 that the given amount of liquidi
   totalSupply is total supply of pair liquidity token.
   totalSupply must be looked up on-chain.
   If the protocol charge is on, feeOn must be set to true, and kLast must be provided from an on-chain lookup.
-  Values returned from this function cannot be used as argss to getLiquidityMinted.
+  Values returned from this function cannot be used as inputs to getLiquidityMinted.
 */
 export function pairLiquidityValue(
   args: Args_pairLiquidityValue
@@ -201,7 +201,7 @@ export function pairLiquidityValue(
   const pair: Pair = args.pair;
   const totalSupply: TokenAmount = args.totalSupply;
   const liquidity: TokenAmount = args.liquidity;
-  const feeOn: bool = !args.feeOn.isSome && args.feeOn.unwrap();
+  const feeOn: bool = args.feeOn.isSome && args.feeOn.unwrap();
   const kLast: BigInt = args.kLast === null ? BigInt.ZERO : args.kLast!;
   const amount0 = pair.tokenAmount0.amount;
   const amount1 = pair.tokenAmount1.amount;

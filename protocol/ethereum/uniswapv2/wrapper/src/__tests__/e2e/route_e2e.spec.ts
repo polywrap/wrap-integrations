@@ -1,8 +1,8 @@
 import { ClientConfig, PolywrapClient } from "@polywrap/client-js";
-import { buildWrapper, initTestEnvironment, stopTestEnvironment, providers, ensAddresses } from "@polywrap/test-env-js";
 import * as path from "path";
 import { Pair, Route, Token } from "./types";
-import { getPairData, getPlugins, getTokenList, getUniPairs } from "../testUtils";
+import { getPairData, getTokenList, getUniPairs } from "../testUtils";
+import { getPlugins, initInfra, stopInfra } from "../infraUtils";
 import * as uni from "@uniswap/sdk";
 
 jest.setTimeout(480000);
@@ -17,13 +17,12 @@ describe('Route', () => {
   let outputTokens: Token[] = [];
 
   beforeAll(async () => {
-    await initTestEnvironment();
+    await initInfra();
     // get client
-    const config: Partial<ClientConfig> = getPlugins(providers.ethereum, providers.ipfs, ensAddresses.ensAddress);
+    const config: Partial<ClientConfig> = getPlugins();
     client = new PolywrapClient(config);
     // deploy api
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../..");
-    await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // pick some test case tokens
     const tokens: Token[] = await getTokenList();
@@ -66,7 +65,7 @@ describe('Route', () => {
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   })
 
   it('constructs a route from an array of pairs', async () => {

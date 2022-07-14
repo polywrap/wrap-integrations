@@ -1,10 +1,3 @@
-import {
-  buildWrapper,
-  initTestEnvironment,
-  stopTestEnvironment,
-  providers as localProviders,
-  ensAddresses,
-} from "@polywrap/test-env-js";
 import {ClientConfig, PolywrapClient} from "@polywrap/client-js";
 import { Currency, Pair, Token, TokenAmount, Trade, TxResponse } from "./types";
 import path from "path";
@@ -13,9 +6,9 @@ import {
   getBestTradeExactIn,
   getBestTradeExactOut,
   getPairData,
-  getPlugins,
   getTokenList
 } from "../testUtils";
+import { getPlugins, initInfra, stopInfra } from "../infraUtils";
 import { Contract, ethers, providers } from "ethers";
 import erc20ABI from "./testData/erc20ABI.json";
 
@@ -41,13 +34,12 @@ describe("Swap", () => {
   let usdc: Token;
 
   beforeAll(async () => {
-    await initTestEnvironment();
+    await initInfra();
     // get client
-    const config: Partial<ClientConfig> = getPlugins(localProviders.ethereum, localProviders.ipfs, ensAddresses.ensAddress);
+    const config: Partial<ClientConfig> = getPlugins();
     client = new PolywrapClient(config);
     // deploy api
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../..");
-    await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546") as providers.JsonRpcProvider;
     recipient = await ethersProvider.getSigner().getAddress();
@@ -74,7 +66,7 @@ describe("Swap", () => {
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   });
 
   it("Should successfully EXEC ether -> dai -> usdc -> ether", async () => {

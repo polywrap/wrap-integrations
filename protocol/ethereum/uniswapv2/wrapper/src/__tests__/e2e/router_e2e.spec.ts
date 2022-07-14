@@ -1,4 +1,3 @@
-import { buildWrapper, providers, ensAddresses, initTestEnvironment, stopTestEnvironment } from "@polywrap/test-env-js";
 import { ClientConfig, PolywrapClient } from "@polywrap/client-js";
 import {
   ChainId,
@@ -16,13 +15,13 @@ import {
   getBestTradeExactIn,
   getBestTradeExactOut,
   getPairData,
-  getPlugins,
   getTokenList,
   getUniPairs,
+  getSwapMethodAbi,
 } from "../testUtils";
+import { getPlugins, initInfra, stopInfra } from "../infraUtils";
 import { ethers } from "ethers";
 import * as uni from "@uniswap/sdk";
-import { getSwapMethodAbi } from "../../utils";
 jest.setTimeout(120000);
 
 describe("Router", () => {
@@ -37,13 +36,12 @@ describe("Router", () => {
   let ethToken: Token;
 
   beforeAll(async () => {
-    await initTestEnvironment();
+    await initInfra();
     // get client
-    const config: Partial<ClientConfig> = getPlugins(providers.ethereum, providers.ipfs, ensAddresses.ensAddress);
+    const config: Partial<ClientConfig> = getPlugins();
     client = new PolywrapClient(config);
     // deploy api
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../..");
-    await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546") as ethers.providers.JsonRpcProvider;
     recipient = await ethersProvider.getSigner().getAddress();
@@ -102,7 +100,7 @@ describe("Router", () => {
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   });
 
   it("successfully constructs swap call parameters with tokens in and out", async () => {
