@@ -37,7 +37,7 @@ describe("Amount format", () => {
     await stopTestEnvironment();
   });
 
-  it.each(testUtils.valuesToFormat)("Format Near amount", async (amount) => {
+  test.each(testUtils.valuesToFormat)("Should format near amount", async (amount) => {
     const result = await client.invoke<string>({
       uri: apiUri,
       method: "formatNearAmount",
@@ -54,7 +54,7 @@ describe("Amount format", () => {
     );
   });
 
-  it.each(testUtils.valuesToParse)("Parse near amount", async (amount) => {
+  test.each(testUtils.valuesToParse)("Should parse near amount", async (amount) => {
     const result = await client.invoke<BigInt>({
       uri: apiUri,
       method: "parseNearAmount",

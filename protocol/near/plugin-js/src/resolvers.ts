@@ -16,45 +16,45 @@ import {
 } from "./wrap";
 
 export const module = (plugin: NearPlugin) => ({
-  requestSignIn: async (input: Args_requestSignIn) => {
-    return await plugin.requestSignIn(input);
+  requestSignIn: async (args: Args_requestSignIn) => {
+    return await plugin.requestSignIn(args);
   },
-  signOut: async (input: Args_signOut) => {
-    return await plugin.signOut(input);
+  signOut: async (args: Args_signOut) => {
+    return await plugin.signOut(args);
   },
-  isSignedIn: async (input: Args_isSignedIn) => {
-    return await plugin.isSignedIn(input);
+  isSignedIn: async (args: Args_isSignedIn) => {
+    return await plugin.isSignedIn(args);
   },
-  getAccountId: async (input: Args_getAccountId) => {
-    return await plugin.getAccountId(input);
+  getAccountId: async (args: Args_getAccountId) => {
+    return await plugin.getAccountId(args);
   },
-  getPublicKey: async (input: Args_getPublicKey) => {
-    return await plugin.getPublicKey(input);
+  getPublicKey: async (args: Args_getPublicKey) => {
+    return await plugin.getPublicKey(args);
   },
-  signMessage: async (input: Args_signMessage) => {
-    return await plugin.signMessage(input);
+  signMessage: async (args: Args_signMessage) => {
+    return await plugin.signMessage(args);
   },
   createTransactionWithWallet: async (
-    input: Args_createTransactionWithWallet
+    args: Args_createTransactionWithWallet
   ) => {
-    return await plugin.createTransactionWithWallet(input);
+    return await plugin.createTransactionWithWallet(args);
   },
-  signTransaction: async (input: Args_signTransaction) => {
-    return await plugin.signTransaction(input);
+  signTransaction: async (args: Args_signTransaction) => {
+    return await plugin.signTransaction(args);
   },
-  sendJsonRpc: (input: Args_sendJsonRpc) => {
-    return plugin.sendJsonRpc(input);
+  sendJsonRpc: (args: Args_sendJsonRpc) => {
+    return plugin.sendJsonRpc(args);
   },
-  requestSignTransactions: (input: Args_requestSignTransactions) => {
-    return plugin.requestSignTransactions(input);
+  requestSignTransactions: (args: Args_requestSignTransactions) => {
+    return plugin.requestSignTransactions(args);
   },
-  sendTransaction: (input: Args_sendTransaction) => {
-    return plugin.sendTransaction(input);
+  sendTransaction: (args: Args_sendTransaction) => {
+    return plugin.sendTransaction(args);
   },
-  sendTransactionAsync: (input: Args_sendTransactionAsync) => {
-    return plugin.sendTransactionAsync(input);
+  sendTransactionAsync: (args: Args_sendTransactionAsync) => {
+    return plugin.sendTransactionAsync(args);
   },
-  createKey: (input: Args_createKey) => {
-    return plugin.createKey(input);
+  createKey: (args: Args_createKey) => {
+    return plugin.createKey(args);
   },
 });

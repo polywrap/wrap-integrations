@@ -8,9 +8,7 @@ import {
 import { KeyTypeEnum, PublicKey } from "./tsTypes";
 
 import { ClientConfig } from "@polywrap/client-js";
-import { ensResolverPlugin } from "@polywrap/ens-resolver-plugin-js";
 import { ethereumPlugin } from "@polywrap/ethereum-plugin-js";
-import { ipfsResolverPlugin } from "@polywrap/ipfs-resolver-plugin-js";
 import * as fs from "fs/promises";
 import * as nearApi from "near-api-js";
 import * as path from "path";
@@ -124,14 +122,6 @@ export const getPlugins = (
       {
         uri: "wrap://ens/nearPlugin.polywrap.eth",
         plugin: nearPlugin(nearConfig),
-      },
-      {
-        uri: "wrap://ens/ipfs.polywrap.eth",
-        plugin: ipfsResolverPlugin({ provider: ipfs }),
-      },
-      {
-        uri: "wrap://ens/ens.polywrap.eth",
-        plugin: ensResolverPlugin({ addresses: { testnet: ensAddress } }),
       },
       {
         uri: "wrap://ens/ethereum.polywrap.eth",

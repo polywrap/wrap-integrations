@@ -73,7 +73,7 @@ describe("Wallet", () => {
     }
   });
 
-  it("Request sign in", async () => {
+  test("Should request sign in", async () => {
     const result = await client.invoke<Args_requestSignIn>({
       uri: apiUri,
       method: "requestSignIn",
@@ -92,7 +92,7 @@ describe("Wallet", () => {
     expect(requestSignInSuccess).toBeTruthy();
   });
 
-  it("Sign out", async () => {
+  test("Should sign out", async () => {
     const result = await client.invoke<Args_signOut>({
       uri: apiUri,
       method: "signOut",
@@ -106,7 +106,7 @@ describe("Wallet", () => {
     expect(signOutSuccess).toBeTruthy();
   });
 
-  it("Is signed in", async () => {
+  test("Should be signed in", async () => {
     const result = await client.invoke<Args_isSignedIn>({
       uri: apiUri,
       method: "isSignedIn",
@@ -115,7 +115,7 @@ describe("Wallet", () => {
     expect(result).toBeTruthy();
   });
 
-  it("Get account id", async () => {
+  test("Should get account id", async () => {
     const result = await client.invoke<Args_getAccountId>({
       uri: apiUri,
       method: "getAccountId",

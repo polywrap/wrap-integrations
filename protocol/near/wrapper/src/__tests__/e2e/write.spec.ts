@@ -66,7 +66,7 @@ describe("Write operations", () => {
     }
   });
 
-  it("Create account", async () => {
+  test("Should create account", async () => {
     const newAccountId = testUtils.generateUniqueString("test");
 
     const accountToCreate = await near.account(newAccountId);
@@ -108,7 +108,7 @@ describe("Write operations", () => {
     await accountCreated.deleteAccount(testUtils.testAccountId);
   });
 
-  it("Delete account", async () => {
+  test("Should delete account", async () => {
     const accountToDelete = await testUtils.createAccount(near);
 
     expect(accountToDelete.state()).resolves;
@@ -134,7 +134,7 @@ describe("Write operations", () => {
     await expect(async () => await accountToDelete.state()).rejects.toThrow();
   });
 
-  it("Add key", async () => {
+  test("Should add key", async () => {
     const newPublicKey = nearApi.utils.KeyPair.fromRandom(
       "ed25519"
     ).getPublicKey();
@@ -181,7 +181,7 @@ describe("Write operations", () => {
     );
   });
 
-  it("Delete key", async () => {
+  test("Should delete key", async () => {
     const newPublicKey = nearApi.utils.KeyPair.fromRandom(
       "ed25519"
     ).getPublicKey();
@@ -221,7 +221,7 @@ describe("Write operations", () => {
     );
   });
 
-  it("Send money", async () => {
+  test("Should send money", async () => {
     const receiver = masterAccount;
     const receiverBalanceBefore = await receiver.getAccountBalance();
 
@@ -258,7 +258,7 @@ describe("Write operations", () => {
     ).toEqual(receiverBalanceBefore.total);
   });
 
-  it("Create and deploy contract", async () => {
+  test("Should create and deploy contract", async () => {
     const newContractId = testUtils.generateUniqueString("test_contract");
 
     const data = fs.readFileSync(testUtils.HELLO_WASM_PATH);
@@ -293,7 +293,7 @@ describe("Write operations", () => {
     expect(createAndDeployContractResult.status.SuccessValue).toBeDefined();
   });
 
-  it("Deploy contract", async () => {
+  test("Should deploy contract", async () => {
     const newContractId = testUtils.generateUniqueString("test_contract");
 
     const data = fs.readFileSync(testUtils.HELLO_WASM_PATH);
@@ -326,7 +326,7 @@ describe("Write operations", () => {
     expect(deployContractResult.status.SuccessValue).toBeDefined();
   });
 
-  it("FunctionCall with json stringified args", async () => {
+  test("Should executing FunctionCall with json stringified args", async () => {
     const jsonArgs = JSON.stringify({ name: "trex" });
 
     const result = await client.invoke<Near_FinalExecutionOutcome>({

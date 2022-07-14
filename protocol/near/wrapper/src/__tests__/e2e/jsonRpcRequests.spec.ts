@@ -81,7 +81,7 @@ describe("JSON RPC requests", () => {
     }
   });
 
-  it("Get node status", async () => {
+  test("Get node status", async () => {
     const result = await client.invoke<NodeStatusResult>({
       method: "status",
       uri: apiUri,
@@ -122,8 +122,7 @@ describe("JSON RPC requests", () => {
     );
   });
 
-  // gasPrice +
-  it("Get gas price", async () => {
+  test("Should get gas price", async () => {
     const blockId = latestBlock.header.hash;
     const result = await client.invoke<BigInt>({
       uri: apiUri,
@@ -143,7 +142,7 @@ describe("JSON RPC requests", () => {
     expect(gasPrice.toString()).toStrictEqual(gas_price);
   });
 
-  it("Get block changes", async () => {
+  test("Should get block changes", async () => {
     const blockQuery = {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       block_id: latestBlock.header.hash,
@@ -175,8 +174,7 @@ describe("JSON RPC requests", () => {
     //expect(blockChanges.changes).toEqual(nearBlockChanges.changes); //TODO change property changeType to type after https://github.com/polywrap/monorepo/issues/721
   });
 
-  //experimental_protocolConfig +
-  it("Get protocol config", async () => {
+  test("Should get protocol config", async () => {
     const blockReference = { finality: "final" as Finality };
     const result = await client.invoke<NearProtocolConfig>({
       uri: apiUri,
@@ -200,7 +198,7 @@ describe("JSON RPC requests", () => {
     );
   });
 
-  it("json rpc fetch chunk info", async () => {
+  test("JSON Rpc should fetch chunk info", async () => {
     const hash = latestBlock.chunks[0].chunk_hash;
 
     const result = await client.invoke<ChunkResult>({
@@ -222,7 +220,7 @@ describe("JSON RPC requests", () => {
     expect(chunk.header.chunk_hash).toEqual(nearChunk.header.chunk_hash);
   });
 
-  it("Get lightClientProof", async () => {
+  test("Should get lightClientProof", async () => {
     async function waitForStatusMatching(isMatching: any) {
       const MAX_ATTEMPTS = 10;
       for (let i = 0; i < MAX_ATTEMPTS; i++) {
@@ -307,8 +305,7 @@ describe("JSON RPC requests", () => {
     //expect(lightClientProof.outcome_root_proof).toEqual(nearLightClientProof.outcome_root_proof);
   });
 
-  // accessKeyChanges +
-  it("Get access key changes", async () => {
+  test("Should get access key changes", async () => {
     const blockQuery = {
       block_id: latestBlock.header.hash,
       finality: null,
@@ -346,8 +343,7 @@ describe("JSON RPC requests", () => {
     expect(accessKeyChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
-  // accountChanges +
-  it("Get account changes", async () => {
+  test("Should get account changes", async () => {
     const blockQuery = {
       block_id: latestBlock.header.hash,
       finality: null,
@@ -385,8 +381,7 @@ describe("JSON RPC requests", () => {
     expect(accountChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
-  // contractCodeChanges +
-  it("Get contract code changes", async () => {
+  test("Should get contract code changes", async () => {
     const blockQuery = {
       block_id: latestBlock.header.hash,
       finality: null,
@@ -424,7 +419,7 @@ describe("JSON RPC requests", () => {
     expect(contractCodeChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
-  it("Get contract state changes", async () => {
+  test("Should get contract state changes", async () => {
     const blockQuery = {
       block_id: latestBlock.header.hash,
       finality: null,
@@ -465,7 +460,7 @@ describe("JSON RPC requests", () => {
     expect(contractStateChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
-  it("Get single access key changes", async () => {
+  test("Should get single access key changes", async () => {
     const blockQuery = {
       block_id: latestBlock.header.hash,
       finality: null,
@@ -513,7 +508,7 @@ describe("JSON RPC requests", () => {
     expect(singleAccessKeyChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
-  it("txStatus with string hash", async () => {
+  test("Should get txStatus with string hash", async () => {
     const result = await client.invoke<FinalExecutionOutcome>({
       uri: apiUri,
       method: "txStatus",

@@ -76,7 +76,7 @@ describe("Transactions", () => {
     }
   });
 
-  it("Creates a transaction without wallet", async () => {
+  test("Should create a transaction without wallet", async () => {
     const actions: Action[] = prepActions();
     const result = await client.invoke<Transaction>({
       uri: apiUri,
@@ -111,7 +111,7 @@ describe("Transactions", () => {
     expect(transaction.actions[0].code).toBeFalsy();
   });
 
-  it("Signs a transaction without wallet", async () => {
+  test("Should sign a transaction without wallet", async () => {
     // create transaction
     const actions: Action[] = prepActions();
     const tx = await client.invoke<Transaction>({
@@ -144,7 +144,7 @@ describe("Transactions", () => {
     expect(signedTx?.signature.data).toBeTruthy();
   });
 
-  it("creates, signs, sends, and awaits mining of a transaction without wallet", async () => {
+  test("Should create, sign, send, and await mining of a transaction without wallet", async () => {
     const actions: Action[] = prepActions();
     const result = await client.invoke<FinalExecutionOutcome>({
       uri: apiUri,
@@ -169,7 +169,7 @@ describe("Transactions", () => {
     expect(receiptsOutcome?.length).toBeGreaterThan(0);
   });
 
-  it("creates, signs, and sends a transaction asynchronously without wallet", async () => {
+  test("Should create, sign, and send a transaction asynchronously without wallet", async () => {
     const actions: Action[] = prepActions();
     const result = await client.invoke<string>({
       uri: apiUri,

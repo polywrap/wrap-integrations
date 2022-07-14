@@ -63,8 +63,7 @@ describe("e2e", () => {
     }
   });
 
-  // block +
-  it("Get block information", async () => {
+  test("Should get block information", async () => {
     const blockQuery: BlockReference = { finality: "final" };
     const result = await client.invoke({
       uri: apiUri,
@@ -105,8 +104,7 @@ describe("e2e", () => {
     // );
   });
 
-  // account state +
-  it("Get account state", async () => {
+  test("Should get account state", async () => {
     const result = await client.query<{ getAccountState: AccountView }>({
       uri: apiUri,
       query: `query {
@@ -137,8 +135,7 @@ describe("e2e", () => {
     );
   });
 
-  // contract state +
-  it("Get contract state", async () => {
+  test("Should get contract state", async () => {
     const blockQuery = {
       block_id: null,
       finality: "final",
@@ -172,8 +169,7 @@ describe("e2e", () => {
     expect(resultState).toEqual([]);
   });
 
-  // contract code
-  it("Get contract code", async () => {
+  test("Should get contract code", async () => {
     const result = await client.query<{ viewContractCode: ViewContractCode }>({
       uri: apiUri,
       query: `query {
@@ -202,8 +198,7 @@ describe("e2e", () => {
     );
   });
 
-  // account balance +
-  it("Get account balance", async () => {
+  test("Should get account balance", async () => {
     const result = await client.query<{ getAccountBalance: AccountBalance }>({
       uri: apiUri,
       query: `query {
@@ -227,8 +222,7 @@ describe("e2e", () => {
     expect(resultBalance.total).toStrictEqual(actualBalance.total);
   });
 
-  // account details +
-  it("Get account details", async () => {
+  test("Should get account details", async () => {
     const result = await client.query<{
       getAccountDetails: AccountAuthorizedApp[];
     }>({
@@ -258,7 +252,7 @@ describe("e2e", () => {
     expect(authorizedApps).toEqual(nearAuthorizedApps);
   });
 
-  it("Get access keys", async () => {
+  test("Should get access keys", async () => {
     const result = await client.invoke<AccessKeyInfo[]>({
       uri: apiUri,
       method: "getAccessKeys",
@@ -278,7 +272,7 @@ describe("e2e", () => {
     expect(accessKeys.length).toEqual(nearAccessKeys.length);
   });
 
-  it("Get public key", async () => {
+  test("Should get public key", async () => {
     const result = await client.invoke<PublicKey>({
       uri: apiUri,
       method: "getPublicKey",
@@ -304,7 +298,7 @@ describe("e2e", () => {
     expect(publicKeyStr).toStrictEqual(nearKeyStr);
   });
 
-  it("Find access key", async () => {
+  test("Should find access key", async () => {
     const result = await client.invoke<AccessKeyInfo>({
       uri: apiUri,
       method: "findAccessKey",
@@ -334,7 +328,7 @@ describe("e2e", () => {
     );
   });
 
-  it("view function via account", async () => {
+  test("Should view function via account", async () => {
     const methodName = "hello"; // this is the function defined in hello.wasm file that we are calling
     const args = { name: "world" };
 
