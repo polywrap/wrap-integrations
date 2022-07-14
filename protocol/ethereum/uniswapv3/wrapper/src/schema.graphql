@@ -1,7 +1,7 @@
 #import { Module, TxResponse } into Ethereum from "wrap://ens/ethereum.polywrap.eth"
 #import { Module } into SHA3 from "wrap://ens/sha3.polywrap.eth"
-#import { Module } into ERC20 from "wrap://ipfs/QmeiPWHe2ixfitcgjRwP5AaJD5R7DbsGhQNQwT4rFNyxx8"
-#import { Module } into Subgraph from "wrap://ipfs/QmcnrHegojMFqHkRhixazY67Zb9mSbMLv6sSxyDpUtnrQS"
+#import { Module } into ERC20 from "wrap://ipfs/Qma94j3q3tPYyLq6uiF1DN32F8AiLadM4SEy5h2K4DDB9a"
+#import { Module } into Subgraph from "wrap://ipfs/QmZMg5ojMeFunry5Rwb2XeSJbVaGohMNpLSraPDVgBDR2e"
 
 """Return value of nextInitializedTickWithinOneWord(...)"""
 type NextTickResult {

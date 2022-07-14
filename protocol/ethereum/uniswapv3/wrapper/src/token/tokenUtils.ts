@@ -1,5 +1,34 @@
-import { ChainId, Currency, Token, TokenAmount } from "../wrap";
-import { currencyEquals } from "../query";
+import {
+  Args_getNative,
+  Args_getWETH,
+  Args_isNative,
+  Args_wrapToken,
+  Args_wrapAmount,
+  Token,
+  TokenAmount,
+  ChainId,
+  Currency,
+} from "../wrap";
+
+export function getNative(args: Args_getNative): Token {
+  return _getNative(args.chainId);
+}
+
+export function getWETH(args: Args_getWETH): Token {
+  return _getWETH(args.chainId);
+}
+
+export function isNative(args: Args_isNative): boolean {
+  return _isNative(args.token);
+}
+
+export function wrapToken(args: Args_wrapToken): Token {
+  return _wrapToken(args.token);
+}
+
+export function wrapAmount(args: Args_wrapAmount): TokenAmount {
+  return _wrapAmount(args.amount);
+}
 
 export const ETHER: Currency = {
   decimals: 18,
