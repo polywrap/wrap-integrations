@@ -1,4 +1,4 @@
-import { createRoute, createTrade, swapCallParameters, toHex } from "../../";
+import { createRoute, createTrade, swapCallParameters, toHex } from "../../index";
 import { ChainId, Pair, Token, TradeType, } from "../../wrap";
 import { ETHER } from "../../utils";
 import { getWETH9 } from "../../utils/utils";
@@ -78,12 +78,12 @@ describe("swapCallParameters", () => {
       const result = swapCallParameters({
         trade: exactIn,
         tradeOptions: {
-          ttl: new Option(50),
+          ttl: new Option(50, false),
           recipient: "0x0000000000000000000000000000000000000004",
           unixTimestamp: <u32>Date.now() / 1000,
           allowedSlippage: "0.01",
-          deadline: new Option<u32>(),
-          feeOnTransfer: new Option<boolean>()
+          deadline: Option.None<u32>(),
+          feeOnTransfer: Option.None<boolean>()
         }
       })
 
@@ -122,11 +122,11 @@ describe("swapCallParameters", () => {
       const result = swapCallParameters({
         trade: exactIn,
         tradeOptions: {
-          ttl: new Option<u32>(),
+          ttl: Option.None<u32>(),
           recipient: "0x0000000000000000000000000000000000000004",
           unixTimestamp: <u32>Date.now() / 1000,
           allowedSlippage: "0.01",
-          deadline: new Option(50),
+          deadline: new Option(50, false),
           feeOnTransfer: new Option<boolean>()
         }
       })
@@ -160,7 +160,7 @@ describe("swapCallParameters", () => {
       const result = swapCallParameters({
         trade: exactIn,
         tradeOptions: {
-          ttl: new Option(50),
+          ttl: new Option(50, false),
           recipient: "0x0000000000000000000000000000000000000004",
           unixTimestamp: <u32>Date.now() / 1000,
           allowedSlippage: "0.01",
@@ -197,7 +197,7 @@ describe("swapCallParameters", () => {
       const result = swapCallParameters({
         trade: exactIn,
         tradeOptions: {
-          ttl: new Option(50),
+          ttl: new Option(50, false),
           recipient: "0x0000000000000000000000000000000000000004",
           unixTimestamp: <u32>Date.now() / 1000,
           allowedSlippage: "0.01",
@@ -240,7 +240,7 @@ describe("swapCallParameters", () => {
       const result = swapCallParameters({
         trade: exactOut,
         tradeOptions: {
-          ttl: new Option(50),
+          ttl: new Option(50, false),
           recipient: "0x0000000000000000000000000000000000000004",
           unixTimestamp: <u32>Date.now() / 1000,
           allowedSlippage: "0.01",
@@ -284,7 +284,7 @@ describe("swapCallParameters", () => {
       const result = swapCallParameters({
         trade: exactOut,
         tradeOptions: {
-          ttl: new Option(50),
+          ttl: new Option(50, false),
           recipient: "0x0000000000000000000000000000000000000004",
           unixTimestamp: <u32>Date.now() / 1000,
           allowedSlippage: "0.01",
@@ -321,7 +321,7 @@ describe("swapCallParameters", () => {
       const result = swapCallParameters({
         trade: exactOut,
         tradeOptions: {
-          ttl: new Option(50),
+          ttl: new Option(50, false),
           recipient: "0x0000000000000000000000000000000000000004",
           unixTimestamp: <u32>Date.now() / 1000,
           allowedSlippage: "0.01",
@@ -369,12 +369,12 @@ describe("swapCallParameters", () => {
         const result = swapCallParameters({
           trade: exactIn,
           tradeOptions: {
-            ttl: new Option(50),
+            ttl: new Option(50, false),
             recipient: "0x0000000000000000000000000000000000000004",
             unixTimestamp: <u32>Date.now() / 1000,
             allowedSlippage: "0.01",
             deadline: new Option<u32>(),
-            feeOnTransfer: new Option<boolean>(true)
+            feeOnTransfer: new Option<boolean>(true, false)
           }
         })
 
@@ -409,12 +409,12 @@ describe("swapCallParameters", () => {
         const result = swapCallParameters({
           trade: exactIn,
           tradeOptions: {
-            ttl: new Option(50),
+            ttl: new Option(50, false),
             recipient: "0x0000000000000000000000000000000000000004",
             unixTimestamp: <u32>Date.now() / 1000,
             allowedSlippage: "0.01",
             deadline: new Option<u32>(),
-            feeOnTransfer: new Option<boolean>(true)
+            feeOnTransfer: new Option<boolean>(true, false)
           }
         })
 
@@ -446,12 +446,12 @@ describe("swapCallParameters", () => {
         const result = swapCallParameters({
           trade: exactIn,
           tradeOptions: {
-            ttl: new Option(50),
+            ttl: new Option(50, false),
             recipient: "0x0000000000000000000000000000000000000004",
             unixTimestamp: <u32>Date.now() / 1000,
             allowedSlippage: "0.01",
             deadline: new Option<u32>(),
-            feeOnTransfer: new Option<boolean>(true)
+            feeOnTransfer: new Option<boolean>(true, false)
           }
         })
 
@@ -490,12 +490,12 @@ describe("swapCallParameters", () => {
           swapCallParameters({
             trade: exactOut,
             tradeOptions: {
-              ttl: new Option(50),
+              ttl: new Option(50, false),
               recipient: "0x0000000000000000000000000000000000000004",
               unixTimestamp: <u32>Date.now() / 1000,
               allowedSlippage: "0.01",
               deadline: new Option<u32>(),
-              feeOnTransfer: new Option<boolean>(true)
+              feeOnTransfer: new Option<boolean>(true, false)
             }
           });
         });
@@ -526,12 +526,12 @@ describe("swapCallParameters", () => {
           swapCallParameters({
             trade: exactOut,
             tradeOptions: {
-              ttl: new Option(50),
+              ttl: new Option(50, false),
               recipient: "0x0000000000000000000000000000000000000004",
               unixTimestamp: <u32>Date.now() / 1000,
               allowedSlippage: "0.01",
               deadline: new Option<u32>(),
-              feeOnTransfer: new Option<boolean>(true)
+              feeOnTransfer: new Option<boolean>(true, false)
             }
           });
         }).toThrow();
@@ -554,12 +554,12 @@ describe("swapCallParameters", () => {
           swapCallParameters({
             trade: exactOut,
             tradeOptions: {
-              ttl: new Option(50),
+              ttl: new Option(50, false),
               recipient: "0x0000000000000000000000000000000000000004",
               unixTimestamp: <u32>Date.now() / 1000,
               allowedSlippage: "0.01",
               deadline: new Option<u32>(),
-              feeOnTransfer: new Option<boolean>(true)
+              feeOnTransfer: new Option<boolean>(true, false)
             }
           });
         });

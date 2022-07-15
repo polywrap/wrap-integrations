@@ -1,5 +1,5 @@
 import { ChainId, Pair, Route, Token } from "../../wrap";
-import { createRoute, routeMidPrice } from "../..";
+import { createRoute, routeMidPrice } from "../../index";
 import { BigInt, BigNumber } from "@polywrap/wasm-as";
 
 const token0: Token = {

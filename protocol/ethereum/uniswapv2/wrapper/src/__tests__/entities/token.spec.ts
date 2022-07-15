@@ -1,4 +1,4 @@
-import { tokenAmountEquals, tokenEquals, tokenSortsBefore } from "../..";
+import { tokenAmountEquals, tokenEquals, tokenSortsBefore } from "../../index";
 import { ChainId } from "../../wrap";
 
 import { BigInt } from "@polywrap/wasm-as";
