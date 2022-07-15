@@ -6,7 +6,7 @@ import {
   createTrade,
   tradeMaximumAmountIn,
   tradeMinimumAmountOut
-} from "../..";
+} from "../../index";
 import { ChainId, Pair, Token, TradeType } from "../../wrap";
 
 const token0: Token = {
@@ -179,8 +179,8 @@ describe("Trade", () => {
           },
           tokenOut: token2,
           options: {
-            maxHops: new Option<u32>(0),
-            maxNumResults: new Option<u32>(),
+            maxHops: new Option<u32>(0, false),
+            maxNumResults: Option.None<u32>(),
           },
         })
       }).toThrow();
@@ -236,8 +236,8 @@ describe("Trade", () => {
         },
         tokenOut: token2,
         options: {
-          maxHops: new Option<u32>(1),
-          maxNumResults: new Option<u32>(),
+          maxHops: new Option<u32>(1, false),
+          maxNumResults: Option.None<u32>(),
         }
       });
 
@@ -255,8 +255,8 @@ describe("Trade", () => {
         },
         tokenOut: token2,
         options: {
-          maxHops: new Option<u32>(1),
-          maxNumResults: new Option<u32>(),
+          maxHops: new Option<u32>(1, false),
+          maxNumResults: Option.None<u32>(),
         }
       });
 
@@ -279,8 +279,8 @@ describe("Trade", () => {
         },
         tokenOut: token2,
         options: {
-          maxHops: new Option<u32>(),
-          maxNumResults: new Option<u32>(1),
+          maxHops: Option.None<u32>(),
+          maxNumResults: new Option<u32>(1, false),
         }
       });
 
@@ -400,8 +400,8 @@ describe("Trade", () => {
           },
           tokenIn: token0,
           options: {
-            maxHops: new Option<u32>(0),
-            maxNumResults: new Option<u32>(),
+            maxHops: new Option<u32>(0, false),
+            maxNumResults: Option.None<u32>(),
           },
         })
       }).toThrow();
@@ -465,8 +465,8 @@ describe("Trade", () => {
         },
         tokenIn: token0,
         options: {
-          maxHops: new Option<u32>(1),
-          maxNumResults: new Option<u32>(),
+          maxHops: new Option<u32>(1, false),
+          maxNumResults: Option.None<u32>(),
         }
       });
 
@@ -512,8 +512,8 @@ describe("Trade", () => {
         },
         tokenIn: token0,
         options: {
-          maxHops: new Option<u32>(),
-          maxNumResults: new Option<u32>(1),
+          maxHops: Option.None<u32>(),
+          maxNumResults: new Option<u32>(1, false),
         }
       });
 

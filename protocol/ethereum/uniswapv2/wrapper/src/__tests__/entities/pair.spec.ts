@@ -6,7 +6,7 @@ import {
   pairToken0Price,
   pairToken1Price,
   tokenSortsBefore
-} from "../../";
+} from "../../index";
 import { Option, BigInt, BigNumber } from "@polywrap/wasm-as";
 
 const token0: Token = {
@@ -126,7 +126,7 @@ describe('Pair core', () => {
       const pair: Pair = pairs[i];
       const price: string = pairToken0Price({ pair });
       const expectedPrice: BigNumber = BigNumber.fromFraction(pair.tokenAmount1.amount, pair.tokenAmount0.amount);
-      expect(BigNumber.fromString(price).toString()).toStrictEqual(expectedPrice.toString());
+      expect(BigNumber.fromString(price).toFixed(18)).toStrictEqual(expectedPrice.toFixed(18));
     }
   });
 
@@ -226,7 +226,7 @@ describe('Pair miscellaneous', () => {
     expect(liquidityValueA[1].token).toStrictEqual(token1);
     expect(liquidityValueA[0].amount.toString()).toStrictEqual("1000");
     expect(liquidityValueA[1].amount.toString()).toStrictEqual("1000");
-    const liquidityValueB = pairLiquidityValue({ pair: pair, totalSupply: totalSupply, liquidity: liquidity500, feeOn: new Option(false), kLast: null });
+    const liquidityValueB = pairLiquidityValue({ pair: pair, totalSupply: totalSupply, liquidity: liquidity500, feeOn: new Option(false, false), kLast: null });
     expect(liquidityValueB[0].token).toStrictEqual(token0);
     expect(liquidityValueB[0].amount.toString()).toStrictEqual("500");
   })
@@ -257,7 +257,7 @@ describe('Pair miscellaneous', () => {
       amount: BigInt.fromString("500") };
     const kLast: BigInt = BigInt.fromString("250000");
 
-    const liquidityValue = pairLiquidityValue({ pair: pair, totalSupply: totalSupply, liquidity: liquidity, feeOn: new Option(true), kLast: kLast });
+    const liquidityValue = pairLiquidityValue({ pair: pair, totalSupply: totalSupply, liquidity: liquidity, feeOn: new Option(true, false), kLast: kLast });
     expect(liquidityValue[0].token).toStrictEqual(token0);
     expect(liquidityValue[0].amount.toString()).toStrictEqual("917"); // ceiling(1000 - (500 * (1 / 6)))
   })
