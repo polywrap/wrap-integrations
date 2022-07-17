@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Hello polywrap</title>
+        <script src="index.ts"></script>
+    </head>
+    <body>
+        This is the index content
+    </body>
+    <script type=module>
+        import init from "./pkg/forum_app.js"
+        await init().catch(console.err);
+    </script>
+</html>
