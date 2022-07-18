@@ -161,9 +161,7 @@ describe("e2e", () => {
           name: "ExistentialDeposit"
       },
     });
-
       console.log("Balances ExistentialDeposit", existentialDeposit);
-
   });
 
   it("rpc_methods", async () => {
@@ -175,9 +173,24 @@ describe("e2e", () => {
           url: "http://localhost:9933",
       },
     });
-
       console.log("result", result);
-
   });
+
+  it("get storage maps", async () => {
+    // You can use the client directly
+    const result = await client.invoke({
+      uri,
+      method: "getStorageMap",
+      args: {
+          url: "http://localhost:9933",
+          pallet: "ForumModule",
+          storage: "AllPosts",
+          keyType: "u32",
+          key: "0",
+      },
+    });
+      console.log("result", result);
+  });
+
 
 });

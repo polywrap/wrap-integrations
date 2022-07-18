@@ -87,7 +87,28 @@ pub fn get_storage_value(arg: ArgsGetStorageValue) -> Option<Vec<u8>> {
         None
     }
 }
-pub fn get_storage_map() {}
+pub fn get_storage_map(arg: ArgsGetStorageMap) -> Option<Vec<u8>> {
+    Api::new(&arg.url)
+        .ok()
+        .map(|api| match &*arg.key_type {
+            "u32" => {
+                assert!(arg.key.is_number());
+                let key = arg.key.as_u64().expect("must cast to u64") as u32;
+                api.fetch_opaque_storage_map(&arg.pallet, &arg.storage, key)
+                    .ok()
+                    .flatten()
+            }
+            "u128" => {
+                assert!(arg.key.is_number());
+                let key = arg.key.as_u64().expect("must cast to u64") as u128;
+                api.fetch_opaque_storage_map(&arg.pallet, &arg.storage, key)
+                    .ok()
+                    .flatten()
+            }
+            _ => todo!(),
+        })
+        .flatten()
+}
 
 pub fn constant(arg: ArgsConstant) -> Option<Vec<u8>> {
     Api::new(&arg.url)
