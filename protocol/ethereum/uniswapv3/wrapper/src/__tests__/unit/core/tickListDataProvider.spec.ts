@@ -1,6 +1,6 @@
-import { getTick, validateTickList } from "../../../query";
-import { BigInt } from "@web3api/wasm-as";
-import { Tick } from "../../../query/w3";
+import { getTick, validateTickList } from "../../..";
+import { BigInt } from "@polywrap/wasm-as";
+import { Tick } from "../../../wrap";
 
 describe('TickListDataProvider', () => {
 

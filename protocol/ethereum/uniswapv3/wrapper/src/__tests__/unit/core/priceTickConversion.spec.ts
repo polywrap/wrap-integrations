@@ -1,8 +1,8 @@
-import { ChainId, Input_priceToClosestTick, Input_tickToPrice, Token, Price as PriceType } from "../../../query/w3";
-import { priceToClosestTick, tickToPrice } from "../../../query";
+import { ChainId, Args_priceToClosestTick, Args_tickToPrice, Token, Price as PriceType } from "../../../wrap";
+import { priceToClosestTick, tickToPrice } from "../../..";
 import { BigFloat } from "as-bigfloat";
-import Price from "../../../utils/Price";
-import { BigInt } from "@web3api/wasm-as";
+import {Price} from "../../../utils";
+import { BigInt } from "@polywrap/wasm-as";
 
 /**
  * Creates an example token with a specific sort order
@@ -21,13 +21,13 @@ function token(sortOrder: i32, decimals: u8 = 18, chainId: ChainId = ChainId.MAI
 }
 
 function reciprocal(baseToken: Token, quoteToken: Token, tick: i32): i32 {
-  const tickToPriceInput: Input_tickToPrice = {
+  const tickToPriceInput: Args_tickToPrice = {
     baseToken: baseToken,
     quoteToken: quoteToken,
     tick: tick,
   };
 
-  const priceToTickInput: Input_priceToClosestTick = {
+  const priceToTickInput: Args_priceToClosestTick = {
     price: tickToPrice(tickToPriceInput),
   };
   return priceToClosestTick(priceToTickInput);
@@ -103,26 +103,26 @@ describe('priceTickConversions', () => {
 
     it('1800 t0/1 t1', () => {
       const price: PriceType = new Price(token1, token0, BigInt.ONE, BigInt.fromString("1800")).toPriceType();
-      const input: Input_priceToClosestTick = { price };
-      expect(priceToClosestTick(input)).toStrictEqual(-74960);
+      const args: Args_priceToClosestTick = { price };
+      expect(priceToClosestTick(args)).toStrictEqual(-74960);
     });
 
     it('1 t1/1800 t0', () => {
       const price: PriceType = new Price(token0, token1, BigInt.fromString("1800"), BigInt.ONE).toPriceType();
-      const input: Input_priceToClosestTick = { price };
-      expect(priceToClosestTick(input)).toStrictEqual(-74960);
+      const args: Args_priceToClosestTick = { price };
+      expect(priceToClosestTick(args)).toStrictEqual(-74960);
     });
 
     it('1.01 t2/1 t0', () => {
       const price: PriceType = new Price(token0, token2_6decimals, BigInt.fromString("100000000000000000000"), BigInt.fromString("101000000")).toPriceType();
-      const input: Input_priceToClosestTick = { price };
-      expect(priceToClosestTick(input)).toStrictEqual(-276225);
+      const args: Args_priceToClosestTick = { price };
+      expect(priceToClosestTick(args)).toStrictEqual(-276225);
     });
 
     it('1 t0/1.01 t2', () => {
       const price: PriceType = new Price(token2_6decimals, token0, BigInt.fromString("101000000"), BigInt.fromString("100000000000000000000")).toPriceType();
-      const input: Input_priceToClosestTick = { price };
-      expect(priceToClosestTick(input)).toStrictEqual(-276225);
+      const args: Args_priceToClosestTick = { price };
+      expect(priceToClosestTick(args)).toStrictEqual(-276225);
     });
 
     describe('reciprocal with tickToPrice', () => {

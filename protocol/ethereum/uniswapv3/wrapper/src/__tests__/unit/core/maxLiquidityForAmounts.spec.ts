@@ -1,6 +1,6 @@
-import { BigInt } from "@web3api/wasm-as";
-import { encodeSqrtRatioX96, maxLiquidityForAmounts } from "../../../query";
-import { MAX_UINT_256 } from "../../../utils/constants";
+import { BigInt } from "@polywrap/wasm-as";
+import { encodeSqrtRatioX96, maxLiquidityForAmounts } from "../../..";
+import { MAX_UINT_256 } from "../../../utils";
 
 describe('maxLiquidityForAmounts', () => {
   describe('imprecise', () => {

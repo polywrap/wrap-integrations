@@ -1,6 +1,6 @@
-import { MIN_TICK, MAX_TICK, MIN_SQRT_RATIO, MAX_SQRT_RATIO } from "../../../utils/constants";
-import * as TickUtils from "../../../query/tickUtils";
-import { BigInt } from "@web3api/wasm-as";
+import { MIN_TICK, MAX_TICK, MIN_SQRT_RATIO, MAX_SQRT_RATIO } from "../../../utils";
+import * as TickUtils from "../../..";
+import { BigInt } from "@polywrap/wasm-as";
 
 describe('TickMath', () => {
   

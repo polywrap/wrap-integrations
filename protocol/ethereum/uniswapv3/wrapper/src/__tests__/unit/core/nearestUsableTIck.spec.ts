@@ -1,5 +1,5 @@
-import { nearestUsableTick } from "../../../query";
-import { MAX_TICK, MIN_TICK } from "../../../utils/constants";
+import { nearestUsableTick } from "../../..";
+import { MAX_TICK, MIN_TICK } from "../../../utils";
 
 describe('nearestUsableTick', () => {
 

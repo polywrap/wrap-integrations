@@ -1,6 +1,6 @@
-import { BigInt } from "@web3api/wasm-as";
-import { ChainId, FeeAmount, Pool, PoolChangeResult, Price, Token, TokenAmount } from "../../../query/w3";
-import { _getWETH } from "../../../utils/tokenUtils";
+import { BigInt } from "@polywrap/wasm-as";
+import { ChainId, FeeAmount, Pool, PoolChangeResult, Price, Token, TokenAmount } from "../../../wrap";
+import { _getWETH } from "../../../token";
 import {
   createPool,
   encodeSqrtRatioX96, getPoolInputAmount, getPoolOutputAmount,
@@ -11,9 +11,8 @@ import {
   poolPriceOf,
   poolToken0Price,
   poolToken1Price, tokenEquals
-} from "../../../query";
-import { MAX_TICK, MIN_TICK } from "../../../utils/constants";
-import { _feeAmountToTickSpacing } from "../../../utils/enumUtils";
+} from "../../..";
+import { MAX_TICK, MIN_TICK, _feeAmountToTickSpacing } from "../../../utils";
 import { BigFloat } from "as-bigfloat";
 
 

@@ -1,10 +1,9 @@
-import { FeeAmount, Input_nextInitializedTick, Input_validateTickList, Tick } from "../../../query/w3";
-import { BigInt } from "@web3api/wasm-as";
-import { MAX_TICK, MIN_TICK } from "../../../utils/constants";
-import * as TickList from "../../../query/tickList";
-import * as TickListUtils from "../../../query/tickListUtils";
-import { nearestUsableTick } from "../../../query";
-import { _feeAmountToTickSpacing } from "../../../utils/enumUtils";
+import { FeeAmount, Args_nextInitializedTick, Args_validateTickList, Tick } from "../../../wrap";
+import { BigInt } from "@polywrap/wasm-as";
+import { MAX_TICK, MIN_TICK, _feeAmountToTickSpacing } from "../../../utils";
+import * as TickList from "../../../tickList/index";
+import * as TickListUtils from "../../../tickList/utils";
+import { nearestUsableTick } from "../../..";
 
 let highTick: Tick;
 let lowTick: Tick;
@@ -35,24 +34,24 @@ describe('TickList', () => {
 
     it('errors for incomplete lists', () => {
       const _error = (): void => {
-        const input: Input_validateTickList = {ticks: [lowTick], tickSpacing: 1 };
-        TickListUtils.validateTickList(input)
+        const args: Args_validateTickList = {ticks: [lowTick], tickSpacing: 1 };
+        TickListUtils.validateTickList(args)
       };
       expect(_error).toThrow("ZERO_NET: tick net liquidity values must sum to 0");
     });
 
     it('errors for unsorted lists', () => {
       const _error = (): void => {
-        const input: Input_validateTickList = { ticks: [highTick, lowTick, midTick], tickSpacing: 1 };
-        TickListUtils.validateTickList(input)
+        const args: Args_validateTickList = { ticks: [highTick, lowTick, midTick], tickSpacing: 1 };
+        TickListUtils.validateTickList(args)
       };
       expect(_error).toThrow("SORTED: tick list must be sorted by index");
     });
 
     it('errors if ticks are not on multiples of tick spacing', () => {
       const _error = (): void => {
-        const input: Input_validateTickList = { ticks: [highTick, lowTick, midTick], tickSpacing: 1337 };
-        TickListUtils.validateTickList(input)
+        const args: Args_validateTickList = { ticks: [highTick, lowTick, midTick], tickSpacing: 1337 };
+        TickListUtils.validateTickList(args)
       };
       expect(_error).toThrow("TICK_SPACING: Tick indices must be multiples of tickSpacing");
     });
@@ -78,8 +77,8 @@ describe('TickList', () => {
 
     it('low - lte = true', () => {
       const _error = (): void => {
-        const input: Input_nextInitializedTick = { ticks: ticks, tick: MIN_TICK, lte: true };
-        TickListUtils.nextInitializedTick(input);
+        const args: Args_nextInitializedTick = { ticks: ticks, tick: MIN_TICK, lte: true };
+        TickListUtils.nextInitializedTick(args);
       };
       expect(_error).toThrow("BELOW_SMALLEST: tick is below smallest tick index in the list");
 
@@ -109,8 +108,8 @@ describe('TickList', () => {
 
     it('high - lte = false', () => {
       const _error = (): void => {
-        const input: Input_nextInitializedTick = { ticks: ticks, tick: MAX_TICK - 1, lte: false };
-        TickListUtils.nextInitializedTick(input);
+        const args: Args_nextInitializedTick = { ticks: ticks, tick: MAX_TICK - 1, lte: false };
+        TickListUtils.nextInitializedTick(args);
       };
       expect(_error).toThrow("AT_OR_ABOVE_LARGEST: tick is at or above largest tick index in the list");
 

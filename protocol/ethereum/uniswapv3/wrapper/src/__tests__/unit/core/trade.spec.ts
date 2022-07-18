@@ -8,8 +8,8 @@ import {
   Trade,
   TradeSwap,
   TradeType
-} from "../../../query/w3";
-import { ETHER, _getWETH } from "../../../utils/tokenUtils";
+} from "../../../wrap";
+import { ETHER, _getWETH } from "../../../token";
 import {
   bestTradeExactIn,
   bestTradeExactOut,
@@ -25,11 +25,9 @@ import {
   tradeMaximumAmountIn,
   tradeMinimumAmountOut, tradePriceImpact,
   tradeWorstExecutionPrice
-} from "../../../query";
-import { BigInt, Nullable } from "@web3api/wasm-as";
-import { _feeAmountToTickSpacing } from "../../../utils/enumUtils";
-import { MAX_TICK, MIN_TICK } from "../../../utils/constants";
-import Price from "../../../utils/Price";
+} from "../../..";
+import { BigInt, Option } from "@polywrap/wasm-as";
+import { _feeAmountToTickSpacing, MAX_TICK, MIN_TICK, Price } from "../../../utils";
 import { BigFloat } from "as-bigfloat";
 
 
@@ -857,8 +855,8 @@ describe('Trade', () => {
           },
           tokenOut: token2,
           options: {
-            maxHops: Nullable.fromValue<u32>(0),
-            maxNumResults: Nullable.fromNull<u32>(),
+            maxHops: new Option(0, false),
+            maxNumResults: new Option(),
           },
         });
       };
@@ -896,8 +894,8 @@ describe('Trade', () => {
         },
         tokenOut: token2,
         options: {
-          maxHops: Nullable.fromValue<u32>(1),
-          maxNumResults: Nullable.fromNull<u32>(),
+          maxHops: new Option(1, false),
+          maxNumResults: new Option(),
         },
       });
       expect(result).toHaveLength(1);
@@ -930,8 +928,8 @@ describe('Trade', () => {
         },
         tokenOut: token2,
         options: {
-          maxHops: Nullable.fromNull<u32>(),
-          maxNumResults: Nullable.fromValue<u32>(1),
+          maxHops: new Option(),
+          maxNumResults: new Option(1, false),
         },
       });
       expect(result).toHaveLength(1);
@@ -1204,8 +1202,8 @@ describe('Trade', () => {
             amount: BigInt.fromUInt16(100),
           },
           options: {
-            maxHops: Nullable.fromValue<u32>(0),
-            maxNumResults: Nullable.fromNull<u32>(),
+            maxHops: new Option(0, false),
+            maxNumResults: new Option(),
           },
         });
       };
@@ -1242,8 +1240,8 @@ describe('Trade', () => {
           amount: BigInt.fromUInt16(10),
         },
         options: {
-          maxHops: Nullable.fromValue<u32>(1),
-          maxNumResults: Nullable.fromNull<u32>(),
+          maxHops: new Option(1, false),
+          maxNumResults: new Option(),
         },
       });
       expect(result).toHaveLength(1);
@@ -1288,8 +1286,8 @@ describe('Trade', () => {
           amount: BigInt.fromUInt16(10),
         },
         options: {
-          maxHops: Nullable.fromNull<u32>(),
-          maxNumResults: Nullable.fromValue<u32>(1),
+          maxHops: new Option(),
+          maxNumResults: new Option(1, false),
         }
       });
       expect(result).toHaveLength(1);

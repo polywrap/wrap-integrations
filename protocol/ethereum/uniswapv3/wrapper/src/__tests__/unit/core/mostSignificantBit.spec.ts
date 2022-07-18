@@ -1,6 +1,6 @@
-import { mostSignificantBit} from "../../../query";
-import { BigInt } from "@web3api/wasm-as";
-import { MAX_UINT_256 } from "../../../utils/constants";
+import { mostSignificantBit} from "../../..";
+import { MAX_UINT_256 } from "../../../utils";
+import { BigInt } from "@polywrap/wasm-as";
 
 describe('mostSignificantBit', () => {
 

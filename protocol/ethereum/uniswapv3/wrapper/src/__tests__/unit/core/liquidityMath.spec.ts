@@ -1,5 +1,5 @@
-import { BigInt } from "@web3api/wasm-as";
-import { addDelta } from "../../../query";
+import { BigInt } from "@polywrap/wasm-as";
+import { addDelta } from "../../..";
 
 const x: BigInt = BigInt.fromUInt16(10);
 const y: BigInt = BigInt.fromUInt16(5);

@@ -1,6 +1,6 @@
-import { tickListIsSorted } from "../../../query";
-import { Tick } from "../../../query/w3";
-import { BigInt } from "@web3api/wasm-as";
+import { tickListIsSorted } from "../../..";
+import { Tick } from "../../../wrap";
+import { BigInt } from "@polywrap/wasm-as";
 
 const tick1: Tick = {
     index: 1,

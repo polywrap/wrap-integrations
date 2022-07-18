@@ -1,8 +1,7 @@
-import { ChainId, FeeAmount, Pool, Token } from "../../../query/w3";
-import { createPool, encodeSqrtRatioX96, nearestUsableTick, simulateSwap } from "../../../query";
-import { BigInt } from "@web3api/wasm-as";
-import { MAX_SQRT_RATIO, MAX_TICK, MIN_SQRT_RATIO, MIN_TICK } from "../../../utils/constants";
-import { _feeAmountToTickSpacing } from "../../../utils/enumUtils";
+import { ChainId, FeeAmount, Pool, Token } from "../../../wrap";
+import { createPool, encodeSqrtRatioX96, nearestUsableTick, simulateSwap } from "../../..";
+import { BigInt } from "@polywrap/wasm-as";
+import { MAX_SQRT_RATIO, MAX_TICK, MIN_SQRT_RATIO, MIN_TICK, _feeAmountToTickSpacing } from "../../../utils";
 
 const USDC: Token = {
   chainId: ChainId.MAINNET,
