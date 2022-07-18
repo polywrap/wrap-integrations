@@ -13,6 +13,7 @@ import erc20ABI from "./testData/erc20ABI.json";
 import * as App from "./types/wrap"
 
 jest.setTimeout(360000);
+jest.retryTimes(5)
 
 const getTradeOptions = (recipient: string): App.TradeOptions => ({
   allowedSlippage: "0.1",
