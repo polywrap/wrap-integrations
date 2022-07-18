@@ -60,7 +60,9 @@ pub fn state_get_runtime_version(arg: ArgsStateGetRuntimeVersion) -> Option<serd
         .map(|v| serde_json::to_value(v).expect("must encode to json"))
 }
 
-pub fn rpc_methods() {}
+pub fn rpc_methods(arg: ArgsRpcMethods) -> Option<Vec<String>> {
+    BaseApi::new(&arg.url).fetch_rpc_methods().ok().flatten()
+}
 
 pub fn block_hash(arg: ArgsBlockHash) -> Option<String> {
     let api = BaseApi::new(&arg.url);

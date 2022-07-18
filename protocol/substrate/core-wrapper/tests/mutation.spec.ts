@@ -166,4 +166,18 @@ describe("e2e", () => {
 
   });
 
+  it("rpc_methods", async () => {
+    // You can use the client directly
+    const result = await client.invoke({
+      uri,
+      method: "rpcMethods",
+      args: {
+          url: "http://localhost:9933",
+      },
+    });
+
+      console.log("result", result);
+
+  });
+
 });
