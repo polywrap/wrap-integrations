@@ -1,7 +1,15 @@
 #import { Module, TxResponse } into Ethereum from "wrap://ens/ethereum.polywrap.eth"
 #import { Module } into SHA3 from "wrap://ens/sha3.polywrap.eth"
 #import { Module } into ERC20 from "wrap://ipfs/Qma94j3q3tPYyLq6uiF1DN32F8AiLadM4SEy5h2K4DDB9a"
-#import { Module } into Subgraph from "wrap://ipfs/QmZMg5ojMeFunry5Rwb2XeSJbVaGohMNpLSraPDVgBDR2e"
+#import { Module } into Subgraph from "wrap://ipfs/QmbzfkRKB3hpN6bFqH7HCLGHNh6bCmxm6qKGjwXFQgzATN"
+
+"""Transaction gas configuration"""
+type GasOptions {
+    """The gas price to set for the transaction"""
+    gasPrice: BigInt
+    """The gas limit to set for the transaction"""
+    gasLimit: BigInt
+}
 
 """Return value of nextInitializedTickWithinOneWord(...)"""
 type NextTickResult {
@@ -1044,30 +1052,6 @@ type Module {
     getPermitV(
         permitV: PermitV!
     ): Int32!
-
-    ##  constants
-
-    """The address of Uniswap's pool factory contract"""
-    FACTORY_ADDRESS: String!
-
-    POOL_INIT_CODE_HASH: String!
-
-    POOL_INIT_CODE_HASH_OPTIMISM: String!
-
-    """A historical artifact due to small compiler mismatch"""
-    POOL_INIT_CODE_HASH_OPTIMISM_KOVAN: String!
-
-    """Smallest valid tick index in a pool"""
-    MIN_TICK: Int32!
-
-    """Largest valid tick index in a pool"""
-    MAX_TICK: Int32!
-
-    """Smallest valid sqrtRatioX96 in a pool"""
-    MIN_SQRT_RATIO: BigInt!
-
-    """Largest valid sqrtRatioX96 in a pool"""
-    MAX_SQRT_RATIO: BigInt!
 }
 
 

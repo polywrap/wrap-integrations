@@ -2,30 +2,30 @@
 
 import {
   ClaimOptions,
-  Ethereum_Query,
+  Ethereum_Module,
   FullWithdrawOptions,
   IncentiveKey,
-  Input_collectRewards,
-  Input_encodeDeposit,
-  Input_withdrawToken,
+  Args_collectRewards,
+  Args_encodeDeposit,
+  Args_withdrawToken,
   MethodParameters,
-} from "./w3";
-import { encodeMulticall, toHex } from "./routerUtils";
-import { getChecksumAddress } from "../utils/addressUtils";
-import { getPoolAddress } from "./pool";
-import { ZERO_HEX } from "../utils/constants";
+} from "../wrap";
+import { encodeMulticall, toHex } from "../router";
+import { getChecksumAddress } from "./addressUtils";
+import { getPoolAddress } from "../pool";
+import { ZERO_HEX } from "./constants";
 
-import { BigInt } from "@web3api/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
 
 /**
  * Returns the calldatas for 'unstakeToken', 'claimReward', and 'stakeToken'.
  * Note:  A `tokenId` can be staked in many programs but to claim rewards and continue the program you must unstake, claim, and then restake.
- * @param input.incentiveKeys An array of IncentiveKeys that `tokenId` is staked in; claims rewards for each program.
- * @param input.options ClaimOptions to specify tokenId, recipient, and amount wanting to collect. Note that you can only specify one amount and one recipient across the various programs if you are collecting from multiple programs at once.
+ * @param args.incentiveKeys An array of IncentiveKeys that `tokenId` is staked in; claims rewards for each program.
+ * @param args.options ClaimOptions to specify tokenId, recipient, and amount wanting to collect. Note that you can only specify one amount and one recipient across the various programs if you are collecting from multiple programs at once.
  */
-export function collectRewards(input: Input_collectRewards): MethodParameters {
-  const incentiveKeys: IncentiveKey[] = input.incentiveKeys;
-  const options: ClaimOptions = input.options;
+export function collectRewards(args: Args_collectRewards): MethodParameters {
+  const incentiveKeys: IncentiveKey[] = args.incentiveKeys;
+  const options: ClaimOptions = args.options;
 
   let calldatas: string[] = [];
 
@@ -36,7 +36,7 @@ export function collectRewards(input: Input_collectRewards): MethodParameters {
     calldatas = calldatas.concat(encodeClaim(incentiveKey, options));
     // re-stakes the position for the unique program
     calldatas.push(
-      Ethereum_Query.encodeFunction({
+      Ethereum_Module.encodeFunction({
         method: stakerAbi("stakeToken"),
         args: [
           encodeIncentiveKey(incentiveKey),
@@ -53,12 +53,12 @@ export function collectRewards(input: Input_collectRewards): MethodParameters {
 
 /**
  * Returns calldata for unstaking, claiming, and withdrawing.
- * @param input.incentiveKeys A list of incentiveKeys to unstake from. Should include all incentiveKeys (unique staking programs) that `options.tokenId` is staked in.
- * @param input.options Options for producing claim calldata and withdraw calldata. Can't withdraw without unstaking all programs for `tokenId`.
+ * @param args.incentiveKeys A list of incentiveKeys to unstake from. Should include all incentiveKeys (unique staking programs) that `options.tokenId` is staked in.
+ * @param args.options Options for producing claim calldata and withdraw calldata. Can't withdraw without unstaking all programs for `tokenId`.
  */
-export function withdrawToken(input: Input_withdrawToken): MethodParameters {
-  const incentiveKeys: IncentiveKey[] = input.incentiveKeys;
-  const options: FullWithdrawOptions = input.options;
+export function withdrawToken(args: Args_withdrawToken): MethodParameters {
+  const incentiveKeys: IncentiveKey[] = args.incentiveKeys;
+  const options: FullWithdrawOptions = args.options;
 
   let calldatas: string[] = [];
 
@@ -74,7 +74,7 @@ export function withdrawToken(input: Input_withdrawToken): MethodParameters {
   }
   const owner: string = getChecksumAddress(options.owner);
   calldatas.push(
-    Ethereum_Query.encodeFunction({
+    Ethereum_Module.encodeFunction({
       method: stakerAbi("withdrawToken"),
       args: [
         toHex({ value: options.tokenId }),
@@ -91,10 +91,10 @@ export function withdrawToken(input: Input_withdrawToken): MethodParameters {
 
 /**
  * Returns an encoded IncentiveKey as a string
- * @param input.incentiveKeys A single IncentiveKey or array of IncentiveKeys to be encoded and used in the data parameter in `safeTransferFrom`
+ * @param args.incentiveKeys A single IncentiveKey or array of IncentiveKeys to be encoded and used in the data parameter in `safeTransferFrom`
  */
-export function encodeDeposit(input: Input_encodeDeposit): string {
-  const incentiveKeys: IncentiveKey[] = input.incentiveKeys;
+export function encodeDeposit(args: Args_encodeDeposit): string {
+  const incentiveKeys: IncentiveKey[] = args.incentiveKeys;
 
   let data: string;
 
@@ -103,12 +103,12 @@ export function encodeDeposit(input: Input_encodeDeposit): string {
     for (let i = 0; i < incentiveKeys.length; i++) {
       keys.push(encodeIncentiveKey(incentiveKeys[i]));
     }
-    data = Ethereum_Query.encodeParams({
+    data = Ethereum_Module.encodeParams({
       types: [`${stakerAbi("INCENTIVE_KEY_ABI")}[]`],
       values: ["[" + keys.join(", ") + "]"],
     }).unwrap();
   } else {
-    data = Ethereum_Query.encodeParams({
+    data = Ethereum_Module.encodeParams({
       types: [stakerAbi("INCENTIVE_KEY_ABI")],
       values: [encodeIncentiveKey(incentiveKeys[0])],
     }).unwrap();
@@ -128,7 +128,7 @@ function encodeClaim(
 ): string[] {
   const calldatas: string[] = [];
   calldatas.push(
-    Ethereum_Query.encodeFunction({
+    Ethereum_Module.encodeFunction({
       method: stakerAbi("unstakeToken"),
       args: [
         encodeIncentiveKey(incentiveKey),
@@ -140,7 +140,7 @@ function encodeClaim(
   const amount: BigInt =
     options.amount === null ? BigInt.ZERO : options.amount!;
   calldatas.push(
-    Ethereum_Query.encodeFunction({
+    Ethereum_Module.encodeFunction({
       method: stakerAbi("claimReward"),
       args: [
         incentiveKey.rewardToken.address,

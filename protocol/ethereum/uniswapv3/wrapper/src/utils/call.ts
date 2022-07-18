@@ -8,11 +8,11 @@ import {
   Args_approve,
   Args_execCall,
   MethodParameters,
-} from "./w3";
-import { MAX_UINT_256, ROUTER_ADDRESS } from "../utils/constants";
-import { toHex } from "../query";
+} from "../wrap";
+import { MAX_UINT_256, ROUTER_ADDRESS } from "../utils";
+import { toHex } from "../router";
 
-import { BigInt, Nullable } from "@web3api/wasm-as";
+import { BigInt, Option } from "@polywrap/wasm-as";
 
 export function execCall(args: Args_execCall): Ethereum_TxResponse {
   const methodParameters: MethodParameters = args.parameters;
@@ -24,13 +24,13 @@ export function execCall(args: Args_execCall): Ethereum_TxResponse {
     tx: {
       to: address,
       m_from: null,
-      nonce: Nullable.fromNull<u32>(),
+      nonce: new Option(),
       gasLimit: gasOptions === null ? null : gasOptions.gasLimit,
       gasPrice: gasOptions === null ? null : gasOptions.gasPrice,
       data: methodParameters.calldata,
       value: BigInt.fromString(methodParameters.value, 16),
       chainId: null,
-      m_type: Nullable.fromNull<u32>(),
+      m_type: new Option(),
     },
     connection: {
       node: null,

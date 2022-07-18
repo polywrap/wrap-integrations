@@ -1,7 +1,7 @@
 import { Q96 } from "../utils/constants";
-import { Input_maxLiquidityForAmounts } from "./w3";
+import { Args_maxLiquidityForAmounts } from "../wrap";
 
-import { BigInt } from "@web3api/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
 
 /**
  * Returns an imprecise maximum amount of liquidity received for a given amount of token 0.
@@ -74,23 +74,23 @@ function maxLiquidityForAmount1(
 /**
  * Computes the maximum amount of liquidity received for a given amount of token0, token1,
  * and the prices at the tick boundaries.
- * @param input.sqrtRatioCurrentX96 the current price
- * @param input.sqrtRatioAX96 price at lower boundary
- * @param input.sqrtRatioBX96 price at upper boundary
- * @param input.amount0 token0 amount
- * @param input.amount1 token1 amount
- * @param input.useFullPrecision if false, liquidity will be maximized according to what the router can calculate,
+ * @param args.sqrtRatioCurrentX96 the current price
+ * @param args.sqrtRatioAX96 price at lower boundary
+ * @param args.sqrtRatioBX96 price at upper boundary
+ * @param args.amount0 token0 amount
+ * @param args.amount1 token1 amount
+ * @param args.useFullPrecision if false, liquidity will be maximized according to what the router can calculate,
  * not what core can theoretically support
  */
 export function maxLiquidityForAmounts(
-  input: Input_maxLiquidityForAmounts
+  args: Args_maxLiquidityForAmounts
 ): BigInt {
-  const sqrtRatioCurrentX96: BigInt = input.sqrtRatioCurrentX96;
-  let sqrtRatioAX96: BigInt = input.sqrtRatioAX96;
-  let sqrtRatioBX96: BigInt = input.sqrtRatioBX96;
-  const amount0: BigInt = input.amount0;
-  const amount1: BigInt = input.amount1;
-  const useFullPrecision: boolean = input.useFullPrecision;
+  const sqrtRatioCurrentX96: BigInt = args.sqrtRatioCurrentX96;
+  let sqrtRatioAX96: BigInt = args.sqrtRatioAX96;
+  let sqrtRatioBX96: BigInt = args.sqrtRatioBX96;
+  const amount0: BigInt = args.amount0;
+  const amount1: BigInt = args.amount1;
+  const useFullPrecision: boolean = args.useFullPrecision;
 
   if (sqrtRatioAX96 > sqrtRatioBX96) {
     const temp = sqrtRatioAX96;

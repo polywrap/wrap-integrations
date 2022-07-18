@@ -1,20 +1,20 @@
 import {
   BestTradeOptions,
-  Input_bestTradeExactIn,
-  Input_bestTradeExactOut,
-  Input_createTradeExactIn,
-  Input_createTradeExactOut,
-  Input_createTradeFromRoute,
-  Input_createTradeFromRoutes,
-  Input_createUncheckedTrade,
-  Input_createUncheckedTradeWithMultipleRoutes,
-  Input_tradeExecutionPrice,
-  Input_tradeInputAmount,
-  Input_tradeMaximumAmountIn,
-  Input_tradeMinimumAmountOut,
-  Input_tradeOutputAmount,
-  Input_tradePriceImpact,
-  Input_tradeWorstExecutionPrice,
+  Args_bestTradeExactIn,
+  Args_bestTradeExactOut,
+  Args_createTradeExactIn,
+  Args_createTradeExactOut,
+  Args_createTradeFromRoute,
+  Args_createTradeFromRoutes,
+  Args_createUncheckedTrade,
+  Args_createUncheckedTradeWithMultipleRoutes,
+  Args_tradeExecutionPrice,
+  Args_tradeInputAmount,
+  Args_tradeMaximumAmountIn,
+  Args_tradeMinimumAmountOut,
+  Args_tradeOutputAmount,
+  Args_tradePriceImpact,
+  Args_tradeWorstExecutionPrice,
   Pool,
   PoolChangeResult,
   Price as PriceType,
@@ -26,20 +26,23 @@ import {
   TradeRoute,
   TradeSwap,
   TradeType,
-} from "./w3";
-import { tokenAmountEquals, tokenEquals } from "./token";
-import { copyTokenAmount, _wrapAmount, _wrapToken } from "../utils/tokenUtils";
+} from "../wrap";
+import {
+  tokenAmountEquals,
+  tokenEquals,
+  copyTokenAmount,
+  _wrapAmount,
+  _wrapToken,
+} from "../token";
 import {
   getPoolInputAmount,
   getPoolOutputAmount,
   poolInvolvesToken,
-} from "./pool";
-import Price from "../utils/Price";
-import { createRoute } from "./route";
-import Fraction from "../utils/Fraction";
-import { PriorityQueue } from "../utils/PriorityQueue";
+} from "../pool";
+import { Price, Fraction, PriorityQueue } from "../utils";
+import { createRoute } from "../router";
 
-import { BigInt, Nullable } from "@web3api/wasm-as";
+import { BigInt, Option } from "@polywrap/wasm-as";
 
 /**
  * private constructor; constructs and validates trade
@@ -178,10 +181,10 @@ function createTradeSwap(
 
 /**
  * Constructs an exact in trade with the given amount in and route
- * @param input.route the route of the exact in trade and the amount being passed in
+ * @param args.route the route of the exact in trade and the amount being passed in
  */
-export function createTradeExactIn(input: Input_createTradeExactIn): Trade {
-  const tradeRoute: TradeRoute = input.tradeRoute;
+export function createTradeExactIn(args: Args_createTradeExactIn): Trade {
+  const tradeRoute: TradeRoute = args.tradeRoute;
   return createTradeFromRoute({
     tradeRoute: tradeRoute,
     tradeType: TradeType.EXACT_INPUT,
@@ -190,10 +193,10 @@ export function createTradeExactIn(input: Input_createTradeExactIn): Trade {
 
 /**
  * Constructs an exact out trade with the given amount out and route
- * @param input.route the route of the exact out trade and the amount returned
+ * @param args.route the route of the exact out trade and the amount returned
  */
-export function createTradeExactOut(input: Input_createTradeExactOut): Trade {
-  const tradeRoute: TradeRoute = input.tradeRoute;
+export function createTradeExactOut(args: Args_createTradeExactOut): Trade {
+  const tradeRoute: TradeRoute = args.tradeRoute;
   return createTradeFromRoute({
     tradeRoute: tradeRoute,
     tradeType: TradeType.EXACT_OUTPUT,
@@ -202,26 +205,24 @@ export function createTradeExactOut(input: Input_createTradeExactOut): Trade {
 
 /**
  * Constructs a trade by simulating swaps through the given route
- * @param input.route the route to swap through and the amount specified, either input or output, depending on the trade type
- * @param input.tradeType whether the trade is an exact input or exact output swap
+ * @param args.route the route to swap through and the amount specified, either input or output, depending on the trade type
+ * @param args.tradeType whether the trade is an exact input or exact output swap
  */
-export function createTradeFromRoute(input: Input_createTradeFromRoute): Trade {
-  const route: Route = input.tradeRoute.route;
-  const amount: TokenAmount = input.tradeRoute.amount;
-  const tradeType: TradeType = input.tradeType;
+export function createTradeFromRoute(args: Args_createTradeFromRoute): Trade {
+  const route: Route = args.tradeRoute.route;
+  const amount: TokenAmount = args.tradeRoute.amount;
+  const tradeType: TradeType = args.tradeType;
   return createTrade([createTradeSwap(route, amount, tradeType)], tradeType);
 }
 
 /**
  * Constructs a trade by simulating swaps through the given routes
- * @param input.routes the routes to swap through and how much of the amount should be routed through each
- * @param input.tradeType whether the trade is an exact input or exact output swap
+ * @param args.routes the routes to swap through and how much of the amount should be routed through each
+ * @param args.tradeType whether the trade is an exact input or exact output swap
  */
-export function createTradeFromRoutes(
-  input: Input_createTradeFromRoutes
-): Trade {
-  const tradeRoutes: TradeRoute[] = input.tradeRoutes;
-  const tradeType: TradeType = input.tradeType;
+export function createTradeFromRoutes(args: Args_createTradeFromRoutes): Trade {
+  const tradeRoutes: TradeRoute[] = args.tradeRoutes;
+  const tradeType: TradeType = args.tradeType;
 
   const populatedRoutes: TradeSwap[] = [];
   for (let i = 0; i < tradeRoutes.length; i++) {
@@ -235,30 +236,30 @@ export function createTradeFromRoutes(
 
 /**
  * Creates a trade without computing the result of swapping through the route. Useful when you have simulated the trade elsewhere and do not have any tick data
- * @param input.swap the route to swap through, the amount being passed in, and the amount returned when the trade is executed
- * @param input.tradeType the type of the trade, either exact in or exact out
+ * @param args.swap the route to swap through, the amount being passed in, and the amount returned when the trade is executed
+ * @param args.tradeType the type of the trade, either exact in or exact out
  */
-export function createUncheckedTrade(input: Input_createUncheckedTrade): Trade {
-  return createTrade([input.swap], input.tradeType);
+export function createUncheckedTrade(args: Args_createUncheckedTrade): Trade {
+  return createTrade([args.swap], args.tradeType);
 }
 
 /**
  * Creates a trade without computing the result of swapping through the routes. Useful when you have simulated the trade elsewhere and do not have any tick data
- * @param input.routes the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
- * @param input.tradeType the type of the trade, either exact in or exact out
+ * @param args.routes the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
+ * @param args.tradeType the type of the trade, either exact in or exact out
  */
 export function createUncheckedTradeWithMultipleRoutes(
-  input: Input_createUncheckedTradeWithMultipleRoutes
+  args: Args_createUncheckedTradeWithMultipleRoutes
 ): Trade {
-  return createTrade(input.swaps, input.tradeType);
+  return createTrade(args.swaps, args.tradeType);
 }
 
 /**
  * The input amount for the trade assuming no slippage.
- * @param input.swaps the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
+ * @param args.swaps the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
  */
-export function tradeInputAmount(input: Input_tradeInputAmount): TokenAmount {
-  const swaps: TradeSwap[] = input.swaps;
+export function tradeInputAmount(args: Args_tradeInputAmount): TokenAmount {
+  const swaps: TradeSwap[] = args.swaps;
   const inputCurrency: Token = swaps[0].inputAmount.token;
   const totalInputFromRoutes: BigInt = swaps
     .map<BigInt>((swap: TradeSwap) => swap.inputAmount.amount)
@@ -271,10 +272,10 @@ export function tradeInputAmount(input: Input_tradeInputAmount): TokenAmount {
 
 /**
  * The output amount for the trade assuming no slippage
- * @param input.swaps the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
+ * @param args.swaps the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
  */
-export function tradeOutputAmount(input: Input_tradeOutputAmount): TokenAmount {
-  const swaps: TradeSwap[] = input.swaps;
+export function tradeOutputAmount(args: Args_tradeOutputAmount): TokenAmount {
+  const swaps: TradeSwap[] = args.swaps;
   const outputCurrency: Token = swaps[0].outputAmount.token;
   const totalOutputFromRoutes: BigInt = swaps
     .map<BigInt>((swap: TradeSwap) => swap.outputAmount.amount)
@@ -287,14 +288,12 @@ export function tradeOutputAmount(input: Input_tradeOutputAmount): TokenAmount {
 
 /**
  * The price expressed in terms of output amount/input amount.
- * @param input.inputAmount the trade input amount, e.g. from Trade object or tradeInputAmount(...)
- * @param input.outputAmount the trade output amount, e.g. from Trade object or tradeOutputAmount(...)
+ * @param args.inputAmount the trade input amount, e.g. from Trade object or tradeInputAmount(...)
+ * @param args.outputAmount the trade output amount, e.g. from Trade object or tradeOutputAmount(...)
  */
-export function tradeExecutionPrice(
-  input: Input_tradeExecutionPrice
-): PriceType {
-  const inputAmount: TokenAmount = input.inputAmount;
-  const outputAmount: TokenAmount = input.outputAmount;
+export function tradeExecutionPrice(args: Args_tradeExecutionPrice): PriceType {
+  const inputAmount: TokenAmount = args.inputAmount;
+  const outputAmount: TokenAmount = args.outputAmount;
   return new Price(
     inputAmount.token,
     outputAmount.token,
@@ -305,12 +304,12 @@ export function tradeExecutionPrice(
 
 /**
  * Returns the percent difference between the route's mid price and the price impact
- * @param input.swaps the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
- * @param input.outputAmount the trade output amount, e.g. from Trade object or tradeOutputAmount(...)
+ * @param args.swaps the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
+ * @param args.outputAmount the trade output amount, e.g. from Trade object or tradeOutputAmount(...)
  */
-export function tradePriceImpact(input: Input_tradePriceImpact): FractionType {
-  const swaps: TradeSwap[] = input.swaps;
-  const outputAmount: TokenAmount = input.outputAmount;
+export function tradePriceImpact(args: Args_tradePriceImpact): FractionType {
+  const swaps: TradeSwap[] = args.swaps;
+  const outputAmount: TokenAmount = args.outputAmount;
 
   let spotOutputAmount: Fraction = new Fraction(BigInt.ZERO);
 
@@ -336,16 +335,16 @@ export function tradePriceImpact(input: Input_tradePriceImpact): FractionType {
 
 /**
  * Get the minimum amount that must be received from this trade for the given slippage tolerance
- * @param input.slippageTolerance The tolerance of unfavorable slippage from the execution price of this trade; a decimal number between 0 and 1 (e.g. "0.03") that represents a percentage
- * @param input.amountOut The output amount of the trade, before slippage, e.g. from Trade object or tradeOutputAmount(...)
- * @param input.tradeType The type of the trade, either exact in or exact out
+ * @param args.slippageTolerance The tolerance of unfavorable slippage from the execution price of this trade; a decimal number between 0 and 1 (e.g. "0.03") that represents a percentage
+ * @param args.amountOut The output amount of the trade, before slippage, e.g. from Trade object or tradeOutputAmount(...)
+ * @param args.tradeType The type of the trade, either exact in or exact out
  */
 export function tradeMinimumAmountOut(
-  input: Input_tradeMinimumAmountOut
+  args: Args_tradeMinimumAmountOut
 ): TokenAmount {
-  const tolerance: Fraction = Fraction.fromString(input.slippageTolerance);
-  const amountOut: TokenAmount = input.amountOut;
-  const tradeType: TradeType = input.tradeType;
+  const tolerance: Fraction = Fraction.fromString(args.slippageTolerance);
+  const amountOut: TokenAmount = args.amountOut;
+  const tradeType: TradeType = args.tradeType;
 
   if (tolerance.lt(new Fraction(BigInt.ZERO))) {
     throw new RangeError(
@@ -371,16 +370,16 @@ export function tradeMinimumAmountOut(
 
 /**
  * Get the maximum amount in that can be spent via this trade for the given slippage tolerance
- * @param input.slippageTolerance The tolerance of unfavorable slippage from the execution price of this trade; a decimal number between 0 and 1 (e.g. "0.03") that represents a percentage
- * @param input.amountIn The input amount of the trade, before slippage, e.g. from Trade object or tradeInputAmount(...)
- * @param input.tradeType The type of the trade, either exact in or exact out
+ * @param args.slippageTolerance The tolerance of unfavorable slippage from the execution price of this trade; a decimal number between 0 and 1 (e.g. "0.03") that represents a percentage
+ * @param args.amountIn The input amount of the trade, before slippage, e.g. from Trade object or tradeInputAmount(...)
+ * @param args.tradeType The type of the trade, either exact in or exact out
  */
 export function tradeMaximumAmountIn(
-  input: Input_tradeMaximumAmountIn
+  args: Args_tradeMaximumAmountIn
 ): TokenAmount {
-  const tolerance: Fraction = Fraction.fromString(input.slippageTolerance);
-  const amountIn: TokenAmount = input.amountIn;
-  const tradeType: TradeType = input.tradeType;
+  const tolerance: Fraction = Fraction.fromString(args.slippageTolerance);
+  const amountIn: TokenAmount = args.amountIn;
+  const tradeType: TradeType = args.tradeType;
 
   if (tolerance.lt(new Fraction(BigInt.ZERO))) {
     throw new RangeError(
@@ -405,20 +404,20 @@ export function tradeMaximumAmountIn(
 
 /**
  * Return the execution price after accounting for slippage tolerance
- * @param input.swaps the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
- * @param input.tradeType the type of the trade, either exact in or exact out
- * @param input.amountIn the trade input amount, e.g. from Trade object or tradeInputAmount(...)
- * @param input.amountOut the trade output amount, e.g. from Trade object or tradeOutputAmount(...)
- * @param input.slippageTolerance the allowed tolerated slippage
+ * @param args.swaps the routes to swap through, the amounts being passed in, and the amounts returned when the trade is executed
+ * @param args.tradeType the type of the trade, either exact in or exact out
+ * @param args.amountIn the trade input amount, e.g. from Trade object or tradeInputAmount(...)
+ * @param args.amountOut the trade output amount, e.g. from Trade object or tradeOutputAmount(...)
+ * @param args.slippageTolerance the allowed tolerated slippage
  */
 export function tradeWorstExecutionPrice(
-  input: Input_tradeWorstExecutionPrice
+  args: Args_tradeWorstExecutionPrice
 ): PriceType {
-  const swaps: TradeSwap[] = input.trade.swaps;
-  const tradeType: TradeType = input.trade.tradeType;
-  const amountIn: TokenAmount = input.trade.inputAmount;
-  const amountOut: TokenAmount = input.trade.outputAmount;
-  const slippageTolerance: string = input.slippageTolerance;
+  const swaps: TradeSwap[] = args.trade.swaps;
+  const tradeType: TradeType = args.trade.tradeType;
+  const amountIn: TokenAmount = args.trade.inputAmount;
+  const amountOut: TokenAmount = args.trade.outputAmount;
+  const slippageTolerance: string = args.slippageTolerance;
 
   return new Price(
     swaps[0].inputAmount.token,
@@ -433,27 +432,27 @@ export function tradeWorstExecutionPrice(
  amount to an output token, making at most `maxHops` hops.
  Note this does not consider aggregation, as routes are linear. It's possible a better route exists by splitting
  the amount in among multiple routes.
- * @param input.pools the pools to consider in finding the best trade
- * @param input.amountIn exact amount of input currency to spend
- * @param input.tokenOut the desired currency out
- * @param input.options options used when determining the best trade
+ * @param args.pools the pools to consider in finding the best trade
+ * @param args.amountIn exact amount of input currency to spend
+ * @param args.tokenOut the desired currency out
+ * @param args.options options used when determining the best trade
  */
-export function bestTradeExactIn(input: Input_bestTradeExactIn): Trade[] {
-  const pools: Pool[] = input.pools;
-  const amountIn: TokenAmount = input.amountIn;
-  const tokenOut: Token = input.tokenOut;
-  const options: BestTradeOptions = fillBestTradeOptions(input.options);
+export function bestTradeExactIn(args: Args_bestTradeExactIn): Trade[] {
+  const pools: Pool[] = args.pools;
+  const amountIn: TokenAmount = args.amountIn;
+  const tokenOut: Token = args.tokenOut;
+  const options: BestTradeOptions = fillBestTradeOptions(args.options);
 
   if (pools.length == 0) {
     throw new Error("POOLS: pools array is empty");
   }
-  if (options.maxHops.value == 0) {
+  if (options.maxHops.unwrap() == 0) {
     throw new Error("MAX_HOPS: maxHops must be greater than zero");
   }
 
   return _bestTradeExactIn(pools, amountIn, tokenOut, options)
     .toArray()
-    .slice(0, options.maxNumResults.value);
+    .slice(0, options.maxNumResults.unwrap());
 }
 
 function _bestTradeExactIn(
@@ -504,7 +503,7 @@ function _bestTradeExactIn(
         tradeType: TradeType.EXACT_INPUT,
       });
       bestTrades.insert(newTrade);
-    } else if (options.maxHops.value > 1 && pools.length > 1) {
+    } else if (options.maxHops.unwrap() > 1 && pools.length > 1) {
       const poolsExcludingThisPool: Pool[] = pools
         .slice(0, i)
         .concat(pools.slice(i + 1));
@@ -516,7 +515,7 @@ function _bestTradeExactIn(
         currencyOut,
         {
           maxNumResults: options.maxNumResults,
-          maxHops: Nullable.fromValue<u32>(options.maxHops.value - 1),
+          maxHops: new Option(options.maxHops.unwrap() - 1, false),
         },
         currentPools.concat([pool]),
         amountOut,
@@ -534,27 +533,27 @@ function _bestTradeExactIn(
  to an output token amount, making at most `maxHops` hops.
  Note this does not consider aggregation, as routes are linear. It's possible a better route exists by splitting
  the amount in among multiple routes.
- * @param input.pools the pools to consider in finding the best trade
- * @param input.tokenIn the currency to spend
- * @param input.amountOut the desired currency amount out
- * @param input.options options used when determining the best trade
+ * @param args.pools the pools to consider in finding the best trade
+ * @param args.tokenIn the currency to spend
+ * @param args.amountOut the desired currency amount out
+ * @param args.options options used when determining the best trade
  */
-export function bestTradeExactOut(input: Input_bestTradeExactOut): Trade[] {
-  const pools: Pool[] = input.pools;
-  const tokenIn: Token = input.tokenIn;
-  const amountOut: TokenAmount = input.amountOut;
-  const options: BestTradeOptions = fillBestTradeOptions(input.options);
+export function bestTradeExactOut(args: Args_bestTradeExactOut): Trade[] {
+  const pools: Pool[] = args.pools;
+  const tokenIn: Token = args.tokenIn;
+  const amountOut: TokenAmount = args.amountOut;
+  const options: BestTradeOptions = fillBestTradeOptions(args.options);
 
   if (pools.length == 0) {
     throw new Error("POOLS: pools array is empty");
   }
-  if (options.maxHops.value == 0) {
+  if (options.maxHops.unwrap() == 0) {
     throw new Error("MAX_HOPS: maxHops must be greater than zero");
   }
 
   return _bestTradeExactOut(pools, tokenIn, amountOut, options)
     .toArray()
-    .slice(0, options.maxNumResults.value);
+    .slice(0, options.maxNumResults.unwrap());
 }
 
 function _bestTradeExactOut(
@@ -612,7 +611,7 @@ function _bestTradeExactOut(
         tradeType: TradeType.EXACT_OUTPUT,
       });
       bestTrades.insert(newTrade);
-    } else if (options.maxHops.value > 1 && pools.length > 1) {
+    } else if (options.maxHops.unwrap() > 1 && pools.length > 1) {
       const poolsExcludingThisPool: Pool[] = pools
         .slice(0, i)
         .concat(pools.slice(i + 1));
@@ -624,7 +623,7 @@ function _bestTradeExactOut(
         currencyAmountOut,
         {
           maxNumResults: options.maxNumResults,
-          maxHops: Nullable.fromValue<u32>(options.maxHops.value - 1),
+          maxHops: new Option(options.maxHops.unwrap() - 1, false),
         },
         [pool].concat(currentPools),
         amountIn,
@@ -686,15 +685,15 @@ function fillBestTradeOptions(
 ): BestTradeOptions {
   return options === null
     ? {
-        maxNumResults: Nullable.fromValue<u32>(3),
-        maxHops: Nullable.fromValue<u32>(3),
+        maxNumResults: new Option(3, false),
+        maxHops: new Option(3, false),
       }
     : {
-        maxNumResults: options.maxNumResults.isNull
-          ? Nullable.fromValue<u32>(3)
+        maxNumResults: options.maxNumResults.isNone
+          ? new Option(3, false)
           : options.maxNumResults,
-        maxHops: options.maxHops.isNull
-          ? Nullable.fromValue<u32>(3)
+        maxHops: options.maxHops.isNone
+          ? new Option(3, false)
           : options.maxHops,
       };
 }

@@ -1,17 +1,17 @@
 import {
-  Input_nextInitializedTick,
-  Input_tickIsAtOrAboveLargest,
-  Input_tickIsBelowSmallest,
-  Input_tickListIsSorted,
-  Input_validateTickList,
+  Args_nextInitializedTick,
+  Args_tickIsAtOrAboveLargest,
+  Args_tickIsBelowSmallest,
+  Args_tickListIsSorted,
+  Args_validateTickList,
   Tick,
-} from "./w3";
+} from "../wrap";
 
-import { BigInt } from "@web3api/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
 
-export function validateTickList(input: Input_validateTickList): boolean {
-  const ticks: Tick[] = input.ticks;
-  const tickSpacing: i32 = input.tickSpacing;
+export function validateTickList(args: Args_validateTickList): boolean {
+  const ticks: Tick[] = args.ticks;
+  const tickSpacing: i32 = args.tickSpacing;
   if (tickSpacing <= 0) {
     throw new Error(
       "TICK_SPACING_NONZERO: Tick spacing must be greater than zero"
@@ -44,9 +44,9 @@ export function validateTickList(input: Input_validateTickList): boolean {
   return true;
 }
 
-export function tickIsBelowSmallest(input: Input_tickIsBelowSmallest): boolean {
-  const ticks: Tick[] = input.ticks;
-  const tick: i32 = input.tick;
+export function tickIsBelowSmallest(args: Args_tickIsBelowSmallest): boolean {
+  const ticks: Tick[] = args.ticks;
+  const tick: i32 = args.tick;
   if (ticks.length == 0) {
     throw new Error("LENGTH: Tick list is empty");
   }
@@ -54,10 +54,10 @@ export function tickIsBelowSmallest(input: Input_tickIsBelowSmallest): boolean {
 }
 
 export function tickIsAtOrAboveLargest(
-  input: Input_tickIsAtOrAboveLargest
+  args: Args_tickIsAtOrAboveLargest
 ): boolean {
-  const ticks: Tick[] = input.ticks;
-  const tick: i32 = input.tick;
+  const ticks: Tick[] = args.ticks;
+  const tick: i32 = args.tick;
   if (ticks.length == 0) {
     throw new Error("LENGTH: Tick list is empty");
   }
@@ -105,10 +105,10 @@ export function findTick(ticks: Tick[], index: u32): Tick {
   return tick;
 }
 
-export function nextInitializedTick(input: Input_nextInitializedTick): Tick {
-  const ticks: Tick[] = input.ticks;
-  const tick: i32 = input.tick;
-  const lte: boolean = input.lte;
+export function nextInitializedTick(args: Args_nextInitializedTick): Tick {
+  const ticks: Tick[] = args.ticks;
+  const tick: i32 = args.tick;
+  const lte: boolean = args.lte;
 
   if (lte) {
     if (tickIsBelowSmallest({ ticks: ticks, tick: tick })) {
@@ -137,11 +137,11 @@ export function nextInitializedTick(input: Input_nextInitializedTick): Tick {
 
 /**
  * Returns true if a tick list is sorted by tick index
- * @param input.ticks the tick list
+ * @param args.ticks the tick list
  * @returns true if sorted
  */
-export function tickListIsSorted(input: Input_tickListIsSorted): boolean {
-  return isSorted(input.ticks, tickComparator);
+export function tickListIsSorted(args: Args_tickListIsSorted): boolean {
+  return isSorted(args.ticks, tickComparator);
 }
 
 function tickComparator(a: Tick, b: Tick): i32 {

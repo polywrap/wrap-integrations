@@ -5,7 +5,10 @@ config:
   node_version: "16.13.0"
   include:
     - ./package.json
-    - src/query
-    - src/mutation
-    - src/common
+    - src/pool
+    - src/position
+    - src/router
+    - src/swap
+    - src/tickList
+    - src/token
     - src/utils

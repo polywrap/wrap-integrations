@@ -4,14 +4,13 @@ import {
   Route,
   Token,
   Price as PriceType,
-  Input_createRoute,
-  Input_routeChainId,
-  Input_routeMidPrice,
-} from "./w3";
-import { poolChainId, poolInvolvesToken } from "./pool";
-import { _wrapToken } from "../utils/tokenUtils";
-import { tokenEquals } from "./token";
-import Price from "../utils/Price";
+  Args_createRoute,
+  Args_routeChainId,
+  Args_routeMidPrice,
+} from "../wrap";
+import { poolChainId, poolInvolvesToken } from "../pool";
+import { tokenEquals, _wrapToken } from "../token";
+import { Price } from "../utils";
 
 class MidPriceStep {
   nextInput: Token;
@@ -20,14 +19,14 @@ class MidPriceStep {
 
 /**
  * Constructs and validates a Route
- * @param input.pools the ordered list of pools from which to construct the route
- * @param input.inToken the input token
- * @param input.outToken the output token
+ * @param args.pools the ordered list of pools from which to construct the route
+ * @param args.inToken the input token
+ * @param args.outToken the output token
  */
-export function createRoute(input: Input_createRoute): Route {
-  const pools: Pool[] = input.pools;
-  const inToken: Token = input.inToken;
-  const outToken: Token = input.outToken;
+export function createRoute(args: Args_createRoute): Route {
+  const pools: Pool[] = args.pools;
+  const inToken: Token = args.inToken;
+  const outToken: Token = args.outToken;
 
   if (pools.length == 0) {
     throw new Error("POOLS: pools cannot be an empty array");
@@ -92,17 +91,17 @@ export function createRoute(input: Input_createRoute): Route {
 /**
  * Returns the chain id of the tokens in the route
  */
-export function routeChainId(input: Input_routeChainId): ChainId {
-  return poolChainId({ pool: input.route.pools[0] });
+export function routeChainId(args: Args_routeChainId): ChainId {
+  return poolChainId({ pool: args.route.pools[0] });
 }
 
 /**
  * Returns the mid price of the route
  */
-export function routeMidPrice(input: Input_routeMidPrice): PriceType {
-  const pools: Pool[] = input.pools;
-  const inToken: Token = input.inToken;
-  const outToken: Token = input.outToken;
+export function routeMidPrice(args: Args_routeMidPrice): PriceType {
+  const pools: Pool[] = args.pools;
+  const inToken: Token = args.inToken;
+  const outToken: Token = args.outToken;
 
   const price: Price = pools.slice(1).reduce<MidPriceStep>(
     (step: MidPriceStep, pool: Pool) => {

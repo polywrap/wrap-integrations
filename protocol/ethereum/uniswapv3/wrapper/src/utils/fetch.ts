@@ -1,15 +1,141 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   ChainId,
-  Ethereum_Module,
-  FeeAmount,
   getChainIdKey,
-  Subgraph_Module,
+  Args_fetchPoolFromAddress,
+  Args_fetchToken,
+  Pool,
+  Token,
   Tick,
+  Args_fetchTickList,
+  Args_fetchPoolFromTokens,
+  FeeAmount,
+  ERC20_Module,
+  Ethereum_Module,
+  Subgraph_Module,
 } from "../wrap";
+import { createPool, getPoolAddress } from "../pool";
+import { _wrapToken } from "../token";
 import { getFeeAmountEnum } from "./enumUtils";
 
 import { BigInt, JSON } from "@polywrap/wasm-as";
+
+/**
+ * returns token object constructed from on-chain token contract
+ * @param args.address the Ethereum address of token's ERC20 contract
+ * @param args.chainId the id of the chain to be queried
+ */
+export function fetchToken(args: Args_fetchToken): Token {
+  const chainId: ChainId = args.chainId;
+  const address: string = args.address;
+  const symbol: string = ERC20_Module.symbol({
+    address: address,
+    connection: {
+      node: null,
+      networkNameOrChainId: getChainIdKey(chainId),
+    },
+  }).unwrap();
+  const name: string = ERC20_Module.name({
+    address: address,
+    connection: {
+      node: null,
+      networkNameOrChainId: getChainIdKey(chainId),
+    },
+  }).unwrap();
+  const decimals: i32 = ERC20_Module.decimals({
+    address: address,
+    connection: {
+      node: null,
+      networkNameOrChainId: getChainIdKey(chainId),
+    },
+  }).unwrap();
+  return {
+    chainId: chainId,
+    address: address,
+    currency: {
+      decimals: <u8>decimals,
+      symbol: symbol,
+      name: name,
+    },
+  };
+}
+
+/**
+ * returns pool object constructed from on-chain pool contract
+ * @param args.tokenA a token in the pool
+ * @param args.tokenB the other token in the pool
+ * @param args.fee the pool's fee amount
+ * @param args.fetchTicks if true, the full list of pool ticks will be fetched
+ */
+export function fetchPoolFromTokens(args: Args_fetchPoolFromTokens): Pool {
+  let tokenA: Token = args.tokenA;
+  let tokenB: Token = args.tokenB;
+  const fee: FeeAmount = args.fee;
+  const fetchTicks = args.fetchTicks;
+  // wrap if ether
+  tokenA = _wrapToken(tokenA);
+  tokenB = _wrapToken(tokenB);
+  // get pool address
+  const address = getPoolAddress({
+    tokenA,
+    tokenB,
+    fee,
+    initCodeHashManualOverride: null,
+  });
+  const chainId: ChainId = tokenA.chainId;
+  // fetch data
+  const state: PoolState = fetchPoolState(address, chainId);
+  const ticks: Tick[] | null = fetchTicks
+    ? fetchTickList({ address, chainId })
+    : null;
+
+  return createPool({
+    tokenA: tokenA,
+    tokenB: tokenB,
+    fee: fee,
+    sqrtRatioX96: state.sqrtPriceX96,
+    liquidity: state.liquidity,
+    tickCurrent: state.tick,
+    ticks: ticks,
+  });
+}
+
+/**
+ * returns pool object constructed from on-chain pool contract
+ * @param args.address the Ethereum address of the pool contract
+ * @param args.chainId the id of the chain to be queried
+ * @param args.fetchTicks if true, the full list of pool ticks will be fetched
+ */
+export function fetchPoolFromAddress(args: Args_fetchPoolFromAddress): Pool {
+  const chainId: ChainId = args.chainId;
+  const address: string = args.address.toLowerCase();
+  const fetchTicks = args.fetchTicks;
+  // fetch data
+  const immutables: PoolImmutables = fetchPoolImmutables(address, chainId);
+  const state: PoolState = fetchPoolState(address, chainId);
+  const ticks: Tick[] | null = fetchTicks
+    ? fetchTickList({ address, chainId })
+    : null;
+
+  return createPool({
+    tokenA: fetchToken({ address: immutables.token0, chainId: chainId }),
+    tokenB: fetchToken({ address: immutables.token1, chainId: chainId }),
+    fee: immutables.fee,
+    sqrtRatioX96: state.sqrtPriceX96,
+    liquidity: state.liquidity,
+    tickCurrent: state.tick,
+    ticks: ticks,
+  });
+}
+
+/**
+ * returns array of ticks from on-chain pool contract at given address
+ * @param args.address the Ethereum address of the pool contract
+ * @param args.chainId the id of the chain to be queried
+ */
+export function fetchTickList(args: Args_fetchTickList): Tick[] {
+  return fetchPoolTicksSubgraph(args.address, args.chainId);
+}
 
 export class PoolImmutables {
   token0: string;

@@ -5,7 +5,7 @@ import { Rounding } from "./enumUtils";
 import { BigInt } from "@polywrap/wasm-as";
 import { BigFloat } from "as-bigfloat";
 
-export default class Fraction {
+export class Fraction {
   public readonly numerator: BigInt;
   public readonly denominator: BigInt;
 

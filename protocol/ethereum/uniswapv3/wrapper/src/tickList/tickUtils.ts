@@ -1,13 +1,17 @@
 import {
-  Input_getSqrtRatioAtTick,
-  Input_getTickAtSqrtRatio,
-  Input_nearestUsableTick,
-  Input_priceToClosestTick,
-  Input_tickToPrice,
+  Args_getSqrtRatioAtTick,
+  Args_getTickAtSqrtRatio,
+  Args_nearestUsableTick,
+  Args_priceToClosestTick,
+  Args_tickToPrice,
   Price as PriceType,
   Token,
-} from "./w3";
+} from "../wrap";
+import { tokenSortsBefore } from "../token";
 import {
+  mostSignificantBit,
+  encodeSqrtRatioX96,
+  Price,
   MAX_SQRT_RATIO,
   MAX_TICK,
   MAX_UINT_256,
@@ -15,21 +19,18 @@ import {
   MIN_TICK,
   Q192,
   Q32,
-} from "../utils/constants";
-import { tokenSortsBefore } from "./token";
-import Price from "../utils/Price";
-import { mostSignificantBit, encodeSqrtRatioX96 } from "./mathUtils";
+} from "../utils";
 
-import { BigInt } from "@web3api/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
 
 /**
  * Returns the closest tick that is nearest a given tick and usable for the given tick spacing
- * @param input.tick the target tick
- * @param input.tickSpacing the spacing of the pool
+ * @param args.tick the target tick
+ * @param args.tickSpacing the spacing of the pool
  */
-export function nearestUsableTick(input: Input_nearestUsableTick): i32 {
-  const tick: i32 = input.tick;
-  const tickSpacing: i32 = input.tickSpacing;
+export function nearestUsableTick(args: Args_nearestUsableTick): i32 {
+  const tick: i32 = args.tick;
+  const tickSpacing: i32 = args.tickSpacing;
   if (tickSpacing <= 0) {
     throw new Error("TICK_SPACING: tick spacing must be greater than 0");
   }
@@ -48,18 +49,18 @@ export function nearestUsableTick(input: Input_nearestUsableTick): i32 {
 
 /**
  * Returns a price object corresponding to the input tick and the base/quote token. Inputs must be tokens because the address order is used to interpret the price represented by the tick.
- * @param input.baseToken the base token of the price
- * @param input.quoteToken the quote token of the price
- * @param input.tick the tick for which to return the price
+ * @param args.baseToken the base token of the price
+ * @param args.quoteToken the quote token of the price
+ * @param args.tick the tick for which to return the price
  */
-export function tickToPrice(input: Input_tickToPrice): PriceType {
-  return _tickToPrice(input).toPriceType();
+export function tickToPrice(args: Args_tickToPrice): PriceType {
+  return _tickToPrice(args).toPriceType();
 }
 
-function _tickToPrice(input: Input_tickToPrice): Price {
-  const baseToken: Token = input.baseToken;
-  const quoteToken: Token = input.quoteToken;
-  const tick: i32 = input.tick;
+function _tickToPrice(args: Args_tickToPrice): Price {
+  const baseToken: Token = args.baseToken;
+  const quoteToken: Token = args.quoteToken;
+  const tick: i32 = args.tick;
 
   const sqrtRatioX96: BigInt = getSqrtRatioAtTick({ tick: tick });
   const ratioX192: BigInt = BigInt.mul(sqrtRatioX96, sqrtRatioX96);
@@ -71,14 +72,14 @@ function _tickToPrice(input: Input_tickToPrice): Price {
 
 /**
  * Returns the first tick for which the given price is greater than or equal to the tick price
- * @param input.price price for which to return the closest tick that represents a price less than or equal to the input price, i.e. the price of the returned tick is less than or equal to the input price
+ * @param args.price price for which to return the closest tick that represents a price less than or equal to the input price, i.e. the price of the returned tick is less than or equal to the input price
  */
-export function priceToClosestTick(input: Input_priceToClosestTick): i32 {
+export function priceToClosestTick(args: Args_priceToClosestTick): i32 {
   const price: Price = new Price(
-    input.price.baseToken,
-    input.price.quoteToken,
-    input.price.denominator,
-    input.price.numerator
+    args.price.baseToken,
+    args.price.quoteToken,
+    args.price.denominator,
+    args.price.numerator
   );
 
   const sorted: boolean = tokenSortsBefore({
@@ -116,10 +117,10 @@ export function priceToClosestTick(input: Input_priceToClosestTick): i32 {
 
 /**
  * Returns the sqrt ratio as a Q64.96 for the given tick. The sqrt ratio is computed as sqrt(1.0001)^tick
- * @param input.tick the tick for which to compute the sqrt ratio
+ * @param args.tick the tick for which to compute the sqrt ratio
  */
-export function getSqrtRatioAtTick(input: Input_getSqrtRatioAtTick): BigInt {
-  const tick: i32 = input.tick;
+export function getSqrtRatioAtTick(args: Args_getSqrtRatioAtTick): BigInt {
+  const tick: i32 = args.tick;
   if (tick < MIN_TICK || tick > MAX_TICK) {
     throw new Error(
       `TICK_BOUND: tick index is out of range ${MIN_TICK} to ${MAX_TICK}`
@@ -182,10 +183,10 @@ export function getSqrtRatioAtTick(input: Input_getSqrtRatioAtTick): BigInt {
 
 /**
  * Returns the tick corresponding to a given sqrt ratio, s.t. #getSqrtRatioAtTick(tick) <= sqrtRatioX96 and #getSqrtRatioAtTick(tick + 1) > sqrtRatioX96
- * @param input.sqrtRatioX96 the sqrt ratio as a Q64.96 for which to compute the tick
+ * @param args.sqrtRatioX96 the sqrt ratio as a Q64.96 for which to compute the tick
  */
-export function getTickAtSqrtRatio(input: Input_getTickAtSqrtRatio): i32 {
-  const sqrtRatioX96: BigInt = input.sqrtRatioX96;
+export function getTickAtSqrtRatio(args: Args_getTickAtSqrtRatio): i32 {
+  const sqrtRatioX96: BigInt = args.sqrtRatioX96;
   if (sqrtRatioX96 < MIN_SQRT_RATIO || sqrtRatioX96 > MAX_SQRT_RATIO) {
     throw new Error(
       `SQRT_RATIO_BOUND: sqrt ratio is out of range ${MIN_SQRT_RATIO} to ${MAX_SQRT_RATIO}`

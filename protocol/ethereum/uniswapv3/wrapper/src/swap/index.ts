@@ -14,20 +14,15 @@ import {
   Trade,
   TradeType,
 } from "../wrap";
-import {
-  swapCallParameters,
-  createTradeExactIn,
-  createRoute,
-  createTradeExactOut,
-  fetchPoolFromAddress,
-  tokenEquals,
-  getPoolAddress,
-} from "../query";
-import { ROUTER_ADDRESS } from "../utils/constants";
-import { execCall } from "./call";
-import { _wrapToken } from "../utils/tokenUtils";
+import { ROUTER_ADDRESS, execCall, fetchPoolFromAddress } from "../utils";
+import { _wrapToken, tokenEquals } from "../token";
+import { createRoute, swapCallParameters } from "../router";
+import { getPoolAddress } from "../pool";
+import { createTradeExactIn, createTradeExactOut } from "./trade";
 
 import { BigInt } from "@polywrap/wasm-as";
+
+export * from "./trade";
 
 export function execSwap(args: Args_execSwap): Ethereum_TxResponse {
   const trades: Trade[] = args.trades;
@@ -41,7 +36,7 @@ export function execSwap(args: Args_execSwap): Ethereum_TxResponse {
   return execCall({
     parameters,
     address: ROUTER_ADDRESS,
-    chainId: args.trades[0].argsAmount.token.chainId,
+    chainId: args.trades[0].inputAmount.token.chainId,
     gasOptions,
   });
 }

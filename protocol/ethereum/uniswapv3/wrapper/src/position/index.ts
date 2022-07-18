@@ -1,21 +1,21 @@
 import {
-  Input_burnAmountsWithSlippage,
-  Input_createPosition,
-  Input_createPositionFromAmount0,
-  Input_createPositionFromAmount1,
-  Input_createPositionFromAmounts,
-  Input_mintAmounts,
-  Input_mintAmountsWithSlippage,
-  Input_positionAmount0,
-  Input_positionAmount1,
-  Input_positionToken0PriceLower,
-  Input_positionToken0PriceUpper,
+  Args_burnAmountsWithSlippage,
+  Args_createPosition,
+  Args_createPositionFromAmount0,
+  Args_createPositionFromAmount1,
+  Args_createPositionFromAmounts,
+  Args_mintAmounts,
+  Args_mintAmountsWithSlippage,
+  Args_positionAmount0,
+  Args_positionAmount1,
+  Args_positionToken0PriceLower,
+  Args_positionToken0PriceUpper,
   MintAmounts,
   Pool,
   Position,
   Price as PriceType,
   TokenAmount,
-} from "./w3";
+} from "../wrap";
 import {
   MAX_SQRT_RATIO,
   MAX_TICK,
@@ -23,35 +23,38 @@ import {
   MIN_SQRT_RATIO,
   MIN_TICK,
 } from "../utils/constants";
-import { createPool, getPoolTickSpacing } from "./pool";
+import { createPool, getPoolTickSpacing } from "../pool";
 import {
   getSqrtRatioAtTick,
   getTickAtSqrtRatio,
   tickToPrice,
-} from "./tickUtils";
+} from "../tickList";
 import {
   encodeSqrtRatioX96,
   getAmount0Delta,
   getAmount1Delta,
-} from "./mathUtils";
-import Fraction from "../utils/Fraction";
-import Price from "../utils/Price";
-import { maxLiquidityForAmounts } from "./positionUtils";
+  Fraction,
+  Price,
+} from "../utils";
+import { maxLiquidityForAmounts } from "./utils";
 
-import { BigInt } from "@web3api/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
+
+export * from "./nonfungiblePositionManager";
+export * from "./utils";
 
 /**
  * Constructs and validates a Position for a given Pool with the given liquidity
- * @param input.pool For which pool the liquidity is assigned
- * @param input.tickLower The lower tick of the position
- * @param input.tickUpper The upper tick of the position
- * @param input.liquidity The amount of liquidity that is in the position
+ * @param args.pool For which pool the liquidity is assigned
+ * @param args.tickLower The lower tick of the position
+ * @param args.tickUpper The upper tick of the position
+ * @param args.liquidity The amount of liquidity that is in the position
  */
-export function createPosition(input: Input_createPosition): Position {
-  const pool: Pool = input.pool;
-  const tickLower: i32 = input.tickLower;
-  const tickUpper: i32 = input.tickUpper;
-  const liquidity: BigInt = input.liquidity;
+export function createPosition(args: Args_createPosition): Position {
+  const pool: Pool = args.pool;
+  const tickLower: i32 = args.tickLower;
+  const tickUpper: i32 = args.tickUpper;
+  const liquidity: BigInt = args.liquidity;
 
   if (tickLower >= tickUpper) {
     throw new Error(
@@ -75,22 +78,22 @@ export function createPosition(input: Input_createPosition): Position {
     tickUpper,
     liquidity,
     token0Amount: positionAmount0({
-      pool: input.pool,
-      tickLower: input.tickLower,
-      tickUpper: input.tickUpper,
-      liquidity: input.liquidity,
+      pool: args.pool,
+      tickLower: args.tickLower,
+      tickUpper: args.tickUpper,
+      liquidity: args.liquidity,
     }),
     token1Amount: positionAmount1({
-      pool: input.pool,
-      tickLower: input.tickLower,
-      tickUpper: input.tickUpper,
-      liquidity: input.liquidity,
+      pool: args.pool,
+      tickLower: args.tickLower,
+      tickUpper: args.tickUpper,
+      liquidity: args.liquidity,
     }),
     mintAmounts: mintAmounts({
-      pool: input.pool,
-      tickLower: input.tickLower,
-      tickUpper: input.tickUpper,
-      liquidity: input.liquidity,
+      pool: args.pool,
+      tickLower: args.tickLower,
+      tickUpper: args.tickUpper,
+      liquidity: args.liquidity,
     }),
     token0PriceLower: positionToken0PriceLower({ pool, tickLower }),
     token0PriceUpper: positionToken0PriceUpper({ pool, tickUpper }),
@@ -99,22 +102,22 @@ export function createPosition(input: Input_createPosition): Position {
 
 /**
  * Computes the maximum amount of liquidity received for a given amount of token0, token1, and the prices at the tick boundaries
- * @param input.pool The pool for which the position should be created
- * @param input.tickLower The lower tick of the position
- * @param input.tickUpper The upper tick of the position
- * @param input.amount0 token0 amount
- * @param input.amount1 token1 amount
- * @param input.useFullPrecision If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
+ * @param args.pool The pool for which the position should be created
+ * @param args.tickLower The lower tick of the position
+ * @param args.tickUpper The upper tick of the position
+ * @param args.amount0 token0 amount
+ * @param args.amount1 token1 amount
+ * @param args.useFullPrecision If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
  */
 export function createPositionFromAmounts(
-  input: Input_createPositionFromAmounts
+  args: Args_createPositionFromAmounts
 ): Position {
-  const pool: Pool = input.pool;
-  const tickLower: i32 = input.tickLower;
-  const tickUpper: i32 = input.tickUpper;
-  const amount0: BigInt = input.amount0;
-  const amount1: BigInt = input.amount1;
-  const useFullPrecision: boolean = input.useFullPrecision;
+  const pool: Pool = args.pool;
+  const tickLower: i32 = args.tickLower;
+  const tickUpper: i32 = args.tickUpper;
+  const amount0: BigInt = args.amount0;
+  const amount1: BigInt = args.amount1;
+  const useFullPrecision: boolean = args.useFullPrecision;
 
   const sqrtRatioAX96: BigInt = getSqrtRatioAtTick({ tick: tickLower });
   const sqrtRatioBX96: BigInt = getSqrtRatioAtTick({ tick: tickUpper });
@@ -135,20 +138,20 @@ export function createPositionFromAmounts(
 
 /**
  * Computes a position with the maximum amount of liquidity received for a given amount of token0, assuming an unlimited amount of token1
- * @param input.pool The pool for which the position should be created
- * @param input.tickLower The lower tick of the position
- * @param input.tickUpper The upper tick of the position
- * @param input.amount0 token0 The desired amount of token0
- * @param input.useFullPrecision If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
+ * @param args.pool The pool for which the position should be created
+ * @param args.tickLower The lower tick of the position
+ * @param args.tickUpper The upper tick of the position
+ * @param args.amount0 token0 The desired amount of token0
+ * @param args.useFullPrecision If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
  */
 export function createPositionFromAmount0(
-  input: Input_createPositionFromAmount0
+  args: Args_createPositionFromAmount0
 ): Position {
-  const pool: Pool = input.pool;
-  const tickLower: i32 = input.tickLower;
-  const tickUpper: i32 = input.tickUpper;
-  const amount0: BigInt = input.amount0;
-  const useFullPrecision: boolean = input.useFullPrecision;
+  const pool: Pool = args.pool;
+  const tickLower: i32 = args.tickLower;
+  const tickUpper: i32 = args.tickUpper;
+  const amount0: BigInt = args.amount0;
+  const useFullPrecision: boolean = args.useFullPrecision;
   return createPositionFromAmounts({
     pool,
     tickLower,
@@ -161,19 +164,19 @@ export function createPositionFromAmount0(
 
 /**
  * Computes a position with the maximum amount of liquidity received for a given amount of token1, assuming an unlimited amount of token0
- * @param input.pool The pool for which the position should be created
- * @param input.tickLower The lower tick of the position
- * @param input.tickUpper The upper tick of the position
- * @param input.amount1 token0 The desired amount of token1
- * @param input.useFullPrecision If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
+ * @param args.pool The pool for which the position should be created
+ * @param args.tickLower The lower tick of the position
+ * @param args.tickUpper The upper tick of the position
+ * @param args.amount1 token0 The desired amount of token1
+ * @param args.useFullPrecision If false, liquidity will be maximized according to what the router can calculate, not what core can theoretically support
  */
 export function createPositionFromAmount1(
-  input: Input_createPositionFromAmount1
+  args: Args_createPositionFromAmount1
 ): Position {
-  const pool: Pool = input.pool;
-  const tickLower: i32 = input.tickLower;
-  const tickUpper: i32 = input.tickUpper;
-  const amount1: BigInt = input.amount1;
+  const pool: Pool = args.pool;
+  const tickLower: i32 = args.tickLower;
+  const tickUpper: i32 = args.tickUpper;
+  const amount1: BigInt = args.amount1;
   return createPositionFromAmounts({
     pool,
     tickLower,
@@ -186,13 +189,13 @@ export function createPositionFromAmount1(
 
 /**
  * Returns the price of token0 at the lower tick
- * @param input.position
+ * @param args.position
  */
 export function positionToken0PriceLower(
-  input: Input_positionToken0PriceLower
+  args: Args_positionToken0PriceLower
 ): PriceType {
-  const pool: Pool = input.pool;
-  const tickLower: i32 = input.tickLower;
+  const pool: Pool = args.pool;
+  const tickLower: i32 = args.tickLower;
   return tickToPrice({
     baseToken: pool.token0,
     quoteToken: pool.token1,
@@ -202,13 +205,13 @@ export function positionToken0PriceLower(
 
 /**
  * Returns the price of token0 at the upper tick
- * @param input.position
+ * @param args.position
  */
 export function positionToken0PriceUpper(
-  input: Input_positionToken0PriceUpper
+  args: Args_positionToken0PriceUpper
 ): PriceType {
-  const pool: Pool = input.pool;
-  const tickUpper: i32 = input.tickUpper;
+  const pool: Pool = args.pool;
+  const tickUpper: i32 = args.tickUpper;
   return tickToPrice({
     baseToken: pool.token0,
     quoteToken: pool.token1,
@@ -218,13 +221,13 @@ export function positionToken0PriceUpper(
 
 /**
  * Returns the amount of token0 that this position's liquidity could be burned for at the current pool price
- * @param input.position
+ * @param args.position
  */
-export function positionAmount0(input: Input_positionAmount0): TokenAmount {
-  const pool: Pool = input.pool;
-  const tickLower: i32 = input.tickLower;
-  const tickUpper: i32 = input.tickUpper;
-  const liquidity: BigInt = input.liquidity;
+export function positionAmount0(args: Args_positionAmount0): TokenAmount {
+  const pool: Pool = args.pool;
+  const tickLower: i32 = args.tickLower;
+  const tickUpper: i32 = args.tickUpper;
+  const liquidity: BigInt = args.liquidity;
   if (pool.tickCurrent < tickLower) {
     return {
       token: pool.token0,
@@ -255,13 +258,13 @@ export function positionAmount0(input: Input_positionAmount0): TokenAmount {
 
 /**
  * Returns the amount of token1 that this position's liquidity could be burned for at the current pool price
- * @param input.position
+ * @param args.position
  */
-export function positionAmount1(input: Input_positionAmount1): TokenAmount {
-  const pool: Pool = input.pool;
-  const tickLower: i32 = input.tickLower;
-  const tickUpper: i32 = input.tickUpper;
-  const liquidity: BigInt = input.liquidity;
+export function positionAmount1(args: Args_positionAmount1): TokenAmount {
+  const pool: Pool = args.pool;
+  const tickLower: i32 = args.tickLower;
+  const tickUpper: i32 = args.tickUpper;
+  const liquidity: BigInt = args.liquidity;
   if (pool.tickCurrent < tickLower) {
     return {
       token: pool.token1,
@@ -292,13 +295,13 @@ export function positionAmount1(input: Input_positionAmount1): TokenAmount {
 
 /**
  * Returns the minimum amounts that must be sent in order to mint the amount of liquidity held by the position at the current price for the pool
- * @param input.position
+ * @param args.position
  */
-export function mintAmounts(input: Input_mintAmounts): MintAmounts {
-  const pool: Pool = input.pool;
-  const tickLower: i32 = input.tickLower;
-  const tickUpper: i32 = input.tickUpper;
-  const liquidity: BigInt = input.liquidity;
+export function mintAmounts(args: Args_mintAmounts): MintAmounts {
+  const pool: Pool = args.pool;
+  const tickLower: i32 = args.tickLower;
+  const tickUpper: i32 = args.tickUpper;
+  const liquidity: BigInt = args.liquidity;
   if (pool.tickCurrent < tickLower) {
     return {
       amount0: getAmount0Delta({
@@ -339,14 +342,14 @@ export function mintAmounts(input: Input_mintAmounts): MintAmounts {
 
 /**
  * Returns the minimum amounts that must be sent in order to safely mint the amount of liquidity held by the position with the given slippage tolerance
- * @param input.position
- * @param input.slippageTolerance Tolerance of unfavorable slippage from the current price
+ * @param args.position
+ * @param args.slippageTolerance Tolerance of unfavorable slippage from the current price
  */
 export function mintAmountsWithSlippage(
-  input: Input_mintAmountsWithSlippage
+  args: Args_mintAmountsWithSlippage
 ): MintAmounts {
-  const position: Position = input.position;
-  const slippageTolerance: string = input.slippageTolerance;
+  const position: Position = args.position;
+  const slippageTolerance: string = args.slippageTolerance;
 
   // get lower/upper prices
   const bounds: BigInt[] = ratiosAfterSlippage(
@@ -408,14 +411,14 @@ export function mintAmountsWithSlippage(
 
 /**
  * Returns the minimum amounts that should be requested in order to safely burn the amount of liquidity held by the position with the given slippage tolerance
- * @param input.position
- * @param input.slippageTolerance Tolerance of unfavorable slippage from the current price
+ * @param args.position
+ * @param args.slippageTolerance Tolerance of unfavorable slippage from the current price
  */
 export function burnAmountsWithSlippage(
-  input: Input_burnAmountsWithSlippage
+  args: Args_burnAmountsWithSlippage
 ): MintAmounts {
-  const position: Position = input.position;
-  const slippageTolerance: string = input.slippageTolerance;
+  const position: Position = args.position;
+  const slippageTolerance: string = args.slippageTolerance;
 
   // get lower/upper prices
   const bounds: BigInt[] = ratiosAfterSlippage(

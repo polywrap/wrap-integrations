@@ -3,12 +3,12 @@
 import {
   AddLiquidityOptions,
   CollectOptions,
-  Ethereum_Query,
-  Input_addCallParameters,
-  Input_collectCallParameters,
-  Input_createCallParameters,
-  Input_removeCallParameters,
-  Input_safeTransferFromParameters,
+  Ethereum_Module,
+  Args_addCallParameters,
+  Args_collectCallParameters,
+  Args_createCallParameters,
+  Args_removeCallParameters,
+  Args_safeTransferFromParameters,
   MethodParameters,
   MintAmounts,
   Pool,
@@ -17,7 +17,7 @@ import {
   SafeTransferOptions,
   Token,
   TokenAmount,
-} from "./w3";
+} from "../wrap";
 import {
   encodeMulticall,
   encodePermit,
@@ -25,20 +25,23 @@ import {
   encodeSweepToken,
   encodeUnwrapWETH9,
   toHex,
-} from "./routerUtils";
-import { _getFeeAmount, _getPermitV } from "../utils/enumUtils";
-import { ADDRESS_ZERO, ZERO_HEX } from "../utils/constants";
+} from "../router";
+import {
+  ADDRESS_ZERO,
+  ZERO_HEX,
+  _getFeeAmount,
+  _getPermitV,
+  getChecksumAddress,
+  Fraction,
+} from "../utils";
 import {
   burnAmountsWithSlippage,
   createPosition,
   mintAmountsWithSlippage,
-} from "./position";
-import { getChecksumAddress } from "../utils/addressUtils";
-import { _isNative, _wrapToken } from "../utils/tokenUtils";
-import { tokenEquals } from "./token";
-import Fraction from "../utils/Fraction";
+} from "./index";
+import { tokenEquals, _isNative, _wrapToken } from "../token";
 
-import { BigInt } from "@web3api/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
 
 const MAX_UINT_128_HEX = toHex({ value: BigInt.ONE.leftShift(128).subInt(1) });
 
@@ -81,19 +84,19 @@ class DecreaseLiquidityArgs {
 }
 
 export function createCallParameters(
-  input: Input_createCallParameters
+  args: Args_createCallParameters
 ): MethodParameters {
   return {
-    calldata: encodeCreate(input.pool),
+    calldata: encodeCreate(args.pool),
     value: ZERO_HEX,
   };
 }
 
 export function addCallParameters(
-  input: Input_addCallParameters
+  args: Args_addCallParameters
 ): MethodParameters {
-  const position: Position = input.position;
-  const options: AddLiquidityOptions = input.options;
+  const position: Position = args.position;
+  const options: AddLiquidityOptions = args.options;
 
   if (position.liquidity <= BigInt.ZERO) {
     throw new Error("ZERO_LIQUIDITY: position liquidity must exceed zero");
@@ -116,7 +119,7 @@ export function addCallParameters(
   const deadline: string = toHex({ value: options.deadline });
 
   // create pool if needed
-  if (isMint(options) && !options.createPool.isNull) {
+  if (isMint(options) && !options.createPool.isNone) {
     calldatas.push(encodeCreate(position.pool));
   }
 
@@ -154,7 +157,7 @@ export function addCallParameters(
       deadline,
     };
     calldatas.push(
-      Ethereum_Query.encodeFunction({
+      Ethereum_Module.encodeFunction({
         method: nfpmAbi("mint"),
         args: [paramsToJsonString(args)],
       }).unwrap()
@@ -170,7 +173,7 @@ export function addCallParameters(
       deadline,
     };
     calldatas.push(
-      Ethereum_Query.encodeFunction({
+      Ethereum_Module.encodeFunction({
         method: nfpmAbi("increaseLiquidity"),
         args: [paramsToJsonString(args)],
       }).unwrap()
@@ -198,7 +201,7 @@ export function addCallParameters(
 
     // we only need to refund if we're actually sending ETH
     if (wrappedValue > BigInt.ZERO) {
-      calldatas.push(encodeRefundETH());
+      calldatas.push(encodeRefundETH({}));
     }
 
     value = toHex({ value: wrappedValue });
@@ -211,9 +214,9 @@ export function addCallParameters(
 }
 
 export function collectCallParameters(
-  input: Input_collectCallParameters
+  args: Args_collectCallParameters
 ): MethodParameters {
-  const calldatas: string[] = encodeCollect(input.options);
+  const calldatas: string[] = encodeCollect(args.options);
   return {
     calldata: encodeMulticall({ calldatas }),
     value: ZERO_HEX,
@@ -222,14 +225,14 @@ export function collectCallParameters(
 
 /**
  * Produces the calldata for completely or partially exiting a position
- * @param input.position The position to exit
- * @param input.options Additional information necessary for generating the calldata
+ * @param args.position The position to exit
+ * @param args.options Additional information necessary for generating the calldata
  */
 export function removeCallParameters(
-  input: Input_removeCallParameters
+  args: Args_removeCallParameters
 ): MethodParameters {
-  const position: Position = input.position;
-  const options: RemoveLiquidityOptions = input.options;
+  const position: Position = args.position;
+  const options: RemoveLiquidityOptions = args.options;
 
   const calldatas: string[] = [];
 
@@ -258,7 +261,7 @@ export function removeCallParameters(
 
   if (options.permit !== null) {
     calldatas.push(
-      Ethereum_Query.encodeFunction({
+      Ethereum_Module.encodeFunction({
         method: nfpmAbi("permit"),
         args: [
           getChecksumAddress(options.permit!.spender),
@@ -281,7 +284,7 @@ export function removeCallParameters(
     deadline,
   };
   calldatas.push(
-    Ethereum_Query.encodeFunction({
+    Ethereum_Module.encodeFunction({
       method: nfpmAbi("decreaseLiquidity"),
       args: [paramsToJsonString(decreaseLiqArgs)],
     }).unwrap()
@@ -309,16 +312,22 @@ export function removeCallParameters(
   }
 
   if (liqPercent.eq(new Fraction(BigInt.ONE))) {
-    if (options.burnToken.isNull == false && options.burnToken.value == true) {
+    if (
+      options.burnToken.isNone == false &&
+      options.burnToken.unwrap() == true
+    ) {
       calldatas.push(
-        Ethereum_Query.encodeFunction({
+        Ethereum_Module.encodeFunction({
           method: nfpmAbi("burn"),
           args: [tokenId],
         }).unwrap()
       );
     }
   } else {
-    if (options.burnToken.isNull == false && options.burnToken.value == true) {
+    if (
+      options.burnToken.isNone == false &&
+      options.burnToken.unwrap() == true
+    ) {
       throw new Error("CANNOT_BURN");
     }
   }
@@ -330,16 +339,16 @@ export function removeCallParameters(
 }
 
 export function safeTransferFromParameters(
-  input: Input_safeTransferFromParameters
+  args: Args_safeTransferFromParameters
 ): MethodParameters {
-  const options: SafeTransferOptions = input.options;
+  const options: SafeTransferOptions = args.options;
 
   const recipient: string = getChecksumAddress(options.recipient);
   const sender: string = getChecksumAddress(options.sender);
 
   let calldata: string;
   if (options.data !== null) {
-    calldata = Ethereum_Query.encodeFunction({
+    calldata = Ethereum_Module.encodeFunction({
       method: nfpmAbi("safeTransferFrom"),
       args: [
         sender,
@@ -349,7 +358,7 @@ export function safeTransferFromParameters(
       ],
     }).unwrap();
   } else {
-    calldata = Ethereum_Query.encodeFunction({
+    calldata = Ethereum_Module.encodeFunction({
       method: nfpmAbi("_safeTransferFrom"),
       args: [sender, recipient, toHex({ value: options.tokenId })],
     }).unwrap();
@@ -366,7 +375,7 @@ function isMint(options: AddLiquidityOptions): boolean {
 }
 
 function encodeCreate(pool: Pool): string {
-  return Ethereum_Query.encodeFunction({
+  return Ethereum_Module.encodeFunction({
     method: nfpmAbi("createAndInitializePoolIfNecessary"),
     args: [
       pool.token0.address,
@@ -394,7 +403,7 @@ function encodeCollect(options: CollectOptions): string[] {
     amount1Max: MAX_UINT_128_HEX,
   };
   calldatas.push(
-    Ethereum_Query.encodeFunction({
+    Ethereum_Module.encodeFunction({
       method: nfpmAbi("collect"),
       args: [paramsToJsonString(collectArgs)],
     }).unwrap()

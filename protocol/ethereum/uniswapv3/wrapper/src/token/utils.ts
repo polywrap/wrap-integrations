@@ -9,6 +9,7 @@ import {
   ChainId,
   Currency,
 } from "../wrap";
+import { currencyEquals } from "./index";
 
 export function getNative(args: Args_getNative): Token {
   return _getNative(args.chainId);

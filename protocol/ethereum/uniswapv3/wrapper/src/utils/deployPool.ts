@@ -8,14 +8,11 @@ import {
   Pool,
   Token,
 } from "../wrap";
-import {
-  createCallParameters,
-  createPool,
-  getSqrtRatioAtTick,
-  poolChainId,
-} from "../query";
 import { execCall } from "./call";
-import { NFPM_ADDRESS } from "../utils/constants";
+import { NFPM_ADDRESS } from "../utils";
+import { createPool, poolChainId } from "../pool";
+import { createCallParameters } from "../position";
+import { getSqrtRatioAtTick } from "../tickList";
 
 import { BigInt } from "@polywrap/wasm-as";
 

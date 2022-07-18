@@ -2,12 +2,12 @@
 
 import { Rounding } from "./enumUtils";
 import { Token, TokenAmount, Price as PriceType } from "../wrap";
-import Fraction from "./Fraction";
-import { tokenEquals } from "../query";
+import {Fraction} from "./Fraction";
+import { tokenEquals } from "../token";
 
 import { BigInt } from "@polywrap/wasm-as";
 
-export default class Price extends Fraction {
+export class Price extends Fraction {
   public readonly baseToken: Token; // input i.e. denominator
   public readonly quoteToken: Token; // output i.e. numerator
   public readonly scalar: Fraction; // used to adjust the raw fraction w/r/t the decimals of the {base,quote}Token

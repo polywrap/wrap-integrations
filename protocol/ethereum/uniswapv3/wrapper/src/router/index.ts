@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  Ethereum_Query,
-  Input_swapCallParameters,
+  Ethereum_Module,
+  Args_swapCallParameters,
   MethodParameters,
   Route,
   SwapOptions,
@@ -9,13 +9,15 @@ import {
   TokenAmount,
   Trade,
   TradeType,
-} from "./w3";
-import { _isNative, _wrapToken } from "../utils/tokenUtils";
-import { tokenEquals } from "./token";
-import { tradeMaximumAmountIn, tradeMinimumAmountOut } from "./trade";
-import { getChecksumAddress } from "../utils/addressUtils";
-import { _getFeeAmount } from "../utils/enumUtils";
-import { ADDRESS_ZERO, ZERO_HEX } from "../utils/constants";
+} from "../wrap";
+import { _isNative, _wrapToken, tokenEquals } from "../token";
+import { tradeMaximumAmountIn, tradeMinimumAmountOut } from "../swap";
+import {
+  _getFeeAmount,
+  getChecksumAddress,
+  ADDRESS_ZERO,
+  ZERO_HEX,
+} from "../utils";
 import {
   encodePermit,
   encodeRouteToPath,
@@ -24,9 +26,12 @@ import {
   encodeSweepToken,
   encodeUnwrapWETH9,
   toHex,
-} from "./routerUtils";
+} from "./utils";
 
-import { BigInt } from "@web3api/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
+
+export * from "./route";
+export * from "./utils";
 
 class ExactInputSingleParams {
   tokenIn: string;
@@ -68,14 +73,14 @@ class ExactOutputParams {
 
 /**
  * Produces the on-chain method name to call and the hex encoded parameters to pass as arguments for a given trade
- * @param input.trades trades to produce call parameters for
- * @param input.options options for the call parameters
+ * @param args.trades trades to produce call parameters for
+ * @param args.options options for the call parameters
  */
 export function swapCallParameters(
-  input: Input_swapCallParameters
+  args: Args_swapCallParameters
 ): MethodParameters {
-  const trades: Trade[] = input.trades;
-  const options: SwapOptions = input.options;
+  const trades: Trade[] = args.trades;
+  const options: SwapOptions = args.options;
 
   const sampleTrade: Trade = trades[0];
 
@@ -201,7 +206,7 @@ export function swapCallParameters(
           };
 
           calldatas.push(
-            Ethereum_Query.encodeFunction({
+            Ethereum_Module.encodeFunction({
               method: routerAbi("exactInputSingle"),
               args: [paramsToJsonString(exactInputSingleParams)],
             }).unwrap()
@@ -222,7 +227,7 @@ export function swapCallParameters(
           };
 
           calldatas.push(
-            Ethereum_Query.encodeFunction({
+            Ethereum_Module.encodeFunction({
               method: routerAbi("exactOutputSingle"),
               args: [paramsToJsonString(exactOutputSingleParams)],
             }).unwrap()
@@ -250,7 +255,7 @@ export function swapCallParameters(
           };
 
           calldatas.push(
-            Ethereum_Query.encodeFunction({
+            Ethereum_Module.encodeFunction({
               method: routerAbi("exactInput"),
               args: [paramsToJsonString(exactInputParams)],
             }).unwrap()
@@ -265,7 +270,7 @@ export function swapCallParameters(
           };
 
           calldatas.push(
-            Ethereum_Query.encodeFunction({
+            Ethereum_Module.encodeFunction({
               method: routerAbi("exactOutput"),
               args: [paramsToJsonString(exactOutputParams)],
             }).unwrap()
@@ -309,7 +314,7 @@ export function swapCallParameters(
 
   // refund
   if (mustRefund) {
-    calldatas.push(encodeRefundETH());
+    calldatas.push(encodeRefundETH({}));
   }
 
   return {

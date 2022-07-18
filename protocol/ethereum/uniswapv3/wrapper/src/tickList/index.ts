@@ -1,17 +1,20 @@
 import {
-  Input_getTick,
-  Input_nextInitializedTickWithinOneWord,
+  Args_getTick,
+  Args_nextInitializedTickWithinOneWord,
   NextTickResult,
   Tick,
-} from "./w3";
-import * as TickListUtils from "./tickListUtils";
+} from "../wrap";
+import * as TickListUtils from "./utils";
+
+export * from "./utils";
+export * from "./tickUtils";
 
 /**
  * returns tick at requested index
  */
-export function getTick(input: Input_getTick): Tick {
-  const tickIndex: i32 = input.tickIndex;
-  const ticks: Tick[] = input.tickDataProvider;
+export function getTick(args: Args_getTick): Tick {
+  const tickIndex: i32 = args.tickIndex;
+  const ticks: Tick[] = args.tickDataProvider;
   return TickListUtils.findTick(ticks, tickIndex);
 }
 
@@ -19,12 +22,12 @@ export function getTick(input: Input_getTick): Tick {
  * returns next initialized tick, or max or min tick. Returns true if a tick is found at index
  */
 export function nextInitializedTickWithinOneWord(
-  input: Input_nextInitializedTickWithinOneWord
+  args: Args_nextInitializedTickWithinOneWord
 ): NextTickResult {
-  const tick: i32 = input.tick;
-  const lte: boolean = input.lte;
-  const tickSpacing: i32 = input.tickSpacing;
-  const ticks: Tick[] = input.tickDataProvider;
+  const tick: i32 = args.tick;
+  const lte = args.lte;
+  const tickSpacing: i32 = args.tickSpacing;
+  const ticks: Tick[] = args.tickDataProvider;
 
   const compressed: i32 = <i32>Math.floor(<f64>tick / tickSpacing);
 

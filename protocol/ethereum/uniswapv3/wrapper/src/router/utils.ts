@@ -1,25 +1,28 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  Ethereum_Query,
+  Ethereum_Module,
   FeeOptions,
-  Input_encodeMulticall,
-  Input_encodePermit,
-  Input_encodeRouteToPath,
-  Input_encodeSweepToken,
-  Input_encodeUnwrapWETH9,
-  Input_toHex,
+  Args_encodeMulticall,
+  Args_encodePermit,
+  Args_encodeRouteToPath,
+  Args_encodeSweepToken,
+  Args_encodeUnwrapWETH9,
+  Args_toHex,
   PermitOptions,
   Pool,
   Route,
   Token,
-} from "./w3";
-import { _wrapToken } from "../utils/tokenUtils";
-import { tokenEquals } from "./token";
-import { _getFeeAmount, _getPermitV } from "../utils/enumUtils";
-import Fraction from "../utils/Fraction";
-import { getChecksumAddress } from "../utils/addressUtils";
+  Args_encodeRefundETH,
+} from "../wrap";
+import { tokenEquals, _wrapToken } from "../token";
+import {
+  _getFeeAmount,
+  _getPermitV,
+  Fraction,
+  getChecksumAddress,
+} from "../utils";
 
-import { BigInt } from "@web3api/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
 
 class EncodeRouteStep {
   inToken: Token;
@@ -29,10 +32,10 @@ class EncodeRouteStep {
 
 /**
  * Converts a big int to a hex string
- * @param input.bigint
+ * @param args.bigint
  */
-export function toHex(input: Input_toHex): string {
-  const hex: string = input.value.toString(16);
+export function toHex(args: Args_toHex): string {
+  const hex: string = args.value.toString(16);
   if (hex.length % 2 != 0) {
     return "0x0" + hex;
   }
@@ -41,12 +44,12 @@ export function toHex(input: Input_toHex): string {
 
 /**
  * Converts a route to a hex encoded path
- * @param input.route the v3 path to convert to an encoded path
- * @param input.exactOutput whether the route should be encoded in reverse, for making exact output swaps
+ * @param args.route the v3 path to convert to an encoded path
+ * @param args.exactOutput whether the route should be encoded in reverse, for making exact output swaps
  */
-export function encodeRouteToPath(input: Input_encodeRouteToPath): string {
-  const route: Route = input.route;
-  const exactOutput: boolean = input.exactOutput;
+export function encodeRouteToPath(args: Args_encodeRouteToPath): string {
+  const route: Route = args.route;
+  const exactOutput = args.exactOutput;
 
   const finalStep: EncodeRouteStep = route.pools.reduce<EncodeRouteStep>(
     (step: EncodeRouteStep, pool: Pool, index): EncodeRouteStep => {
@@ -80,19 +83,19 @@ export function encodeRouteToPath(input: Input_encodeRouteToPath): string {
     finalStep.path.reverse();
   }
 
-  return Ethereum_Query.solidityPack({
+  return Ethereum_Module.solidityPack({
     types: finalStep.types,
     values: finalStep.path,
   }).unwrap();
 }
 
-export function encodePermit(input: Input_encodePermit): string {
-  const token: Token = input.token;
-  const options: PermitOptions = input.options;
+export function encodePermit(args: Args_encodePermit): string {
+  const token: Token = args.token;
+  const options: PermitOptions = args.options;
   const isAllowedPermit: boolean = options.nonce !== null;
 
   return isAllowedPermit
-    ? Ethereum_Query.encodeFunction({
+    ? Ethereum_Module.encodeFunction({
         method: selfPermitAbi("selfPermitAllowed"),
         args: [
           token.address,
@@ -103,7 +106,7 @@ export function encodePermit(input: Input_encodePermit): string {
           options.s,
         ],
       }).unwrap()
-    : Ethereum_Query.encodeFunction({
+    : Ethereum_Module.encodeFunction({
         method: selfPermitAbi("selfPermit"),
         args: [
           token.address,
@@ -116,38 +119,38 @@ export function encodePermit(input: Input_encodePermit): string {
       }).unwrap();
 }
 
-export function encodeUnwrapWETH9(input: Input_encodeUnwrapWETH9): string {
-  const amountMinimum: BigInt = input.amountMinimum;
-  const recipient: string = getChecksumAddress(input.recipient);
-  const feeOptions: FeeOptions | null = input.feeOptions;
+export function encodeUnwrapWETH9(args: Args_encodeUnwrapWETH9): string {
+  const amountMinimum: BigInt = args.amountMinimum;
+  const recipient: string = getChecksumAddress(args.recipient);
+  const feeOptions: FeeOptions | null = args.feeOptions;
 
   if (feeOptions !== null) {
     const feeBips: string = encodeFeeBips(feeOptions.fee);
     const feeRecipient: string = getChecksumAddress(feeOptions.recipient);
 
-    return Ethereum_Query.encodeFunction({
+    return Ethereum_Module.encodeFunction({
       method: paymentsAbi("unwrapWETH9WithFee"),
       args: [toHex({ value: amountMinimum }), recipient, feeBips, feeRecipient],
     }).unwrap();
   } else {
-    return Ethereum_Query.encodeFunction({
+    return Ethereum_Module.encodeFunction({
       method: paymentsAbi("unwrapWETH9"),
       args: [toHex({ value: amountMinimum }), recipient],
     }).unwrap();
   }
 }
 
-export function encodeSweepToken(input: Input_encodeSweepToken): string {
-  const token: Token = input.token;
-  const amountMinimum: BigInt = input.amountMinimum;
-  const recipient: string = getChecksumAddress(input.recipient);
-  const feeOptions: FeeOptions | null = input.feeOptions;
+export function encodeSweepToken(args: Args_encodeSweepToken): string {
+  const token: Token = args.token;
+  const amountMinimum: BigInt = args.amountMinimum;
+  const recipient: string = getChecksumAddress(args.recipient);
+  const feeOptions: FeeOptions | null = args.feeOptions;
 
   if (feeOptions !== null) {
     const feeBips: string = encodeFeeBips(feeOptions.fee);
     const feeRecipient: string = getChecksumAddress(feeOptions.recipient);
 
-    return Ethereum_Query.encodeFunction({
+    return Ethereum_Module.encodeFunction({
       method: paymentsAbi("sweepTokenWithFee"),
       args: [
         token.address,
@@ -158,25 +161,25 @@ export function encodeSweepToken(input: Input_encodeSweepToken): string {
       ],
     }).unwrap();
   } else {
-    return Ethereum_Query.encodeFunction({
+    return Ethereum_Module.encodeFunction({
       method: paymentsAbi("sweepToken"),
       args: [token.address, toHex({ value: amountMinimum }), recipient],
     }).unwrap();
   }
 }
 
-export function encodeRefundETH(): string {
-  return Ethereum_Query.encodeFunction({
+export function encodeRefundETH(_: Args_encodeRefundETH): string {
+  return Ethereum_Module.encodeFunction({
     method: paymentsAbi("refundETH"),
     args: null,
   }).unwrap();
 }
 
-export function encodeMulticall(input: Input_encodeMulticall): string {
-  const calldatas: string[] = input.calldatas;
+export function encodeMulticall(args: Args_encodeMulticall): string {
+  const calldatas: string[] = args.calldatas;
   return calldatas.length == 1
     ? calldatas[0]
-    : Ethereum_Query.encodeFunction({
+    : Ethereum_Module.encodeFunction({
         method:
           "function multicall(bytes[] calldata data) external payable returns (bytes[] memory results)",
         args: ['["' + calldatas.join('", "') + '"]'],

@@ -1,31 +1,40 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import {
-  Ethereum_Query,
+  Ethereum_Module,
   FeeAmount,
-  Input_computePoolAddress,
+  Args_computePoolAddress,
   NextTickResult,
   Pool,
-  SHA3_Query,
+  SHA3_Module,
   Token,
-} from "./w3";
-import { tokenSortsBefore } from "./token";
-import { concat, getChecksumAddress } from "../utils/addressUtils";
+} from "../wrap";
+import { tokenSortsBefore } from "../token";
 import {
+  getAmount0Delta,
+  getAmount1Delta,
+  _getFeeAmount,
   MAX_FEE,
   MAX_SQRT_RATIO,
   MAX_TICK,
   MIN_SQRT_RATIO,
   MIN_TICK,
   POOL_INIT_CODE_HASH,
-} from "../utils/constants";
-import { _getFeeAmount } from "../utils/enumUtils";
-import * as MathUtils from "./mathUtils";
-import { getTick, nextInitializedTickWithinOneWord } from "./tickList";
-import * as TickUtils from "./tickUtils";
-import { getPoolTickSpacing } from "./pool";
+  concat,
+  getChecksumAddress,
+  getNextSqrtPriceFromInput,
+  getNextSqrtPriceFromOutput,
+  mulDivRoundingUp,
+} from "../utils";
+import {
+  getTick,
+  nextInitializedTickWithinOneWord,
+  getSqrtRatioAtTick,
+  getTickAtSqrtRatio,
+} from "../tickList";
+import { getPoolTickSpacing } from ".";
 
-import { BigInt } from "@web3api/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
 
 // Pool state after swap execution; Return value of simulateSwap(...)
 export class SimulatedSwapResult {
@@ -62,29 +71,29 @@ class SwapStepResult {
 
 /**
  * Computes a pool address
- * @param input.factoryAddress The Uniswap V3 factory address
- * @param input.tokenA The first token of the pool, irrespective of sort order
- * @param input.tokenB The second token of the pool, irrespective of sort order
- * @param input.fee The fee tier of the pool
- * @param input.initCodeHashManualOverride Override the init code hash used to compute the pool address if necessary
+ * @param args.factoryAddress The Uniswap V3 factory address
+ * @param args.tokenA The first token of the pool, irrespective of sort order
+ * @param args.tokenB The second token of the pool, irrespective of sort order
+ * @param args.fee The fee tier of the pool
+ * @param args.initCodeHashManualOverride Override the init code hash used to compute the pool address if necessary
  * @returns The pool address
  */
-export function computePoolAddress(input: Input_computePoolAddress): string {
-  const factoryAddress: string = input.factoryAddress;
+export function computePoolAddress(args: Args_computePoolAddress): string {
+  const factoryAddress: string = args.factoryAddress;
   const tokens: Token[] = tokenSortsBefore({
-    tokenA: input.tokenA,
-    tokenB: input.tokenB,
+    tokenA: args.tokenA,
+    tokenB: args.tokenB,
   })
-    ? [input.tokenA, input.tokenB]
-    : [input.tokenB, input.tokenA];
-  const fee: u32 = _getFeeAmount(input.fee);
+    ? [args.tokenA, args.tokenB]
+    : [args.tokenB, args.tokenA];
+  const fee: u32 = _getFeeAmount(args.fee);
   const initCodeHash: string =
-    input.initCodeHashManualOverride == null
+    args.initCodeHashManualOverride == null
       ? POOL_INIT_CODE_HASH
-      : input.initCodeHashManualOverride!;
+      : args.initCodeHashManualOverride!;
 
-  const salt: string = SHA3_Query.hex_keccak_256({
-    message: Ethereum_Query.encodeParams({
+  const salt: string = SHA3_Module.hex_keccak_256({
+    message: Ethereum_Module.encodeParams({
       types: ["address", "address", "uint24"],
       values: [tokens[0].address, tokens[1].address, fee.toString()],
     }).unwrap(),
@@ -95,7 +104,7 @@ export function computePoolAddress(input: Input_computePoolAddress): string {
     salt,
     initCodeHash,
   ]);
-  const concatenationHash: string = SHA3_Query.buffer_keccak_256({
+  const concatenationHash: string = SHA3_Module.buffer_keccak_256({
     message: concatenatedItems.buffer,
   }).unwrap();
   return getChecksumAddress(concatenationHash.substring(24));
@@ -193,7 +202,7 @@ export function simulateSwap(
       step.tickNext = MAX_TICK;
     }
 
-    step.sqrtPriceNextX96 = TickUtils.getSqrtRatioAtTick({
+    step.sqrtPriceNextX96 = getSqrtRatioAtTick({
       tick: step.tickNext,
     });
 
@@ -243,13 +252,13 @@ export function simulateSwap(
         if (zeroForOne) {
           liquidityNet = liquidityNet.opposite();
         }
-        // state.liquidity = MathUtils.addDelta({x: state.liquidity, y: liquidityNet });
+        // state.liquidity = addDelta({x: state.liquidity, y: liquidityNet });
         state.liquidity = state.liquidity.add(liquidityNet);
       }
       state.tick = zeroForOne ? step.tickNext - 1 : step.tickNext;
     } else if (state.sqrtPriceX96 != step.sqrtPriceStartX96) {
       // recompute unless we're on a lower tick boundary (i.e. already transitioned ticks), and haven't moved
-      state.tick = TickUtils.getTickAtSqrtRatio({
+      state.tick = getTickAtSqrtRatio({
         sqrtRatioX96: state.sqrtPriceX96,
       });
     }
@@ -292,13 +301,13 @@ function computeSwapStep(
     );
 
     returnValues.amountIn = zeroForOne
-      ? MathUtils.getAmount0Delta({
+      ? getAmount0Delta({
           sqrtRatioAX96: sqrtRatioTargetX96,
           sqrtRatioBX96: sqrtRatioCurrentX96,
           liquidity: liquidity,
           roundUp: true,
         })
-      : MathUtils.getAmount1Delta({
+      : getAmount1Delta({
           sqrtRatioAX96: sqrtRatioCurrentX96,
           sqrtRatioBX96: sqrtRatioTargetX96,
           liquidity: liquidity,
@@ -307,7 +316,7 @@ function computeSwapStep(
     if (amountRemainingLessFee >= returnValues.amountIn) {
       returnValues.sqrtRatioNextX96 = sqrtRatioTargetX96;
     } else {
-      returnValues.sqrtRatioNextX96 = MathUtils.getNextSqrtPriceFromInput({
+      returnValues.sqrtRatioNextX96 = getNextSqrtPriceFromInput({
         sqrtPX96: sqrtRatioCurrentX96,
         liquidity: liquidity,
         amountIn: amountRemainingLessFee,
@@ -316,13 +325,13 @@ function computeSwapStep(
     }
   } else {
     returnValues.amountOut = zeroForOne
-      ? MathUtils.getAmount1Delta({
+      ? getAmount1Delta({
           sqrtRatioAX96: sqrtRatioTargetX96,
           sqrtRatioBX96: sqrtRatioCurrentX96,
           liquidity: liquidity,
           roundUp: false,
         })
-      : MathUtils.getAmount0Delta({
+      : getAmount0Delta({
           sqrtRatioAX96: sqrtRatioCurrentX96,
           sqrtRatioBX96: sqrtRatioTargetX96,
           liquidity: liquidity,
@@ -331,7 +340,7 @@ function computeSwapStep(
     if (amountRemaining.opposite() >= returnValues.amountOut) {
       returnValues.sqrtRatioNextX96 = sqrtRatioTargetX96;
     } else {
-      returnValues.sqrtRatioNextX96 = MathUtils.getNextSqrtPriceFromOutput({
+      returnValues.sqrtRatioNextX96 = getNextSqrtPriceFromOutput({
         sqrtPX96: sqrtRatioCurrentX96,
         liquidity: liquidity,
         amountOut: amountRemaining.opposite(),
@@ -346,7 +355,7 @@ function computeSwapStep(
     returnValues.amountIn =
       max && exactIn
         ? returnValues.amountIn
-        : MathUtils.getAmount0Delta({
+        : getAmount0Delta({
             sqrtRatioAX96: returnValues.sqrtRatioNextX96,
             sqrtRatioBX96: sqrtRatioCurrentX96,
             liquidity: liquidity,
@@ -355,7 +364,7 @@ function computeSwapStep(
     returnValues.amountOut =
       max && !exactIn
         ? returnValues.amountOut
-        : MathUtils.getAmount1Delta({
+        : getAmount1Delta({
             sqrtRatioAX96: returnValues.sqrtRatioNextX96,
             sqrtRatioBX96: sqrtRatioCurrentX96,
             liquidity: liquidity,
@@ -365,7 +374,7 @@ function computeSwapStep(
     returnValues.amountIn =
       max && exactIn
         ? returnValues.amountIn
-        : MathUtils.getAmount1Delta({
+        : getAmount1Delta({
             sqrtRatioAX96: sqrtRatioCurrentX96,
             sqrtRatioBX96: returnValues.sqrtRatioNextX96,
             liquidity: liquidity,
@@ -374,7 +383,7 @@ function computeSwapStep(
     returnValues.amountOut =
       max && !exactIn
         ? returnValues.amountOut
-        : MathUtils.getAmount0Delta({
+        : getAmount0Delta({
             sqrtRatioAX96: sqrtRatioCurrentX96,
             sqrtRatioBX96: returnValues.sqrtRatioNextX96,
             liquidity: liquidity,
@@ -391,7 +400,7 @@ function computeSwapStep(
     // we didn't reach the target, so take the remainder of the maximum input as fee
     returnValues.feeAmount = amountRemaining.sub(returnValues.amountIn);
   } else {
-    returnValues.feeAmount = MathUtils.mulDivRoundingUp({
+    returnValues.feeAmount = mulDivRoundingUp({
       a: returnValues.amountIn,
       b: BigInt.fromUInt32(_feePips),
       denominator: MAX_FEE.subInt(_feePips),
