@@ -1,49 +1,10 @@
 import { Token, Pool, FeeAmountEnum, FeeAmount, ChainIdEnum, ChainId } from "./types";
-import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
-import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
-import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
-import { ensPlugin } from "@web3api/ens-plugin-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import poolList from "./testData/poolList.json";
 import { getUniswapPool } from "./uniswapCreatePool";
 import { ethers } from "ethers";
 import * as uni from "@uniswap/v3-sdk";
 import * as uniCore from "@uniswap/sdk-core";
-import { ethersSolidity } from "ethers-solidity-plugin-js";
-
-export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): ClientConfig {
-  return {
-   redirects: [],
-   plugins: [
-     {
-       uri: "w3://ens/ipfs.web3api.eth",
-       plugin: ipfsPlugin({ provider: ipfs }),
-     },
-     {
-       uri: "w3://ens/ens.web3api.eth",
-       plugin: ensPlugin({ query: {addresses: { testnet: ensAddress } } }),
-     },
-     {
-      uri: "w3://ens/ethereum.web3api.eth",
-      plugin: ethereumPlugin({
-        networks: {
-          testnet: {
-            provider: ethereum
-          },
-          MAINNET: {
-            provider: "http://localhost:8546"
-          },
-        },
-        defaultNetwork: "testnet"
-      }),
-     },
-     {
-      uri: "w3://ens/ethers-solidity.polywrap.eth",
-       // @ts-ignore
-      plugin: ethersSolidity({}),
-     },
-    ],
-  };
-}
 
 export function getTokens(pools: Pool[]): Token[] {
   return pools
@@ -52,7 +13,7 @@ export function getTokens(pools: Pool[]): Token[] {
   .filter((val: Token, i: number, arr: Token[]) => arr.indexOf(val) === i); // remove duplicates
 }
 
-export async function getPools(client: Web3ApiClient, ensUri: string, fetchTicks?: boolean, sliceStart?: number, sliceEnd?: number): Promise<Pool[]> {
+export async function getPools(client: PolywrapClient, ensUri: string, fetchTicks?: boolean, sliceStart?: number, sliceEnd?: number): Promise<Pool[]> {
   const pools: Promise<Pool>[] = poolList
     .slice(sliceStart, sliceEnd)
     .map((address: string) => getPoolFromAddress(client, ensUri, address, fetchTicks));
@@ -66,7 +27,7 @@ export async function getUniPools(provider: ethers.providers.BaseProvider, fetch
   return Promise.all(pools);
 }
 
-export async function getPoolFromAddress(client: Web3ApiClient, ensUri: string, address: string, fetchTicks?: boolean): Promise<Pool> {
+export async function getPoolFromAddress(client: PolywrapClient, ensUri: string, address: string, fetchTicks?: boolean): Promise<Pool> {
   const poolData = await client.query<{
     fetchPoolFromAddress: Pool;
   }>({

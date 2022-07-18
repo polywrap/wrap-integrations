@@ -1,43 +1,36 @@
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
-import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
+import { buildWrapper } from "@polywrap/test-env-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import { ChainIdEnum, Pool, Tick, Token, TokenAmount, Trade } from "../types";
 import path from "path";
-import { getPlugins, getPools, getTokens, getUniPools } from "../testUtils";
+import { getPools, getTokens, getUniPools } from "../testUtils";
 import * as uni from "@uniswap/v3-sdk";
 import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
+import {getPlugins, initInfra, stopInfra} from "../infraUtils";
 
 jest.setTimeout(180000);
 
 describe("Trade (mainnet fork)", () => {
 
-  let client: Web3ApiClient;
-  let ensUri: string;
+  let client: PolywrapClient;
+  let fsUri: string;
   let tokens: Token[];
   let pools: Pool[];
   let uniPools: uni.Pool[];
   let ethersProvider: ethers.providers.BaseProvider;
 
   beforeAll(async () => {
-    const { ipfs, ethereum, ensAddress, registrarAddress, resolverAddress } = await initTestEnvironment();
+    await initInfra();
     // get client
-    const config: ClientConfig = getPlugins(ethereum, ipfs, ensAddress);
-    client = new Web3ApiClient(config);
-    // deploy api
-    const apiPath: string = path.resolve(__dirname + "/../../../../");
-    const api = await buildAndDeployApi({
-      apiAbsPath: apiPath,
-      ipfsProvider: ipfs,
-      ensRegistryAddress: ensAddress,
-      ethereumProvider: ethereum,
-      ensRegistrarAddress: registrarAddress,
-      ensResolverAddress: resolverAddress,
-    });
-    ensUri = `ens/testnet/${api.ensDomain}`;
+    const config = getPlugins();
+    client = new PolywrapClient(config);
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    await buildWrapper(wrapperAbsPath);
+    fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     const sliceStart = 0;
     const sliceEnd = 3;
-    pools = await getPools(client, ensUri, true, sliceStart, sliceEnd);
+    pools = await getPools(client, fsUri, true, sliceStart, sliceEnd);
     tokens = getTokens(pools);
     tokens.push({
       chainId: ChainIdEnum.MAINNET,
@@ -57,7 +50,7 @@ describe("Trade (mainnet fork)", () => {
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   });
 
   it('finds the best trade for exact input (default options)', async () => {
@@ -73,10 +66,9 @@ describe("Trade (mainnet fork)", () => {
         }
         const tokenOut = tokens[j];
         const query = await client.invoke<Trade[]>({
-          uri: ensUri,
-          module: "query",
+          uri: fsUri,
           method: "bestTradeExactIn",
-          input: {
+          args: {
             pools: pools,
             amountIn: amountIn,
             tokenOut: tokenOut,
@@ -142,10 +134,9 @@ describe("Trade (mainnet fork)", () => {
           amount: "10000000000"
         }
         const query = await client.invoke<Trade[]>({
-          uri: ensUri,
-          module: "query",
+          uri: fsUri,
           method: "bestTradeExactOut",
-          input: {
+          args: {
             pools: pools,
             tokenIn: tokenIn,
             amountOut: amountOut,

@@ -1,4 +1,4 @@
- import { Web3ApiClient } from "@web3api/client-js";
+ import { PolywrapClient } from "@polywrap/client-js";
 import {
   AddLiquidityOptions, BestTradeOptions,
   BigInt, ChainId, ChainIdEnum, ClaimOptions, CollectOptions,
@@ -16,25 +16,22 @@ import {
 
 type BigIntish = BigInt | number;
 
-export async function constant<T>(client: Web3ApiClient, ensUri: string, method: string): Promise<T> {
-  const query = await client.invoke<T>({
-    uri: ensUri,
-    module: "query",
+export async function constant<T>(client: PolywrapClient, uri: string, method: string): Promise<T> {
+  const invocation = await client.invoke<T>({
+    uri: uri,
     method: method,
-    input: {},
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function createPool(client: Web3ApiClient, ensUri: string, tokenA: Token, tokenB: Token, fee: FeeAmount, sqrtRatioX96: BigIntish, liquidity: BigIntish, tickCurrent: Int32, ticks: Tick[]): Promise<Pool> {
-  const query = await client.invoke<Pool>({
-    uri: ensUri,
-    module: "query",
+export async function createPool(client: PolywrapClient, uri: string, tokenA: Token, tokenB: Token, fee: FeeAmount, sqrtRatioX96: BigIntish, liquidity: BigIntish, tickCurrent: Int32, ticks: Tick[]): Promise<Pool> {
+  const invocation = await client.invoke<Pool>({
+    uri: uri,
     method: "createPool",
-    input: {
+    args: {
       tokenA,
       tokenB,
       fee: typeof fee === "string" ? fee : FeeAmountEnum[fee],
@@ -44,455 +41,426 @@ export async function createPool(client: Web3ApiClient, ensUri: string, tokenA: 
       ticks,
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function encodeSqrtRatioX96(client: Web3ApiClient, ensUri: string, amount1: BigIntish, amount0: BigIntish): Promise<BigInt> {
-  const query = await client.invoke<BigInt>({
-    uri: ensUri,
-    module: "query",
+export async function encodeSqrtRatioX96(client: PolywrapClient, uri: string, amount1: BigIntish, amount0: BigIntish): Promise<BigInt> {
+  const invocation = await client.invoke<BigInt>({
+    uri: uri,
     method: "encodeSqrtRatioX96",
-    input: {
+    args: {
       amount1: amount1.toString(),
       amount0: amount0.toString(),
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function createRoute(client: Web3ApiClient, ensUri: string, pools: Pool[], inToken: Token, outToken: Token): Promise<Route> {
-  const query = await client.invoke<Route>({
-    uri: ensUri,
-    module: "query",
+export async function createRoute(client: PolywrapClient, uri: string, pools: Pool[], inToken: Token, outToken: Token): Promise<Route> {
+  const invocation = await client.invoke<Route>({
+    uri: uri,
     method: "createRoute",
-    input: {
+    args: {
       pools,
       inToken,
       outToken,
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function encodeRouteToPath(client: Web3ApiClient, ensUri: string, route: Route, exactOutput: boolean): Promise<string> {
-  const query = await client.invoke<string>({
-    uri: ensUri,
-    module: "query",
+export async function encodeRouteToPath(client: PolywrapClient, uri: string, route: Route, exactOutput: boolean): Promise<string> {
+  const invocation = await client.invoke<string>({
+    uri: uri,
     method: "encodeRouteToPath",
-    input: {
+    args: {
       route,
       exactOutput,
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function encodeUnwrapWETH9(client: Web3ApiClient, ensUri: string, amountMinimum: BigIntish, recipient: string, feeOptions?: FeeOptions): Promise<string> {
-  const query = await client.invoke<string>({
-    uri: ensUri,
-    module: "query",
+export async function encodeUnwrapWETH9(client: PolywrapClient, uri: string, amountMinimum: BigIntish, recipient: string, feeOptions?: FeeOptions): Promise<string> {
+  const invocation = await client.invoke<string>({
+    uri: uri,
     method: "encodeUnwrapWETH9",
-    input: {
+    args: {
       amountMinimum: amountMinimum.toString(),
       recipient,
       feeOptions: feeOptions ?? null,
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function encodeSweepToken(client: Web3ApiClient, ensUri: string, token: Token, amountMinimum: BigIntish, recipient: string, feeOptions?: FeeOptions): Promise<string> {
-  const query = await client.invoke<string>({
-    uri: ensUri,
-    module: "query",
+export async function encodeSweepToken(client: PolywrapClient, uri: string, token: Token, amountMinimum: BigIntish, recipient: string, feeOptions?: FeeOptions): Promise<string> {
+  const invocation = await client.invoke<string>({
+    uri: uri,
     method: "encodeSweepToken",
-    input: {
+    args: {
       token,
       amountMinimum: amountMinimum.toString(),
       recipient,
       feeOptions: feeOptions ?? null,
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function encodeRefundETH(client: Web3ApiClient, ensUri: string): Promise<string> {
-  const query = await client.invoke<string>({
-    uri: ensUri,
-    module: "query",
+export async function encodeRefundETH(client: PolywrapClient, uri: string): Promise<string> {
+  const invocation = await client.invoke<string>({
+    uri: uri,
     method: "encodeRefundETH",
-    input: {},
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function encodeMulticall(client: Web3ApiClient, ensUri: string, calldatas: string[]): Promise<string> {
-  const query = await client.invoke<string>({
-    uri: ensUri,
-    module: "query",
+export async function encodeMulticall(client: PolywrapClient, uri: string, calldatas: string[]): Promise<string> {
+  const invocation = await client.invoke<string>({
+    uri: uri,
     method: "encodeMulticall",
-    input: {
+    args: {
       calldatas,
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function getTickAtSqrtRatio(client: Web3ApiClient, ensUri: string, sqrtRatioX96: BigIntish): Promise<number> {
-  const query = await client.invoke<number>({
-    uri: ensUri,
-    module: "query",
+export async function getTickAtSqrtRatio(client: PolywrapClient, uri: string, sqrtRatioX96: BigIntish): Promise<number> {
+  const invocation = await client.invoke<number>({
+    uri: uri,
     method: "getTickAtSqrtRatio",
-    input: {
+    args: {
       sqrtRatioX96: sqrtRatioX96.toString(),
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function nearestUsableTick(client: Web3ApiClient, ensUri: string, tick: number, tickSpacing: number): Promise<number> {
-  const query = await client.invoke<number>({
-    uri: ensUri,
-    module: "query",
+export async function nearestUsableTick(client: PolywrapClient, uri: string, tick: number, tickSpacing: number): Promise<number> {
+  const invocation = await client.invoke<number>({
+    uri: uri,
     method: "nearestUsableTick",
-    input: {
+    args: {
       tick,
       tickSpacing,
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function getSqrtRatioAtTick(client: Web3ApiClient, ensUri: string, tick: number): Promise<string> {
- const query = await client.invoke<string>({
-   uri: ensUri,
-   module: "query",
+export async function getSqrtRatioAtTick(client: PolywrapClient, uri: string, tick: number): Promise<string> {
+ const invocation = await client.invoke<string>({
+   uri: uri,
    method: "getSqrtRatioAtTick",
-   input: {
+   args: {
      tick,
    },
  });
- if (query.error) {
-   throw query.error;
+ if (invocation.error) {
+   throw invocation.error;
  }
- return query.data!;
+ return invocation.data!;
 }
 
-export async function feeAmountToTickSpacing(client: Web3ApiClient, ensUri: string, feeAmount: FeeAmount): Promise<number> {
-  const query = await client.invoke<number>({
-    uri: ensUri,
-    module: "query",
+export async function feeAmountToTickSpacing(client: PolywrapClient, uri: string, feeAmount: FeeAmount): Promise<number> {
+  const invocation = await client.invoke<number>({
+    uri: uri,
     method: "feeAmountToTickSpacing",
-    input: {
+    args: {
       feeAmount: typeof feeAmount === "string" ? feeAmount : FeeAmountEnum[feeAmount],
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function createTradeFromRoute(client: Web3ApiClient, ensUri: string, tradeRoute: TradeRoute, tradeType: TradeType): Promise<Trade> {
-  const query = await client.invoke<Trade>({
-    uri: ensUri,
-    module: "query",
+export async function createTradeFromRoute(client: PolywrapClient, uri: string, tradeRoute: TradeRoute, tradeType: TradeType): Promise<Trade> {
+  const invocation = await client.invoke<Trade>({
+    uri: uri,
     method: "createTradeFromRoute",
-    input: {
+    args: {
       tradeRoute,
       tradeType,
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function createTradeFromRoutes(client: Web3ApiClient, ensUri: string, tradeRoutes: TradeRoute[], tradeType: TradeType): Promise<Trade> {
-  const query = await client.invoke<Trade>({
-    uri: ensUri,
-    module: "query",
+export async function createTradeFromRoutes(client: PolywrapClient, uri: string, tradeRoutes: TradeRoute[], tradeType: TradeType): Promise<Trade> {
+  const invocation = await client.invoke<Trade>({
+    uri: uri,
     method: "createTradeFromRoutes",
-    input: {
+    args: {
       tradeRoutes,
       tradeType,
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function swapCallParameters(client: Web3ApiClient, ensUri: string, trades: Trade[], options: SwapOptions): Promise<MethodParameters> {
-  const query = await client.invoke<MethodParameters>({
-    uri: ensUri,
-    module: "query",
+export async function swapCallParameters(client: PolywrapClient, uri: string, trades: Trade[], options: SwapOptions): Promise<MethodParameters> {
+  const invocation = await client.invoke<MethodParameters>({
+    uri: uri,
     method: "swapCallParameters",
-    input: {
+    args: {
       trades,
       options,
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function quoteCallParameters(client: Web3ApiClient, ensUri: string, route: Route, amount: TokenAmount, tradeType: TradeType, options?: QuoteOptions): Promise<MethodParameters> {
-  const query = await client.invoke<MethodParameters>({
-    uri: ensUri,
-    module: "query",
+export async function quoteCallParameters(client: PolywrapClient, uri: string, route: Route, amount: TokenAmount, tradeType: TradeType, options?: QuoteOptions): Promise<MethodParameters> {
+  const invocation = await client.invoke<MethodParameters>({
+    uri: uri,
     method: "quoteCallParameters",
-    input: {
+    args: {
       route,
       amount,
       tradeType: typeof tradeType === "string" ? tradeType : TradeTypeEnum[tradeType],
       options: options ?? null,
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function collectRewards(client: Web3ApiClient, ensUri: string, incentiveKeys: IncentiveKey[], options: ClaimOptions): Promise<MethodParameters> {
-  const query = await client.invoke<MethodParameters>({
-    uri: ensUri,
-    module: "query",
+export async function collectRewards(client: PolywrapClient, uri: string, incentiveKeys: IncentiveKey[], options: ClaimOptions): Promise<MethodParameters> {
+  const invocation = await client.invoke<MethodParameters>({
+    uri: uri,
     method: "collectRewards",
-    input: {
+    args: {
       incentiveKeys,
       options,
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function withdrawToken(client: Web3ApiClient, ensUri: string, incentiveKeys: IncentiveKey[], options: FullWithdrawOptions): Promise<MethodParameters> {
-  const query = await client.invoke<MethodParameters>({
-    uri: ensUri,
-    module: "query",
+export async function withdrawToken(client: PolywrapClient, uri: string, incentiveKeys: IncentiveKey[], options: FullWithdrawOptions): Promise<MethodParameters> {
+  const invocation = await client.invoke<MethodParameters>({
+    uri: uri,
     method: "withdrawToken",
-    input: {
+    args: {
       incentiveKeys,
       options,
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function encodeDeposit(client: Web3ApiClient, ensUri: string, incentiveKeys: IncentiveKey[]): Promise<string> {
-  const query = await client.invoke<string>({
-    uri: ensUri,
-    module: "query",
+export async function encodeDeposit(client: PolywrapClient, uri: string, incentiveKeys: IncentiveKey[]): Promise<string> {
+  const invocation = await client.invoke<string>({
+    uri: uri,
     method: "encodeDeposit",
-    input: {
+    args: {
       incentiveKeys,
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function safeTransferFromParameters(client: Web3ApiClient, ensUri: string, options: SafeTransferOptions): Promise<MethodParameters> {
-  const query = await client.invoke<MethodParameters>({
-    uri: ensUri,
-    module: "query",
+export async function safeTransferFromParameters(client: PolywrapClient, uri: string, options: SafeTransferOptions): Promise<MethodParameters> {
+  const invocation = await client.invoke<MethodParameters>({
+    uri: uri,
     method: "safeTransferFromParameters",
-    input: {
+    args: {
       options,
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function createCallParameters(client: Web3ApiClient, ensUri: string, pool: Pool): Promise<MethodParameters> {
-  const query = await client.invoke<MethodParameters>({
-    uri: ensUri,
-    module: "query",
+export async function createCallParameters(client: PolywrapClient, uri: string, pool: Pool): Promise<MethodParameters> {
+  const invocation = await client.invoke<MethodParameters>({
+    uri: uri,
     method: "createCallParameters",
-    input: {
+    args: {
       pool
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function addCallParameters(client: Web3ApiClient, ensUri: string, position: Position, options: AddLiquidityOptions): Promise<MethodParameters> {
-  const query = await client.invoke<MethodParameters>({
-    uri: ensUri,
-    module: "query",
+export async function addCallParameters(client: PolywrapClient, uri: string, position: Position, options: AddLiquidityOptions): Promise<MethodParameters> {
+  const invocation = await client.invoke<MethodParameters>({
+    uri: uri,
     method: "addCallParameters",
-    input: {
+    args: {
       position,
       options,
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function collectCallParameters(client: Web3ApiClient, ensUri: string, options: CollectOptions): Promise<MethodParameters> {
-  const query = await client.invoke<MethodParameters>({
-    uri: ensUri,
-    module: "query",
+export async function collectCallParameters(client: PolywrapClient, uri: string, options: CollectOptions): Promise<MethodParameters> {
+  const invocation = await client.invoke<MethodParameters>({
+    uri: uri,
     method: "collectCallParameters",
-    input: {
+    args: {
       options
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function removeCallParameters(client: Web3ApiClient, ensUri: string, position: Position, options: RemoveLiquidityOptions): Promise<MethodParameters> {
-  const query = await client.invoke<MethodParameters>({
-    uri: ensUri,
-    module: "query",
+export async function removeCallParameters(client: PolywrapClient, uri: string, position: Position, options: RemoveLiquidityOptions): Promise<MethodParameters> {
+  const invocation = await client.invoke<MethodParameters>({
+    uri: uri,
     method: "removeCallParameters",
-    input: {
+    args: {
       position,
       options,
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function createPosition(client: Web3ApiClient, ensUri: string, pool: Pool, tickLower: number, tickUpper: number, liquidity: BigIntish): Promise<Position> {
-  const query = await client.invoke<Position>({
-    uri: ensUri,
-    module: "query",
+export async function createPosition(client: PolywrapClient, uri: string, pool: Pool, tickLower: number, tickUpper: number, liquidity: BigIntish): Promise<Position> {
+  const invocation = await client.invoke<Position>({
+    uri: uri,
     method: "createPosition",
-    input: {
+    args: {
       pool,
       tickLower,
       tickUpper,
       liquidity: liquidity.toString(),
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function bestTradeExactIn(client: Web3ApiClient, ensUri: string, pools: Pool[], amountIn: TokenAmount, tokenOut: Token, options?: BestTradeOptions): Promise<Trade[]> {
-  const query = await client.invoke<Trade[]>({
-    uri: ensUri,
-    module: "query",
+export async function bestTradeExactIn(client: PolywrapClient, uri: string, pools: Pool[], amountIn: TokenAmount, tokenOut: Token, options?: BestTradeOptions): Promise<Trade[]> {
+  const invocation = await client.invoke<Trade[]>({
+    uri: uri,
     method: "bestTradeExactIn",
-    input: {
+    args: {
       pools,
       amountIn,
       tokenOut,
       options,
     },
   });
-  if (query.error) {
-    throw query.error;
+  if (invocation.error) {
+    throw invocation.error;
   }
-  return query.data!;
+  return invocation.data!;
 }
 
-export async function bestTradeExactOut(client: Web3ApiClient, ensUri: string, pools: Pool[], tokenIn: Token, amountOut: TokenAmount, options?: BestTradeOptions): Promise<Trade[]> {
- const query = await client.invoke<Trade[]>({
-   uri: ensUri,
-   module: "query",
+export async function bestTradeExactOut(client: PolywrapClient, uri: string, pools: Pool[], tokenIn: Token, amountOut: TokenAmount, options?: BestTradeOptions): Promise<Trade[]> {
+ const invocation = await client.invoke<Trade[]>({
+   uri: uri,
    method: "bestTradeExactOut",
-   input: {
+   args: {
      pools,
      tokenIn,
      amountOut,
      options,
    },
  });
- if (query.error) {
-   throw query.error;
+ if (invocation.error) {
+   throw invocation.error;
  }
- return query.data!;
+ return invocation.data!;
 }
 
-export async function getNative(client: Web3ApiClient, ensUri: string, chainId: ChainId): Promise<Token> {
- const query = await client.invoke<Token>({
-   uri: ensUri,
-   module: "query",
+export async function getNative(client: PolywrapClient, uri: string, chainId: ChainId): Promise<Token> {
+ const invocation = await client.invoke<Token>({
+   uri: uri,
    method: "getNative",
-   input: {
+   args: {
      chainId: typeof chainId === "string" ? chainId : ChainIdEnum[chainId],
    },
  });
- if (query.error) {
-   throw query.error;
+ if (invocation.error) {
+   throw invocation.error;
  }
- return query.data!;
+ return invocation.data!;
 }
 
-export async function getWETH(client: Web3ApiClient, ensUri: string, chainId: ChainId): Promise<Token> {
- const query = await client.invoke<Token>({
-   uri: ensUri,
-   module: "query",
+export async function getWETH(client: PolywrapClient, uri: string, chainId: ChainId): Promise<Token> {
+ const invocation = await client.invoke<Token>({
+   uri: uri,
    method: "getWETH",
-   input: {
+   args: {
      chainId: typeof chainId === "string" ? chainId : ChainIdEnum[chainId],
    },
  });
- if (query.error) {
-   throw query.error;
+ if (invocation.error) {
+   throw invocation.error;
  }
- return query.data!;
+ return invocation.data!;
 }

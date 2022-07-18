@@ -1,9 +1,10 @@
-import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
-import { getFakeTestToken, getPlugins } from "../testUtils";
+import { PolywrapClient } from "@polywrap/client-js";
+import { getFakeTestToken } from "../testUtils";
 import path from "path";
 import { createPool, encodeSqrtRatioX96, createCallParameters, addCallParameters, collectCallParameters, removeCallParameters, safeTransferFromParameters, feeAmountToTickSpacing, createPosition } from "../wrappedQueries";
 import { ChainIdEnum, FeeAmountEnum, Pool, SafeTransferOptions, Token, TokenAmount } from "../types";
+import {getPlugins, initInfra, stopInfra} from "../infraUtils";
+import {buildWrapper} from "@polywrap/test-env-js";
 
 jest.setTimeout(120000);
 
@@ -38,40 +39,32 @@ describe('NonfungiblePositionManager', () => {
   let pool_0_1: Pool;
   let pool_1_weth: Pool;
 
-  let client: Web3ApiClient;
-  let ensUri: string;
+  let client: PolywrapClient;
+  let fsUri: string;
 
   beforeAll(async () => {
-    const { ipfs, ethereum, ensAddress, registrarAddress, resolverAddress } = await initTestEnvironment();
+    await initInfra();
     // get client
-    const config: ClientConfig = getPlugins(ethereum, ipfs, ensAddress);
-    client = new Web3ApiClient(config);
-    // deploy api
-    const apiPath: string = path.resolve(__dirname + "/../../../../");
-    const api = await buildAndDeployApi({
-      apiAbsPath: apiPath,
-      ipfsProvider: ipfs,
-      ensRegistryAddress: ensAddress,
-      ethereumProvider: ethereum,
-      ensRegistrarAddress: registrarAddress,
-      ensResolverAddress: resolverAddress,
-    });
-    ensUri = `ens/testnet/${api.ensDomain}`;
+    const config = getPlugins();
+    client = new PolywrapClient(config);
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    await buildWrapper(wrapperAbsPath);
+    fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     token0 = getFakeTestToken(0);
     token1 = getFakeTestToken(1);
-    const sqrtRatioX96: string = await encodeSqrtRatioX96(client, ensUri, 1, 1);
-    pool_0_1 = await createPool(client, ensUri, token0, token1, FeeAmountEnum.MEDIUM, sqrtRatioX96, 0, 0, []);
-    pool_1_weth = await createPool(client, ensUri, token1, weth, FeeAmountEnum.MEDIUM, sqrtRatioX96, 0, 0, []);
+    const sqrtRatioX96: string = await encodeSqrtRatioX96(client, fsUri, 1, 1);
+    pool_0_1 = await createPool(client, fsUri, token0, token1, FeeAmountEnum.MEDIUM, sqrtRatioX96, 0, 0, []);
+    pool_1_weth = await createPool(client, fsUri, token1, weth, FeeAmountEnum.MEDIUM, sqrtRatioX96, 0, 0, []);
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   });
 
   describe('createCallParameters', () => {
     it('succeeds', async () => {
-      const { calldata, value } = await createCallParameters(client, ensUri, pool_0_1);
+      const { calldata, value } = await createCallParameters(client, fsUri, pool_0_1);
 
       expect(calldata).toEqual(
         '0x13ead562000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000bb80000000000000000000000000000000000000001000000000000000000000000'
@@ -83,11 +76,11 @@ describe('NonfungiblePositionManager', () => {
   describe('addCallParameters', () => {
     it('throws if liquidity is 0', async () => {
       await expect(
-        addCallParameters(client, ensUri,
-          await createPosition(client, ensUri,
+        addCallParameters(client, fsUri,
+          await createPosition(client, fsUri,
             pool_0_1,
-            -(await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM)),
-            await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM),
+            -(await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM)),
+            await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM),
             0
           ),
           { recipient, slippageTolerance, deadline }
@@ -97,11 +90,11 @@ describe('NonfungiblePositionManager', () => {
 
     it('throws if pool does not involve ether and useNative is true', async () => {
       await expect(
-        addCallParameters(client, ensUri,
-          await createPosition(client, ensUri,
+        addCallParameters(client, fsUri,
+          await createPosition(client, fsUri,
             pool_0_1,
-            -(await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM)),
-            await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM),
+            -(await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM)),
+            await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM),
             1
           ),
           { recipient, slippageTolerance, deadline, useNative: ETHER }
@@ -110,11 +103,11 @@ describe('NonfungiblePositionManager', () => {
     });
 
     it('succeeds for mint', async () => {
-      const { calldata, value } = await addCallParameters(client, ensUri,
-        await createPosition(client, ensUri,
+      const { calldata, value } = await addCallParameters(client, fsUri,
+        await createPosition(client, fsUri,
           pool_0_1,
-          -(await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM)),
-          await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM),
+          -(await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM)),
+          await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM),
           1
         ),
         { recipient, slippageTolerance, deadline }
@@ -127,11 +120,11 @@ describe('NonfungiblePositionManager', () => {
     });
 
     it('succeeds for increase', async () => {
-      const { calldata, value } = await addCallParameters(client, ensUri,
-        await createPosition(client, ensUri,
+      const { calldata, value } = await addCallParameters(client, fsUri,
+        await createPosition(client, fsUri,
           pool_0_1,
-          -(await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM)),
-          await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM),
+          -(await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM)),
+          await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM),
           1
         ),
         { tokenId, slippageTolerance, deadline }
@@ -144,11 +137,11 @@ describe('NonfungiblePositionManager', () => {
     });
 
     it('createPool', async () => {
-      const { calldata, value } = await addCallParameters(client, ensUri,
-        await createPosition(client, ensUri,
+      const { calldata, value } = await addCallParameters(client, fsUri,
+        await createPosition(client, fsUri,
           pool_0_1,
-          -(await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM)),
-          await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM),
+          -(await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM)),
+          await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM),
           1
         ),
         { recipient, slippageTolerance, deadline, createPool: true }
@@ -161,11 +154,11 @@ describe('NonfungiblePositionManager', () => {
     });
 
     it('useNative', async () => {
-      const { calldata, value } = await addCallParameters(client, ensUri,
-        await createPosition(client, ensUri,
+      const { calldata, value } = await addCallParameters(client, fsUri,
+        await createPosition(client, fsUri,
           pool_1_weth,
-          -(await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM)),
-          await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM),
+          -(await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM)),
+          await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM),
           1
         ),
         { recipient, slippageTolerance, deadline, useNative: ETHER }
@@ -180,7 +173,7 @@ describe('NonfungiblePositionManager', () => {
 
   describe('collectCallParameters', () => {
     it('works', async () => {
-      const { calldata, value } = await collectCallParameters(client, ensUri, {
+      const { calldata, value } = await collectCallParameters(client, fsUri, {
         tokenId,
         expectedCurrencyOwed0: { token: token0, amount: "0" },
         expectedCurrencyOwed1: { token: token1, amount: "0" },
@@ -194,7 +187,7 @@ describe('NonfungiblePositionManager', () => {
     });
 
     it('works with eth', async () => {
-      const { calldata, value } = await collectCallParameters(client, ensUri, {
+      const { calldata, value } = await collectCallParameters(client, fsUri, {
         tokenId,
         expectedCurrencyOwed0: { token: token1, amount: "0" },
         expectedCurrencyOwed1: { token: ETHER, amount: "0" },
@@ -211,11 +204,11 @@ describe('NonfungiblePositionManager', () => {
   describe('removeCallParameters', () => {
     it('throws for 0 liquidity', async () => {
       await expect(async () =>
-        removeCallParameters(client, ensUri,
-          await createPosition(client, ensUri,
+        removeCallParameters(client, fsUri,
+          await createPosition(client, fsUri,
             pool_0_1,
-            -(await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM)),
-            await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM),
+            -(await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM)),
+            await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM),
             0
           ),
           {
@@ -236,11 +229,11 @@ describe('NonfungiblePositionManager', () => {
 
     it('throws for 0 liquidity from small percentage', async () => {
       await expect(async () =>
-        removeCallParameters(client, ensUri,
-          await createPosition(client, ensUri,
+        removeCallParameters(client, fsUri,
+          await createPosition(client, fsUri,
             pool_0_1,
-            -(await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM)),
-            await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM),
+            -(await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM)),
+            await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM),
             50
           ),
           {
@@ -261,11 +254,11 @@ describe('NonfungiblePositionManager', () => {
 
     it('throws for bad burn', async () => {
       await expect(async () =>
-        removeCallParameters(client, ensUri,
-          await createPosition(client, ensUri,
+        removeCallParameters(client, fsUri,
+          await createPosition(client, fsUri,
             pool_0_1,
-            -(await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM)),
-            await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM),
+            -(await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM)),
+            await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM),
             50
           ),
           {
@@ -286,11 +279,11 @@ describe('NonfungiblePositionManager', () => {
     });
 
     it('works', async () => {
-      const { calldata, value } = await removeCallParameters(client, ensUri,
-        await createPosition(client, ensUri,
+      const { calldata, value } = await removeCallParameters(client, fsUri,
+        await createPosition(client, fsUri,
           pool_0_1,
-          -(await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM)),
-          await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM),
+          -(await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM)),
+          await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM),
           100
         ),
         {
@@ -314,11 +307,11 @@ describe('NonfungiblePositionManager', () => {
     });
 
     it('works for partial', async () => {
-      const { calldata, value } = await removeCallParameters(client, ensUri,
-        await createPosition(client, ensUri,
+      const { calldata, value } = await removeCallParameters(client, fsUri,
+        await createPosition(client, fsUri,
           pool_0_1,
-          -(await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM)),
-          await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM),
+          -(await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM)),
+          await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM),
           100
         ),
         {
@@ -350,11 +343,11 @@ describe('NonfungiblePositionManager', () => {
         token: token1,
         amount: "0",
       }
-      const { calldata, value } = await removeCallParameters(client, ensUri,
-        await createPosition(client, ensUri,
+      const { calldata, value } = await removeCallParameters(client, fsUri,
+        await createPosition(client, fsUri,
           pool_1_weth,
-          -(await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM)),
-          await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM),
+          -(await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM)),
+          await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM),
           100
         ),
         {
@@ -387,11 +380,11 @@ describe('NonfungiblePositionManager', () => {
         amount: "0",
       };
 
-      const { calldata, value } = await removeCallParameters(client, ensUri,
-        await createPosition(client, ensUri,
+      const { calldata, value } = await removeCallParameters(client, fsUri,
+        await createPosition(client, fsUri,
           pool_1_weth,
-          -(await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM)),
-          await feeAmountToTickSpacing(client, ensUri, FeeAmountEnum.MEDIUM),
+          -(await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM)),
+          await feeAmountToTickSpacing(client, fsUri, FeeAmountEnum.MEDIUM),
           100
         ),
         {
@@ -422,7 +415,7 @@ describe('NonfungiblePositionManager', () => {
         recipient,
         tokenId
       };
-      const { calldata, value } = await safeTransferFromParameters(client, ensUri, options);
+      const { calldata, value } = await safeTransferFromParameters(client, fsUri, options);
 
       expect(calldata).toEqual(
         '0x42842e0e000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000001'
@@ -438,7 +431,7 @@ describe('NonfungiblePositionManager', () => {
         tokenId,
         data
       }
-      const { calldata, value } = await safeTransferFromParameters(client, ensUri, options);
+      const { calldata, value } = await safeTransferFromParameters(client, fsUri, options);
 
       expect(calldata).toEqual(
         '0xb88d4fde000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000140000000000000000000000000000000000009004000000000000000000000000'

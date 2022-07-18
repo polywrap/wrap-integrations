@@ -1,12 +1,13 @@
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
-import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
+import {buildWrapper, initTestEnvironment, stopTestEnvironment} from "@polywrap/test-env-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import { Pool, Route, Token, Price } from "../types";
 import path from "path";
-import { getPlugins, getPoolFromAddress, getTokens, isDefined, toUniToken } from "../testUtils";
+import { getPoolFromAddress, getTokens, isDefined, toUniToken } from "../testUtils";
 import * as uni from "@uniswap/v3-sdk";
 import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
 import { getUniswapPool } from "../uniswapCreatePool";
+import { getPlugins } from "../infraUtils";
 
 jest.setTimeout(120000);
 
@@ -17,34 +18,26 @@ describe("Route (mainnet fork)", () => {
   const DAI_USDC_address = "0x6c6bc977e13df9b0de53b251522280bb72383700";
   const USDC_USDT_address = "0x3416cf6c708da44db2624d63ea0aaef7113527c6";
 
-  let client: Web3ApiClient;
-  let ensUri: string;
+  let client: PolywrapClient;
+  let fsUri: string;
   let tokens: Token[];
   let pools: Pool[];
   let uniPools: uni.Pool[];
   let ethersProvider: ethers.providers.BaseProvider;
 
   beforeAll(async () => {
-    const { ipfs, ethereum, ensAddress, registrarAddress, resolverAddress } = await initTestEnvironment();
+    await initTestEnvironment();
     // get client
-    const config: ClientConfig = getPlugins(ethereum, ipfs, ensAddress);
-    client = new Web3ApiClient(config);
-    // deploy api
-    const apiPath: string = path.resolve(__dirname + "/../../../../");
-    const api = await buildAndDeployApi({
-      apiAbsPath: apiPath,
-      ipfsProvider: ipfs,
-      ensRegistryAddress: ensAddress,
-      ethereumProvider: ethereum,
-      ensRegistrarAddress: registrarAddress,
-      ensResolverAddress: resolverAddress,
-    });
-    ensUri = `ens/testnet/${api.ensDomain}`;
+    const config = getPlugins();
+    client = new PolywrapClient(config);
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    await buildWrapper(wrapperAbsPath);
+    fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     pools = [
-      await getPoolFromAddress(client, ensUri, DAI_WETH_address, false),
-      await getPoolFromAddress(client, ensUri, DAI_USDC_address, false),
-      await getPoolFromAddress(client, ensUri, USDC_USDT_address, false),
+      await getPoolFromAddress(client, fsUri, DAI_WETH_address, false),
+      await getPoolFromAddress(client, fsUri, DAI_USDC_address, false),
+      await getPoolFromAddress(client, fsUri, USDC_USDT_address, false),
     ].filter(isDefined);
     tokens = getTokens(pools);
     // set up ethers provider
@@ -70,7 +63,7 @@ describe("Route (mainnet fork)", () => {
     const routeQuery = await client.query<{
       createRoute: Route;
     }>({
-      uri: ensUri,
+      uri: fsUri,
       query: `
         query {
           createRoute(
@@ -92,31 +85,21 @@ describe("Route (mainnet fork)", () => {
     const route: Route = routeQuery.data!.createRoute;
     const uniRoute: uni.Route<uniCore.Token, uniCore.Token> = new uni.Route(uniPools, toUniToken(inToken), toUniToken(outToken));
 
-    const midPriceQuery = await client.query<{
-      routeMidPrice: Price;
-    }>({
-      uri: ensUri,
-      query: `
-        query {
-          routeMidPrice(
-            pools: $pools
-            inToken: $inToken
-            outToken: $outToken
-          )
-        }
-      `,
-      variables: {
+    const midPriceInvocation = await client.invoke<Price>({
+      uri: fsUri,
+      method: "routeMidPrice",
+      args: {
         pools: pools,
         inToken: inToken,
         outToken: outToken,
       },
     });
-    expect(midPriceQuery.errors).toBeFalsy();
-    expect(midPriceQuery.data).toBeTruthy();
+    expect(midPriceInvocation.error).toBeFalsy();
+    expect(midPriceInvocation.data).toBeTruthy();
 
-    const price: Price = midPriceQuery.data!.routeMidPrice;
+    const price = midPriceInvocation.data;
     const uniPrice: uniCore.Price<uniCore.Token, uniCore.Token> = uniRoute.midPrice;
-    expect(price.price).toEqual(uniPrice.toFixed(18));
+    expect(price?.price).toEqual(uniPrice.toFixed(18));
     expect(price).toStrictEqual(route.midPrice);
   });
 });

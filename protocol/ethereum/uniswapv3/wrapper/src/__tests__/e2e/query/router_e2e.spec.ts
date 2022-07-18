@@ -1,6 +1,6 @@
-import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
-import { getFakeTestToken, getPlugins } from "../testUtils";
+import { PolywrapClient } from "@polywrap/client-js";
+import { buildWrapper } from "@polywrap/test-env-js";
+import { getFakeTestToken } from "../testUtils";
 import path from "path";
 import { ChainIdEnum, FeeAmountEnum, Pool, Token, Trade, TradeTypeEnum } from "../types";
 import {
@@ -11,6 +11,7 @@ import {
   constant,
   feeAmountToTickSpacing, createTradeFromRoute, createTradeFromRoutes, createRoute, swapCallParameters
 } from "../wrappedQueries";
+import {initInfra, stopInfra, getPlugins} from "../infraUtils";
 
 jest.setTimeout(120000);
 
@@ -21,12 +22,12 @@ describe('SwapRouter (SDK test replication)', () => {
   const makePool = async (token0: Token, token1: Token) => {
     const feeAmount = FeeAmountEnum.MEDIUM;
     const liquidity = 1_000_000;
-    const tickSpacing = await feeAmountToTickSpacing(client, ensUri, feeAmount);
-    const tickIndex0 = await nearestUsableTick(client, ensUri, await constant<number>(client, ensUri, "MIN_TICK"), tickSpacing);
-    const tickIndex1 = await nearestUsableTick(client, ensUri, await constant<number>(client, ensUri, "MAX_TICK"), tickSpacing);
-    const sqrtRatioX96 = await encodeSqrtRatioX96(client, ensUri, 1, 1);
-    const tickCurrent = await getTickAtSqrtRatio(client, ensUri, sqrtRatioX96);
-    return createPool(client, ensUri, token0, token1, feeAmount, sqrtRatioX96, liquidity, tickCurrent, [
+    const tickSpacing = await feeAmountToTickSpacing(client, fsUri, feeAmount);
+    const tickIndex0 = await nearestUsableTick(client, fsUri, await constant<number>(client, fsUri, "MIN_TICK"), tickSpacing);
+    const tickIndex1 = await nearestUsableTick(client, fsUri, await constant<number>(client, fsUri, "MAX_TICK"), tickSpacing);
+    const sqrtRatioX96 = await encodeSqrtRatioX96(client, fsUri, 1, 1);
+    const tickCurrent = await getTickAtSqrtRatio(client, fsUri, sqrtRatioX96);
+    return createPool(client, fsUri, token0, token1, feeAmount, sqrtRatioX96, liquidity, tickCurrent, [
       {
         index: tickIndex0,
         liquidityNet: liquidity.toString(),
@@ -75,25 +76,17 @@ describe('SwapRouter (SDK test replication)', () => {
   let pool_3_weth: Pool;
   let pool_1_3: Pool;
 
-  let client: Web3ApiClient;
-  let ensUri: string;
+  let client: PolywrapClient;
+  let fsUri: string;
 
   beforeAll(async () => {
-    const { ipfs, ethereum, ensAddress, registrarAddress, resolverAddress } = await initTestEnvironment();
+    await initInfra();
     // get client
-    const config: ClientConfig = getPlugins(ethereum, ipfs, ensAddress);
-    client = new Web3ApiClient(config);
-    // deploy api
-    const apiPath: string = path.resolve(__dirname + "/../../../../");
-    const api = await buildAndDeployApi({
-      apiAbsPath: apiPath,
-      ipfsProvider: ipfs,
-      ensRegistryAddress: ensAddress,
-      ethereumProvider: ethereum,
-      ensRegistrarAddress: registrarAddress,
-      ensResolverAddress: resolverAddress,
-    });
-    ensUri = `ens/testnet/${api.ensDomain}`;
+    const config = getPlugins();
+    client = new PolywrapClient(config);
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    await buildWrapper(wrapperAbsPath);
+    fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     token0 = getFakeTestToken(0);
     token1 = getFakeTestToken(1);
@@ -109,7 +102,7 @@ describe('SwapRouter (SDK test replication)', () => {
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   });
 
   describe('swapCallParameters', () => {
@@ -117,9 +110,9 @@ describe('SwapRouter (SDK test replication)', () => {
       it('single-hop exact input', async () => {
         const trade: Trade = await createTradeFromRoute(
           client,
-          ensUri,
+          fsUri,
           {
-            route: await createRoute(client, ensUri, [pool_0_1], token0, token1),
+            route: await createRoute(client, fsUri, [pool_0_1], token0, token1),
             amount: {
               token: token0,
               amount: "100",
@@ -127,7 +120,7 @@ describe('SwapRouter (SDK test replication)', () => {
           },
           TradeTypeEnum.EXACT_INPUT
         );
-        const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+        const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
           slippageTolerance,
           recipient,
           deadline: deadline.toString()
@@ -142,9 +135,9 @@ describe('SwapRouter (SDK test replication)', () => {
       it('single-hop exact output', async () => {
         const trade: Trade = await createTradeFromRoute(
           client,
-          ensUri,
+          fsUri,
           {
-            route: await createRoute(client, ensUri, [pool_0_1], token0, token1),
+            route: await createRoute(client, fsUri, [pool_0_1], token0, token1),
             amount: {
               token: token1,
               amount: "100",
@@ -152,7 +145,7 @@ describe('SwapRouter (SDK test replication)', () => {
           },
           TradeTypeEnum.EXACT_OUTPUT
         );
-        const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+        const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
           slippageTolerance,
           recipient,
           deadline: deadline.toString()
@@ -167,9 +160,9 @@ describe('SwapRouter (SDK test replication)', () => {
       it('multi-hop exact input', async () => {
         const trade: Trade = await createTradeFromRoute(
           client,
-          ensUri,
+          fsUri,
           {
-            route: await createRoute(client, ensUri, [pool_0_1, pool_1_weth], token0, WETH),
+            route: await createRoute(client, fsUri, [pool_0_1, pool_1_weth], token0, WETH),
             amount: {
               token: token0,
               amount: "100",
@@ -177,7 +170,7 @@ describe('SwapRouter (SDK test replication)', () => {
           },
           TradeTypeEnum.EXACT_INPUT
         );
-        const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+        const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
           slippageTolerance,
           recipient,
           deadline: deadline.toString()
@@ -192,9 +185,9 @@ describe('SwapRouter (SDK test replication)', () => {
       it('multi-hop exact output', async () => {
         const trade: Trade = await createTradeFromRoute(
           client,
-          ensUri,
+          fsUri,
           {
-            route: await createRoute(client, ensUri, [pool_0_1, pool_1_weth], token0, WETH),
+            route: await createRoute(client, fsUri, [pool_0_1, pool_1_weth], token0, WETH),
             amount: {
               token: WETH,
               amount: "100",
@@ -202,7 +195,7 @@ describe('SwapRouter (SDK test replication)', () => {
           },
           TradeTypeEnum.EXACT_OUTPUT
         );
-        const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+        const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
           slippageTolerance,
           recipient,
           deadline: deadline.toString()
@@ -217,9 +210,9 @@ describe('SwapRouter (SDK test replication)', () => {
       it('ETH in exact input', async () => {
         const trade: Trade = await createTradeFromRoute(
           client,
-          ensUri,
+          fsUri,
           {
-            route: await createRoute(client, ensUri, [pool_1_weth], ETHER, token1),
+            route: await createRoute(client, fsUri, [pool_1_weth], ETHER, token1),
             amount: {
               token: ETHER,
               amount: "100",
@@ -227,7 +220,7 @@ describe('SwapRouter (SDK test replication)', () => {
           },
           TradeTypeEnum.EXACT_INPUT
         );
-        const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+        const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
           slippageTolerance,
           recipient,
           deadline: deadline.toString()
@@ -242,9 +235,9 @@ describe('SwapRouter (SDK test replication)', () => {
       it('ETH in exact output', async () => {
         const trade: Trade = await createTradeFromRoute(
           client,
-          ensUri,
+          fsUri,
           {
-            route: await createRoute(client, ensUri, [pool_1_weth], ETHER, token1),
+            route: await createRoute(client, fsUri, [pool_1_weth], ETHER, token1),
             amount: {
               token: token1,
               amount: "100",
@@ -252,7 +245,7 @@ describe('SwapRouter (SDK test replication)', () => {
           },
           TradeTypeEnum.EXACT_OUTPUT
         );
-        const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+        const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
           slippageTolerance,
           recipient,
           deadline: deadline.toString()
@@ -267,9 +260,9 @@ describe('SwapRouter (SDK test replication)', () => {
       it('ETH out exact input', async () => {
         const trade: Trade = await createTradeFromRoute(
           client,
-          ensUri,
+          fsUri,
           {
-            route: await createRoute(client, ensUri, [pool_1_weth], token1, ETHER),
+            route: await createRoute(client, fsUri, [pool_1_weth], token1, ETHER),
             amount: {
               token: token1,
               amount: "100",
@@ -277,7 +270,7 @@ describe('SwapRouter (SDK test replication)', () => {
           },
           TradeTypeEnum.EXACT_INPUT
         );
-        const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+        const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
           slippageTolerance,
           recipient,
           deadline: deadline.toString()
@@ -292,9 +285,9 @@ describe('SwapRouter (SDK test replication)', () => {
       it('ETH out exact output', async () => {
         const trade: Trade = await createTradeFromRoute(
           client,
-          ensUri,
+          fsUri,
           {
-            route: await createRoute(client, ensUri, [pool_1_weth], token1, ETHER),
+            route: await createRoute(client, fsUri, [pool_1_weth], token1, ETHER),
             amount: {
               token: ETHER,
               amount: "100",
@@ -302,7 +295,7 @@ describe('SwapRouter (SDK test replication)', () => {
           },
           TradeTypeEnum.EXACT_OUTPUT
         );
-        const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+        const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
           slippageTolerance,
           recipient,
           deadline: deadline.toString()
@@ -317,9 +310,9 @@ describe('SwapRouter (SDK test replication)', () => {
       it('sqrtPriceLimitX96', async () => {
         const trade: Trade = await createTradeFromRoute(
           client,
-          ensUri,
+          fsUri,
           {
-            route: await createRoute(client, ensUri, [pool_0_1], token0, token1),
+            route: await createRoute(client, fsUri, [pool_0_1], token0, token1),
             amount: {
               token: token0,
               amount: "100",
@@ -327,7 +320,7 @@ describe('SwapRouter (SDK test replication)', () => {
           },
           TradeTypeEnum.EXACT_INPUT
         );
-        const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+        const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
           slippageTolerance,
           recipient,
           deadline: deadline.toString(),
@@ -343,9 +336,9 @@ describe('SwapRouter (SDK test replication)', () => {
       it('fee with eth out', async () => {
         const trade: Trade = await createTradeFromRoute(
           client,
-          ensUri,
+          fsUri,
           {
-            route: await createRoute(client, ensUri, [pool_1_weth], token1, ETHER),
+            route: await createRoute(client, fsUri, [pool_1_weth], token1, ETHER),
             amount: {
               token: token1,
               amount: "100",
@@ -353,7 +346,7 @@ describe('SwapRouter (SDK test replication)', () => {
           },
           TradeTypeEnum.EXACT_INPUT
         );
-        const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+        const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
           slippageTolerance,
           recipient,
           deadline: deadline.toString(),
@@ -372,9 +365,9 @@ describe('SwapRouter (SDK test replication)', () => {
       it('fee with eth in using exact output', async () => {
         const trade: Trade = await createTradeFromRoute(
           client,
-          ensUri,
+          fsUri,
           {
-            route: await createRoute(client, ensUri, [pool_1_weth], ETHER, token1),
+            route: await createRoute(client, fsUri, [pool_1_weth], ETHER, token1),
             amount: {
               token: token1,
               amount: "10",
@@ -382,7 +375,7 @@ describe('SwapRouter (SDK test replication)', () => {
           },
           TradeTypeEnum.EXACT_OUTPUT
         );
-        const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+        const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
           slippageTolerance,
           recipient,
           deadline: deadline.toString(),
@@ -401,9 +394,9 @@ describe('SwapRouter (SDK test replication)', () => {
       it('fee', async () => {
         const trade: Trade = await createTradeFromRoute(
           client,
-          ensUri,
+          fsUri,
           {
-            route: await createRoute(client, ensUri, [pool_0_1], token0, token1),
+            route: await createRoute(client, fsUri, [pool_0_1], token0, token1),
             amount: {
               token: token0,
               amount: "100",
@@ -411,7 +404,7 @@ describe('SwapRouter (SDK test replication)', () => {
           },
           TradeTypeEnum.EXACT_INPUT
         );
-        const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+        const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
           slippageTolerance,
           recipient,
           deadline: deadline.toString(),
@@ -433,9 +426,9 @@ describe('SwapRouter (SDK test replication)', () => {
     it('two single-hop exact input', async () => {
       const trade1: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_1], token0, token1),
+          route: await createRoute(client, fsUri, [pool_0_1], token0, token1),
           amount: {
             token: token0,
             amount: "100",
@@ -445,9 +438,9 @@ describe('SwapRouter (SDK test replication)', () => {
       );
       const trade2: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_1], token0, token1),
+          route: await createRoute(client, fsUri, [pool_0_1], token0, token1),
           amount: {
             token: token0,
             amount: "100",
@@ -455,7 +448,7 @@ describe('SwapRouter (SDK test replication)', () => {
         },
         TradeTypeEnum.EXACT_INPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade1, trade2], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade1, trade2], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -470,9 +463,9 @@ describe('SwapRouter (SDK test replication)', () => {
     it('one single-hop one multi-hop exact input', async () => {
       const trade1: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_3], token0, token3),
+          route: await createRoute(client, fsUri, [pool_0_3], token0, token3),
           amount: {
             token: token0,
             amount: "100",
@@ -482,9 +475,9 @@ describe('SwapRouter (SDK test replication)', () => {
       );
       const trade2: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_2, pool_2_3], token0, token3),
+          route: await createRoute(client, fsUri, [pool_0_2, pool_2_3], token0, token3),
           amount: {
             token: token0,
             amount: "100",
@@ -492,7 +485,7 @@ describe('SwapRouter (SDK test replication)', () => {
         },
         TradeTypeEnum.EXACT_INPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade1, trade2], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade1, trade2], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -507,9 +500,9 @@ describe('SwapRouter (SDK test replication)', () => {
     it('two multi-hop exact input', async () => {
       const trade1: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_1, pool_1_3], token0, token3),
+          route: await createRoute(client, fsUri, [pool_0_1, pool_1_3], token0, token3),
           amount: {
             token: token0,
             amount: "100",
@@ -519,9 +512,9 @@ describe('SwapRouter (SDK test replication)', () => {
       );
       const trade2: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_2, pool_2_3], token0, token3),
+          route: await createRoute(client, fsUri, [pool_0_2, pool_2_3], token0, token3),
           amount: {
             token: token0,
             amount: "100",
@@ -529,7 +522,7 @@ describe('SwapRouter (SDK test replication)', () => {
         },
         TradeTypeEnum.EXACT_INPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade1, trade2], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade1, trade2], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -544,9 +537,9 @@ describe('SwapRouter (SDK test replication)', () => {
     it('ETH in exact input', async () => {
       const trade1: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_1_weth, pool_1_3], ETHER, token3),
+          route: await createRoute(client, fsUri, [pool_1_weth, pool_1_3], ETHER, token3),
           amount: {
             token: ETHER,
             amount: "100",
@@ -556,9 +549,9 @@ describe('SwapRouter (SDK test replication)', () => {
       );
       const trade2: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_3_weth], ETHER, token3),
+          route: await createRoute(client, fsUri, [pool_3_weth], ETHER, token3),
           amount: {
             token: ETHER,
             amount: "100",
@@ -566,7 +559,7 @@ describe('SwapRouter (SDK test replication)', () => {
         },
         TradeTypeEnum.EXACT_INPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade1, trade2], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade1, trade2], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -581,9 +574,9 @@ describe('SwapRouter (SDK test replication)', () => {
     it('ETH in exact output', async () => {
       const trade1: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_1_weth, pool_1_3], ETHER, token3),
+          route: await createRoute(client, fsUri, [pool_1_weth, pool_1_3], ETHER, token3),
           amount: {
             token: token3,
             amount: "100",
@@ -593,9 +586,9 @@ describe('SwapRouter (SDK test replication)', () => {
       );
       const trade2: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_3_weth], ETHER, token3),
+          route: await createRoute(client, fsUri, [pool_3_weth], ETHER, token3),
           amount: {
             token: token3,
             amount: "100",
@@ -603,7 +596,7 @@ describe('SwapRouter (SDK test replication)', () => {
         },
         TradeTypeEnum.EXACT_OUTPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade1, trade2], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade1, trade2], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -618,9 +611,9 @@ describe('SwapRouter (SDK test replication)', () => {
     it('ETH out exact input', async () => {
       const trade1: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_1_3, pool_1_weth], token3, ETHER),
+          route: await createRoute(client, fsUri, [pool_1_3, pool_1_weth], token3, ETHER),
           amount: {
             token: token3,
             amount: "100",
@@ -630,9 +623,9 @@ describe('SwapRouter (SDK test replication)', () => {
       );
       const trade2: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_3_weth], token3, ETHER),
+          route: await createRoute(client, fsUri, [pool_3_weth], token3, ETHER),
           amount: {
             token: token3,
             amount: "100",
@@ -640,7 +633,7 @@ describe('SwapRouter (SDK test replication)', () => {
         },
         TradeTypeEnum.EXACT_INPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade1, trade2], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade1, trade2], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -655,9 +648,9 @@ describe('SwapRouter (SDK test replication)', () => {
     it('ETH out exact output', async () => {
       const trade1: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_1_3, pool_1_weth], token3, ETHER),
+          route: await createRoute(client, fsUri, [pool_1_3, pool_1_weth], token3, ETHER),
           amount: {
             token: ETHER,
             amount: "100",
@@ -667,9 +660,9 @@ describe('SwapRouter (SDK test replication)', () => {
       );
       const trade2: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_3_weth], token3, ETHER),
+          route: await createRoute(client, fsUri, [pool_3_weth], token3, ETHER),
           amount: {
             token: ETHER,
             amount: "100",
@@ -677,7 +670,7 @@ describe('SwapRouter (SDK test replication)', () => {
         },
         TradeTypeEnum.EXACT_OUTPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade1, trade2], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade1, trade2], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -692,9 +685,9 @@ describe('SwapRouter (SDK test replication)', () => {
     it('two single-hop exact output', async () => {
       const trade1: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_1], token0, token1),
+          route: await createRoute(client, fsUri, [pool_0_1], token0, token1),
           amount: {
             token: token1,
             amount: "100",
@@ -704,9 +697,9 @@ describe('SwapRouter (SDK test replication)', () => {
       );
       const trade2: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_1], token0, token1),
+          route: await createRoute(client, fsUri, [pool_0_1], token0, token1),
           amount: {
             token: token1,
             amount: "100",
@@ -714,7 +707,7 @@ describe('SwapRouter (SDK test replication)', () => {
         },
         TradeTypeEnum.EXACT_OUTPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade1, trade2], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade1, trade2], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -729,9 +722,9 @@ describe('SwapRouter (SDK test replication)', () => {
     it('one single-hop one multi-hop exact output', async () => {
       const trade1: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_3], token0, token3),
+          route: await createRoute(client, fsUri, [pool_0_3], token0, token3),
           amount: {
             token: token3,
             amount: "100",
@@ -741,9 +734,9 @@ describe('SwapRouter (SDK test replication)', () => {
       );
       const trade2: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_2, pool_2_3], token0, token3),
+          route: await createRoute(client, fsUri, [pool_0_2, pool_2_3], token0, token3),
           amount: {
             token: token3,
             amount: "100",
@@ -751,7 +744,7 @@ describe('SwapRouter (SDK test replication)', () => {
         },
         TradeTypeEnum.EXACT_OUTPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade1, trade2], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade1, trade2], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -766,9 +759,9 @@ describe('SwapRouter (SDK test replication)', () => {
     it('two multi-hop exact output', async () => {
       const trade1: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_1, pool_1_3], token0, token3),
+          route: await createRoute(client, fsUri, [pool_0_1, pool_1_3], token0, token3),
           amount: {
             token: token3,
             amount: "100",
@@ -778,9 +771,9 @@ describe('SwapRouter (SDK test replication)', () => {
       );
       const trade2: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_2, pool_2_3], token0, token3),
+          route: await createRoute(client, fsUri, [pool_0_2, pool_2_3], token0, token3),
           amount: {
             token: token3,
             amount: "100",
@@ -788,7 +781,7 @@ describe('SwapRouter (SDK test replication)', () => {
         },
         TradeTypeEnum.EXACT_OUTPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade1, trade2], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade1, trade2], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -803,9 +796,9 @@ describe('SwapRouter (SDK test replication)', () => {
     it('different token in fails ', async () => {
       const trade1: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_2_3], token2, token3),
+          route: await createRoute(client, fsUri, [pool_2_3], token2, token3),
           amount: {
             token: token2,
             amount: "100",
@@ -815,9 +808,9 @@ describe('SwapRouter (SDK test replication)', () => {
       );
       const trade2: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_1], token0, token1),
+          route: await createRoute(client, fsUri, [pool_0_1], token0, token1),
           amount: {
             token: token0,
             amount: "100",
@@ -827,7 +820,7 @@ describe('SwapRouter (SDK test replication)', () => {
       );
 
       await expect(() =>
-        swapCallParameters(client, ensUri, [trade1, trade2], {
+        swapCallParameters(client, fsUri, [trade1, trade2], {
           slippageTolerance,
           recipient,
           deadline: deadline.toString(),
@@ -838,9 +831,9 @@ describe('SwapRouter (SDK test replication)', () => {
     it('different token out fails ', async () => {
       const trade1: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_3], token0, token3),
+          route: await createRoute(client, fsUri, [pool_0_3], token0, token3),
           amount: {
             token: token0,
             amount: "100",
@@ -850,9 +843,9 @@ describe('SwapRouter (SDK test replication)', () => {
       );
       const trade2: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_1, pool_1_weth], token0, WETH),
+          route: await createRoute(client, fsUri, [pool_0_1, pool_1_weth], token0, WETH),
           amount: {
             token: token0,
             amount: "100",
@@ -862,7 +855,7 @@ describe('SwapRouter (SDK test replication)', () => {
       );
 
       await expect(() =>
-        swapCallParameters(client, ensUri, [trade1, trade2], {
+        swapCallParameters(client, fsUri, [trade1, trade2], {
           slippageTolerance,
           recipient,
           deadline: deadline.toString(),
@@ -873,9 +866,9 @@ describe('SwapRouter (SDK test replication)', () => {
     it('sqrtPriceLimitX96', async () => {
       const trade1: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_1], token0, token1),
+          route: await createRoute(client, fsUri, [pool_0_1], token0, token1),
           amount: {
             token: token0,
             amount: "100",
@@ -885,9 +878,9 @@ describe('SwapRouter (SDK test replication)', () => {
       );
       const trade2: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_1], token0, token1),
+          route: await createRoute(client, fsUri, [pool_0_1], token0, token1),
           amount: {
             token: token0,
             amount: "100",
@@ -895,7 +888,7 @@ describe('SwapRouter (SDK test replication)', () => {
         },
         TradeTypeEnum.EXACT_INPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade1, trade2], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade1, trade2], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -911,9 +904,9 @@ describe('SwapRouter (SDK test replication)', () => {
     it('fee with eth out', async () => {
       const trade1: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_1_3, pool_1_weth], token3, ETHER),
+          route: await createRoute(client, fsUri, [pool_1_3, pool_1_weth], token3, ETHER),
           amount: {
             token: token3,
             amount: "100",
@@ -923,9 +916,9 @@ describe('SwapRouter (SDK test replication)', () => {
       );
       const trade2: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_3_weth], token3, ETHER),
+          route: await createRoute(client, fsUri, [pool_3_weth], token3, ETHER),
           amount: {
             token: token3,
             amount: "100",
@@ -933,7 +926,7 @@ describe('SwapRouter (SDK test replication)', () => {
         },
         TradeTypeEnum.EXACT_INPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade1, trade2], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade1, trade2], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -952,9 +945,9 @@ describe('SwapRouter (SDK test replication)', () => {
     it('fee with eth in using exact output', async () => {
       const trade1: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_1_weth, pool_1_3], ETHER, token3),
+          route: await createRoute(client, fsUri, [pool_1_weth, pool_1_3], ETHER, token3),
           amount: {
             token: token3,
             amount: "100",
@@ -964,9 +957,9 @@ describe('SwapRouter (SDK test replication)', () => {
       );
       const trade2: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_3_weth], ETHER, token3),
+          route: await createRoute(client, fsUri, [pool_3_weth], ETHER, token3),
           amount: {
             token: token3,
             amount: "100",
@@ -974,7 +967,7 @@ describe('SwapRouter (SDK test replication)', () => {
         },
         TradeTypeEnum.EXACT_OUTPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade1, trade2], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade1, trade2], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -993,9 +986,9 @@ describe('SwapRouter (SDK test replication)', () => {
     it('fee', async () => {
       const trade1: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_1, pool_1_3], token0, token3),
+          route: await createRoute(client, fsUri, [pool_0_1, pool_1_3], token0, token3),
           amount: {
             token: token0,
             amount: "100",
@@ -1005,9 +998,9 @@ describe('SwapRouter (SDK test replication)', () => {
       );
       const trade2: Trade = await createTradeFromRoute(
         client,
-        ensUri,
+        fsUri,
         {
-          route: await createRoute(client, ensUri, [pool_0_2, pool_2_3], token0, token3),
+          route: await createRoute(client, fsUri, [pool_0_2, pool_2_3], token0, token3),
           amount: {
             token: token0,
             amount: "100",
@@ -1015,7 +1008,7 @@ describe('SwapRouter (SDK test replication)', () => {
         },
         TradeTypeEnum.EXACT_INPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade1, trade2], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade1, trade2], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -1036,16 +1029,16 @@ describe('SwapRouter (SDK test replication)', () => {
     it('one single-hop one multi-hop exact input', async () => {
       const trade: Trade = await createTradeFromRoutes(
         client,
-        ensUri,
+        fsUri,
         [{
-          route: await createRoute(client, ensUri, [pool_0_3], token0, token3),
+          route: await createRoute(client, fsUri, [pool_0_3], token0, token3),
           amount: {
             token: token0,
             amount: "100",
           },
         },
         {
-          route: await createRoute(client, ensUri, [pool_0_2, pool_2_3], token0, token3),
+          route: await createRoute(client, fsUri, [pool_0_2, pool_2_3], token0, token3),
           amount: {
             token: token0,
             amount: "100",
@@ -1053,7 +1046,7 @@ describe('SwapRouter (SDK test replication)', () => {
         }],
         TradeTypeEnum.EXACT_INPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -1068,16 +1061,16 @@ describe('SwapRouter (SDK test replication)', () => {
     it('two multi-hop exact input', async () => {
       const trade: Trade = await createTradeFromRoutes(
         client,
-        ensUri,
+        fsUri,
         [{
-          route: await createRoute(client, ensUri, [pool_0_1, pool_1_3], token0, token3),
+          route: await createRoute(client, fsUri, [pool_0_1, pool_1_3], token0, token3),
           amount: {
             token: token0,
             amount: "100",
           },
         },
           {
-            route: await createRoute(client, ensUri, [pool_0_2, pool_2_3], token0, token3),
+            route: await createRoute(client, fsUri, [pool_0_2, pool_2_3], token0, token3),
             amount: {
               token: token0,
               amount: "100",
@@ -1085,7 +1078,7 @@ describe('SwapRouter (SDK test replication)', () => {
           }],
         TradeTypeEnum.EXACT_INPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -1100,16 +1093,16 @@ describe('SwapRouter (SDK test replication)', () => {
     it('ETH in exact input', async () => {
       const trade: Trade = await createTradeFromRoutes(
         client,
-        ensUri,
+        fsUri,
         [{
-          route: await createRoute(client, ensUri, [pool_1_weth, pool_1_3], ETHER, token3),
+          route: await createRoute(client, fsUri, [pool_1_weth, pool_1_3], ETHER, token3),
           amount: {
             token: ETHER,
             amount: "100",
           },
         },
           {
-            route: await createRoute(client, ensUri, [pool_3_weth], ETHER, token3),
+            route: await createRoute(client, fsUri, [pool_3_weth], ETHER, token3),
             amount: {
               token: ETHER,
               amount: "100",
@@ -1117,7 +1110,7 @@ describe('SwapRouter (SDK test replication)', () => {
           }],
         TradeTypeEnum.EXACT_INPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -1132,16 +1125,16 @@ describe('SwapRouter (SDK test replication)', () => {
     it('ETH in exact output', async () => {
       const trade: Trade = await createTradeFromRoutes(
         client,
-        ensUri,
+        fsUri,
         [{
-          route: await createRoute(client, ensUri, [pool_1_weth, pool_1_3], ETHER, token3),
+          route: await createRoute(client, fsUri, [pool_1_weth, pool_1_3], ETHER, token3),
           amount: {
             token: token3,
             amount: "100",
           },
         },
           {
-            route: await createRoute(client, ensUri, [pool_3_weth], ETHER, token3),
+            route: await createRoute(client, fsUri, [pool_3_weth], ETHER, token3),
             amount: {
               token: token3,
               amount: "100",
@@ -1149,7 +1142,7 @@ describe('SwapRouter (SDK test replication)', () => {
           }],
         TradeTypeEnum.EXACT_OUTPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -1164,16 +1157,16 @@ describe('SwapRouter (SDK test replication)', () => {
     it('ETH out exact input', async () => {
       const trade: Trade = await createTradeFromRoutes(
         client,
-        ensUri,
+        fsUri,
         [{
-          route: await createRoute(client, ensUri, [pool_1_3, pool_1_weth], token3, ETHER),
+          route: await createRoute(client, fsUri, [pool_1_3, pool_1_weth], token3, ETHER),
           amount: {
             token: token3,
             amount: "100",
           },
         },
           {
-            route: await createRoute(client, ensUri, [pool_3_weth], token3, ETHER),
+            route: await createRoute(client, fsUri, [pool_3_weth], token3, ETHER),
             amount: {
               token: token3,
               amount: "100",
@@ -1181,7 +1174,7 @@ describe('SwapRouter (SDK test replication)', () => {
           }],
         TradeTypeEnum.EXACT_INPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -1196,16 +1189,16 @@ describe('SwapRouter (SDK test replication)', () => {
     it('ETH out exact output', async () => {
       const trade: Trade = await createTradeFromRoutes(
         client,
-        ensUri,
+        fsUri,
         [{
-          route: await createRoute(client, ensUri, [pool_1_3, pool_1_weth], token3, ETHER),
+          route: await createRoute(client, fsUri, [pool_1_3, pool_1_weth], token3, ETHER),
           amount: {
             token: ETHER,
             amount: "100",
           },
         },
           {
-            route: await createRoute(client, ensUri, [pool_3_weth], token3, ETHER),
+            route: await createRoute(client, fsUri, [pool_3_weth], token3, ETHER),
             amount: {
               token: ETHER,
               amount: "100",
@@ -1213,7 +1206,7 @@ describe('SwapRouter (SDK test replication)', () => {
           }],
         TradeTypeEnum.EXACT_OUTPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -1228,16 +1221,16 @@ describe('SwapRouter (SDK test replication)', () => {
     it('one single-hop one multi-hop exact output', async () => {
       const trade: Trade = await createTradeFromRoutes(
         client,
-        ensUri,
+        fsUri,
         [{
-          route: await createRoute(client, ensUri, [pool_0_3], token0, token3),
+          route: await createRoute(client, fsUri, [pool_0_3], token0, token3),
           amount: {
             token: token3,
             amount: "100",
           },
         },
           {
-            route: await createRoute(client, ensUri, [pool_0_2, pool_2_3], token0, token3),
+            route: await createRoute(client, fsUri, [pool_0_2, pool_2_3], token0, token3),
             amount: {
               token: token3,
               amount: "100",
@@ -1245,7 +1238,7 @@ describe('SwapRouter (SDK test replication)', () => {
           }],
         TradeTypeEnum.EXACT_OUTPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),
@@ -1260,16 +1253,16 @@ describe('SwapRouter (SDK test replication)', () => {
     it('two multi-hop exact output', async () => {
       const trade: Trade = await createTradeFromRoutes(
         client,
-        ensUri,
+        fsUri,
         [{
-          route: await createRoute(client, ensUri, [pool_0_1, pool_1_3], token0, token3),
+          route: await createRoute(client, fsUri, [pool_0_1, pool_1_3], token0, token3),
           amount: {
             token: token3,
             amount: "100",
           },
         },
           {
-            route: await createRoute(client, ensUri, [pool_0_2, pool_2_3], token0, token3),
+            route: await createRoute(client, fsUri, [pool_0_2, pool_2_3], token0, token3),
             amount: {
               token: token3,
               amount: "100",
@@ -1277,7 +1270,7 @@ describe('SwapRouter (SDK test replication)', () => {
           }],
         TradeTypeEnum.EXACT_OUTPUT
       );
-      const { calldata, value } = await swapCallParameters(client, ensUri, [trade], {
+      const { calldata, value } = await swapCallParameters(client, fsUri, [trade], {
         slippageTolerance,
         recipient,
         deadline: deadline.toString(),

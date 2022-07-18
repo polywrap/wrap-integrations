@@ -1,5 +1,5 @@
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
-import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
+import {buildWrapper} from "@polywrap/test-env-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import {
   ChainIdEnum,
   Ethereum_TxResponse,
@@ -10,10 +10,11 @@ import {
   Trade
 } from "../types";
 import path from "path";
-import { getPlugins, getPoolFromAddress, getPools, getTokens } from "../testUtils";
+import {getPoolFromAddress, getPools, getTokens } from "../testUtils";
 import * as ethers from "ethers";
 import { bestTradeExactOut, getNative, swapCallParameters } from "../wrappedQueries";
 import erc20ABI from "../testData/erc20ABI.json";
+import {getPlugins, initInfra, stopInfra} from "../infraUtils";
 
 jest.setTimeout(180000);
 
@@ -22,45 +23,37 @@ describe("Call (mainnet fork)", () => {
   const ROUTER_ADDRESS = "0xE592427A0AEce92De3Edee1F18E0157C05861564";
   const USDC_ETH_03_ADDRESS = "0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8";
 
-  let client: Web3ApiClient;
-  let ensUri: string;
+  let client: PolywrapClient;
+  let fsUri: string;
   let ethersProvider: ethers.providers.JsonRpcProvider;
   let recipient: string;
 
   beforeAll(async () => {
-    const { ipfs, ethereum, ensAddress, registrarAddress, resolverAddress } = await initTestEnvironment();
+    await initInfra();
     // get client
-    const config: ClientConfig = getPlugins(ethereum, ipfs, ensAddress);
-    client = new Web3ApiClient(config);
+    const config = getPlugins();
+    client = new PolywrapClient(config);
     // deploy api
-    const apiPath: string = path.resolve(__dirname + "/../../../../");
-    const api = await buildAndDeployApi({
-      apiAbsPath: apiPath,
-      ipfsProvider: ipfs,
-      ensRegistryAddress: ensAddress,
-      ethereumProvider: ethereum,
-      ensRegistrarAddress: registrarAddress,
-      ensResolverAddress: resolverAddress,
-    });
-    ensUri = `ens/testnet/${api.ensDomain}`;
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    await buildWrapper(wrapperAbsPath);
+    fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up ethers provider
     ethersProvider = new ethers.providers.JsonRpcProvider("http://localhost:8546");
     recipient = await ethersProvider.getSigner().getAddress();
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   });
 
   it("successfully approves token transfers", async () => {
-    const tokens: Token[] = getTokens(await getPools(client, ensUri));
+    const tokens: Token[] = getTokens(await getPools(client, fsUri));
     for (const token of tokens) {
       if (token.currency.symbol === "USDT") continue; // TODO: why does USDT fail on the approve call?
       const txResponse = await client.invoke<Ethereum_TxResponse>({
-        uri: ensUri,
-        module: "mutation",
+        uri: fsUri,
         method: "approve",
-        input: { token },
+        args: { token },
       });
       expect(txResponse.error).toBeFalsy();
       expect(txResponse.data).toBeTruthy();
@@ -73,29 +66,28 @@ describe("Call (mainnet fork)", () => {
   });
 
   it("execCall: swap eth -> usdc", async () => {
-    const pools: Pool[] = [await getPoolFromAddress(client, ensUri, USDC_ETH_03_ADDRESS, true)];
+    const pools: Pool[] = [await getPoolFromAddress(client, fsUri, USDC_ETH_03_ADDRESS, true)];
     const tokens: Token[] = getTokens(pools);
 
     // approve token transfers
     for (const token of tokens) {
       const txResponse = await client.invoke<Ethereum_TxResponse>({
-        uri: ensUri,
-        module: "mutation",
+        uri: fsUri,
         method: "approve",
-        input: { token },
+        args: { token },
       });
       const approve: string = txResponse.data!.hash;
       const approveTx = await ethersProvider.getTransaction(approve);
       await approveTx.wait();
     }
 
-    const ETH: Token = await getNative(client, ensUri, ChainIdEnum.MAINNET);
+    const ETH: Token = await getNative(client, fsUri, ChainIdEnum.MAINNET);
     const USDC: Token = tokens.find(token => token.currency.symbol === "USDC") as Token;
 
     // eth -> usdc preparation
     const usdcOut: TokenAmount = { token: USDC, amount: "10000000000" }
-    const ethUsdcTrade: Trade = (await bestTradeExactOut(client, ensUri, pools, ETH, usdcOut))[0];
-    const ethUsdcParams: MethodParameters = await swapCallParameters(client, ensUri, [ethUsdcTrade], {
+    const ethUsdcTrade: Trade = (await bestTradeExactOut(client, fsUri, pools, ETH, usdcOut))[0];
+    const ethUsdcParams: MethodParameters = await swapCallParameters(client, fsUri, [ethUsdcTrade], {
       slippageTolerance: "0.1",
       recipient,
       deadline: (new Date().getTime() / 1000 + 1800).toFixed(0),
@@ -103,10 +95,9 @@ describe("Call (mainnet fork)", () => {
 
     // execCall eth -> usdc
     const ethUsdcQuery = await client.invoke<Ethereum_TxResponse>({
-      uri: ensUri,
-      module: "mutation",
+      uri: fsUri,
       method: "execCall",
-      input: {
+      args: {
         parameters: ethUsdcParams,
         address: ROUTER_ADDRESS,
         chainId: ChainIdEnum[ChainIdEnum.MAINNET],

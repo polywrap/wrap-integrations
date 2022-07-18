@@ -10,22 +10,22 @@ import {
   createRoute,
   quoteCallParameters
 } from "../wrappedQueries";
-import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
-import { getPlugins } from "../testUtils";
+import { PolywrapClient } from "@polywrap/client-js";
+import {buildWrapper, stopTestEnvironment} from "@polywrap/test-env-js";
 import path from "path";
+import {getPlugins, initInfra} from "../infraUtils";
 
 jest.setTimeout(120000);
 
-const makePool = async (client: Web3ApiClient, ensUri: string, token0: Token, token1: Token) => {
+const makePool = async (client: PolywrapClient, fsUri: string, token0: Token, token1: Token) => {
   const feeAmount = FeeAmountEnum.MEDIUM;
   const liquidity = 1_000_000;
-  const tickSpacing = await feeAmountToTickSpacing(client, ensUri, feeAmount);
-  const tickIndex0 = await nearestUsableTick(client, ensUri, await constant<number>(client, ensUri, "MIN_TICK"), tickSpacing);
-  const tickIndex1 = await nearestUsableTick(client, ensUri, await constant<number>(client, ensUri, "MAX_TICK"), tickSpacing);
-  const sqrtRatioX96 = await encodeSqrtRatioX96(client, ensUri, 1, 1);
-  const tickCurrent = await getTickAtSqrtRatio(client, ensUri, sqrtRatioX96);
-  return createPool(client, ensUri, token0, token1, feeAmount, sqrtRatioX96, liquidity, tickCurrent, [
+  const tickSpacing = await feeAmountToTickSpacing(client, fsUri, feeAmount);
+  const tickIndex0 = await nearestUsableTick(client, fsUri, await constant<number>(client, fsUri, "MIN_TICK"), tickSpacing);
+  const tickIndex1 = await nearestUsableTick(client, fsUri, await constant<number>(client, fsUri, "MAX_TICK"), tickSpacing);
+  const sqrtRatioX96 = await encodeSqrtRatioX96(client, fsUri, 1, 1);
+  const tickCurrent = await getTickAtSqrtRatio(client, fsUri, sqrtRatioX96);
+  return createPool(client, fsUri, token0, token1, feeAmount, sqrtRatioX96, liquidity, tickCurrent, [
     {
       index: tickIndex0,
       liquidityNet: liquidity.toString(),
@@ -72,28 +72,21 @@ let pool_1_weth: Pool;
 describe('SwapQuoter', () => {
 
 
-  let client: Web3ApiClient;
-  let ensUri: string;
+  let client: PolywrapClient;
+  let fsUri: string;
 
   beforeAll(async () => {
-    const { ipfs, ethereum, ensAddress, registrarAddress, resolverAddress } = await initTestEnvironment();
+    await initInfra();
     // get client
-    const config: ClientConfig = getPlugins(ethereum, ipfs, ensAddress);
-    client = new Web3ApiClient(config);
+    const config = getPlugins();
+    client = new PolywrapClient(config);
     // deploy api
-    const apiPath: string = path.resolve(__dirname + "/../../../../");
-    const api = await buildAndDeployApi({
-      apiAbsPath: apiPath,
-      ipfsProvider: ipfs,
-      ensRegistryAddress: ensAddress,
-      ethereumProvider: ethereum,
-      ensRegistrarAddress: registrarAddress,
-      ensResolverAddress: resolverAddress,
-    });
-    ensUri = `ens/testnet/${api.ensDomain}`;
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    await buildWrapper(wrapperAbsPath);
+    fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
-    pool_0_1 = await makePool(client, ensUri, token0, token1);
-    pool_1_weth = await makePool(client, ensUri, token1, WETH);
+    pool_0_1 = await makePool(client, fsUri, token0, token1);
+    pool_1_weth = await makePool(client, fsUri, token1, WETH);
   });
 
   afterAll(async () => {
@@ -103,8 +96,8 @@ describe('SwapQuoter', () => {
   describe('quoter swapCallParameters', () => {
     describe('single trade input', () => {
       it('single-hop exact input', async () => {
-        const trade: Trade = await createTradeFromRoute(client, ensUri,{
-            route: await createRoute(client, ensUri, [pool_0_1], token0, token1 ),
+        const trade: Trade = await createTradeFromRoute(client, fsUri,{
+            route: await createRoute(client, fsUri, [pool_0_1], token0, token1 ),
             amount: {
               token: token0,
               amount: "100",
@@ -112,7 +105,7 @@ describe('SwapQuoter', () => {
           },
           TradeTypeEnum.EXACT_INPUT
         );
-        const params: MethodParameters = await quoteCallParameters(client, ensUri,
+        const params: MethodParameters = await quoteCallParameters(client, fsUri,
           trade.swaps[0].route,
           trade.inputAmount,
           trade.tradeType
@@ -125,8 +118,8 @@ describe('SwapQuoter', () => {
       });
 
       it('single-hop exact output', async () => {
-        const trade: Trade = await createTradeFromRoute(client, ensUri,{
-            route: await createRoute(client, ensUri, [pool_0_1], token0, token1 ),
+        const trade: Trade = await createTradeFromRoute(client, fsUri,{
+            route: await createRoute(client, fsUri, [pool_0_1], token0, token1 ),
             amount: {
               token: token1,
               amount: "100",
@@ -134,7 +127,7 @@ describe('SwapQuoter', () => {
           },
           TradeTypeEnum.EXACT_OUTPUT
         );
-        const params: MethodParameters = await quoteCallParameters(client, ensUri,
+        const params: MethodParameters = await quoteCallParameters(client, fsUri,
           trade.swaps[0].route,
           trade.outputAmount,
           trade.tradeType
@@ -147,8 +140,8 @@ describe('SwapQuoter', () => {
       });
 
       it('multi-hop exact input', async () => {
-        const trade: Trade = await createTradeFromRoute(client, ensUri,{
-            route: await createRoute(client, ensUri, [pool_0_1, pool_1_weth], token0, WETH ),
+        const trade: Trade = await createTradeFromRoute(client, fsUri,{
+            route: await createRoute(client, fsUri, [pool_0_1, pool_1_weth], token0, WETH ),
             amount: {
               token: token0,
               amount: "100",
@@ -156,7 +149,7 @@ describe('SwapQuoter', () => {
           },
           TradeTypeEnum.EXACT_INPUT
         );
-        const params: MethodParameters = await quoteCallParameters(client, ensUri,
+        const params: MethodParameters = await quoteCallParameters(client, fsUri,
           trade.swaps[0].route,
           trade.inputAmount,
           trade.tradeType
@@ -169,8 +162,8 @@ describe('SwapQuoter', () => {
       });
 
       it('multi-hop exact output', async () => {
-        const trade: Trade = await createTradeFromRoute(client, ensUri,{
-            route: await createRoute(client, ensUri, [pool_0_1, pool_1_weth], token0, WETH ),
+        const trade: Trade = await createTradeFromRoute(client, fsUri,{
+            route: await createRoute(client, fsUri, [pool_0_1, pool_1_weth], token0, WETH ),
             amount: {
               token: WETH,
               amount: "100",
@@ -178,7 +171,7 @@ describe('SwapQuoter', () => {
           },
           TradeTypeEnum.EXACT_OUTPUT
         );
-        const params: MethodParameters = await quoteCallParameters(client, ensUri,
+        const params: MethodParameters = await quoteCallParameters(client, fsUri,
           trade.swaps[0].route,
           trade.outputAmount,
           trade.tradeType
@@ -191,8 +184,8 @@ describe('SwapQuoter', () => {
       });
 
       it('sqrtPriceLimitX96', async () => {
-        const trade: Trade = await createTradeFromRoute(client, ensUri,{
-            route: await createRoute(client, ensUri, [pool_0_1], token0, token1 ),
+        const trade: Trade = await createTradeFromRoute(client, fsUri,{
+            route: await createRoute(client, fsUri, [pool_0_1], token0, token1 ),
             amount: {
               token: token0,
               amount: "100",
@@ -200,7 +193,7 @@ describe('SwapQuoter', () => {
           },
           TradeTypeEnum.EXACT_INPUT
         );
-        const params: MethodParameters = await quoteCallParameters(client, ensUri,
+        const params: MethodParameters = await quoteCallParameters(client, fsUri,
           trade.swaps[0].route,
           trade.inputAmount,
           trade.tradeType,

@@ -1,46 +1,39 @@
-import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
-import { getPlugins } from "../testUtils";
+import { PolywrapClient } from "@polywrap/client-js";
+import {buildWrapper,} from "@polywrap/test-env-js";
 import path from "path";
 import { encodeMulticall } from "../wrappedQueries";
+import {getPlugins, initInfra, stopInfra} from "../infraUtils";
 
 jest.setTimeout(120000);
 
 describe('Multicall (SDK test replication)', () => {
 
-  let client: Web3ApiClient;
-  let ensUri: string;
+  let client: PolywrapClient;
+  let fsUri: string;
 
   beforeAll(async () => {
-    const { ipfs, ethereum, ensAddress, registrarAddress, resolverAddress } = await initTestEnvironment();
+     await initInfra();
     // get client
-    const config: ClientConfig = getPlugins(ethereum, ipfs, ensAddress);
-    client = new Web3ApiClient(config);
+    const config = getPlugins();
+    client = new PolywrapClient(config);
     // deploy api
-    const apiPath: string = path.resolve(__dirname + "/../../../../");
-    const api = await buildAndDeployApi({
-      apiAbsPath: apiPath,
-      ipfsProvider: ipfs,
-      ensRegistryAddress: ensAddress,
-      ethereumProvider: ethereum,
-      ensRegistrarAddress: registrarAddress,
-      ensResolverAddress: resolverAddress,
-    });
-    ensUri = `ens/testnet/${api.ensDomain}`;
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    await buildWrapper(wrapperAbsPath);
+    fsUri = "fs/" + wrapperAbsPath + '/build';
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   });
 
   describe('encodeMulticall', () => {
     it('works for string array with length 1', async () => {
-      const calldata = await encodeMulticall(client, ensUri, ['0x01']);
+      const calldata = await encodeMulticall(client, fsUri, ['0x01']);
       expect(calldata).toBe('0x01');
     });
 
     it('works for string array with length >1', async () => {
-      const calldata = await encodeMulticall(client, ensUri, [
+      const calldata = await encodeMulticall(client, fsUri, [
         '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
         '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
       ]);

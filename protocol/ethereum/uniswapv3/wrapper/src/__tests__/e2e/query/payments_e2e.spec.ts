@@ -1,13 +1,14 @@
 import { FeeOptions, Token } from "../types";
-import { getFakeTestToken, getPlugins } from "../testUtils";
+import { getFakeTestToken } from "../testUtils";
 import {
   encodeUnwrapWETH9,
   encodeSweepToken,
   encodeRefundETH,
 } from "../wrappedQueries";
-import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
+import { PolywrapClient } from "@polywrap/client-js";
+import {buildWrapper, stopTestEnvironment} from "@polywrap/test-env-js";
 import path from "path";
+import {getPlugins, initInfra} from "../infraUtils";
 
 jest.setTimeout(120000);
 
@@ -22,25 +23,17 @@ describe('Payments (SDK test replication)', () => {
 
   let token: Token;
 
-  let client: Web3ApiClient;
-  let ensUri: string;
+  let client: PolywrapClient;
+  let fsUri: string;
 
   beforeAll(async () => {
-    const { ipfs, ethereum, ensAddress, registrarAddress, resolverAddress } = await initTestEnvironment();
+    await initInfra();
     // get client
-    const config: ClientConfig = getPlugins(ethereum, ipfs, ensAddress);
-    client = new Web3ApiClient(config);
-    // deploy api
-    const apiPath: string = path.resolve(__dirname + "/../../../../");
-    const api = await buildAndDeployApi({
-      apiAbsPath: apiPath,
-      ipfsProvider: ipfs,
-      ensRegistryAddress: ensAddress,
-      ethereumProvider: ethereum,
-      ensRegistrarAddress: registrarAddress,
-      ensResolverAddress: resolverAddress,
-    });
-    ensUri = `ens/testnet/${api.ensDomain}`;
+    const config = getPlugins();
+    client = new PolywrapClient(config);
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    await buildWrapper(wrapperAbsPath);
+    fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     token = getFakeTestToken(0);
   });
@@ -52,14 +45,14 @@ describe('Payments (SDK test replication)', () => {
 
   describe('encodeUnwrapWETH9', () => {
     it('works without feeOptions', async () => {
-      const calldata: string = await encodeUnwrapWETH9(client, ensUri, amount, recipient);
+      const calldata: string = await encodeUnwrapWETH9(client, fsUri, amount, recipient);
       expect(calldata).toBe(
         '0x49404b7c000000000000000000000000000000000000000000000000000000000000007b0000000000000000000000000000000000000000000000000000000000000003'
       )
     })
 
     it('works with feeOptions', async () => {
-      const calldata: string = await encodeUnwrapWETH9(client, ensUri, amount, recipient, feeOptions)
+      const calldata: string = await encodeUnwrapWETH9(client, fsUri, amount, recipient, feeOptions)
       expect(calldata).toBe(
         '0x9b2c0a37000000000000000000000000000000000000000000000000000000000000007b0000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000009'
       )
@@ -68,14 +61,14 @@ describe('Payments (SDK test replication)', () => {
 
   describe('encodeSweepToken', () => {
     it('works without feeOptions', async () => {
-      const calldata: string = await encodeSweepToken(client, ensUri, token, amount, recipient)
+      const calldata: string = await encodeSweepToken(client, fsUri, token, amount, recipient)
       expect(calldata).toBe(
         '0xdf2ab5bb0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000007b0000000000000000000000000000000000000000000000000000000000000003'
       )
     })
 
     it('works with feeOptions', async () => {
-      const calldata: string = await encodeSweepToken(client, ensUri, token, amount, recipient, feeOptions)
+      const calldata: string = await encodeSweepToken(client, fsUri, token, amount, recipient, feeOptions)
       expect(calldata).toBe(
         '0xe0e189a00000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000007b0000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000009'
       )
@@ -83,7 +76,7 @@ describe('Payments (SDK test replication)', () => {
   })
 
   it('encodeRefundETH', async () => {
-    const calldata: string = await encodeRefundETH(client, ensUri);
+    const calldata: string = await encodeRefundETH(client, fsUri);
     expect(calldata).toBe('0x12210e8a')
   })
 })

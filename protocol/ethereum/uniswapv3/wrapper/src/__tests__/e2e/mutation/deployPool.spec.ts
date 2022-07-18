@@ -1,41 +1,34 @@
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
-import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
+import { buildWrapper } from "@polywrap/test-env-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import { ChainIdEnum, Ethereum_TxResponse, FeeAmountEnum, Token, Pool } from "../types";
 import path from "path";
-import { getPlugins, getPoolFromAddress } from "../testUtils";
+import { getPoolFromAddress } from "../testUtils";
 import * as ethers from "ethers";
 import { getWETH } from "../wrappedQueries";
+import {initInfra, getPlugins, stopInfra} from "../infraUtils";
 
 jest.setTimeout(360000);
 
 describe("Deploy pool (mainnet fork)", () => {
 
-  let client: Web3ApiClient;
-  let ensUri: string;
+  let client: PolywrapClient;
+  let fsUri: string;
   let ethersProvider: ethers.providers.JsonRpcProvider;
 
   beforeAll(async () => {
-    const { ipfs, ethereum, ensAddress, registrarAddress, resolverAddress } = await initTestEnvironment();
+    await initInfra();
     // get client
-    const config: ClientConfig = getPlugins(ethereum, ipfs, ensAddress);
-    client = new Web3ApiClient(config);
-    // deploy api
-    const apiPath: string = path.resolve(__dirname + "/../../../../");
-    const api = await buildAndDeployApi({
-      apiAbsPath: apiPath,
-      ipfsProvider: ipfs,
-      ensRegistryAddress: ensAddress,
-      ethereumProvider: ethereum,
-      ensRegistrarAddress: registrarAddress,
-      ensResolverAddress: resolverAddress,
-    });
-    ensUri = `ens/testnet/${api.ensDomain}`;
+    const config = getPlugins();
+    client = new PolywrapClient(config);
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    await buildWrapper(wrapperAbsPath);
+    fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up ethers provider
     ethersProvider = new ethers.providers.JsonRpcProvider("http://localhost:8546");
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   });
 
   it("successfully deploys pool from tokens", async () => {
@@ -48,13 +41,12 @@ describe("Deploy pool (mainnet fork)", () => {
         decimals: 18
       }
     };
-    const WETH: Token = await getWETH(client, ensUri, ChainIdEnum.MAINNET);
+    const WETH: Token = await getWETH(client, fsUri, ChainIdEnum.MAINNET);
 
     const txResponse = await client.invoke<Ethereum_TxResponse>({
-      uri: ensUri,
-      module: "mutation",
+      uri: fsUri,
       method: "deployPoolFromTokens",
-      input: {
+      args: {
         tokenA: WRAP,
         tokenB: WETH,
         fee: FeeAmountEnum.MEDIUM,
@@ -69,10 +61,9 @@ describe("Deploy pool (mainnet fork)", () => {
     expect(receipt.status).toBeTruthy();
 
     const addressQuery = await client.invoke<string>({
-      uri: ensUri,
-      module: "query",
+      uri: fsUri,
       method: "getPoolAddress",
-      input: {
+      args: {
         tokenA: WRAP,
         tokenB: WETH,
         fee: FeeAmountEnum.MEDIUM,
@@ -81,7 +72,7 @@ describe("Deploy pool (mainnet fork)", () => {
     expect(addressQuery.error).toBeFalsy();
     expect(addressQuery.data).toBeTruthy();
 
-    const pool: Pool = await getPoolFromAddress(client, ensUri, addressQuery.data!);
+    const pool: Pool = await getPoolFromAddress(client, fsUri, addressQuery.data!);
     expect(pool.token0).toStrictEqual(WETH);
     expect(pool.token1).toStrictEqual(WRAP);
     expect(pool.fee).toEqual(FeeAmountEnum.MEDIUM);

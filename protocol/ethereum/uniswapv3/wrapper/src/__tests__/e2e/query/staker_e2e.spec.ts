@@ -1,9 +1,10 @@
-import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
-import { getFakeTestToken, getPlugins } from "../testUtils";
+import { ClientConfig, PolywrapClient } from "@polywrap/client-js";
+import { buildWrapper } from "@polywrap/test-env-js";
+import { getFakeTestToken } from "../testUtils";
 import path from "path";
 import { ChainIdEnum, FeeAmountEnum, IncentiveKey, Pool, Token } from "../types";
 import { createPool, encodeSqrtRatioX96, collectRewards, withdrawToken, encodeDeposit, safeTransferFromParameters } from "../wrappedQueries";
+import { initInfra, stopInfra, getPlugins } from "../infraUtils";
 
 jest.setTimeout(120000);
 
@@ -28,29 +29,21 @@ describe('Staker', () => {
   let incentiveKey: IncentiveKey;
   let incentiveKeys: IncentiveKey[];
 
-  let client: Web3ApiClient;
-  let ensUri: string;
+  let client: PolywrapClient;
+  let fsUri: string;
 
   beforeAll(async () => {
-    const { ipfs, ethereum, ensAddress, registrarAddress, resolverAddress } = await initTestEnvironment();
+    await initInfra();
     // get client
-    const config: ClientConfig = getPlugins(ethereum, ipfs, ensAddress);
-    client = new Web3ApiClient(config);
-    // deploy api
-    const apiPath: string = path.resolve(__dirname + "/../../../../");
-    const api = await buildAndDeployApi({
-      apiAbsPath: apiPath,
-      ipfsProvider: ipfs,
-      ensRegistryAddress: ensAddress,
-      ethereumProvider: ethereum,
-      ensRegistrarAddress: registrarAddress,
-      ensResolverAddress: resolverAddress,
-    });
-    ensUri = `ens/testnet/${api.ensDomain}`;
+    const config = getPlugins();
+    client = new PolywrapClient(config);
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    await buildWrapper(wrapperAbsPath);
+    fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     token0 = getFakeTestToken(0);
     token1 = getFakeTestToken(1);
-    pool_0_1 = await createPool(client, ensUri, token0, token1, FeeAmountEnum.MEDIUM, await encodeSqrtRatioX96(client, ensUri, 1, 1), 0, 0, []);
+    pool_0_1 = await createPool(client, fsUri, token0, token1, FeeAmountEnum.MEDIUM, await encodeSqrtRatioX96(client, fsUri, 1, 1), 0, 0, []);
     incentiveKey = {
       rewardToken: reward,
       pool: pool_0_1,
@@ -69,12 +62,12 @@ describe('Staker', () => {
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   });
 
   describe('collectRewards', () => {
     it('succeeds with amount', async () => {
-      const { calldata, value } = await collectRewards(client, ensUri, [incentiveKey], {
+      const { calldata, value } = await collectRewards(client, fsUri, [incentiveKey], {
         tokenId: tokenId,
         recipient: recipient,
         amount: "1"
@@ -87,7 +80,7 @@ describe('Staker', () => {
     })
 
     it('succeeds no amount', async () => {
-      const { calldata, value } = await collectRewards(client, ensUri, [incentiveKey], {
+      const { calldata, value } = await collectRewards(client, fsUri, [incentiveKey], {
         tokenId: tokenId,
         recipient: recipient,
       })
@@ -99,7 +92,7 @@ describe('Staker', () => {
     })
 
     it('succeeds multiple keys', async () => {
-      const { calldata, value } = await collectRewards(client, ensUri, incentiveKeys, {
+      const { calldata, value } = await collectRewards(client, fsUri, incentiveKeys, {
         tokenId: tokenId,
         recipient: recipient,
       })
@@ -113,7 +106,7 @@ describe('Staker', () => {
 
   describe('withdrawToken', () => {
     it('succeeds with one keys', async () => {
-      const { calldata, value } = await withdrawToken(client, ensUri, [incentiveKey], {
+      const { calldata, value } = await withdrawToken(client, fsUri, [incentiveKey], {
         tokenId: tokenId,
         recipient: recipient,
         amount: "0",
@@ -128,7 +121,7 @@ describe('Staker', () => {
     })
 
     it('succeeds with multiple keys', async () => {
-      const { calldata, value } = await withdrawToken(client, ensUri, incentiveKeys, {
+      const { calldata, value } = await withdrawToken(client, fsUri, incentiveKeys, {
         tokenId: tokenId,
         recipient: recipient,
         amount: "0",
@@ -145,7 +138,7 @@ describe('Staker', () => {
 
   describe('encodeDeposit', () => {
     it('succeeds single key', async () => {
-      const deposit: string = await encodeDeposit(client, ensUri, [incentiveKey]);
+      const deposit: string = await encodeDeposit(client, fsUri, [incentiveKey]);
 
       expect(deposit).toEqual(
         '0x0000000000000000000000001f9840a85d5af5bf1d1762f925bdaddc4201f9840000000000000000000000004fa63b0dea87d2cd519f3b67a5ddb145779b7bd2000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000c80000000000000000000000000000000000000000000000000000000000000001'
@@ -153,7 +146,7 @@ describe('Staker', () => {
     })
 
     it('succeeds multiple keys', async () => {
-      const deposit: string = await encodeDeposit(client, ensUri, incentiveKeys);
+      const deposit: string = await encodeDeposit(client, fsUri, incentiveKeys);
 
       expect(deposit).toEqual(
         '0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000020000000000000000000000001f9840a85d5af5bf1d1762f925bdaddc4201f9840000000000000000000000004fa63b0dea87d2cd519f3b67a5ddb145779b7bd2000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000c800000000000000000000000000000000000000000000000000000000000000010000000000000000000000001f9840a85d5af5bf1d1762f925bdaddc4201f9840000000000000000000000004fa63b0dea87d2cd519f3b67a5ddb145779b7bd2000000000000000000000000000000000000000000000000000000000000003200000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000089'
@@ -163,7 +156,7 @@ describe('Staker', () => {
 
   describe('safeTransferFrom with correct data for staker', () => {
     it('succeeds', async () => {
-      const data = await encodeDeposit(client, ensUri, [incentiveKey]);
+      const data = await encodeDeposit(client, fsUri, [incentiveKey]);
 
       const options = {
         sender,
@@ -171,7 +164,7 @@ describe('Staker', () => {
         tokenId,
         data
       }
-      const { calldata, value } = await safeTransferFromParameters(client, ensUri, options);
+      const { calldata, value } = await safeTransferFromParameters(client, fsUri, options);
 
       expect(calldata).toEqual(
         '0xb88d4fde000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000001f9840a85d5af5bf1d1762f925bdaddc4201f9840000000000000000000000004fa63b0dea87d2cd519f3b67a5ddb145779b7bd2000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000c80000000000000000000000000000000000000000000000000000000000000001'
