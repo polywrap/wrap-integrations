@@ -1,11 +1,11 @@
 [package]
 name = "substrate-core-wrapper"
 version = "0.0.1"
-description = "TODO"
+description = "The core wrapper implementation for polywrap for substrate base chain"
 authors = [
-  "TODO <todo@todo.com>"
+  "Jovansonlee Cesar <ivanceras@gmail.com>"
 ]
-repository = "https://todo.com"
+repository = "https://github.com/polywrap/integrations"
 edition = "2021"
 
 [lib]
