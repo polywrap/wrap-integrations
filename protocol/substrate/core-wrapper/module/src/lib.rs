@@ -52,7 +52,13 @@ pub fn chain_get_metadata(arg: ArgsChainGetMetadata) -> Option<ChainMetadataOutp
     })
 }
 
-pub fn state_get_runtime_version() {}
+pub fn state_get_runtime_version(arg: ArgsStateGetRuntimeVersion) -> Option<serde_json::Value> {
+    BaseApi::new(&arg.url)
+        .fetch_runtime_version()
+        .ok()
+        .flatten()
+        .map(|v| serde_json::to_value(v).expect("must encode to json"))
+}
 
 pub fn rpc_methods() {}
 
@@ -80,3 +86,10 @@ pub fn get_storage_value(arg: ArgsGetStorageValue) -> Option<Vec<u8>> {
     }
 }
 pub fn get_storage_map() {}
+
+pub fn constant(arg: ArgsConstant) -> Option<Vec<u8>> {
+    Api::new(&arg.url)
+        .ok()
+        .map(|api| api.fetch_constant_opaque_value(&arg.pallet, &arg.name).ok())
+        .flatten()
+}

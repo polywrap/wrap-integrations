@@ -2,7 +2,7 @@
   "scripts": {
     "codegen": "npx polywrap codegen",
     "build": "npx polywrap build -v",
-    "build:check": "yarn codegen && cd module && cargo check && ./build.sh",
+    "build:check": "yarn codegen && cd module && cargo check && cargo build --release --target wasm32-unknown-unknown",
     "test": "yarn test:e2e",
     "test:e2e": "yarn test:e2e:codegen && jest --passWithNoTests --runInBand --verbose",
     "test:e2e:codegen": "cd tests && npx polywrap app codegen -g wrap",

@@ -1,13 +1,16 @@
 #import { Module, Request, Header, UrlParam, Response, } into Http from "wrap://ens/http.polywrap.eth"
 
 type Module {
-  chainGetMetadata(
-    url: String!
-  ): ChainMetadataOutput
+
+  chainGetMetadata(url: String!): ChainMetadataOutput
   
   blockHash(url: String!, number: UInt32!): String
 
   chainGetBlock(url: String!, number: UInt32!): BlockOutput
+
+  constant(url: String!, pallet: String!, name: String!): [UInt8!]
+
+  stateGetRuntimeVersion(url: String!): JSON
 
   getStorageValue(url: String!, pallet: String!, storage: String!): [UInt8!]
 }

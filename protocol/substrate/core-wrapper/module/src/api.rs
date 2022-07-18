@@ -10,6 +10,7 @@ use sp_version::RuntimeVersion;
 
 mod balance_api;
 mod base_api;
+mod constant_api;
 mod extrinsic_api;
 mod storage_api;
 

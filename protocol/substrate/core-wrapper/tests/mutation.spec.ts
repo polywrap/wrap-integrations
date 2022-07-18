@@ -108,6 +108,19 @@ describe("e2e", () => {
       expect(JSON.stringify(result_alt) == JSON.stringify(result)).toBe(true);
   });
 
+  it("state get runtime version", async () => {
+    // You can use the client directly
+    const result = await client.invoke({
+      uri,
+      method: "stateGetRuntimeVersion",
+        args: {
+          url: "http://localhost:9933"
+        }
+    });
+
+      console.log("runtime version: ", result);
+  });
+
 
   it("storage value", async () => {
     // You can use the client directly
@@ -134,6 +147,22 @@ describe("e2e", () => {
 
       console.log("template module Something:", result);
       expect(JSON.stringify(result_alt) == JSON.stringify(result)).toBe(true);
+
+  });
+
+  it("return constant values", async () => {
+    // You can use the client directly
+    const existentialDeposit = await client.invoke({
+      uri,
+      method: "constant",
+      args: {
+          url: "http://localhost:9933",
+          pallet: "Balances",
+          name: "ExistentialDeposit"
+      },
+    });
+
+      console.log("Balances ExistentialDeposit", existentialDeposit);
 
   });
 
