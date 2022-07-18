@@ -1,14 +1,14 @@
-import { FeeOptions, Token } from "../types";
-import { getFakeTestToken } from "../testUtils";
 import {
+  FeeOptions, Token,
   encodeUnwrapWETH9,
   encodeSweepToken,
   encodeRefundETH,
-} from "../wrappedQueries";
+  getPlugins, initInfra, stopInfra,
+  getFakeTestToken
+} from "./helpers";
 import { PolywrapClient } from "@polywrap/client-js";
-import {buildWrapper, stopTestEnvironment} from "@polywrap/test-env-js";
+import {buildWrapper} from "@polywrap/test-env-js";
 import path from "path";
-import {getPlugins, initInfra} from "../infraUtils";
 
 jest.setTimeout(120000);
 
@@ -31,7 +31,7 @@ describe('Payments (SDK test replication)', () => {
     // get client
     const config = getPlugins();
     client = new PolywrapClient(config);
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
     await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
@@ -39,7 +39,7 @@ describe('Payments (SDK test replication)', () => {
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   });
 
 

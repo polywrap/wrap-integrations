@@ -1,14 +1,16 @@
 import {buildWrapper} from "@polywrap/test-env-js";
 import {  PolywrapClient } from "@polywrap/client-js";
-import {ChainIdEnum, FeeAmount, Pool, Token} from "../types";
+import {
+  ChainIdEnum, FeeAmount, Pool, Token,
+  getPlugins, initInfra, stopInfra,
+  getFeeAmount, getPools, getTokens, getUniPools,
+  getUniswapPool
+} from "./helpers";
 import path from "path";
-import { getFeeAmount, getPools, getTokens, getUniPools } from "../testUtils";
 import * as uni from "@uniswap/v3-sdk";
-import poolList from "../testData/poolList.json";
+import poolList from "./testData/poolList.json";
 import * as ethers from "ethers";
-import { getUniswapPool } from "../uniswapCreatePool";
-import { Tick } from "../../../wrap";
-import {getPlugins, initInfra, stopInfra} from "../infraUtils";
+import { Tick } from "../../wrap";
 
 jest.setTimeout(180000);
 
@@ -26,7 +28,7 @@ describe("Fetch (mainnet fork)", () => {
     const config = getPlugins();
     client = new PolywrapClient(config);
     // deploy api
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
     await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up ethers provider

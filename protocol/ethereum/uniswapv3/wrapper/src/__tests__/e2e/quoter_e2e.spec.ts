@@ -1,4 +1,3 @@
-import { Token, ChainIdEnum, FeeAmountEnum, Pool, Trade, TradeTypeEnum, MethodParameters } from "../types";
 import {
   encodeSqrtRatioX96,
   createPool,
@@ -8,12 +7,13 @@ import {
   feeAmountToTickSpacing,
   constant,
   createRoute,
-  quoteCallParameters
-} from "../wrappedQueries";
+  quoteCallParameters,
+  getPlugins, initInfra, stopInfra,
+  Token, ChainIdEnum, FeeAmountEnum, Pool, Trade, TradeTypeEnum, MethodParameters
+} from "./helpers";
 import { PolywrapClient } from "@polywrap/client-js";
-import {buildWrapper, stopTestEnvironment} from "@polywrap/test-env-js";
+import { buildWrapper } from "@polywrap/test-env-js";
 import path from "path";
-import {getPlugins, initInfra} from "../infraUtils";
 
 jest.setTimeout(120000);
 
@@ -90,7 +90,7 @@ describe('SwapQuoter', () => {
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   });
 
   describe('quoter swapCallParameters', () => {

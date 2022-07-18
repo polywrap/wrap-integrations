@@ -1,12 +1,14 @@
-import {buildWrapper} from "@polywrap/test-env-js";
+import { buildWrapper } from "@polywrap/test-env-js";
 import { PolywrapClient } from "@polywrap/client-js";
-import { MethodParameters, Pool, Tick, Token, TokenAmount, Trade } from "../types";
+import {
+  MethodParameters, Pool, Tick, Token, TokenAmount, Trade ,
+  getPools, getTokens, getUniPools,
+  getPlugins, initInfra, stopInfra
+} from "./helpers";
 import path from "path";
-import { getPools, getTokens, getUniPools } from "../testUtils";
 import * as uni from "@uniswap/v3-sdk";
 import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
-import {getPlugins, initInfra, stopInfra} from "../infraUtils";
 
 jest.setTimeout(180000);
 
@@ -24,7 +26,7 @@ describe("SwapRouter (mainnet fork)", () => {
     // get client
     const config = getPlugins();
     client = new PolywrapClient(config);
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
     await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data

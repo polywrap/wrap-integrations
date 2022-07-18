@@ -1,12 +1,14 @@
 import { buildWrapper } from "@polywrap/test-env-js";
 import { PolywrapClient } from "@polywrap/client-js";
-import { ChainIdEnum, Pool, Tick, Token, TokenAmount, Trade } from "../types";
+import {
+  ChainIdEnum, Pool, Tick, Token, TokenAmount, Trade,
+  getPools, getTokens, getUniPools,
+  getPlugins, initInfra, stopInfra
+} from "./helpers";
 import path from "path";
-import { getPools, getTokens, getUniPools } from "../testUtils";
 import * as uni from "@uniswap/v3-sdk";
 import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
-import {getPlugins, initInfra, stopInfra} from "../infraUtils";
 
 jest.setTimeout(180000);
 

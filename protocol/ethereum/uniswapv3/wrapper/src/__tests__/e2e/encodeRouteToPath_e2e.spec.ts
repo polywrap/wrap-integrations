@@ -1,10 +1,12 @@
 import { PolywrapClient } from "@polywrap/client-js";
-import { ChainIdEnum, FeeAmountEnum, Pool, Route, Token } from "../types";
+import {
+  ChainIdEnum, FeeAmountEnum, Pool, Route, Token,
+  createPool, encodeSqrtRatioX96, createRoute, encodeRouteToPath,
+  getFakeTestToken,
+  getPlugins, initInfra, stopInfra
+} from "./helpers";
 import {buildWrapper} from "@polywrap/test-env-js";
-import { getFakeTestToken } from "../testUtils";
 import path from "path";
-import { createPool, encodeSqrtRatioX96, createRoute, encodeRouteToPath } from "../wrappedQueries";
-import {getPlugins, initInfra, stopInfra} from "../infraUtils";
 
 jest.setTimeout(120000);
 
@@ -50,7 +52,7 @@ describe('encodeRouteToPath (SDK test replication)', () => {
     // get client
     const config = getPlugins();
     client = new PolywrapClient(config);
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
     await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data

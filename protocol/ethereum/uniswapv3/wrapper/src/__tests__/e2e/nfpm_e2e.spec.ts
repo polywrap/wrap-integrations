@@ -1,9 +1,11 @@
 import { PolywrapClient } from "@polywrap/client-js";
-import { getFakeTestToken } from "../testUtils";
 import path from "path";
-import { createPool, encodeSqrtRatioX96, createCallParameters, addCallParameters, collectCallParameters, removeCallParameters, safeTransferFromParameters, feeAmountToTickSpacing, createPosition } from "../wrappedQueries";
-import { ChainIdEnum, FeeAmountEnum, Pool, SafeTransferOptions, Token, TokenAmount } from "../types";
-import {getPlugins, initInfra, stopInfra} from "../infraUtils";
+import {
+  createPool, encodeSqrtRatioX96, createCallParameters, addCallParameters, collectCallParameters, removeCallParameters, safeTransferFromParameters, feeAmountToTickSpacing, createPosition,
+  ChainIdEnum, FeeAmountEnum, Pool, SafeTransferOptions, Token, TokenAmount,
+  getPlugins, initInfra, stopInfra,
+  getFakeTestToken
+} from "./helpers";
 import {buildWrapper} from "@polywrap/test-env-js";
 
 jest.setTimeout(120000);
@@ -47,7 +49,7 @@ describe('NonfungiblePositionManager', () => {
     // get client
     const config = getPlugins();
     client = new PolywrapClient(config);
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
     await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data

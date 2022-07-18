@@ -7,14 +7,14 @@ import {
   Pool,
   Token,
   TokenAmount,
-  Trade
-} from "../types";
+  Trade,
+  getPoolFromAddress, getPools, getTokens,
+  bestTradeExactOut, getNative, swapCallParameters,
+  getPlugins, initInfra, stopInfra
+} from "./helpers";
 import path from "path";
-import {getPoolFromAddress, getPools, getTokens } from "../testUtils";
 import * as ethers from "ethers";
-import { bestTradeExactOut, getNative, swapCallParameters } from "../wrappedQueries";
-import erc20ABI from "../testData/erc20ABI.json";
-import {getPlugins, initInfra, stopInfra} from "../infraUtils";
+import erc20ABI from "./testData/erc20ABI.json";
 
 jest.setTimeout(180000);
 
@@ -34,7 +34,7 @@ describe("Call (mainnet fork)", () => {
     const config = getPlugins();
     client = new PolywrapClient(config);
     // deploy api
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
     await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up ethers provider

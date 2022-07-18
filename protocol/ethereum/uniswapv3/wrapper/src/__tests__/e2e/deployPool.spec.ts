@@ -1,11 +1,15 @@
 import { buildWrapper } from "@polywrap/test-env-js";
 import { PolywrapClient } from "@polywrap/client-js";
-import { ChainIdEnum, Ethereum_TxResponse, FeeAmountEnum, Token, Pool } from "../types";
+import {
+  ChainIdEnum, Ethereum_TxResponse, FeeAmountEnum, Token, Pool,
+  getPoolFromAddress,
+  getWETH,
+  initInfra,
+  getPlugins,
+  stopInfra
+} from "./helpers";
 import path from "path";
-import { getPoolFromAddress } from "../testUtils";
 import * as ethers from "ethers";
-import { getWETH } from "../wrappedQueries";
-import {initInfra, getPlugins, stopInfra} from "../infraUtils";
 
 jest.setTimeout(360000);
 
@@ -20,7 +24,7 @@ describe("Deploy pool (mainnet fork)", () => {
     // get client
     const config = getPlugins();
     client = new PolywrapClient(config);
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
     await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up ethers provider

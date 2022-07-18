@@ -1,10 +1,12 @@
-import { ClientConfig, PolywrapClient } from "@polywrap/client-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import { buildWrapper } from "@polywrap/test-env-js";
-import { getFakeTestToken } from "../testUtils";
+import {
+  getFakeTestToken,
+  ChainIdEnum, FeeAmountEnum, IncentiveKey, Pool, Token,
+  createPool, encodeSqrtRatioX96, collectRewards, withdrawToken, encodeDeposit, safeTransferFromParameters,
+  initInfra, stopInfra, getPlugins
+} from "./helpers";
 import path from "path";
-import { ChainIdEnum, FeeAmountEnum, IncentiveKey, Pool, Token } from "../types";
-import { createPool, encodeSqrtRatioX96, collectRewards, withdrawToken, encodeDeposit, safeTransferFromParameters } from "../wrappedQueries";
-import { initInfra, stopInfra, getPlugins } from "../infraUtils";
 
 jest.setTimeout(120000);
 
@@ -37,7 +39,7 @@ describe('Staker', () => {
     // get client
     const config = getPlugins();
     client = new PolywrapClient(config);
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
     await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data

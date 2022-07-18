@@ -1,6 +1,6 @@
 import { Token, Pool, FeeAmountEnum, FeeAmount, ChainIdEnum, ChainId } from "./types";
 import { PolywrapClient } from "@polywrap/client-js";
-import poolList from "./testData/poolList.json";
+import poolList from "../testData/poolList.json";
 import { getUniswapPool } from "./uniswapCreatePool";
 import { ethers } from "ethers";
 import * as uni from "@uniswap/v3-sdk";

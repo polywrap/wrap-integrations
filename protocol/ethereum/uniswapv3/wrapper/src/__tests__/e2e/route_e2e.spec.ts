@@ -1,13 +1,14 @@
-import {buildWrapper, initTestEnvironment, stopTestEnvironment} from "@polywrap/test-env-js";
+import {buildWrapper} from "@polywrap/test-env-js";
 import { PolywrapClient } from "@polywrap/client-js";
-import { Pool, Route, Token, Price } from "../types";
 import path from "path";
-import { getPoolFromAddress, getTokens, isDefined, toUniToken } from "../testUtils";
 import * as uni from "@uniswap/v3-sdk";
 import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
-import { getUniswapPool } from "../uniswapCreatePool";
-import { getPlugins } from "../infraUtils";
+import {
+  initInfra, stopInfra, getPlugins,
+  getUniswapPool, getPoolFromAddress, getTokens, isDefined, toUniToken,
+  Pool, Route, Token, Price
+} from "./helpers";
 
 jest.setTimeout(120000);
 
@@ -26,11 +27,11 @@ describe("Route (mainnet fork)", () => {
   let ethersProvider: ethers.providers.BaseProvider;
 
   beforeAll(async () => {
-    await initTestEnvironment();
+    await initInfra();
     // get client
     const config = getPlugins();
     client = new PolywrapClient(config);
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
     await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
@@ -51,7 +52,7 @@ describe("Route (mainnet fork)", () => {
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   });
 
   it("Route mid price", async () => {

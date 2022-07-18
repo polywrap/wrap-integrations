@@ -1,17 +1,17 @@
 import { PolywrapClient } from "@polywrap/client-js";
 import { buildWrapper } from "@polywrap/test-env-js";
-import { getFakeTestToken } from "../testUtils";
 import path from "path";
-import { ChainIdEnum, FeeAmountEnum, Pool, Token, Trade, TradeTypeEnum } from "../types";
 import {
   createPool,
   encodeSqrtRatioX96,
   getTickAtSqrtRatio,
   nearestUsableTick,
   constant,
-  feeAmountToTickSpacing, createTradeFromRoute, createTradeFromRoutes, createRoute, swapCallParameters
-} from "../wrappedQueries";
-import {initInfra, stopInfra, getPlugins} from "../infraUtils";
+  feeAmountToTickSpacing, createTradeFromRoute, createTradeFromRoutes, createRoute, swapCallParameters,
+  initInfra, stopInfra, getPlugins,
+  getFakeTestToken,
+  ChainIdEnum, FeeAmountEnum, Pool, Token, Trade, TradeTypeEnum
+} from "./helpers";
 
 jest.setTimeout(120000);
 
@@ -84,7 +84,7 @@ describe('SwapRouter (SDK test replication)', () => {
     // get client
     const config = getPlugins();
     client = new PolywrapClient(config);
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
     await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
