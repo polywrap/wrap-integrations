@@ -57,7 +57,6 @@ impl Api {
             "pallet": FORUM_MODULE,
             "storage": ALL_POSTS,
             "count": 20,
-            "keyType": "u32",
             "nextTo": None::<u32>,
         });
 
@@ -117,7 +116,6 @@ impl Api {
             "url": self.url,
             "pallet": FORUM_MODULE,
             "storage": ALL_POSTS,
-            "keyType": "u32",
             "key": post_id.to_string(),
         });
         let args = JsValue::from_serde(&args).expect("must convert");
@@ -139,7 +137,6 @@ impl Api {
             "url": self.url,
             "pallet": FORUM_MODULE,
             "storage": KIDS,
-            "keyType": "u32",
             "key": item_id.to_string(),
         });
         let args = JsValue::from_serde(&args).expect("must convert");
@@ -186,7 +183,6 @@ impl Api {
             "url": self.url,
             "pallet": FORUM_MODULE,
             "storage": ALL_COMMENTS,
-            "keyType": "u32",
             "key": comment_id.to_string(),
         });
         let args = JsValue::from_serde(&args).expect("must convert");

@@ -2,7 +2,8 @@ import { PolywrapClient } from "@polywrap/client-js";
 import { ipfsPlugin } from "@polywrap/ipfs-plugin-js";
 
 //let module_uri = 'wrap://ipfs/QmUShkhii5JUM9t3RnZtS2kTUqReSjNVHQ9NaMzEMazqJ9';
-let module_uri = "wrap://ipfs/Qme5EyWRcYKxYLDxsStY6ULsWkNF8knRUoUPzzJNCEUQGU";
+//let module_uri = "wrap://ipfs/Qme5EyWRcYKxYLDxsStY6ULsWkNF8knRUoUPzzJNCEUQGU";
+let module_uri = 'wrap://ipfs/QmNVLw3fSDMZo8xYyxVXrLFU2Me16kDtFFvuuTqEYmG6vC';
 
 class PolywrapClientWrapper extends PolywrapClient{
     constructor() {
