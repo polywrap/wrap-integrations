@@ -5,3 +5,5 @@ export * from "./swap";
 export * from "./tickList";
 export * from "./token";
 export * from "./utils";
+export * from "./route";
+export * from "./trade";

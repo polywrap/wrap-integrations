@@ -1067,8 +1067,7 @@ enum ChainId {
     ARBITRUM_ONE
     ARBITRUM_RINKEBY
     POLYGON
-    POLYGON_MUMBAI,
-    SEPOLIA
+    POLYGON_MUMBAI
 }
 
 """Pool swap fee amount"""

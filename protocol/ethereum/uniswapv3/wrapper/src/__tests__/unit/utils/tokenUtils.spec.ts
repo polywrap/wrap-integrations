@@ -33,7 +33,7 @@ describe('Token utils', () => {
 
   it('getNative', () => {
     for (let i = ChainId.MAINNET; i < ChainId._MAX_; i++) {
-      const result: Token = i > 8 ? {
+      const result: Token = i == ChainId.POLYGON || i == ChainId.POLYGON_MUMBAI ? {
           chainId: i as ChainId,
           address: MATIC_ADDRESS,
           currency: MATIC,

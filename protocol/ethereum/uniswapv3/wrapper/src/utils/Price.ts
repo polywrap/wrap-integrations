@@ -2,7 +2,7 @@
 
 import { Rounding } from "./enumUtils";
 import { Token, TokenAmount, Price as PriceType } from "../wrap";
-import {Fraction} from "./Fraction";
+import { Fraction } from "./Fraction";
 import { tokenEquals } from "../token";
 
 import { BigInt } from "@polywrap/wasm-as";

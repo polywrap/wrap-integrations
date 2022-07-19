@@ -1,24 +1,20 @@
 {
-  "name": "uniswap-v3-wrapper",
-  "description": "Polywrap Uniswap V3 API",
+  "name": "@polywrap/uniswap-v3",
+  "description": "Polywrap Uniswap V3 Wasm Wrapper",
   "private": true,
-  "version": "0.0.3",
+  "version": "0.2.0",
   "scripts": {
     "reset": "yarn clean && yarn && yarn build",
     "clean": "rimraf ./node_modules ./build ./coverage ./.polywrap ./**/wrap",
     "build": "polywrap build",
     "deploy": "polywrap deploy",
     "codegen": "polywrap codegen",
-    "codegen:meta": "polywrap codegen -s ./scripts/meta.ts",
     "test:e2e": "jest --passWithNoTests --runInBand --verbose",
     "test:unit": "asp --verbose",
     "test": "yarn test:unit && yarn test:e2e",
     "test:ci": "yarn test:unit && yarn test:e2e",
     "lint": "yarn eslint src",
     "lint:fix": "yarn eslint src --fix"
-  },
-  "dependencies": {
-    "as-bigfloat": "0.0.5"
   },
   "devDependencies": {
     "@as-pect/cli": "6.2.4",
@@ -39,7 +35,6 @@
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-prettier": "3.3.0",
     "ethers": "5.0.7",
-    "ethers-solidity-plugin-js": "0.0.2",
     "graphql": "16.2.0",
     "graphql-request": "3.7.0",
     "jest": "26.6.3",
@@ -48,7 +43,6 @@
     "solc": "0.8.3",
     "ts-jest": "26.5.6",
     "ts-node": "8.10.2",
-    "typescript": "4.0.7",
-    "@nerfzael/wrappers": "0.2.2"
+    "typescript": "4.0.7"
   }
 }

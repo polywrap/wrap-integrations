@@ -11,7 +11,7 @@ import {
   TradeType,
 } from "../wrap";
 import { _isNative, _wrapToken, tokenEquals } from "../token";
-import { tradeMaximumAmountIn, tradeMinimumAmountOut } from "../swap";
+import { tradeMaximumAmountIn, tradeMinimumAmountOut } from "../trade";
 import {
   _getFeeAmount,
   getChecksumAddress,
@@ -30,7 +30,6 @@ import {
 
 import { BigInt } from "@polywrap/wasm-as";
 
-export * from "./route";
 export * from "./utils";
 
 class ExactInputSingleParams {

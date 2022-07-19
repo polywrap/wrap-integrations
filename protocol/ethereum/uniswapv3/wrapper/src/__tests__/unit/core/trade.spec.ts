@@ -26,9 +26,8 @@ import {
   tradeMinimumAmountOut, tradePriceImpact,
   tradeWorstExecutionPrice
 } from "../../..";
-import { BigInt, Option } from "@polywrap/wasm-as";
+import { BigInt, BigNumber, Option } from "@polywrap/wasm-as";
 import { _feeAmountToTickSpacing, MAX_TICK, MIN_TICK, Price } from "../../../utils";
-import { BigFloat } from "as-bigfloat";
 
 
 const getTestToken = (i: i32): Token => {
@@ -798,14 +797,14 @@ describe('Trade', () => {
   describe('tradePriceImpact', () => {
     describe('tradeType = EXACT_INPUT', () => {
       it('is correct', () => {
-        const result: string = BigFloat.fromString(exactIn.priceImpact.quotient).toSignificant(3);
+        const result: string = BigNumber.fromString(exactIn.priceImpact.quotient).toSignificant(3);
         expect(result).toStrictEqual('0.172');
         const priceImpact: Fraction = tradePriceImpact({ swaps: exactIn.swaps, outputAmount: exactIn.outputAmount });
         expect(priceImpact).toStrictEqual(exactIn.priceImpact);
       });
 
       it('is correct with multiple routes', () => {
-        const result: string = BigFloat.fromString(exactInMultiRoute1.priceImpact.quotient).toSignificant(3);
+        const result: string = BigNumber.fromString(exactInMultiRoute1.priceImpact.quotient).toSignificant(3);
         expect(result).toStrictEqual('0.198');
         const priceImpact: Fraction = tradePriceImpact({ swaps: exactInMultiRoute1.swaps, outputAmount: exactInMultiRoute1.outputAmount });
         expect(priceImpact).toStrictEqual(exactInMultiRoute1.priceImpact);
@@ -814,14 +813,14 @@ describe('Trade', () => {
 
     describe('tradeType = EXACT_OUTPUT', () => {
       it('is correct', () => {
-        const result: string = BigFloat.fromString(exactOut.priceImpact.quotient).toSignificant(3);
+        const result: string = BigNumber.fromString(exactOut.priceImpact.quotient).toSignificant(3);
         expect(result).toStrictEqual('0.231');
         const priceImpact: Fraction = tradePriceImpact({ swaps: exactOut.swaps, outputAmount: exactOut.outputAmount });
         expect(priceImpact).toStrictEqual(exactOut.priceImpact);
       });
 
       it('is correct with multiple routes', () => {
-        const result: string = BigFloat.fromString(exactOutMultiRoute1.priceImpact.quotient).toSignificant(3);
+        const result: string = BigNumber.fromString(exactOutMultiRoute1.priceImpact.quotient).toSignificant(3);
         expect(result).toStrictEqual('0.255');
         const priceImpact: Fraction = tradePriceImpact({ swaps: exactOutMultiRoute1.swaps, outputAmount: exactOutMultiRoute1.outputAmount });
         expect(priceImpact).toStrictEqual(exactOutMultiRoute1.priceImpact);
