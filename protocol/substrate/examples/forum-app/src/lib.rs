@@ -2,6 +2,8 @@ use std::collections::BTreeMap;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 
+const URI: &str = "wrap://ipfs/QmUShkhii5JUM9t3RnZtS2kTUqReSjNVHQ9NaMzEMazqJ9";
+
 #[wasm_bindgen]
 extern "C" {
 
@@ -38,7 +40,7 @@ pub async fn start_up() {
 
     let arg2 = serde_json::json!(
         {
-          "uri":"wrap://ipfs/QmaAs1DCQDRMVsD2zWaf7L9C6YdESKRj6cTRixJKJs6Duk",
+          "uri": URI,
           "method": "chainGetMetadata",
             "args": {
               "url": "http://localhost:9933",

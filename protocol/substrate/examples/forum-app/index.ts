@@ -1,6 +1,8 @@
 import { PolywrapClient } from "@polywrap/client-js";
 import { ipfsPlugin } from "@polywrap/ipfs-plugin-js";
 
+let module_uri = 'wrap://ipfs/QmUShkhii5JUM9t3RnZtS2kTUqReSjNVHQ9NaMzEMazqJ9';
+
 class PolywrapClientWrapper extends PolywrapClient{
     constructor() {
         super({
@@ -17,7 +19,7 @@ class PolywrapClientWrapper extends PolywrapClient{
 
     async invoke_method(method, args){
         return super.invoke({
-            uri:"wrap://ipfs/QmaAs1DCQDRMVsD2zWaf7L9C6YdESKRj6cTRixJKJs6Duk",
+            uri: module_uri,
             method,
             args,
         });
