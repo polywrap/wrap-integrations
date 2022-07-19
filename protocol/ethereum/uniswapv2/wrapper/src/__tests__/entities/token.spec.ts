@@ -1,7 +1,7 @@
-import { tokenAmountEquals, tokenEquals, tokenSortsBefore } from "../../query";
-import { ChainId } from "../../query/w3";
+import { tokenAmountEquals, tokenEquals, tokenSortsBefore } from "../../index";
+import { ChainId } from "../../wrap";
 
-import { BigInt } from "as-bigint";
+import { BigInt } from "@polywrap/wasm-as";
 
 const ADDRESS_ONE = '0x0000000000000000000000000000000000000001'
 const ADDRESS_TWO = '0x0000000000000000000000000000000000000002'

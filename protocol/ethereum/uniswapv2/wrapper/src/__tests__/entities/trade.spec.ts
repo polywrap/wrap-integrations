@@ -1,15 +1,13 @@
-import { Nullable } from "@web3api/wasm-as";
-import { createRoute } from "../../query";
+import { Option, BigInt } from "@polywrap/wasm-as";
 import {
+  createRoute,
   bestTradeExactIn,
   bestTradeExactOut,
   createTrade,
   tradeMaximumAmountIn,
   tradeMinimumAmountOut
-} from "../../query";
-import { ChainId, Pair, Token, TradeType } from "../../query/w3";
-
-import { BigInt } from "as-bigint";
+} from "../../index";
+import { ChainId, Pair, Token, TradeType } from "../../wrap";
 
 const token0: Token = {
   chainId: ChainId.MAINNET,
@@ -181,8 +179,8 @@ describe("Trade", () => {
           },
           tokenOut: token2,
           options: {
-            maxHops: Nullable.fromValue<u32>(0),
-            maxNumResults: Nullable.fromNull<u32>(),
+            maxHops: new Option<u32>(0, false),
+            maxNumResults: Option.None<u32>(),
           },
         })
       }).toThrow();
@@ -238,8 +236,8 @@ describe("Trade", () => {
         },
         tokenOut: token2,
         options: {
-          maxHops: Nullable.fromValue<u32>(1),
-          maxNumResults: Nullable.fromNull<u32>(),
+          maxHops: new Option<u32>(1, false),
+          maxNumResults: Option.None<u32>(),
         }
       });
 
@@ -257,8 +255,8 @@ describe("Trade", () => {
         },
         tokenOut: token2,
         options: {
-          maxHops: Nullable.fromValue<u32>(1),
-          maxNumResults: Nullable.fromNull<u32>(),
+          maxHops: new Option<u32>(1, false),
+          maxNumResults: Option.None<u32>(),
         }
       });
 
@@ -281,8 +279,8 @@ describe("Trade", () => {
         },
         tokenOut: token2,
         options: {
-          maxHops: Nullable.fromNull<u32>(),
-          maxNumResults: Nullable.fromValue<u32>(1),
+          maxHops: Option.None<u32>(),
+          maxNumResults: new Option<u32>(1, false),
         }
       });
 
@@ -402,8 +400,8 @@ describe("Trade", () => {
           },
           tokenIn: token0,
           options: {
-            maxHops: Nullable.fromValue<u32>(0),
-            maxNumResults: Nullable.fromNull<u32>(),
+            maxHops: new Option<u32>(0, false),
+            maxNumResults: Option.None<u32>(),
           },
         })
       }).toThrow();
@@ -467,8 +465,8 @@ describe("Trade", () => {
         },
         tokenIn: token0,
         options: {
-          maxHops: Nullable.fromValue<u32>(1),
-          maxNumResults: Nullable.fromNull<u32>(),
+          maxHops: new Option<u32>(1, false),
+          maxNumResults: Option.None<u32>(),
         }
       });
 
@@ -514,8 +512,8 @@ describe("Trade", () => {
         },
         tokenIn: token0,
         options: {
-          maxHops: Nullable.fromNull<u32>(),
-          maxNumResults: Nullable.fromValue<u32>(1),
+          maxHops: Option.None<u32>(),
+          maxNumResults: new Option<u32>(1, false),
         }
       });
 

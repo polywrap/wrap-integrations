@@ -1,45 +1,45 @@
 import { tokenEquals } from "./token";
 import {
-  Input_routeMidPrice,
-  Input_routePath,
-  Input_createRoute,
+  Args_routeMidPrice,
+  Args_routePath,
+  Args_createRoute,
   Pair,
   Route,
   Token,
   TokenAmount,
-} from "./w3";
+} from "../wrap";
 import Price from "../utils/Price";
 import { pairReserves } from "./pair";
 import { wrapIfEther } from "../utils/utils";
 
-export function createRoute(input: Input_createRoute): Route {
+export function createRoute(args: Args_createRoute): Route {
   const path = routePath({
-    pairs: input.pairs,
-    input: input.input,
+    pairs: args.pairs,
+    input: args.input,
   });
 
   let output: Token;
-  if (input.output != null) {
-    output = input.output as Token;
+  if (args.output != null) {
+    output = args.output as Token;
   } else {
     output = path[path.length - 1];
   }
 
   return {
     path: path,
-    pairs: input.pairs,
-    input: input.input,
+    pairs: args.pairs,
+    input: args.input,
     output: output,
   };
 }
 
 // returns the full path from input token to output token.
-export function routePath(input: Input_routePath): Token[] {
-  const pairs: Pair[] = input.pairs;
+export function routePath(args: Args_routePath): Token[] {
+  const pairs: Pair[] = args.pairs;
   if (!(pairs.length > 0)) {
     throw new Error("Route has to define at least on pair");
   }
-  const inToken: Token = input.input;
+  const inToken: Token = args.input;
 
   const path: Token[] = [wrapIfEther(inToken)];
   for (let i = 0; i < pairs.length; i++) {
@@ -60,8 +60,8 @@ export function routePath(input: Input_routePath): Token[] {
 }
 
 // Returns the current mid price along the route.
-export function routeMidPrice(input: Input_routeMidPrice): string {
-  const route: Route = input.route;
+export function routeMidPrice(args: Args_routeMidPrice): string {
+  const route: Route = args.route;
   const finalPrice = midPrice(route);
   return finalPrice.toFixed(18);
 }

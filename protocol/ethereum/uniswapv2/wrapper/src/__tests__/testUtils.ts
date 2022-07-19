@@ -1,87 +1,17 @@
-import { BestTradeOptions, ChainId, Pair, Token, TokenAmount, Trade, TxResponse, TradeOptions } from "./e2e/types";
-import { ClientConfig, coreInterfaceUris, Web3ApiClient } from "@web3api/client-js";
-import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
-import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
-import { ensPlugin } from "@web3api/ens-plugin-js";
-import axios from "axios";
-import path from "path";
-import { buildAndDeployApi } from "@web3api/test-env-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import * as uni from "@uniswap/sdk";
 import tokenList from "./e2e/testData/tokenList.json";
+import * as App from "./e2e/types/wrap"
 
-interface TestEnvironment {
-  ipfs: string;
-  ethereum: string;
-  ensAddress: string;
-  clientConfig: ClientConfig;
-}
-
-export async function getEnsUri(): Promise<string> {
-  const { ensAddress, ipfs } = await getProviders();
-  const apiPath: string = path.resolve(__dirname + "/../../");
-  const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
-  return `ens/testnet/${api.ensDomain}`;
-}
-
-export async function getProviders(): Promise<TestEnvironment> {
-  const { data: { ipfs, ethereum }, } = await axios.get("http://localhost:4040/providers");
-  const { data } = await axios.get("http://localhost:4040/deploy-ens");
-  const clientConfig: ClientConfig = getPlugins(ethereum, ipfs, data.ensAddress);
-  return { ipfs, ethereum, ensAddress: data.ensAddress, clientConfig, };
-}
-
-export function getPlugins(ethereum: string, ipfs: string, ensAddress: string): ClientConfig {
- return {
-   redirects: [],
-   plugins: [
-     {
-       uri: "w3://ens/ipfs.web3api.eth",
-       plugin: ipfsPlugin({ provider: ipfs }),
-     },
-     {
-       uri: "w3://ens/ens.web3api.eth",
-       plugin: ensPlugin({ addresses: { testnet: ensAddress } }),
-     },
-     {
-      uri: "w3://ens/ethereum.web3api.eth",
-      plugin: ethereumPlugin({
-        networks: {
-          testnet: {
-            provider: ethereum
-          },
-          MAINNET: {
-            provider: "http://localhost:8546"
-          },
-        },
-        defaultNetwork: "testnet"
-      }),
-    },
-    ],
-    interfaces: [
-    {
-      interface: coreInterfaceUris.uriResolver.uri,
-      implementations: [
-        "w3://ens/ipfs.web3api.eth",
-        "w3://ens/ens.web3api.eth",
-      ],
-    },
-    {
-      interface: coreInterfaceUris.logger.uri,
-      implementations: ["w3://ens/js-logger.web3api.eth"],
-    },
-  ],
-  };
-}
-
-export async function getTokenList(): Promise<Token[]> {
-  let tokens: Token[] = [];
+export async function getTokenList(): Promise<App.Token[]> {
+  let tokens: App.Token[] = [];
   tokenList.forEach((token: {
     address: string;
     decimals: number;
     symbol: string;
     name: string;
   }) => tokens.push({
-    chainId: ChainId.MAINNET,
+    chainId: App.ChainIdEnum.MAINNET,
     address: token.address,
     currency: {
       decimals: token.decimals,
@@ -92,33 +22,24 @@ export async function getTokenList(): Promise<Token[]> {
   return tokens;
 }
 
-export async function getPairData(token0: Token, token1: Token, client: Web3ApiClient, ensUri: string): Promise<Pair | undefined> {
-  const pairData = await client.query<{
-    fetchPairData: Pair;
-  }>({
+export async function getPairData(token0: App.Token, token1: App.Token, client: PolywrapClient, ensUri: string): Promise<App.Pair | undefined> {
+  const pairData = await client.invoke<App.Pair>({
     uri: ensUri,
-    query: `
-        query {
-          fetchPairData(
-            token0: $token0
-            token1: $token1
-          )
-        }
-      `,
-    variables: {
+    method: "fetchPairData",
+    args: {
       token0: token0,
       token1: token1
     },
   });
 
-  if (pairData.errors) {
-    throw pairData.errors;
+  if (pairData.error) {
+    throw pairData.error;
   }
 
-  return pairData.data?.fetchPairData;
+  return pairData.data;
 }
 
-export function getUniPairs(pairs: Pair[], chainId: number): uni.Pair[] {
+export function getUniPairs(pairs: App.Pair[], chainId: number): uni.Pair[] {
   return pairs.map(pair => {
     return new uni.Pair(
       new uni.TokenAmount(
@@ -146,157 +67,144 @@ export function getUniPairs(pairs: Pair[], chainId: number): uni.Pair[] {
 }
 
 export async function getBestTradeExactIn(
-  allowedPairs: Pair[],
-  currencyAmountIn: TokenAmount,
-  currencyOut: Token,
-  bestTradeOptions: BestTradeOptions | null,
-  client: Web3ApiClient,
+  allowedPairs: App.Pair[],
+  currencyAmountIn: App.TokenAmount,
+  currencyOut: App.Token,
+  bestTradeOptions: App.BestTradeOptions | null,
+  client: PolywrapClient,
   ensUri: string
-): Promise<Trade[]> {
-  const query = await client.query<{
-    bestTradeExactIn: Trade[]
-  }>({
+): Promise<App.Trade[]> {
+  const invocation = await client.invoke<App.Trade[]>({
     uri: ensUri,
-    query: `query {
-        bestTradeExactIn(
-          pairs: $pairs
-          amountIn: $amountIn
-          tokenOut: $tokenOut
-          options: ${bestTradeOptions ?? "null"}
-         )
-       }`,
-    variables: {
+    method: "bestTradeExactIn",
+    args: {
       pairs: allowedPairs,
       amountIn: currencyAmountIn,
       tokenOut: currencyOut,
+      options: bestTradeOptions ?? null
     }
   })
-  const result: Trade[] | undefined = query.data?.bestTradeExactIn
-  if (query.errors) {
-    query.errors.forEach(console.log)
+  const result: App.Trade[] | undefined = invocation.data
+  if (invocation.error) {
+    console.log(invocation.error)
   }
   return result!
 }
 
 export async function getBestTradeExactOut(
-  allowedPairs: Pair[],
-  currencyIn: Token,
-  currencyAmountOut: TokenAmount,
-  bestTradeOptions: BestTradeOptions | null,
-  client: Web3ApiClient,
+  allowedPairs: App.Pair[],
+  currencyIn: App.Token,
+  currencyAmountOut: App.TokenAmount,
+  bestTradeOptions: App.BestTradeOptions | null,
+  client: PolywrapClient,
   ensUri: string
-): Promise<Trade[]> {
-  const query = await client.query<{
-    bestTradeExactOut: Trade[]
-  }>({
+): Promise<App.Trade[]> {
+  const invocation = await client.invoke<App.Trade[]>({
     uri: ensUri,
-    query: `query {
-        bestTradeExactOut(
-          pairs: $pairs
-          tokenIn: $tokenIn
-          amountOut: $amountOut
-          options: ${bestTradeOptions ?? "null"}
-         )
-       }`,
-    variables: {
+    method: "bestTradeExactOut",
+    args: {
       pairs: allowedPairs,
       tokenIn: currencyIn,
       amountOut: currencyAmountOut,
+      options: bestTradeOptions ?? null
     }
   })
-  const result: Trade[] | undefined = query.data?.bestTradeExactOut
-  if (query.errors) {
-    query.errors.forEach(console.log)
+  const result: App.Trade[] | undefined = invocation.data
+  if (invocation.error) {
+    console.log(invocation.error)
   }
   return result!
 }
 
 export async function approveToken(
-  token: Token,
-  client: Web3ApiClient,
+  token: App.Token,
+  client: PolywrapClient,
   ensUri: string
-): Promise<TxResponse> {
-  const query = await client.query<{approve: TxResponse}>({
+): Promise<App.Ethereum_TxResponse> {
+  const invocation = await client.invoke<App.Ethereum_TxResponse>({
     uri: ensUri,
-    query: `
-        mutation {
-          approve(
-            token: $token
-          )
-        }
-      `,
-    variables: {
-      token: token,
+    method: "approve",
+    args: {
+      token,
     },
   });
-  const result: TxResponse | undefined = query.data?.approve
-  if (query.errors) {
-    query.errors.forEach(console.log)
+  const result: App.Ethereum_TxResponse | undefined = invocation.data
+  if (invocation.error) {
+    console.log(invocation.error)
   }
   return result!;
 }
 
 export async function execTrade(
-  trade: Trade,
-  tradeOptions: TradeOptions,
-  client: Web3ApiClient,
-  ensUri: string
-): Promise<TxResponse> {
-  const query = await client.query<{ exec: TxResponse}>({
-    uri: ensUri,
-    query: `
-          mutation {
-            exec (
-              trade: $trade
-              tradeOptions: $tradeOptions
-            )
-          }
-        `,
-    variables: {
-      trade: trade,
-      tradeOptions: tradeOptions,
+  trade: App.Trade,
+  tradeOptions: App.TradeOptions,
+  client: PolywrapClient,
+  uri: string
+): Promise<App.Ethereum_TxResponse> {
+  const invocation = await client.invoke<App.Ethereum_TxResponse>({
+    uri: uri,
+    method: "exec",
+    args: {
+      trade,
+      tradeOptions,
     },
   });
-  const result: TxResponse | undefined = query.data?.exec
-  if (query.errors) {
-    query.errors.forEach(console.log)
+  const result: App.Ethereum_TxResponse | undefined = invocation.data
+  if (invocation.error) {
+    console.log(invocation.error)
   }
   return result!;
 }
 
 export async function execSwap(
-  tokenIn: Token,
-  tokenOut: Token,
+  tokenIn: App.Token,
+  tokenOut: App.Token,
   amount: string,
-  tradeType: string,
-  tradeOptions: TradeOptions,
-  client: Web3ApiClient,
-  ensUri: string
-): Promise<TxResponse> {
-  const query = await client.query<{ swap: TxResponse}>({
-    uri: ensUri,
-    query: `
-        mutation {
-          swap (
-            tokenIn: $token0
-            tokenOut: $token1
-            amount: $amount
-            tradeType: $tradeType
-            tradeOptions: $tradeOptions
-          )
-        }
-      `,
-    variables: {
-      token0: tokenIn,
-      token1: tokenOut,
+  tradeType: App.TradeType,
+  tradeOptions: App.TradeOptions,
+  client: PolywrapClient,
+  uri: string
+): Promise<App.Ethereum_TxResponse> {
+  const invocation = await client.invoke<App.Ethereum_TxResponse>({
+    uri: uri,
+    method: "swap",
+    args: {
+      tokenIn: tokenIn,
+      tokenOut: tokenOut,
       amount: amount,
       tradeType: tradeType,
       tradeOptions: tradeOptions
     },
   });
-  const result: TxResponse | undefined = query.data?.swap
-  if (query.errors) {
-    query.errors.forEach(console.log)
+  const result: App.Ethereum_TxResponse | undefined = invocation.data
+  if (invocation.error) {
+    console.log(invocation.error)
   }
   return result!;
+}
+
+export function getSwapMethodAbi(methodName: string): string {
+  if (methodName == "swapExactTokensForTokens")
+    return `function swapExactTokensForTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline) external returns (uint[] memory amounts)`;
+  else if (methodName == "swapTokensForExactTokens")
+    return `function swapTokensForExactTokens(uint amountOut,uint amountInMax,address[] calldata path,address to,uint deadline) external returns (uint[] memory amounts)`;
+  else if (methodName == "swapExactETHForTokens")
+    return `function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)`;
+  else if (methodName == "swapTokensForExactETH")
+    return `function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)`;
+  else if (methodName == "swapExactTokensForETH")
+    return `function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)`;
+  else if (methodName == "swapETHForExactTokens")
+    return `function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)`;
+  else if (
+    methodName == "swapExactTokensForTokensSupportingFeeOnTransferTokens"
+  )
+    return `function swapExactTokensForTokensSupportingFeeOnTransferTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline) external`;
+  else if (methodName == "swapExactETHForTokensSupportingFeeOnTransferTokens")
+    return `function swapExactETHForTokensSupportingFeeOnTransferTokens(uint amountOutMin,address[] calldata path,address to,uint deadline) external payable`;
+  else if (methodName == "swapExactTokensForETHSupportingFeeOnTransferTokens")
+    return `function swapExactTokensForETHSupportingFeeOnTransferTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline) external`;
+  else {
+    throw new Error("Invalid method name " + methodName);
+  }
 }

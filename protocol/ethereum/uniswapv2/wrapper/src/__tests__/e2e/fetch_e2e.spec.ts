@@ -1,33 +1,31 @@
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
-import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
-import { ChainId, Pair, Token, TokenAmount } from "./types";
+import { ClientConfig, PolywrapClient } from "@polywrap/client-js";
 import path from "path";
-import { getPlugins, getTokenList } from "../testUtils";
+import { getTokenList } from "../testUtils";
+import { getPlugins, initInfra, stopInfra } from "../infraUtils";
 import * as uni from "@uniswap/sdk";
 import * as ethers from "ethers";
-import * as providers from "@ethersproject/providers"
+import { BaseProvider, getDefaultProvider} from "@ethersproject/providers"
+import * as App from "./types/wrap";
 
 jest.setTimeout(90000);
 
 describe("Fetch", () => {
 
-  let client: Web3ApiClient;
-  let ensUri: string;
-  let tokens: Token[];
+  let client: PolywrapClient;
+  let fsUri: string;
+  let tokens: App.Token[];
   let uniTokens: uni.Token[];
-  let pairs: Token[][];
-  let ethersProvider: providers.BaseProvider;
+  let pairs: App.Token[][];
+  let ethersProvider: BaseProvider;
 
   beforeAll(async () => {
-    const { ethereum: testEnvEtherem, ensAddress, ipfs } = await initTestEnvironment();
+    await initInfra();
     // get client
-    const config: ClientConfig = getPlugins(testEnvEtherem, ipfs, ensAddress);
-    client = new Web3ApiClient(config);
+    const config: Partial<ClientConfig> = getPlugins();
+    client = new PolywrapClient(config);
     // deploy api
-    const apiPath: string = path.resolve(__dirname + "/../../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
-    ensUri = `ens/testnet/${api.ensDomain}`;
-    // ipfsUri = `ipfs/${api.ipfsCid}`;
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../..");
+    fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data -> tokens
     tokens = await getTokenList();
     uniTokens = tokens.map(token => {
@@ -40,48 +38,39 @@ describe("Fetch", () => {
       );
     });
     // set up test case data -> pairs
-    const aave: Token = tokens.filter(token => token.currency.symbol === "AAVE")[0];
-    const dai: Token = tokens.filter(token => token.currency.symbol === "DAI")[0];
-    const usdc: Token = tokens.filter(token => token.currency.symbol === "USDC")[0];
-    const comp: Token = tokens.filter(token => token.currency.symbol === "COMP")[0];
-    const weth: Token = tokens.filter(token => token.currency.symbol === "WETH")[0];
-    const wbtc: Token = tokens.filter(token => token.currency.symbol === "WBTC")[0];
-    const uniswap: Token = tokens.filter(token => token.currency.symbol === "UNI")[0];
-    const link: Token = tokens.filter(token => token.currency.symbol === "LINK")[0];
+    const aave: App.Token = tokens.filter(token => token.currency.symbol === "AAVE")[0];
+    const dai: App.Token = tokens.filter(token => token.currency.symbol === "DAI")[0];
+    const usdc: App.Token = tokens.filter(token => token.currency.symbol === "USDC")[0];
+    const comp: App.Token = tokens.filter(token => token.currency.symbol === "COMP")[0];
+    const weth: App.Token = tokens.filter(token => token.currency.symbol === "WETH")[0];
+    const wbtc: App.Token = tokens.filter(token => token.currency.symbol === "WBTC")[0];
+    const uniswap: App.Token = tokens.filter(token => token.currency.symbol === "UNI")[0];
+    const link: App.Token = tokens.filter(token => token.currency.symbol === "LINK")[0];
     pairs = [[aave, dai], [usdc, dai], [aave, usdc], [comp, weth], [uniswap, link], [uniswap, wbtc], [wbtc, weth]];
     // set up ethers provider
-    ethersProvider = providers.getDefaultProvider("http://localhost:8546");
+    ethersProvider = getDefaultProvider("http://localhost:8546");
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   });
 
   it("Fetches token data", async () => {
     for (let i = 0; i < 10; i++) {
       // actual token
-      const tokenData = await client.query<{
-        fetchTokenData: Token;
-      }>({
-        uri: ensUri,
-        query: `
-          query {
-            fetchTokenData(
-              chainId: $chainId
-              address: $address
-            )
-          }
-        `,
-        variables: {
+      const tokenData = await client.invoke<App.Token>({
+        uri: fsUri,
+        method: "fetchTokenData",
+        args: {
           chainId: tokens[i].chainId,
           address: tokens[i].address,
         },
       });
       // compare results
-      expect(tokenData.errors).toBeFalsy();
+      expect(tokenData.error).toBeFalsy();
       expect(tokenData.data).toBeTruthy();
-      expect(tokenData.data?.fetchTokenData.currency.symbol).toStrictEqual(tokens[i].currency.symbol);
-      expect(tokenData.data?.fetchTokenData.currency.decimals).toStrictEqual(tokens[i].currency.decimals);
+      expect(tokenData.data?.currency.symbol).toStrictEqual(tokens[i].currency.symbol);
+      expect(tokenData.data?.currency.decimals).toStrictEqual(tokens[i].currency.decimals);
       // fetched name can vary from token list, e.g. "Aave" vs "Aave Token", so not testing (can verify it works with console.log)
       // expect(tokenData.data?.fetchTokenData.currency.name).toStrictEqual(tokens[i].currency.name);
     }
@@ -94,19 +83,10 @@ describe("Fetch", () => {
       const uniTokenI: uni.Token = uniTokens.filter(token => token.address === pairs[i][0].address)[0];
       const uniTokenJ: uni.Token = uniTokens.filter(token => token.address === pairs[i][1].address)[0];
       // actual pair data
-      const pairData = await client.query<{
-        fetchPairData: Pair;
-      }>({
-        uri: ensUri,
-        query: `
-          query {
-            fetchPairData(
-              token0: $token0
-              token1: $token1
-            )
-          }
-        `,
-        variables: {
+      const pairData = await client.invoke<App.Pair>({
+        uri: fsUri,
+        method: "fetchPairData",
+        args: {
           token0: pairs[i][0],
           token1: pairs[i][1]
         },
@@ -114,10 +94,10 @@ describe("Fetch", () => {
       // expected pair data
       const uniPair: uni.Pair = await uni.Fetcher.fetchPairData(uniTokenI, uniTokenJ, ethersProvider);
       // compare results
-      expect(pairData.errors).toBeFalsy();
+      expect(pairData.error).toBeFalsy();
       expect(pairData.data).toBeTruthy();
-      expect(pairData.data?.fetchPairData.tokenAmount0.amount).toStrictEqual(uniPair.reserve0.numerator.toString());
-      expect(pairData.data?.fetchPairData.tokenAmount1.amount).toStrictEqual(uniPair.reserve1.numerator.toString());
+      expect(pairData.data?.tokenAmount0.amount).toStrictEqual(uniPair.reserve0.numerator.toString());
+      expect(pairData.data?.tokenAmount1.amount).toStrictEqual(uniPair.reserve1.numerator.toString());
     }
   });
 
@@ -127,27 +107,19 @@ describe("Fetch", () => {
       const abi = ["function totalSupply() external view returns (uint)"];
       const contract = new ethers.Contract(tokens[i].address, abi, ethersProvider);
       // actual totalSupply
-      const totalSupply = await client.query<{
-        fetchTotalSupply: TokenAmount;
-      }>({
-        uri: ensUri,
-        query: `
-          query {
-            fetchTotalSupply(
-              token: $token
-            )
-          }
-        `,
-        variables: {
+      const totalSupply = await client.invoke<App.TokenAmount>({
+        uri: fsUri,
+        method: "fetchTotalSupply",
+        args: {
           token: tokens[i],
         },
       });
       // expected totalSupply
       const expectedTotalSupply: string = (await contract.totalSupply()).toString();
       // compare results
-      expect(totalSupply.errors).toBeFalsy();
+      expect(totalSupply.error).toBeFalsy();
       expect(totalSupply.data).toBeTruthy();
-      expect(totalSupply.data?.fetchTotalSupply.amount).toStrictEqual(expectedTotalSupply);
+      expect(totalSupply.data?.amount).toStrictEqual(expectedTotalSupply);
     }
   });
 
@@ -161,27 +133,18 @@ describe("Fetch", () => {
       const abi = ["function kLast() external view returns (uint)"];
       const contract = new ethers.Contract(uniPairAddress, abi, ethersProvider);
       // get pair address
-      const pairAddress = await client.query<{
-        pairAddress: string;
-      }>({
-        uri: ensUri,
-        query: `
-          query {
-            pairAddress(
-              token0: $token0
-              token1: $token1
-            )
-          }
-        `,
-        variables: {
+      const pairAddress = await client.invoke<string>({
+        uri: fsUri,
+        method: "pairAddress",
+        args: {
           token0: pairs[i][0],
           token1: pairs[i][1]
         },
       });
-      const actualPairAddress: string = pairAddress.data?.pairAddress ?? "";
+      const actualPairAddress: string = pairAddress.data ?? "";
       // create pair token using pair address
-      const pairToken: Token = {
-        chainId: ChainId.MAINNET,
+      const pairToken: App.Token = {
+        chainId: App.ChainIdEnum.MAINNET,
         address: actualPairAddress,
         currency: {
           decimals: 18,
@@ -190,28 +153,20 @@ describe("Fetch", () => {
         },
       };
       // get actual kLast
-      const kLast = await client.query<{
-        fetchKLast: string;
-      }>({
-        uri: ensUri,
-        query: `
-          query {
-            fetchKLast(
-              token: $token
-            )
-          }
-        `,
-        variables: {
+      const kLast = await client.invoke<string>({
+        uri: fsUri,
+        method: "fetchKLast",
+        args: {
           token: pairToken,
         },
       });
       // expected kLast
       const expectedKLast: string = (await contract.kLast()).toString();
       // compare results
-      expect(kLast.errors).toBeFalsy();
+      expect(kLast.error).toBeFalsy();
       expect(kLast.data).toBeTruthy();
       expect(actualPairAddress).toStrictEqual(uniPairAddress);
-      expect(kLast.data?.fetchKLast).toStrictEqual(expectedKLast);
+      expect(kLast.data).toStrictEqual(expectedKLast);
     }
   });
 

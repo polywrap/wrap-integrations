@@ -1,60 +1,65 @@
 import { fetchTokenData } from "./fetch";
 import { tokenSortsBefore } from "./token";
-import { factoryAddress, initCodeHash, minimumLiquidity } from "./index";
 import {
-  Input_pairAddress,
-  Input_pairInputAmount,
-  Input_pairInputNextPair,
-  Input_pairLiquidityMinted,
-  Input_pairLiquidityToken,
-  Input_pairLiquidityValue,
-  Input_pairOutputAmount,
-  Input_pairOutputNextPair,
-  Input_pairReserves,
-  Input_pairToken0Price,
-  Input_pairToken1Price,
+  Args_pairAddress,
+  Args_pairInputAmount,
+  Args_pairInputNextPair,
+  Args_pairLiquidityMinted,
+  Args_pairLiquidityToken,
+  Args_pairLiquidityValue,
+  Args_pairOutputAmount,
+  Args_pairOutputNextPair,
+  Args_pairReserves,
+  Args_pairToken0Price,
+  Args_pairToken1Price,
   Pair,
-  SHA3_Query,
+  SHA3_Module,
   Token,
   TokenAmount,
-} from "./w3";
-import { ProcessedPair } from "../utils/ProcessedPair";
+} from "../wrap";
 import Price from "../utils/Price";
-import { concat, getChecksumAddress } from "../utils/addressUtils";
+import {
+  factoryAddress,
+  initCodeHash,
+  minimumLiquidity,
+  concat,
+  getChecksumAddress,
+  ProcessedPair,
+} from "../utils";
 
-import { BigInt } from "@web3api/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
 
 // returns address of pair liquidity token contract
 // see https://uniswap.org/docs/v2/javascript-SDK/getting-pair-addresses/
 // and https://eips.ethereum.org/EIPS/eip-1014
-export function pairAddress(input: Input_pairAddress): string {
+export function pairAddress(args: Args_pairAddress): string {
   let tokenA: string;
   let tokenB: string;
-  if (tokenSortsBefore({ token: input.token0, other: input.token1 })) {
-    tokenA = input.token0.address;
-    tokenB = input.token1.address;
+  if (tokenSortsBefore({ token: args.token0, other: args.token1 })) {
+    tokenA = args.token0.address;
+    tokenB = args.token1.address;
   } else {
-    tokenA = input.token1.address;
-    tokenB = input.token0.address;
+    tokenA = args.token1.address;
+    tokenB = args.token0.address;
   }
-  const salt: string = SHA3_Query.hex_keccak_256({
+  const salt: string = SHA3_Module.hex_keccak_256({
     message: tokenA.substring(2) + tokenB.substring(2),
-  });
+  }).unwrap();
   const concatenatedItems: Uint8Array = concat([
     "0xff",
-    getChecksumAddress(factoryAddress()),
+    getChecksumAddress(factoryAddress),
     salt,
-    initCodeHash(),
+    initCodeHash,
   ]);
-  const concatenationHash: string = SHA3_Query.buffer_keccak_256({
+  const concatenationHash: string = SHA3_Module.buffer_keccak_256({
     message: concatenatedItems.buffer,
-  });
+  }).unwrap();
   return getChecksumAddress(concatenationHash.substring(24));
 }
 
 // returns pair liquidity token
-export function pairLiquidityToken(input: Input_pairLiquidityToken): Token {
-  const pair: Pair = input.pair;
+export function pairLiquidityToken(args: Args_pairLiquidityToken): Token {
+  const pair: Pair = args.pair;
   const token0: Token = pair.tokenAmount0.token;
   const token1: Token = pair.tokenAmount1.token;
   return fetchTokenData({
@@ -66,8 +71,8 @@ export function pairLiquidityToken(input: Input_pairLiquidityToken): Token {
 }
 
 // returns the reserves for pair tokens in sorted order
-export function pairReserves(input: Input_pairReserves): TokenAmount[] {
-  const pair: Pair = input.pair;
+export function pairReserves(args: Args_pairReserves): TokenAmount[] {
+  const pair: Pair = args.pair;
   if (
     tokenSortsBefore({
       token: pair.tokenAmount0.token,
@@ -80,8 +85,8 @@ export function pairReserves(input: Input_pairReserves): TokenAmount[] {
 }
 
 // Returns the current mid price of the pair in terms of token0, i.e. the ratio of reserve1 to reserve0
-export function pairToken0Price(input: Input_pairToken0Price): string {
-  const pair = input.pair;
+export function pairToken0Price(args: Args_pairToken0Price): string {
+  const pair = args.pair;
   const price = new Price(
     pair.tokenAmount0.token,
     pair.tokenAmount1.token,
@@ -92,8 +97,8 @@ export function pairToken0Price(input: Input_pairToken0Price): string {
 }
 
 // Returns the current mid price of the pair in terms of token1, i.e. the ratio of reserve0 to reserve1
-export function pairToken1Price(input: Input_pairToken1Price): string {
-  const pair = input.pair;
+export function pairToken1Price(args: Args_pairToken1Price): string {
+  const pair = args.pair;
   const price = new Price(
     pair.tokenAmount1.token,
     pair.tokenAmount0.token,
@@ -103,31 +108,31 @@ export function pairToken1Price(input: Input_pairToken1Price): string {
   return price.toFixed(18);
 }
 
-// Pricing function for exact input amounts. Returns maximum output amount, based on current reserves, if the trade were executed.
-export function pairOutputAmount(input: Input_pairOutputAmount): TokenAmount {
-  const pair: Pair = input.pair;
-  const tradeTokenAmount: TokenAmount = input.inputAmount;
+// Pricing function for exact inputs amounts. Returns maximum output amount, based on current reserves, if the trade were executed.
+export function pairOutputAmount(args: Args_pairOutputAmount): TokenAmount {
+  const pair: Pair = args.pair;
+  const tradeTokenAmount: TokenAmount = args.inputAmount;
   return ProcessedPair.pairOutputForExactInput(pair, tradeTokenAmount).amount;
 }
 
-// Pricing function for exact input amounts. Returns next pair state, based on current reserves, if the trade were executed.
-export function pairOutputNextPair(input: Input_pairOutputNextPair): Pair {
-  const pair: Pair = input.pair;
-  const tradeTokenAmount: TokenAmount = input.inputAmount;
+// Pricing function for exact inputs amounts. Returns next pair state, based on current reserves, if the trade were executed.
+export function pairOutputNextPair(args: Args_pairOutputNextPair): Pair {
+  const pair: Pair = args.pair;
+  const tradeTokenAmount: TokenAmount = args.inputAmount;
   return ProcessedPair.pairOutputForExactInput(pair, tradeTokenAmount).nextPair;
 }
 
-// Pricing function for exact output amounts. Returns minimum input amount, based on current reserves, if the trade were executed.
-export function pairInputAmount(input: Input_pairInputAmount): TokenAmount {
-  const pair: Pair = input.pair;
-  const tradeTokenAmount: TokenAmount = input.outputAmount;
+// Pricing function for exact output amounts. Returns minimum inputs amount, based on current reserves, if the trade were executed.
+export function pairInputAmount(args: Args_pairInputAmount): TokenAmount {
+  const pair: Pair = args.pair;
+  const tradeTokenAmount: TokenAmount = args.outputAmount;
   return ProcessedPair.pairInputForExactOutput(pair, tradeTokenAmount).amount;
 }
 
 // Pricing function for exact output amounts. Returns next pair state, based on current reserves, if the trade were executed.
-export function pairInputNextPair(input: Input_pairInputNextPair): Pair {
-  const pair: Pair = input.pair;
-  const tradeTokenAmount: TokenAmount = input.outputAmount;
+export function pairInputNextPair(args: Args_pairInputNextPair): Pair {
+  const pair: Pair = args.pair;
+  const tradeTokenAmount: TokenAmount = args.outputAmount;
   return ProcessedPair.pairInputForExactOutput(pair, tradeTokenAmount).nextPair;
 }
 
@@ -135,15 +140,15 @@ export function pairInputNextPair(input: Input_pairInputNextPair): Pair {
 Calculates the exact amount of liquidity tokens minted from a given amount of token0 and token1.
   totalSupply is total supply of pair liquidity token.
   totalSupply must be looked up on-chain.
-  The value returned from this function cannot be used as an input to getLiquidityValue.
+  The value returned from this function cannot be used as an inputs to getLiquidityValue.
 */
 export function pairLiquidityMinted(
-  input: Input_pairLiquidityMinted
+  args: Args_pairLiquidityMinted
 ): TokenAmount {
-  const pair: Pair = input.pair;
-  const totalSupply: TokenAmount = input.totalSupply;
-  const tokenAmount0: TokenAmount = input.tokenAmount0;
-  const tokenAmount1: TokenAmount = input.tokenAmount1;
+  const pair: Pair = args.pair;
+  const totalSupply: TokenAmount = args.totalSupply;
+  const tokenAmount0: TokenAmount = args.tokenAmount0;
+  const tokenAmount1: TokenAmount = args.tokenAmount1;
   // sort order
   const pairTokens = tokenSortsBefore({
     token: pair.tokenAmount0.token,
@@ -163,7 +168,7 @@ export function pairLiquidityMinted(
   let amount1 = tokenAmounts[1].amount;
   const supply = totalSupply.amount;
   if (supply.eq(BigInt.ZERO)) {
-    const minLiq = BigInt.fromUInt32(minimumLiquidity());
+    const minLiq = BigInt.fromUInt32(minimumLiquidity);
     liquidity = amount0.mul(amount1).sqrt().sub(minLiq);
   } else {
     const pairAmt0 = pairTokens[0].amount;
@@ -191,13 +196,13 @@ Calculates the exact amount of token0 or token1 that the given amount of liquidi
   Values returned from this function cannot be used as inputs to getLiquidityMinted.
 */
 export function pairLiquidityValue(
-  input: Input_pairLiquidityValue
+  args: Args_pairLiquidityValue
 ): TokenAmount[] {
-  const pair: Pair = input.pair;
-  const totalSupply: TokenAmount = input.totalSupply;
-  const liquidity: TokenAmount = input.liquidity;
-  const feeOn: bool = !input.feeOn.isNull && input.feeOn.value;
-  const kLast: BigInt = input.kLast === null ? BigInt.ZERO : input.kLast!;
+  const pair: Pair = args.pair;
+  const totalSupply: TokenAmount = args.totalSupply;
+  const liquidity: TokenAmount = args.liquidity;
+  const feeOn: bool = args.feeOn.isSome && args.feeOn.unwrap();
+  const kLast: BigInt = args.kLast === null ? BigInt.ZERO : args.kLast!;
   const amount0 = pair.tokenAmount0.amount;
   const amount1 = pair.tokenAmount1.amount;
   const liqAmt = liquidity.amount;
