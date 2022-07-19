@@ -1,3 +1,6 @@
+#![deny(warnings)]
+
+#[allow(warnings)]
 pub mod wrap;
 use wrap::imported::*;
 pub use wrap::*;
@@ -5,8 +8,8 @@ pub use wrap::*;
 pub use api::Api;
 use api::BaseApi;
 pub use error::Error;
-use serde_json::Value;
-use sp_runtime::traits::BlakeTwo256;
+use scale_info::TypeDef;
+use scale_info::TypeDefPrimitive;
 pub use types::metadata::Metadata;
 
 mod api;
@@ -90,22 +93,43 @@ pub fn get_storage_value(arg: ArgsGetStorageValue) -> Option<Vec<u8>> {
 pub fn get_storage_map(arg: ArgsGetStorageMap) -> Option<Vec<u8>> {
     Api::new(&arg.url)
         .ok()
-        .map(|api| match &*arg.key_type {
-            "u32" => {
-                assert!(arg.key.is_number());
-                let key = arg.key.as_u64().expect("must cast to u64") as u32;
-                api.fetch_opaque_storage_map(&arg.pallet, &arg.storage, key)
-                    .ok()
-                    .flatten()
+        .map(|api| {
+            let (key_type, _value_type) = api
+                .storage_map_type(&arg.pallet, &arg.storage)
+                .ok()
+                .flatten()
+                .expect("must have a type");
+
+            if let TypeDef::Primitive(primitive) = key_type.type_def() {
+                //TODO: make this exhaustive to support i8,i16,i32,i64,i128 and u8,u16,u32,u64,u128
+                match primitive {
+                    TypeDefPrimitive::U32 => {
+                        assert!(arg.key.is_number());
+                        let key = arg.key.as_u64().expect("must cast to u64") as u32;
+                        api.fetch_opaque_storage_map(&arg.pallet, &arg.storage, key)
+                            .ok()
+                            .flatten()
+                    }
+                    TypeDefPrimitive::U64 => {
+                        assert!(arg.key.is_number());
+                        let key = arg.key.as_u64().expect("must cast to u64") as u64;
+                        api.fetch_opaque_storage_map(&arg.pallet, &arg.storage, key)
+                            .ok()
+                            .flatten()
+                    }
+                    TypeDefPrimitive::U128 => {
+                        assert!(arg.key.is_number());
+                        let key = arg.key.as_u64().expect("must cast to u64") as u128;
+                        api.fetch_opaque_storage_map(&arg.pallet, &arg.storage, key)
+                            .ok()
+                            .flatten()
+                    }
+                    _ => unimplemented!(),
+                }
+            } else {
+                //TODO: this should be error for UnSupported key type
+                None
             }
-            "u128" => {
-                assert!(arg.key.is_number());
-                let key = arg.key.as_u64().expect("must cast to u64") as u128;
-                api.fetch_opaque_storage_map(&arg.pallet, &arg.storage, key)
-                    .ok()
-                    .flatten()
-            }
-            _ => todo!(),
         })
         .flatten()
 }
@@ -113,20 +137,82 @@ pub fn get_storage_map(arg: ArgsGetStorageMap) -> Option<Vec<u8>> {
 pub fn get_storage_map_paged(arg: ArgsGetStorageMapPaged) -> Option<Vec<Vec<u8>>> {
     Api::new(&arg.url)
         .ok()
-        .map(|api| match &*arg.key_type {
-            "u32" => {
-                let next_to = arg.next_to.map(|k| k.as_u64().map(|k| k as u32)).flatten();
-                api.fetch_opaque_storage_map_paged(&arg.pallet, &arg.storage, arg.count, next_to)
+        .map(|api| {
+            let (key_type, _value_type) = api
+                .storage_map_type(&arg.pallet, &arg.storage)
+                .ok()
+                .flatten()
+                .expect("must have a type");
+
+            if let TypeDef::Primitive(primitive) = key_type.type_def() {
+                //TODO: make this exhaustive to support i8,i16,i32,i64,i128 and u8,u16,u32,u64,u128
+                match primitive {
+                    TypeDefPrimitive::U32 => {
+                        let next_to = arg.next_to.map(|k| k.as_u64().map(|k| k as u32)).flatten();
+                        api.fetch_opaque_storage_map_paged(
+                            &arg.pallet,
+                            &arg.storage,
+                            arg.count,
+                            next_to,
+                        )
+                        .ok()
+                        .flatten()
+                    }
+                    TypeDefPrimitive::U64 => {
+                        let next_to = arg.next_to.map(|k| k.as_u64().map(|k| k as u64)).flatten();
+                        api.fetch_opaque_storage_map_paged(
+                            &arg.pallet,
+                            &arg.storage,
+                            arg.count,
+                            next_to,
+                        )
+                        .ok()
+                        .flatten()
+                    }
+                    TypeDefPrimitive::U128 => {
+                        let next_to = arg.next_to.map(|k| k.as_u64().map(|k| k as u128)).flatten();
+                        api.fetch_opaque_storage_map_paged(
+                            &arg.pallet,
+                            &arg.storage,
+                            arg.count,
+                            next_to,
+                        )
+                        .ok()
+                        .flatten()
+                    }
+                    _ => unimplemented!(),
+                }
+            } else {
+                None
+            }
+
+            /*
+            match &*arg.key_type {
+                "u32" => {
+                    let next_to = arg.next_to.map(|k| k.as_u64().map(|k| k as u32)).flatten();
+                    api.fetch_opaque_storage_map_paged(
+                        &arg.pallet,
+                        &arg.storage,
+                        arg.count,
+                        next_to,
+                    )
                     .ok()
                     .flatten()
-            }
-            "u128" => {
-                let next_to = arg.next_to.map(|k| k.as_u64().map(|k| k as u128)).flatten();
-                api.fetch_opaque_storage_map_paged(&arg.pallet, &arg.storage, arg.count, next_to)
+                }
+                "u128" => {
+                    let next_to = arg.next_to.map(|k| k.as_u64().map(|k| k as u128)).flatten();
+                    api.fetch_opaque_storage_map_paged(
+                        &arg.pallet,
+                        &arg.storage,
+                        arg.count,
+                        next_to,
+                    )
                     .ok()
                     .flatten()
+                }
+                _ => todo!(),
             }
-            _ => todo!(),
+            */
         })
         .flatten()
 }
