@@ -23,11 +23,7 @@ use sp_runtime::MultiSignature;
 pub use sp_runtime::{AccountId32, MultiAddress};
 use sp_std::{fmt, prelude::*};
 
-pub type AccountIndex = u64;
-
 pub type GenericAddress = sp_runtime::MultiAddress<AccountId32, ()>;
-
-pub type CallIndex = [u8; 2];
 
 /// Mirrors the currently used Extrinsic format (V4) from substrate. Has less traits and methods though.
 /// The SingedExtra used does not need to implement SingedExtension here.

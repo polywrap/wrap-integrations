@@ -1,5 +1,7 @@
 use crate::{api::Api, utils::FromHexStr, Error};
 use codec::{Decode, Encode};
+use scale_info::form::PortableForm;
+use scale_info::Type;
 use sp_core::storage::StorageKey;
 
 impl Api {
@@ -140,6 +142,14 @@ impl Api {
         } else {
             Ok(None)
         }
+    }
+
+    pub fn storage_map_type(
+        &self,
+        module: &str,
+        storage_name: &str,
+    ) -> Result<Option<(&Type<PortableForm>, &Type<PortableForm>)>, Error> {
+        Ok(self.metadata().storage_map_type(module, storage_name)?)
     }
 
     pub fn fetch_opaque_storage_keys_paged<K>(

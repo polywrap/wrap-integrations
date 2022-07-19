@@ -27,7 +27,7 @@ yarn deploy
 
 
 Take note of the hash, this will be use to set the URI when using the module
-```
+```shell
 Successfully executed stage 'ipfs_deploy'. Result: 'wrap://ipfs/QmUShkhii5JUM9t3RnZtS2kTUqReSjNVHQ9NaMzEMazqJ9'
 Done in 3.80s.
-````
+```

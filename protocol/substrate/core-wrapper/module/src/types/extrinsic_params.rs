@@ -32,13 +32,6 @@ pub trait ExtrinsicParams {
 }
 
 /// A struct representing the signed extra and additional parameters required
-/// to construct a transaction and pay in asset fees
-pub type AssetTipExtrinsicParams = BaseExtrinsicParams<AssetTip>;
-/// A builder which leads to [`AssetTipExtrinsicParams`] being constructed.
-/// This is what you provide to methods like `sign_and_submit()`.
-pub type AssetTipExtrinsicParamsBuilder = BaseExtrinsicParamsBuilder<AssetTip>;
-
-/// A struct representing the signed extra and additional parameters required
 /// to construct a transaction and pay in token fees
 pub type PlainTipExtrinsicParams = BaseExtrinsicParams<PlainTip>;
 /// A builder which leads to [`PlainTipExtrinsicParams`] being constructed.

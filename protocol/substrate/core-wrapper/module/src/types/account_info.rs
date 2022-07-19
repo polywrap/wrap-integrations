@@ -1,13 +1,9 @@
 use codec::{Decode, Encode};
 /// The block number type used in this runtime.
 pub type BlockNumber = u64;
-/// The timestamp moment type used in this runtime.
-pub type Moment = u64;
 /// Index of a transaction.
 //fixme: make generic
 pub type Index = u32;
-
-pub type Hash = sp_core::H256;
 
 //fixme: make generic
 pub type Balance = u128;

@@ -185,7 +185,6 @@ describe("e2e", () => {
           url: "http://localhost:9933",
           pallet: "ForumModule",
           storage: "AllPosts",
-          keyType: "u32",
           key: "0",
       },
     });
@@ -203,7 +202,6 @@ describe("e2e", () => {
           pallet: "ForumModule",
           storage: "AllPosts",
           count: 10,
-          keyType: "u32",
           nextTo: null,
       },
     });
