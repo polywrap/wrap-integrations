@@ -1,20 +1,25 @@
 import { PolywrapClient } from "@polywrap/client-js";
 import { ipfsPlugin } from "@polywrap/ipfs-plugin-js";
+import { ethereumPlugin } from "@polywrap/ethereum-plugin-js";
 
-//let module_uri = 'wrap://ipfs/QmUShkhii5JUM9t3RnZtS2kTUqReSjNVHQ9NaMzEMazqJ9';
-let module_uri = "wrap://ipfs/Qme5EyWRcYKxYLDxsStY6ULsWkNF8knRUoUPzzJNCEUQGU";
+let module_uri = "//ens/testnet/polywrap.substrate.eth";
 
 class PolywrapClientWrapper extends PolywrapClient{
     constructor() {
         super({
-            plugins: [
-                {
-                  uri: "wrap://ens/ipfs.polywrap.eth",
-                  plugin: ipfsPlugin({
-                      provider: "https://ipfs.wrappers.io"
+          plugins: [
+            {
+                  uri: "wrap://ens/ethereum.eth",
+                  plugin: ethereumPlugin({
+                    networks: {
+                      testnet: {
+                        provider: "http://localhost:8545",
+                      },
+                    },
+                    defaultNetwork: "testnet",
                   }),
-                }
-            ]
+             },
+          ]
         })
     }
 
