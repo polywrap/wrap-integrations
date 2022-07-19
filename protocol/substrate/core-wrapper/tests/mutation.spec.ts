@@ -193,4 +193,21 @@ describe("e2e", () => {
   });
 
 
+  it("get storage maps paged", async () => {
+    // You can use the client directly
+    const result = await client.invoke({
+      uri,
+      method: "getStorageMapPaged",
+      args: {
+          url: "http://localhost:9933",
+          pallet: "ForumModule",
+          storage: "AllPosts",
+          count: 10,
+          keyType: "u32",
+          nextTo: null,
+      },
+    });
+      console.log("paged storage map", result);
+  });
+
 });

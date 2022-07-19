@@ -16,6 +16,8 @@ type Module {
 
   getStorageMap(url: String!, pallet: String!, storage: String!, keyType: String!, key: JSON!): [UInt8!]
 
+  getStorageMapPaged(url: String!, pallet: String!, storage: String!, count: UInt32!, keyType: String!, nextTo: JSON): [[UInt8!]!]
+
   rpcMethods(url: String!): [String!]
 }
 
