@@ -4,5 +4,5 @@ type Module {
   number of milliseconds elapsed since January 1, 1970 00:00:00 UTC,
   with leap seconds ignored.
   """
-  currentTimestamp: BigInt!
+  currentTime: BigInt!
 }

@@ -4,10 +4,10 @@ import { dateTimePlugin } from "../";
 describe("e2e", () => {
 
   let client: PolywrapClient;
-  const uri = "ens/datetime.polywrap.eth";
+  const uri = "ens/datetime-plugin.eth";
 
   beforeAll(() => {
-    // Add the dateTimePlugin to the Web3ApiClient
+    // Add the dateTimePlugin to the PolywrapClient
     client = new PolywrapClient({
       plugins: [
         {
@@ -18,14 +18,15 @@ describe("e2e", () => {
     });
   });
 
-  test("currentTimestamp", async () => {
-    const result = await client.invoke<string>({
+  it("retrieves current datetime", async () => {
+    const result = await client.invoke({
       uri,
-      method: "currentTimestamp"
+      method: "currentTime"
     });
 
     expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
     expect(typeof result.data).toBe("string");
+    expect(result.data).toMatch(/^\d+$/);
   });
 });
