@@ -1,5 +1,4 @@
 import { PolywrapClient } from "@polywrap/client-js";
-import { buildWrapper } from "@polywrap/test-env-js";
 import path from "path";
 import {
   createPool,
@@ -8,7 +7,6 @@ import {
   nearestUsableTick,
   constant,
   feeAmountToTickSpacing, createTradeFromRoute, createTradeFromRoutes, createRoute, swapCallParameters,
-  initInfra, stopInfra, getPlugins,
   getFakeTestToken,
   ChainIdEnum, FeeAmountEnum, Pool, Token, Trade, TradeTypeEnum
 } from "./helpers";
@@ -80,12 +78,10 @@ describe('SwapRouter (SDK test replication)', () => {
   let fsUri: string;
 
   beforeAll(async () => {
-    await initInfra();
     // get client
-    const config = getPlugins();
-    client = new PolywrapClient(config);
+    client = new PolywrapClient();
+    // get uri
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
-    await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     token0 = getFakeTestToken(0);
@@ -99,10 +95,6 @@ describe('SwapRouter (SDK test replication)', () => {
     pool_2_3 = await makePool(token2, token3);
     pool_3_weth = await makePool(token3, WETH);
     pool_1_3 = await makePool(token3, token1);
-  });
-
-  afterAll(async () => {
-    await stopInfra();
   });
 
   describe('swapCallParameters', () => {

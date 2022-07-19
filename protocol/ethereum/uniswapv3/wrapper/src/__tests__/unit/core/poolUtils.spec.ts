@@ -1,7 +1,7 @@
 import { ChainId, FeeAmount, Pool, Token } from "../../../wrap";
 import { createPool, encodeSqrtRatioX96, nearestUsableTick, simulateSwap } from "../../..";
 import { BigInt } from "@polywrap/wasm-as";
-import { MAX_SQRT_RATIO, MAX_TICK, MIN_SQRT_RATIO, MIN_TICK, _feeAmountToTickSpacing } from "../../../utils";
+import { _MAX_SQRT_RATIO, _MAX_TICK, _MIN_SQRT_RATIO, _MIN_TICK, _feeAmountToTickSpacing } from "../../../utils";
 
 const USDC: Token = {
   chainId: ChainId.MAINNET,
@@ -32,12 +32,12 @@ const pool: Pool = createPool({
   tickCurrent: 0,
   ticks: [
     {
-      index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
+      index: nearestUsableTick({ tick: _MIN_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
       liquidityNet: ONE_ETHER,
       liquidityGross: ONE_ETHER
     },
     {
-      index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
+      index: nearestUsableTick({ tick: _MAX_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
       liquidityNet: ONE_ETHER.opposite(),
       liquidityGross: ONE_ETHER
     }],
@@ -47,9 +47,9 @@ describe('Pool Utils', () => {
   describe('simulateSwap', () => {
     it('throws if sqrtRatio <= MIN and zeroForOne = true', () => {
       const error = (): void => {
-        simulateSwap(pool, false, BigInt.fromUInt16(100), MIN_SQRT_RATIO)
+        simulateSwap(pool, false, BigInt.fromUInt16(100), _MIN_SQRT_RATIO)
       };
-      expect(error).toThrow(`RATIO_MIN: input sqrtPriceLimitX96 ${MIN_SQRT_RATIO.toString()} is less than or equal to the minimum sqrt ratio ${MIN_SQRT_RATIO.toString()}`);
+      expect(error).toThrow(`RATIO_MIN: input sqrtPriceLimitX96 ${_MIN_SQRT_RATIO.toString()} is less than or equal to the minimum sqrt ratio ${_MIN_SQRT_RATIO.toString()}`);
     });
 
     it('throws if sqrtRatio >= pool.sqrtRatioX96 and zeroForOne = true', () => {
@@ -61,9 +61,9 @@ describe('Pool Utils', () => {
 
     it('throws if sqrtRatio >= MAX and zeroForOne = false', () => {
       const error = (): void => {
-        simulateSwap(pool, false, BigInt.fromUInt16(100), MAX_SQRT_RATIO)
+        simulateSwap(pool, false, BigInt.fromUInt16(100), _MAX_SQRT_RATIO)
       };
-      expect(error).toThrow(`RATIO_MAX: input sqrtPriceLimitX96 ${MAX_SQRT_RATIO.toString()} is greater than or equal to the maximum sqrt ratio ${MAX_SQRT_RATIO.toString()}`);
+      expect(error).toThrow(`RATIO_MAX: input sqrtPriceLimitX96 ${_MAX_SQRT_RATIO.toString()} is greater than or equal to the maximum sqrt ratio ${_MAX_SQRT_RATIO.toString()}`);
     });
 
     it('throws if sqrtRatio <= pool.sqrtRatioX96 and zeroForOne = false', () => {

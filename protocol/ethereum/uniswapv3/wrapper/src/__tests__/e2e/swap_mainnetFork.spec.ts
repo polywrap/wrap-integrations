@@ -1,4 +1,3 @@
-import {buildWrapper, } from "@polywrap/test-env-js";
 import { PolywrapClient } from "@polywrap/client-js";
 import {
   ChainIdEnum,
@@ -40,8 +39,8 @@ describe("Swap (mainnet fork)", () => {
     // get client
     const config = getPlugins();
     client = new PolywrapClient(config);
+    // get uri
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
-    await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     pools = await Promise.all([

@@ -1,16 +1,14 @@
 import { PolywrapClient } from "@polywrap/client-js";
-import { buildWrapper } from "@polywrap/test-env-js";
 import {
   getFakeTestToken,
   ChainIdEnum, FeeAmountEnum, IncentiveKey, Pool, Token,
   createPool, encodeSqrtRatioX96, collectRewards, withdrawToken, encodeDeposit, safeTransferFromParameters,
-  initInfra, stopInfra, getPlugins
 } from "./helpers";
 import path from "path";
 
 jest.setTimeout(120000);
 
-describe('Staker', () => {
+describe('Staker (SDK test replication)', () => {
 
   const recipient = '0x0000000000000000000000000000000000000003';
   const sender = '0x0000000000000000000000000000000000000004';
@@ -35,12 +33,10 @@ describe('Staker', () => {
   let fsUri: string;
 
   beforeAll(async () => {
-    await initInfra();
     // get client
-    const config = getPlugins();
-    client = new PolywrapClient(config);
+    client = new PolywrapClient();
+    // get uri
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
-    await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     token0 = getFakeTestToken(0);
@@ -61,10 +57,6 @@ describe('Staker', () => {
       endTime: "100",
       refundee: '0x0000000000000000000000000000000000000089'
     });
-  });
-
-  afterAll(async () => {
-    await stopInfra();
   });
 
   describe('collectRewards', () => {

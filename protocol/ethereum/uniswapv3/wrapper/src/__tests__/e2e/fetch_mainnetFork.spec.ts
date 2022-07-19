@@ -1,7 +1,6 @@
-import {buildWrapper} from "@polywrap/test-env-js";
 import {  PolywrapClient } from "@polywrap/client-js";
 import {
-  ChainIdEnum, FeeAmount, Pool, Token,
+  ChainIdEnum, Pool, Token,
   getPlugins, initInfra, stopInfra,
   getFeeAmount, getPools, getTokens, getUniPools,
   getUniswapPool
@@ -27,9 +26,8 @@ describe("Fetch (mainnet fork)", () => {
     // get client
     const config = getPlugins();
     client = new PolywrapClient(config);
-    // deploy api
+    // get uri
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
-    await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up ethers provider
     ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546");
@@ -54,8 +52,8 @@ describe("Fetch (mainnet fork)", () => {
     expect(tickListQuery.error).toBeFalsy();
     expect(tickListQuery.data).toBeTruthy();
 
-    const tickList = tickListQuery.data;
-    for (let i = 0; i < tickList?.length; i++) {
+    const tickList = tickListQuery.data!;
+    for (let i = 0; i < tickList.length; i++) {
       const tick = tickList[i];
       // @ts-ignore
       const uniTick: uni.Tick = await uniPool.tickDataProvider.getTick(tick.index);
@@ -80,15 +78,15 @@ describe("Fetch (mainnet fork)", () => {
       expect(poolData.error).toBeFalsy();
       expect(poolData.data).toBeTruthy();
 
-      const pool = poolData.data;
+      const pool = poolData.data!;
       const uniPool: uni.Pool = uniPools[i];
 
-      expect(pool?.token0.address).toEqual(uniPool.token0.address);
-      expect(pool?.token1.address).toEqual(uniPool.token1.address);
-      expect(getFeeAmount(pool.fee as FeeAmount)).toEqual(uniPool.fee.valueOf());
-      expect(pool?.sqrtRatioX96).toEqual(uniPool.sqrtRatioX96.toString());
-      expect(pool?.liquidity).toEqual(uniPool.liquidity.toString());
-      expect(pool?.tickCurrent).toEqual(uniPool.tickCurrent);
+      expect(pool.token0.address).toEqual(uniPool.token0.address);
+      expect(pool.token1.address).toEqual(uniPool.token1.address);
+      expect(getFeeAmount(pool.fee)).toEqual(uniPool.fee.valueOf());
+      expect(pool.sqrtRatioX96).toEqual(uniPool.sqrtRatioX96.toString());
+      expect(pool.liquidity).toEqual(uniPool.liquidity.toString());
+      expect(pool.tickCurrent).toEqual(uniPool.tickCurrent);
     }
   });
 

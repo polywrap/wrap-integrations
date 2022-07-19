@@ -137,13 +137,13 @@ export function fetchTickList(args: Args_fetchTickList): Tick[] {
   return fetchPoolTicksSubgraph(args.address, args.chainId);
 }
 
-export class PoolImmutables {
+class PoolImmutables {
   token0: string;
   token1: string;
   fee: FeeAmount;
 }
 
-export class PoolState {
+class PoolState {
   liquidity: BigInt;
   sqrtPriceX96: BigInt;
   tick: i32;
@@ -154,7 +154,7 @@ class SubgraphEndpoint {
   name: string;
 }
 
-export function poolAbi(methodName: string): string {
+function poolAbi(methodName: string): string {
   if (methodName == "token0") {
     return "function token0() external view returns (address)";
   } else if (methodName == "token1") {
@@ -186,7 +186,7 @@ function getSubgraphEndpoint(chainId: ChainId): SubgraphEndpoint {
   }
 }
 
-export function ethCallView(
+function ethCallView(
   address: string,
   chainId: ChainId,
   method: string
@@ -202,7 +202,7 @@ export function ethCallView(
   }).unwrap();
 }
 
-export function fetchPoolImmutables(
+function fetchPoolImmutables(
   address: string,
   chainId: ChainId
 ): PoolImmutables {
@@ -216,7 +216,7 @@ export function fetchPoolImmutables(
   };
 }
 
-export function fetchPoolState(address: string, chainId: ChainId): PoolState {
+function fetchPoolState(address: string, chainId: ChainId): PoolState {
   const liquidity: string = ethCallView(address, chainId, poolAbi("liquidity"));
   const slot0Str: string = ethCallView(address, chainId, poolAbi("slot0"));
   const slot0: string[] = slot0Str.split(",");
@@ -227,10 +227,7 @@ export function fetchPoolState(address: string, chainId: ChainId): PoolState {
   };
 }
 
-export function fetchPoolTicksSubgraph(
-  address: string,
-  chainId: ChainId
-): Tick[] {
+function fetchPoolTicksSubgraph(address: string, chainId: ChainId): Tick[] {
   const endpoint: SubgraphEndpoint = getSubgraphEndpoint(chainId);
   const query: JSON.Value = Subgraph_Module.subgraphQuery({
     subgraphAuthor: endpoint.author,

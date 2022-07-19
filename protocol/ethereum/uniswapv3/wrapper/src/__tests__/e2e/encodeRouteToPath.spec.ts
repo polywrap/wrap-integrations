@@ -1,11 +1,16 @@
 import { PolywrapClient } from "@polywrap/client-js";
 import {
-  ChainIdEnum, FeeAmountEnum, Pool, Route, Token,
-  createPool, encodeSqrtRatioX96, createRoute, encodeRouteToPath,
+  ChainIdEnum,
+  FeeAmountEnum,
+  Pool,
+  Route,
+  Token,
+  createPool,
+  encodeSqrtRatioX96,
+  createRoute,
+  encodeRouteToPath,
   getFakeTestToken,
-  getPlugins, initInfra, stopInfra
 } from "./helpers";
-import {buildWrapper} from "@polywrap/test-env-js";
 import path from "path";
 
 jest.setTimeout(120000);
@@ -48,12 +53,10 @@ describe('encodeRouteToPath (SDK test replication)', () => {
   let fsUri: string;
 
   beforeAll(async () => {
-   await initInfra();
     // get client
-    const config = getPlugins();
-    client = new PolywrapClient(config);
+    client = new PolywrapClient();
+    // get uri
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
-    await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     token0 = getFakeTestToken(0);
@@ -69,10 +72,6 @@ describe('encodeRouteToPath (SDK test replication)', () => {
     route_0_1_weth = await createRoute(client, fsUri, [pool_0_1_medium, pool_1_weth], token0, ETHER);
     route_weth_0 = await createRoute(client, fsUri, [pool_0_weth], ETHER, token0);
     route_weth_0_1 = await createRoute(client, fsUri, [pool_0_weth, pool_0_1_medium], ETHER, token1);
-  });
-
-  afterAll(async () => {
-    await stopInfra();
   });
 
   it('packs them for exact input single hop', async () => {

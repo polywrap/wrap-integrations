@@ -27,7 +27,7 @@ import {
   tradeWorstExecutionPrice
 } from "../../..";
 import { BigInt, BigNumber, Option } from "@polywrap/wasm-as";
-import { _feeAmountToTickSpacing, MAX_TICK, MIN_TICK, Price } from "../../../utils";
+import { _feeAmountToTickSpacing, _MAX_TICK, _MIN_TICK, Price } from "../../../utils";
 
 
 const getTestToken = (i: i32): Token => {
@@ -58,12 +58,12 @@ const v2StylePool = (
     tickCurrent: getTickAtSqrtRatio({ sqrtRatioX96 }),
     ticks: [
       {
-        index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: _feeAmountToTickSpacing(feeAmount) }),
+        index: nearestUsableTick({ tick: _MIN_TICK, tickSpacing: _feeAmountToTickSpacing(feeAmount) }),
         liquidityNet: liquidity,
         liquidityGross: liquidity
       },
       {
-        index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: _feeAmountToTickSpacing(feeAmount) }),
+        index: nearestUsableTick({ tick: _MAX_TICK, tickSpacing: _feeAmountToTickSpacing(feeAmount) }),
         liquidityNet: liquidity.opposite(),
         liquidityGross: liquidity
       }

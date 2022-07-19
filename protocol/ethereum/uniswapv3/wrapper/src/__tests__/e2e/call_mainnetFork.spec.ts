@@ -1,4 +1,3 @@
-import {buildWrapper} from "@polywrap/test-env-js";
 import { PolywrapClient } from "@polywrap/client-js";
 import {
   ChainIdEnum,
@@ -33,9 +32,8 @@ describe("Call (mainnet fork)", () => {
     // get client
     const config = getPlugins();
     client = new PolywrapClient(config);
-    // deploy api
+    // get uri
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
-    await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up ethers provider
     ethersProvider = new ethers.providers.JsonRpcProvider("http://localhost:8546");

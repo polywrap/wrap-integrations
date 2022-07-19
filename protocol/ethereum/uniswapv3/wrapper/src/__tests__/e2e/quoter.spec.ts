@@ -8,11 +8,9 @@ import {
   constant,
   createRoute,
   quoteCallParameters,
-  getPlugins, initInfra, stopInfra,
   Token, ChainIdEnum, FeeAmountEnum, Pool, Trade, TradeTypeEnum, MethodParameters
 } from "./helpers";
 import { PolywrapClient } from "@polywrap/client-js";
-import { buildWrapper } from "@polywrap/test-env-js";
 import path from "path";
 
 jest.setTimeout(120000);
@@ -69,28 +67,21 @@ const WETH: Token = {
 let pool_0_1: Pool;
 let pool_1_weth: Pool;
 
-describe('SwapQuoter', () => {
+describe('SwapQuoter (SDK test replication)', () => {
 
 
   let client: PolywrapClient;
   let fsUri: string;
 
   beforeAll(async () => {
-    await initInfra();
     // get client
-    const config = getPlugins();
-    client = new PolywrapClient(config);
-    // deploy api
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
-    await buildWrapper(wrapperAbsPath);
+    client = new PolywrapClient();
+    // get uri
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     pool_0_1 = await makePool(client, fsUri, token0, token1);
     pool_1_weth = await makePool(client, fsUri, token1, WETH);
-  });
-
-  afterAll(async () => {
-    await stopInfra();
   });
 
   describe('quoter swapCallParameters', () => {

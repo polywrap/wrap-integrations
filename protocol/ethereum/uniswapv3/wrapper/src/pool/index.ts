@@ -25,7 +25,7 @@ import { getSqrtRatioAtTick } from "../tickList";
 import { tokenEquals, tokenSortsBefore } from "../token";
 import {
   _feeAmountToTickSpacing,
-  FACTORY_ADDRESS,
+  _FACTORY_ADDRESS,
   Q192,
   Price,
 } from "../utils";
@@ -96,7 +96,7 @@ export function createPool(args: Args_createPool): Pool {
  */
 export function getPoolAddress(args: Args_getPoolAddress): string {
   return computePoolAddress({
-    factoryAddress: FACTORY_ADDRESS,
+    factoryAddress: _FACTORY_ADDRESS,
     fee: args.fee,
     tokenA: args.tokenA,
     tokenB: args.tokenB,

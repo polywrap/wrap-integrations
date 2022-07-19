@@ -1,4 +1,3 @@
-import {buildWrapper} from "@polywrap/test-env-js";
 import { PolywrapClient } from "@polywrap/client-js";
 import path from "path";
 import * as uni from "@uniswap/v3-sdk";
@@ -15,7 +14,6 @@ jest.setTimeout(120000);
 describe("Route (mainnet fork)", () => {
 
   const DAI_WETH_address = "0xc2e9f25be6257c210d7adf0d4cd6e3e881ba25f8";
-  //const DAI_WETH_address = "0x60594a405d53811d3bc4766596efd80fd545a270";
   const DAI_USDC_address = "0x6c6bc977e13df9b0de53b251522280bb72383700";
   const USDC_USDT_address = "0x3416cf6c708da44db2624d63ea0aaef7113527c6";
 
@@ -31,8 +29,8 @@ describe("Route (mainnet fork)", () => {
     // get client
     const config = getPlugins();
     client = new PolywrapClient(config);
+    // get uri
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
-    await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     pools = [

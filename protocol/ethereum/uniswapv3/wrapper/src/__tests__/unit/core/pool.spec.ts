@@ -12,7 +12,7 @@ import {
   poolToken0Price,
   poolToken1Price, tokenEquals
 } from "../../..";
-import { MAX_TICK, MIN_TICK, _feeAmountToTickSpacing } from "../../../utils";
+import { _MAX_TICK, _MIN_TICK, _feeAmountToTickSpacing } from "../../../utils";
 
 
 const ONE_ETHER: BigInt = BigInt.pow(BigInt.fromUInt16(10), 18);
@@ -386,12 +386,12 @@ describe('Pool', () => {
         tickCurrent: 0,
         ticks: [
           {
-            index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
+            index: nearestUsableTick({ tick: _MIN_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
             liquidityNet: ONE_ETHER,
             liquidityGross: ONE_ETHER
           },
           {
-            index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
+            index: nearestUsableTick({ tick: _MAX_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
             liquidityNet: ONE_ETHER.opposite(),
             liquidityGross: ONE_ETHER
           }],
