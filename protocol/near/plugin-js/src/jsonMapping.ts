@@ -8,7 +8,7 @@ import {
   ExecutionOutcomeWithId,
   FinalExecutionOutcome,
   ExecutionStatus,
-} from "./w3";
+} from "./wrap";
 import { toPublicKey } from "./typeMapping";
 import {
   JsonAccessKey,

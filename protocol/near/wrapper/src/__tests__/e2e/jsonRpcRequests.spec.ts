@@ -1,29 +1,33 @@
-import { NearPluginConfig } from "../../../plugin-js";
+import { NearPluginConfig } from "../../../../plugin-js";
 import {
   BlockChangeResult,
   NearProtocolConfig,
   ChangeResult,
   IdType,
   NodeStatusResult,
-} from "./tsTypes";
-import * as testUtils from "./testUtils";
+} from "../tsTypes";
+import * as testUtils from "../testUtils";
+import { LightClientProof, ChunkResult } from "../../wrap";
+import { FinalExecutionOutcome } from "../../../../plugin-js/build/wrap";
 
 import type { Finality } from "near-api-js/lib/providers/provider";
-import { Web3ApiClient } from "@web3api/client-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import * as nearApi from "near-api-js";
 import { BlockResult as NearBlockResult } from "near-api-js/lib/providers/provider";
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
-import path from "path";
-import { LightClientProof, ChunkResult } from "../query/w3";
-import { FinalExecutionOutcome } from "../../../plugin-js/build/w3";
+import {
+  initTestEnvironment,
+  stopTestEnvironment,
+  providers,
+  ensAddresses,
+} from "@polywrap/test-env-js";
 
 const BN = require("bn.js");
 
 jest.setTimeout(360000);
-jest.retryTimes(5)
+jest.retryTimes(5);
 
-describe("e2e", () => {
-  let client: Web3ApiClient;
+describe("JSON RPC requests", () => {
+  let client: PolywrapClient;
   let apiUri: string;
 
   let nearConfig: NearPluginConfig;
@@ -37,17 +41,20 @@ describe("e2e", () => {
 
   beforeAll(async () => {
     // set up test env and deploy api
-    const { ethereum, ensAddress, ipfs } = await initTestEnvironment();
-    const apiPath: string = path.resolve(__dirname + "/../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
-
-    apiUri = `ens/testnet/${api.ensDomain}`;
+    await initTestEnvironment();
+    const absPath = __dirname + "/../../../build";
+    apiUri = `fs/${absPath}`;
     // set up client
     nearConfig = await testUtils.setUpTestConfig();
     near = await nearApi.connect(nearConfig);
 
-    const polywrapConfig = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
-    client = new Web3ApiClient(polywrapConfig);
+    const polywrapConfig = testUtils.getPlugins(
+      providers.ethereum,
+      ensAddresses.ensAddress,
+      providers.ipfs,
+      nearConfig
+    );
+    client = new PolywrapClient(polywrapConfig);
     latestBlock = await near.connection.provider.block({ finality: "final" });
 
     // set up contract account
@@ -57,29 +64,35 @@ describe("e2e", () => {
 
     sender = await testUtils.createAccount(near);
     receiver = await testUtils.createAccount(near);
-    transactionOutcome = await sender.sendMoney(receiver.accountId, new BN("1"));
+    transactionOutcome = await sender.sendMoney(
+      receiver.accountId,
+      new BN("1")
+    );
   });
 
   afterAll(async () => {
     await stopTestEnvironment();
-    await sender.deleteAccount(testUtils.testAccountId);
-    await receiver.deleteAccount(testUtils.testAccountId);
-    await workingAccount.deleteAccount(testUtils.testAccountId)
+    try {
+      await sender.deleteAccount(testUtils.testAccountId);
+      await receiver.deleteAccount(testUtils.testAccountId);
+      await workingAccount.deleteAccount(testUtils.testAccountId);
+    } catch (e) {
+      console.log(e);
+    }
   });
 
-  // status  +
-  it("Get node status", async () => {
-    const result = await client.query<{ status: NodeStatusResult }>({
+  test("Get node status", async () => {
+    const result = await client.invoke<NodeStatusResult>({
+      method: "status",
       uri: apiUri,
-      query: `query {
-        status
-      }`,
     });
-    const status = result.data!.status;
+    const status = result.data as NodeStatusResult;
     const nearStatus = await near.connection.provider.status();
-    const nearStatusValidators = nearStatus.validators.map(({ account_id }: any) => account_id);
-    expect(result.errors).toBeFalsy();
-    expect(result.data).toBeTruthy();
+    const nearStatusValidators = nearStatus.validators.map(
+      ({ account_id }: any) => account_id
+    );
+    expect(result.error).toBeFalsy();
+    expect(status).toBeTruthy();
     expect(status.chain_id).toBeTruthy();
     expect(status.rpc_addr).toBeTruthy();
     expect(status.sync_info).toBeTruthy();
@@ -88,33 +101,40 @@ describe("e2e", () => {
     expect(status.chain_id).toStrictEqual(nearStatus.chain_id);
     expect(status.rpc_addr).toStrictEqual(nearStatus.rpc_addr);
     expect(status.version.version).toStrictEqual(nearStatus.version.version);
-    expect(status.validators.length).toStrictEqual(nearStatus.validators.length);
+    expect(status.validators.length).toStrictEqual(
+      nearStatus.validators.length
+    );
     expect(status.validators).toStrictEqual(nearStatusValidators);
-    expect(status.sync_info.latest_block_hash).toStrictEqual(nearStatus.sync_info.latest_block_hash);
-    expect(status.sync_info.latest_block_height).toStrictEqual(`${nearStatus.sync_info.latest_block_height}`);
-    expect(status.sync_info.latest_block_time).toStrictEqual(nearStatus.sync_info.latest_block_time);
-    expect(status.sync_info.latest_state_root).toStrictEqual(nearStatus.sync_info.latest_state_root);
-    expect(status.sync_info.syncing).toStrictEqual(nearStatus.sync_info.syncing);
+    expect(status.sync_info.latest_block_hash).toStrictEqual(
+      nearStatus.sync_info.latest_block_hash
+    );
+    expect(status.sync_info.latest_block_height).toStrictEqual(
+      `${nearStatus.sync_info.latest_block_height}`
+    );
+    expect(status.sync_info.latest_block_time).toStrictEqual(
+      nearStatus.sync_info.latest_block_time
+    );
+    expect(status.sync_info.latest_state_root).toStrictEqual(
+      nearStatus.sync_info.latest_state_root
+    );
+    expect(status.sync_info.syncing).toStrictEqual(
+      nearStatus.sync_info.syncing
+    );
   });
 
-  // gasPrice +
-  it("Get gas price", async () => {
+  test("Should get gas price", async () => {
     const blockId = latestBlock.header.hash;
-    const result = await client.query<{ gasPrice: BigInt }>({
+    const result = await client.invoke<BigInt>({
       uri: apiUri,
-      query: `query {
-        gasPrice(
-          blockId: $blockId
-        )
-      }`,
-      variables: {
-        blockId: blockId,
+      method: "gasPrice",
+      args: {
+        blockId,
       },
     });
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const gasPrice: BigInt = result.data!.gasPrice;
+    const gasPrice = result.data as BigInt;
 
     expect(gasPrice).toBeTruthy();
 
@@ -122,80 +142,76 @@ describe("e2e", () => {
     expect(gasPrice.toString()).toStrictEqual(gas_price);
   });
 
-  // blockChanges +
-  it("Get block changes", async () => {
-    const blockQuery = { block_id: latestBlock.header.hash, finality: null, syncCheckpoint: null };
-    const result = await client.query<{ blockChanges: BlockChangeResult }>({
+  test("Should get block changes", async () => {
+    const blockQuery = {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      block_id: latestBlock.header.hash,
+      finality: null,
+      syncCheckpoint: null,
+    };
+    const result = await client.invoke<BlockChangeResult>({
       uri: apiUri,
-      query: `query {
-        blockChanges(
-          blockQuery: $blockQuery
-        )
-      }`,
-      variables: {
-        blockQuery: blockQuery,
+      method: "blockChanges",
+      args: {
+        blockQuery,
       },
     });
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const blockChanges: BlockChangeResult = result.data!.blockChanges;
+    const blockChanges = result.data as BlockChangeResult;
     expect(blockChanges.block_hash).toBeTruthy();
     expect(blockChanges.changes).toBeInstanceOf(Array);
 
-    const nearBlockChanges = await near.connection.provider.blockChanges({ blockId: blockQuery.block_id! });
+    const nearBlockChanges = await near.connection.provider.blockChanges({
+      blockId: blockQuery.block_id!,
+    });
 
     expect(blockChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
-    expect(blockChanges.changes.length).toEqual(nearBlockChanges.changes.length);
+    expect(blockChanges.changes.length).toEqual(
+      nearBlockChanges.changes.length
+    );
     //expect(blockChanges.changes).toEqual(nearBlockChanges.changes); //TODO change property changeType to type after https://github.com/polywrap/monorepo/issues/721
   });
 
-  //experimental_protocolConfig +
-  it("Get protocol config", async () => {
+  test("Should get protocol config", async () => {
     const blockReference = { finality: "final" as Finality };
-    const result = await client.query<{ experimental_protocolConfig: NearProtocolConfig }>({
+    const result = await client.invoke<NearProtocolConfig>({
       uri: apiUri,
-      query: `query {
-        experimental_protocolConfig(
-          blockReference: $blockReference
-        )
-      }`,
-      variables: {
-        blockReference: blockReference,
+      method: "experimental_protocolConfig",
+      args: {
+        blockReference,
       },
     });
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const protocolConfig: NearProtocolConfig = result.data!.experimental_protocolConfig;
+    const protocolConfig = result.data as NearProtocolConfig;
     expect(protocolConfig).toBeTruthy();
     expect(protocolConfig.runtime_config).toBeTruthy();
 
-    const nearProtocolConfig = await near.connection.provider.experimental_protocolConfig(blockReference);
+    const nearProtocolConfig = await near.connection.provider.experimental_protocolConfig(
+      blockReference
+    );
     expect(protocolConfig.runtime_config.storage_amount_per_byte).toStrictEqual(
       nearProtocolConfig.runtime_config.storage_amount_per_byte
     );
   });
 
-  // chunk +
-  it("json rpc fetch chunk info", async () => {
+  test("JSON Rpc should fetch chunk info", async () => {
     const hash = latestBlock.chunks[0].chunk_hash;
 
-    const result = await client.query<{ chunk: ChunkResult }>({
+    const result = await client.invoke<ChunkResult>({
       uri: apiUri,
-      query: `query {
-        chunk(
-          chunkId:$chunkId
-        )
-      }`,
-      variables: {
+      method: "chunk",
+      args: {
         chunkId: hash,
       },
     });
 
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
-    const chunk: ChunkResult = result.data!.chunk;
+    const chunk = result.data as ChunkResult;
 
     expect(chunk.header.shard_id).toEqual("0");
 
@@ -204,8 +220,7 @@ describe("e2e", () => {
     expect(chunk.header.chunk_hash).toEqual(nearChunk.header.chunk_hash);
   });
 
-  //lightClientProof +
-  it("Get lightClientProof", async () => {
+  test("Should get lightClientProof", async () => {
     async function waitForStatusMatching(isMatching: any) {
       const MAX_ATTEMPTS = 10;
       for (let i = 0; i < MAX_ATTEMPTS; i++) {
@@ -215,20 +230,30 @@ describe("e2e", () => {
           return nodeStatus;
         }
       }
-      throw new Error(`Exceeded ${MAX_ATTEMPTS} attempts waiting for matching node status.`);
+      throw new Error(
+        `Exceeded ${MAX_ATTEMPTS} attempts waiting for matching node status.`
+      );
     }
 
     const comittedStatus = await waitForStatusMatching(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-ignore
-      (status: any) => status.sync_info.latest_block_hash !== transactionOutcome.transaction_outcome.block_hash
+      (status: any) =>
+        status.sync_info.latest_block_hash !==
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        transactionOutcome.transaction_outcome?.block_hash
     );
     const BLOCKS_UNTIL_FINAL = 2;
     const finalizedStatus = await waitForStatusMatching(
       (status: any) =>
-        status.sync_info.latest_block_height > comittedStatus.sync_info.latest_block_height + BLOCKS_UNTIL_FINAL
+        status.sync_info.latest_block_height >
+        comittedStatus.sync_info.latest_block_height + BLOCKS_UNTIL_FINAL
     );
 
-    latestBlock = await near.connection.provider.block({ blockId: finalizedStatus.sync_info.latest_block_hash });
+    latestBlock = await near.connection.provider.block({
+      blockId: finalizedStatus.sync_info.latest_block_hash,
+    });
     const lightClientHead = latestBlock.header.last_final_block;
 
     const lightClientProofRequestBase = {
@@ -242,21 +267,17 @@ describe("e2e", () => {
       ...lightClientProofRequestBase,
     };
 
-    const result = await client.query<{ lightClientProof: LightClientProof }>({
+    const result = await client.invoke<LightClientProof>({
       uri: apiUri,
-      query: `query {
-        lightClientProof(
-          request: $request
-        )
-      }`,
-      variables: {
+      method: "lightClientProof",
+      args: {
         request: wrapper_lightClientProofRequest,
       },
     });
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const lightClientProof: LightClientProof = result.data!.lightClientProof;
+    const lightClientProof = result.data as LightClientProof;
     expect(lightClientProof).toBeTruthy();
     expect(lightClientProof.block_header_lite).toBeTruthy();
     expect(lightClientProof.block_proof).toBeTruthy();
@@ -272,137 +293,153 @@ describe("e2e", () => {
       ...lightClientProofRequestBase,
     };
 
-    const nearLightClientProof = await near.connection.provider.lightClientProof(api_lightClientProofRequest);
+    const nearLightClientProof = await near.connection.provider.lightClientProof(
+      api_lightClientProofRequest
+    );
 
     //expect(lightClientProof.block_header_lite).toContain(nearLightClientProof.block_header_lite);
-    expect(lightClientProof.block_proof).toEqual(nearLightClientProof.block_proof);
+    expect(lightClientProof.block_proof).toEqual(
+      nearLightClientProof.block_proof
+    );
     //expect(lightClientProof.outcome_proof).toEqual(nearLightClientProof.outcome_proof);
     //expect(lightClientProof.outcome_root_proof).toEqual(nearLightClientProof.outcome_root_proof);
   });
 
-  // accessKeyChanges +
-  it("Get access key changes", async () => {
-    const blockQuery = { block_id: latestBlock.header.hash, finality: null, syncCheckpoint: null };
+  test("Should get access key changes", async () => {
+    const blockQuery = {
+      block_id: latestBlock.header.hash,
+      finality: null,
+      syncCheckpoint: null,
+    };
     const accountIdArray = [workingAccount.accountId];
-    const result = await client.query<{ accessKeyChanges: ChangeResult }>({
+    const result = await client.invoke<ChangeResult>({
       uri: apiUri,
-      query: `query {
-        accessKeyChanges(
-          accountIdArray: $accountIdArray
-          blockQuery: $blockQuery
-        )
-      }`,
-      variables: {
-        accountIdArray: accountIdArray,
-        blockQuery: blockQuery,
+      method: "accessKeyChanges",
+      args: {
+        accountIdArray,
+        blockQuery,
       },
     });
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const accessKeyChanges: ChangeResult = result.data!.accessKeyChanges;
+    const accessKeyChanges = result.data as ChangeResult;
     expect(accessKeyChanges.block_hash).toBeTruthy();
     expect(accessKeyChanges.changes).toBeInstanceOf(Array);
 
-    const nearBlockChanges = await near.connection.provider.accessKeyChanges(accountIdArray, {
-      blockId: blockQuery.block_id,
-    });
+    const nearBlockChanges = await near.connection.provider.accessKeyChanges(
+      accountIdArray,
+      {
+        blockId: blockQuery.block_id,
+      }
+    );
 
-    expect(accessKeyChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
-    expect(accessKeyChanges.changes.length).toEqual(nearBlockChanges.changes.length);
+    expect(accessKeyChanges.block_hash).toStrictEqual(
+      nearBlockChanges.block_hash
+    );
+    expect(accessKeyChanges.changes.length).toEqual(
+      nearBlockChanges.changes.length
+    );
     expect(accessKeyChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
-  // accountChanges +
-  it("Get account changes", async () => {
-    const blockQuery = { block_id: latestBlock.header.hash, finality: null, syncCheckpoint: null };
+  test("Should get account changes", async () => {
+    const blockQuery = {
+      block_id: latestBlock.header.hash,
+      finality: null,
+      syncCheckpoint: null,
+    };
     const accountIdArray = [workingAccount.accountId];
-    const result = await client.query<{ accountChanges: ChangeResult }>({
+    const result = await client.invoke<ChangeResult>({
       uri: apiUri,
-      query: `query {
-        accountChanges(
-          accountIdArray: $accountIdArray
-          blockQuery: $blockQuery
-        )
-      }`,
-      variables: {
-        accountIdArray: accountIdArray,
-        blockQuery: blockQuery,
+      method: "accountChanges",
+      args: {
+        accountIdArray,
+        blockQuery,
       },
     });
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const accountChanges: ChangeResult = result.data!.accountChanges;
+    const accountChanges = result.data as ChangeResult;
     expect(accountChanges.block_hash).toBeTruthy();
     expect(accountChanges.changes).toBeInstanceOf(Array);
 
-    const nearBlockChanges = await near.connection.provider.accountChanges(accountIdArray, {
-      blockId: blockQuery.block_id,
-    });
+    const nearBlockChanges = await near.connection.provider.accountChanges(
+      accountIdArray,
+      {
+        blockId: blockQuery.block_id,
+      }
+    );
 
-    expect(accountChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
-    expect(accountChanges.changes.length).toEqual(nearBlockChanges.changes.length);
+    expect(accountChanges.block_hash).toStrictEqual(
+      nearBlockChanges.block_hash
+    );
+    expect(accountChanges.changes.length).toEqual(
+      nearBlockChanges.changes.length
+    );
     expect(accountChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
-  // contractCodeChanges +
-  it("Get contract code changes", async () => {
-    const blockQuery = { block_id: latestBlock.header.hash, finality: null, syncCheckpoint: null };
+  test("Should get contract code changes", async () => {
+    const blockQuery = {
+      block_id: latestBlock.header.hash,
+      finality: null,
+      syncCheckpoint: null,
+    };
     const accountIdArray = [workingAccount.accountId];
-    const result = await client.query<{ contractCodeChanges: ChangeResult }>({
+    const result = await client.invoke<ChangeResult>({
       uri: apiUri,
-      query: `query {
-        contractCodeChanges(
-          accountIdArray: $accountIdArray
-          blockQuery: $blockQuery
-        )
-      }`,
-      variables: {
-        accountIdArray: accountIdArray,
-        blockQuery: blockQuery,
+      method: "contractCodeChanges",
+      args: {
+        accountIdArray,
+        blockQuery,
       },
     });
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const contractCodeChanges: ChangeResult = result.data!.contractCodeChanges;
+    const contractCodeChanges = result.data as ChangeResult;
     expect(contractCodeChanges.block_hash).toBeTruthy();
     expect(contractCodeChanges.changes).toBeInstanceOf(Array);
 
-    const nearBlockChanges = await near.connection.provider.contractCodeChanges(accountIdArray, {
-      blockId: blockQuery.block_id,
-    });
+    const nearBlockChanges = await near.connection.provider.contractCodeChanges(
+      accountIdArray,
+      {
+        blockId: blockQuery.block_id,
+      }
+    );
 
-    expect(contractCodeChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
-    expect(contractCodeChanges.changes.length).toEqual(nearBlockChanges.changes.length);
+    expect(contractCodeChanges.block_hash).toStrictEqual(
+      nearBlockChanges.block_hash
+    );
+    expect(contractCodeChanges.changes.length).toEqual(
+      nearBlockChanges.changes.length
+    );
     expect(contractCodeChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
-  //contractStateChanges +
-  it("Get contract state changes", async () => {
-    const blockQuery = { block_id: latestBlock.header.hash, finality: null, syncCheckpoint: null };
+  test("Should get contract state changes", async () => {
+    const blockQuery = {
+      block_id: latestBlock.header.hash,
+      finality: null,
+      syncCheckpoint: null,
+    };
     const accountIdArray = [workingAccount.accountId];
     const keyPrefix = "";
-    const result = await client.query<{ contractStateChanges: ChangeResult }>({
+    const result = await client.invoke<ChangeResult>({
       uri: apiUri,
-      query: `query {
-        contractStateChanges(
-          accountIdArray: $accountIdArray
-          blockQuery: $blockQuery
-          keyPrefix: $keyPrefix
-        )
-      }`,
-      variables: {
-        accountIdArray: accountIdArray,
-        blockQuery: blockQuery,
-        keyPrefix: keyPrefix,
+      method: "contractStateChanges",
+      args: {
+        accountIdArray,
+        blockQuery,
+        keyPrefix,
       },
     });
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const contractStateChanges: ChangeResult = result.data!.contractStateChanges;
+    const contractStateChanges = result.data as ChangeResult;
     expect(contractStateChanges.block_hash).toBeTruthy();
     expect(contractStateChanges.changes).toBeInstanceOf(Array);
 
@@ -414,86 +451,117 @@ describe("e2e", () => {
       keyPrefix
     );
 
-    expect(contractStateChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
-    expect(contractStateChanges.changes.length).toEqual(nearBlockChanges.changes.length);
+    expect(contractStateChanges.block_hash).toStrictEqual(
+      nearBlockChanges.block_hash
+    );
+    expect(contractStateChanges.changes.length).toEqual(
+      nearBlockChanges.changes.length
+    );
     expect(contractStateChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
-  //singleAccessKeyChanges +
-  it("Get single access key changes", async () => {
-    const blockQuery = { block_id: latestBlock.header.hash, finality: null, syncCheckpoint: null };
+  test("Should get single access key changes", async () => {
+    const blockQuery = {
+      block_id: latestBlock.header.hash,
+      finality: null,
+      syncCheckpoint: null,
+    };
     const accessKeyArray = [
       {
         account_id: workingAccount.accountId,
         public_key: (
-          await near.connection.signer.getPublicKey(workingAccount.accountId, testUtils.networkId)
+          await near.connection.signer.getPublicKey(
+            workingAccount.accountId,
+            testUtils.networkId
+          )
         ).toString(),
       },
     ];
-    const result = await client.query<{ singleAccessKeyChanges: ChangeResult }>({
+    const result = await client.invoke<ChangeResult>({
       uri: apiUri,
-      query: `query {
-        singleAccessKeyChanges(
-          accessKeyArray: $accessKeyArray
-          blockQuery: $blockQuery
-        )
-      }`,
-      variables: {
-        accessKeyArray: accessKeyArray,
-        blockQuery: blockQuery,
+      method: "singleAccessKeyChanges",
+      args: {
+        accessKeyArray,
+        blockQuery,
       },
     });
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const singleAccessKeyChanges: ChangeResult = result.data!.singleAccessKeyChanges;
+    const singleAccessKeyChanges: ChangeResult = result.data as ChangeResult;
     expect(singleAccessKeyChanges.block_hash).toBeTruthy();
     expect(singleAccessKeyChanges.changes).toBeInstanceOf(Array);
 
-    const nearBlockChanges = await near.connection.provider.singleAccessKeyChanges(accessKeyArray, {
-      blockId: blockQuery.block_id,
-    });
+    const nearBlockChanges = await near.connection.provider.singleAccessKeyChanges(
+      accessKeyArray,
+      {
+        blockId: blockQuery.block_id,
+      }
+    );
 
-    expect(singleAccessKeyChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
-    expect(singleAccessKeyChanges.changes.length).toEqual(nearBlockChanges.changes.length);
+    expect(singleAccessKeyChanges.block_hash).toStrictEqual(
+      nearBlockChanges.block_hash
+    );
+    expect(singleAccessKeyChanges.changes.length).toEqual(
+      nearBlockChanges.changes.length
+    );
     expect(singleAccessKeyChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
-  // txStatus +
-  it("txStatus with string hash", async () => {
-    const result = await client.query<{ txStatus: FinalExecutionOutcome }>({
+  test("Should get txStatus with string hash", async () => {
+    const result = await client.invoke<FinalExecutionOutcome>({
       uri: apiUri,
-      query: `query {
-        txStatus(
-          txHash: $txHash
-          accountId: $accountId
-        )
-      }`,
-      variables: {
+      method: "txStatus",
+      args: {
         txHash: transactionOutcome.transaction.hash,
         accountId: sender.accountId,
       },
     });
 
-    const nearTxStatus = await near.connection.provider.txStatus(transactionOutcome.transaction.hash, sender.accountId);
-    const txStatus: FinalExecutionOutcome = result.data!.txStatus;
+    const nearTxStatus = await near.connection.provider.txStatus(
+      transactionOutcome.transaction.hash,
+      sender.accountId
+    );
+    const txStatus = result.data as FinalExecutionOutcome;
     const transactionOutcomeTxStatus = txStatus.transaction_outcome;
     const receiptsOutcomeFirst = txStatus.receipts_outcome[0].outcome;
     const receiptsOutcomeSecondary = txStatus.receipts_outcome[1].outcome;
 
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
-    expect(receiptsOutcomeSecondary.gas_burnt).toEqual(`${nearTxStatus.receipts_outcome[1].outcome.gas_burnt}`);
-    expect(receiptsOutcomeSecondary.receipt_ids).toEqual(nearTxStatus.receipts_outcome[1].outcome.receipt_ids);
-    expect(receiptsOutcomeFirst.gas_burnt).toEqual(`${nearTxStatus.receipts_outcome[0].outcome.gas_burnt}`);
-    expect(receiptsOutcomeFirst.receipt_ids).toEqual(nearTxStatus.receipts_outcome[0].outcome.receipt_ids);
-    expect(receiptsOutcomeSecondary.logs).toEqual(nearTxStatus.receipts_outcome[1].outcome.logs);
-    expect(txStatus.transaction.receiverId).toStrictEqual(nearTxStatus.transaction.receiver_id);
-    expect(receiptsOutcomeFirst.logs).toEqual(nearTxStatus.receipts_outcome[0].outcome.logs);
-    expect(transactionOutcomeTxStatus.id).toStrictEqual(nearTxStatus.transaction_outcome.id);
-    expect(txStatus.transaction.signerId).toStrictEqual(nearTxStatus.transaction.signer_id);
-    expect(txStatus.transaction.nonce).toStrictEqual(`${nearTxStatus.transaction.nonce}`);
-    expect(txStatus.transaction.hash).toStrictEqual(nearTxStatus.transaction.hash);
+    expect(receiptsOutcomeSecondary.gas_burnt).toEqual(
+      `${nearTxStatus.receipts_outcome[1].outcome.gas_burnt}`
+    );
+    expect(receiptsOutcomeSecondary.receipt_ids).toEqual(
+      nearTxStatus.receipts_outcome[1].outcome.receipt_ids
+    );
+    expect(receiptsOutcomeFirst.gas_burnt).toEqual(
+      `${nearTxStatus.receipts_outcome[0].outcome.gas_burnt}`
+    );
+    expect(receiptsOutcomeFirst.receipt_ids).toEqual(
+      nearTxStatus.receipts_outcome[0].outcome.receipt_ids
+    );
+    expect(receiptsOutcomeSecondary.logs).toEqual(
+      nearTxStatus.receipts_outcome[1].outcome.logs
+    );
+    expect(txStatus.transaction.receiverId).toStrictEqual(
+      nearTxStatus.transaction.receiver_id
+    );
+    expect(receiptsOutcomeFirst.logs).toEqual(
+      nearTxStatus.receipts_outcome[0].outcome.logs
+    );
+    expect(transactionOutcomeTxStatus.id).toStrictEqual(
+      nearTxStatus.transaction_outcome.id
+    );
+    expect(txStatus.transaction.signerId).toStrictEqual(
+      nearTxStatus.transaction.signer_id
+    );
+    expect(txStatus.transaction.nonce).toStrictEqual(
+      `${nearTxStatus.transaction.nonce}`
+    );
+    expect(txStatus.transaction.hash).toStrictEqual(
+      nearTxStatus.transaction.hash
+    );
     expect(transactionOutcomeTxStatus.outcome.gas_burnt).toStrictEqual(
       `${nearTxStatus.transaction_outcome.outcome.gas_burnt}`
     );

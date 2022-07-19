@@ -1,11 +1,15 @@
-import * as testUtils from "./testUtils";
-import { Near_FinalExecutionOutcome } from "../w3";
-import { KeyPair, NearPluginConfig } from "../../../plugin-js"; //TODO change to appropriate package
+import * as testUtils from "../testUtils";
+import { Near_FinalExecutionOutcome } from "../../wrap";
+import { KeyPair, NearPluginConfig } from "../../../../plugin-js"; //TODO change to appropriate package
 
-import { Web3ApiClient } from "@web3api/client-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import * as nearApi from "near-api-js";
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
-import path from "path";
+import {
+  ensAddresses,
+  initTestEnvironment,
+  providers,
+  stopTestEnvironment,
+} from "@polywrap/test-env-js";
 import { BN } from "bn.js";
 import * as fs from "fs";
 
@@ -19,10 +23,10 @@ global["window"] = mock.getWindow();
 global["localStorage"] = localStorage;
 
 jest.setTimeout(360000);
-jest.retryTimes(3)
+jest.retryTimes(3);
 
-describe("e2e", () => {
-  let client: Web3ApiClient;
+describe("Write operations", () => {
+  let client: PolywrapClient;
   let apiUri: string;
   let near: nearApi.Near;
   let nearConfig: NearPluginConfig;
@@ -32,16 +36,19 @@ describe("e2e", () => {
 
   beforeAll(async () => {
     // set up test env and deploy api
-    const { ethereum, ensAddress, ipfs } = await initTestEnvironment();
-    const apiPath: string = path.resolve(__dirname + "/../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
-
+    await initTestEnvironment();
     nearConfig = await testUtils.setUpTestConfig();
     near = await nearApi.connect(nearConfig);
     // set up client
-    apiUri = `ens/testnet/${api.ensDomain}`;
-    const polywrapConfig = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
-    client = new Web3ApiClient(polywrapConfig);
+    const absPath = __dirname + "/../../../build";
+    apiUri = `fs/${absPath}`;
+    const polywrapConfig = testUtils.getPlugins(
+      providers.ethereum,
+      ensAddresses.ensAddress,
+      providers.ipfs,
+      nearConfig
+    );
+    client = new PolywrapClient(polywrapConfig);
 
     contractId = testUtils.generateUniqueString("test");
     workingAccount = await testUtils.createAccount(near);
@@ -52,11 +59,14 @@ describe("e2e", () => {
 
   afterAll(async () => {
     await stopTestEnvironment();
-    await workingAccount.deleteAccount(testUtils.testAccountId);
+    try {
+      await workingAccount.deleteAccount(testUtils.testAccountId);
+    } catch (e) {
+      console.log(e);
+    }
   });
 
-  // create account +
-  it("Create account", async () => {
+  test("Should create account", async () => {
     const newAccountId = testUtils.generateUniqueString("test");
 
     const accountToCreate = await near.account(newAccountId);
@@ -66,19 +76,15 @@ describe("e2e", () => {
     const { amount } = await workingAccount.state();
     const newAmount = new BN(amount).div(new BN(10)).toString();
 
-    const newPublicKey = await near.connection.signer.createKey(newAccountId, testUtils.networkId);
+    const newPublicKey = await near.connection.signer.createKey(
+      newAccountId,
+      testUtils.networkId
+    );
 
-    const result = await client.query<{ createAccount: Near_FinalExecutionOutcome }>({
+    const result = await client.invoke<Near_FinalExecutionOutcome>({
       uri: apiUri,
-      query: `mutation {
-        createAccount(
-          newAccountId: $newAccountId
-          publicKey: $publicKey
-          amount: $amount
-          signerId: $signerId
-        )
-      }`,
-      variables: {
+      method: "createAccount",
+      args: {
         newAccountId: newAccountId,
         publicKey: newPublicKey,
         amount: newAmount,
@@ -86,10 +92,10 @@ describe("e2e", () => {
       },
     });
 
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const creationResult = result.data!.createAccount;
+    const creationResult = result.data as Near_FinalExecutionOutcome;
 
     expect(creationResult).toBeTruthy();
     expect(creationResult.status.failure).toBeFalsy();
@@ -102,59 +108,46 @@ describe("e2e", () => {
     await accountCreated.deleteAccount(testUtils.testAccountId);
   });
 
-  // delete account +
-  it("Delete account", async () => {
+  test("Should delete account", async () => {
     const accountToDelete = await testUtils.createAccount(near);
 
     expect(accountToDelete.state()).resolves;
 
-    const result = await client.query<{ deleteAccount: Near_FinalExecutionOutcome }>({
+    const result = await client.invoke<Near_FinalExecutionOutcome>({
       uri: apiUri,
-      query: `mutation {
-        deleteAccount(
-          accountId: $accountId
-          beneficiaryId: $beneficiaryId
-          signerId: $signerId
-          )
-        }`,
-      variables: {
+      method: "deleteAccount",
+      args: {
         accountId: accountToDelete.accountId,
         beneficiaryId: testUtils.testAccountId,
         signerId: accountToDelete.accountId,
       },
     });
 
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const deletionResult = result.data!.deleteAccount;
+    const deletionResult = result.data as Near_FinalExecutionOutcome;
 
     expect(deletionResult).toBeTruthy();
     expect(deletionResult.status.failure).toBeFalsy();
     expect(deletionResult.status.SuccessValue).toBeDefined();
-    expect(accountToDelete.state()).rejects.toThrow();
+    await expect(async () => await accountToDelete.state()).rejects.toThrow();
   });
-  // add key +
-  it("Add key", async () => {
-    const newPublicKey = nearApi.utils.KeyPair.fromRandom("ed25519").getPublicKey();
+
+  test("Should add key", async () => {
+    const newPublicKey = nearApi.utils.KeyPair.fromRandom(
+      "ed25519"
+    ).getPublicKey();
 
     const { amount } = await workingAccount.state();
     const newAmount = new BN(amount).div(new BN(10)).toString();
 
     const detailsBefore = await workingAccount.getAccountDetails();
 
-    const result = await client.query<{ addKey: Near_FinalExecutionOutcome }>({
+    const result = await client.invoke<Near_FinalExecutionOutcome>({
       uri: apiUri,
-      query: `mutation {
-        addKey(
-          publicKey: $publicKey
-          contractId: $contractId
-          methodNames: $methodNames
-          amount: $amount
-          signerId: $signerId
-          )
-        }`,
-      variables: {
+      method: "addKey",
+      args: {
         publicKey: newPublicKey,
         contractId: contractId,
         methodNames: [],
@@ -163,10 +156,10 @@ describe("e2e", () => {
       },
     });
 
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const addKeyResult = result.data!.addKey;
+    const addKeyResult = result.data as Near_FinalExecutionOutcome;
 
     expect(addKeyResult).toBeTruthy();
     expect(addKeyResult.status.failure).toBeFalsy();
@@ -174,7 +167,9 @@ describe("e2e", () => {
 
     const detailsAfter = await workingAccount.getAccountDetails();
 
-    expect(detailsAfter.authorizedApps.length).toBeGreaterThan(detailsBefore.authorizedApps.length);
+    expect(detailsAfter.authorizedApps.length).toBeGreaterThan(
+      detailsBefore.authorizedApps.length
+    );
     expect(detailsAfter.authorizedApps).toEqual(
       expect.arrayContaining([
         {
@@ -186,9 +181,10 @@ describe("e2e", () => {
     );
   });
 
-  // delete key +
-  it("Delete key", async () => {
-    const newPublicKey = nearApi.utils.KeyPair.fromRandom("ed25519").getPublicKey();
+  test("Should delete key", async () => {
+    const newPublicKey = nearApi.utils.KeyPair.fromRandom(
+      "ed25519"
+    ).getPublicKey();
 
     const detailsBefore = await workingAccount.getAccountDetails();
 
@@ -196,26 +192,23 @@ describe("e2e", () => {
 
     const detailsAfterAddKey = await workingAccount.getAccountDetails();
 
-    expect(detailsAfterAddKey.authorizedApps.length).toBeGreaterThan(detailsBefore.authorizedApps.length);
+    expect(detailsAfterAddKey.authorizedApps.length).toBeGreaterThan(
+      detailsBefore.authorizedApps.length
+    );
 
-    const result = await client.query<{ deleteKey: Near_FinalExecutionOutcome }>({
+    const result = await client.invoke<Near_FinalExecutionOutcome>({
       uri: apiUri,
-      query: `mutation {
-        deleteKey(
-          publicKey: $publicKey
-          signerId: $signerId
-          )
-        }`,
-      variables: {
+      method: "deleteKey",
+      args: {
         publicKey: newPublicKey,
         signerId: workingAccount.accountId,
       },
     });
 
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const deleteKeyResult = result.data!.deleteKey;
+    const deleteKeyResult = result.data as Near_FinalExecutionOutcome;
 
     expect(deleteKeyResult).toBeTruthy();
     expect(deleteKeyResult.status.failure).toBeFalsy();
@@ -223,37 +216,32 @@ describe("e2e", () => {
 
     const detailsAfterDeleteKey = await workingAccount.getAccountDetails();
 
-    expect(detailsBefore.authorizedApps.length).toEqual(detailsAfterDeleteKey.authorizedApps.length);
+    expect(detailsBefore.authorizedApps.length).toEqual(
+      detailsAfterDeleteKey.authorizedApps.length
+    );
   });
 
-  // send money +
-  it("Send money", async () => {
-    let receiver = masterAccount
+  test("Should send money", async () => {
+    const receiver = masterAccount;
     const receiverBalanceBefore = await receiver.getAccountBalance();
 
     const { amount } = await workingAccount.state();
     const newAmount = new BN(amount).div(new BN(10)).toString();
 
-    const result = await client.query<{ sendMoney: Near_FinalExecutionOutcome }>({
+    const result = await client.invoke<Near_FinalExecutionOutcome>({
       uri: apiUri,
-      query: `mutation {
-        sendMoney(
-          amount: $amount
-          receiverId: $receiverId
-          signerId: $signerId
-          )
-        }`,
-      variables: {
+      method: "sendMoney",
+      args: {
         amount: newAmount,
         receiverId: receiver.accountId,
         signerId: workingAccount.accountId,
       },
     });
 
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const sendMoneyResult = result.data!.sendMoney;
+    const sendMoneyResult = result.data as Near_FinalExecutionOutcome;
 
     expect(sendMoneyResult).toBeTruthy();
     expect(sendMoneyResult.status.failure).toBeFalsy();
@@ -261,38 +249,32 @@ describe("e2e", () => {
 
     const receiverBalanceAfter = await receiver.getAccountBalance();
 
-    expect(new BN(receiverBalanceAfter.total).gt(new BN(receiverBalanceBefore.total))).toEqual(true);
+    expect(
+      new BN(receiverBalanceAfter.total).gt(new BN(receiverBalanceBefore.total))
+    ).toEqual(true);
 
-    expect(new BN(receiverBalanceAfter.total).sub(new BN(newAmount)).toString()).toEqual(receiverBalanceBefore.total);
-
+    expect(
+      new BN(receiverBalanceAfter.total).sub(new BN(newAmount)).toString()
+    ).toEqual(receiverBalanceBefore.total);
   });
 
-  // createAndDeplyt contract +
-  it("Create and deploy contract", async () => {
+  test("Should create and deploy contract", async () => {
     const newContractId = testUtils.generateUniqueString("test_contract");
 
     const data = fs.readFileSync(testUtils.HELLO_WASM_PATH);
 
     const { amount } = await masterAccount.state();
-    const newAmount = new BN(amount).div(new BN(100)).toString();
+    const newAmount = new BN(amount).div(new BN(10)).toString();
 
     const signerPublicKey = await masterAccount.connection.signer.getPublicKey(
       masterAccount.accountId,
       testUtils.networkId
     );
 
-    const result = await client.query<{ createAndDeployContract: Near_FinalExecutionOutcome }>({
+    const result = await client.invoke<Near_FinalExecutionOutcome>({
       uri: apiUri,
-      query: `mutation {
-        createAndDeployContract(
-          contractId: $contractId
-          publicKey: $publicKey
-          data: $data
-          amount: $amount
-          signerId: $signerId
-        )
-      }`,
-      variables: {
+      method: "createAndDeployContract",
+      args: {
         contractId: newContractId,
         data: data,
         amount: newAmount,
@@ -301,18 +283,17 @@ describe("e2e", () => {
       },
     });
 
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const createAndDeployContractResult = result.data!.createAndDeployContract;
+    const createAndDeployContractResult = result.data as Near_FinalExecutionOutcome;
 
     expect(createAndDeployContractResult).toBeTruthy();
     expect(createAndDeployContractResult.status.failure).toBeFalsy();
     expect(createAndDeployContractResult.status.SuccessValue).toBeDefined();
   });
 
-  // deploy contract +
-  it("Deploy contract", async () => {
+  test("Should deploy contract", async () => {
     const newContractId = testUtils.generateUniqueString("test_contract");
 
     const data = fs.readFileSync(testUtils.HELLO_WASM_PATH);
@@ -325,49 +306,33 @@ describe("e2e", () => {
 
     await masterAccount.createAccount(newContractId, newPublicKey, newAmount);
 
-    const result = await client.query<{ deployContract: Near_FinalExecutionOutcome }>({
+    const result = await client.invoke<Near_FinalExecutionOutcome>({
       uri: apiUri,
-      query: `mutation {
-        deployContract(
-          data: $data
-          contractId: $contractId
-          signerId: $signerId
-        )
-      }`,
-      variables: {
+      method: "deployContract",
+      args: {
         data: data,
         contractId: masterAccount.accountId,
         signerId: masterAccount.accountId,
       },
     });
 
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const deployContractResult = result.data!.deployContract;
+    const deployContractResult = result.data as Near_FinalExecutionOutcome;
 
     expect(deployContractResult).toBeTruthy();
     expect(deployContractResult.status.failure).toBeFalsy();
     expect(deployContractResult.status.SuccessValue).toBeDefined();
   });
 
-  // function call +
-  it("FunctionCall with json stringified args", async () => {
+  test("Should executing FunctionCall with json stringified args", async () => {
     const jsonArgs = JSON.stringify({ name: "trex" });
 
-    const result = await client.query<{ functionCall: Near_FinalExecutionOutcome }>({
+    const result = await client.invoke<Near_FinalExecutionOutcome>({
       uri: apiUri,
-      query: `mutation {
-        functionCall(
-          contractId: $contractId
-          methodName: $methodName
-          args: $args
-          gas: $gas
-          deposit: $deposit
-          signerId: $signerId
-        )
-      }`,
-      variables: {
+      method: "functionCall",
+      args: {
         contractId: contractId,
         methodName: "hello",
         args: jsonArgs,
@@ -377,10 +342,10 @@ describe("e2e", () => {
       },
     });
 
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const functionResult = result.data!.functionCall;
+    const functionResult = result.data as Near_FinalExecutionOutcome;
 
     expect(functionResult).toBeTruthy();
     expect(functionResult.status.failure).toBeFalsy();

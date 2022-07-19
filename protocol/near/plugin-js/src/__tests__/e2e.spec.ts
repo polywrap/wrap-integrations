@@ -1,6 +1,6 @@
-import { Web3ApiClient } from "@web3api/client-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import { nearPlugin, NearPluginConfig } from "..";
-import { PublicKey } from "../w3";
+import { PublicKey } from "../wrap";
 import "localstorage-polyfill";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
@@ -16,8 +16,8 @@ jest.setTimeout(360000);
 describe("e2e", () => {
   const mock = new MockBrowser();
 
-  let client: Web3ApiClient;
-  const uri = "w3://ens/near.web3api.eth";
+  let client: PolywrapClient;
+  const uri = "wrap://ens/near.web3api.eth";
 
   let config: NearPluginConfig;
 
@@ -33,7 +33,7 @@ describe("e2e", () => {
   beforeAll(async () => {
     config = await testUtils.setUpTestConfig();
     near = await nearApi.connect(config);
-    client = new Web3ApiClient({
+    client = new PolywrapClient({
       plugins: [
         {
           uri: uri,
@@ -64,7 +64,7 @@ describe("e2e", () => {
     walletConnection = await new nearApi.WalletConnection(near, "polywrap");
   });
 
-  it("Request sign transactions", async () => {
+  test("Should request sign transactions", async () => {
     const BLOCK_HASH = "244ZQ9cgj3CQ6bWBdytfrJMuMQ1jdXLFGnr4HhvtCTnM";
     const blockHash = nearApi.utils.serialize.base_decode(BLOCK_HASH);
 
@@ -88,51 +88,32 @@ describe("e2e", () => {
       meta: "",
     });
 
-    const result = await client.query<{
-      requestSignTransactions: Boolean;
-    }>({
+    const result = await client.invoke<Boolean>({
       uri,
-      query: `mutation {
-      requestSignTransactions(
-        transactions:$transactions
-        callbackUrl:$callbackUrl
-        meta:$meta
-      )
-    }`,
-      variables: {
+      method: "requestSignTransactions",
+      args: {
         transactions: [transfer],
         callbackUrl: "",
         meta: "",
-      },
+      }
     });
-    expect(result.errors).toBeFalsy();
-    expect(result.data).toEqual({ requestSignTransactions: true });
-    expect(result.errors).toEqual(undefined);
-    const requestSuccess: Boolean = result.data!.requestSignTransactions;
-    expect(requestSuccess).toEqual(true);
+    expect(result.error).toBeFalsy();
+    expect(result.data).toEqual(true);
   });
 
-  it("Create key", async () => {
-    const result = await client.query<{
-      createKey: Promise<PublicKey>;
-    }>({
+  test("Should create key", async () => {
+    const result = await client.invoke<Promise<PublicKey>>({
       uri,
-      query: `mutation {
-        createKey(
-        accountId: $accountId,
-        networkId: $networkId,
-      )
-    }`,
-      variables: {
+      method: "createKey",
+      args: {
         accountId: testUtils.testAccountId,
         networkId: config.networkId,
       },
     });
 
-    expect(result.errors).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result).toBeTruthy();
-    expect(result.errors).toEqual(undefined);
-    const requestSuccess: Promise<PublicKey> = result.data!.createKey;
+    const requestSuccess = result.data as Promise<PublicKey>;
     expect((await requestSuccess).data).toBeInstanceOf(Uint8Array);
     expect((await requestSuccess).keyType).toEqual(0);
     const key = await near.connection.signer.getPublicKey(

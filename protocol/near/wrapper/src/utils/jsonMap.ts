@@ -33,8 +33,8 @@ import {
   ContractStateResult,
   getIdTypeKey,
   KeyValuePair,
-} from "../query/w3";
-import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
+} from "../wrap";
+import { BigInt, JSON, JSONEncoder } from "@polywrap/wasm-as";
 import { publicKeyFromStr } from "./typeUtils";
 import * as bs58 from "as-base58";
 import * as bs64 from "as-base64";

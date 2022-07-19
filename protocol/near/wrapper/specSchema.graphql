@@ -1,10 +1,9 @@
-#import { Query, Transaction, Action, PublicKey, KeyType, Signature } into Near from "w3://ens/nearPlugin.web3api.eth"
+#import { Module, Transaction, Action, PublicKey, KeyType, Signature } into Near from "wrap://ens/nearPlugin.polywrap.eth"
 
-type Query {
+type Module {
 """
-    Wallet Query Functions (Implemented, Not Tested)
+    Wallet Functions
 """
-
   requestSignIn(
     contractId: String
     methodNames: [String!]
@@ -19,7 +18,7 @@ type Query {
   getAccountId: String
 
 """
-  RPC Query Functions not part of JsonRpcProvider (Implemented, Tested)
+  RPC read functions not part of JsonRpcProvider
 """
 
   getAccountState(
@@ -33,10 +32,6 @@ type Query {
   getPublicKey(
     accountId: String!
   ): Near_PublicKey
-
-"""
-  RPC Query Functions not part of JsonRpcProvider (Implemented, Tested)
-"""
 
   # get account balance
   getAccountBalance(
@@ -60,13 +55,51 @@ type Query {
     args: JSON!
   ): JSON!
 
+  # TODO: Prefix should be string | bytes
   viewContractState(
-    prefix: (String | Bytes)!
+    prefix: String!
     blockQuery: BlockReference!
   ): [KeyValuePair]!
 
+  """
+    Generic write functions
+  """
+  # send one or more transactions to NEAR wallet to be signed and executed
+  requestSignTransactions(
+    # list of transactions to sign
+    transactions: [Near_Transaction!]!
+    # url NEAR Wallet will redirect to after transaction signing is complete
+    callbackUrl: String
+    # meta information NEAR Wallet will send back to the application. `meta` will be attached to the `callbackUrl` as a url search param
+    meta: String
+  ): Boolean!
+
+  # sends a signed transaction and awaits execution
+  sendTransaction(
+    signedTx: SignedTransaction!
+  ): FinalExecutionOutcome!
+
+  # sends a signed transaction and immediately returns transaction hash
+  sendTransactionAsync(
+    signedTx: SignedTransaction!
+  ): String!
+
+  # creates, signs, and sends a transaction without wallet and awaits execution
+  signAndSendTransaction(
+    receiverId: String!
+    actions: [Near_Action!]!
+    signerId: String!
+  ): FinalExecutionOutcome!
+
+  # creates, signs, and sends a transaction without wallet and immediately returns transaction hash
+  signAndSendTransactionAsync(
+    receiverId: String!
+    actions: [Near_Action!]!
+    signerId: String!
+  ): String!
+
 """
-  Transaction Query Functions (Implemented, Tested)
+  Transaction functions
 """
 
   # creates a transaction. If signerId is not provided, creates transaction with wallet.
@@ -82,7 +115,7 @@ type Query {
   ): SignTransactionResult!
 
 """
-  Utility Functions (Implemented, Tested)
+  Utility Functions
 """
 
   # takes amount in Near, returns amount in YoctoNear
@@ -95,22 +128,87 @@ type Query {
     amount: BigInt!
   ): BigInt!
 
-"""
-  JsonRpcProvider Query Functions (Implemented, Tested)
-"""
+  # create a new Near account
+  # TODO: publicKey should be string | Near_PublicKey
+  createAccount(
+    newAccountId: String!
+    publicKey: Near_PublicKey! # | String
+    amount: BigInt
+    signerId: String!
+  ): FinalExecutionOutcome!
 
-getBlock(
-  blockQuery: BlockReference!
-): BlockResult!
+  # delete Near account and transfer remaining funds to beneficiary
+  deleteAccount(
+    accountId: String!
+    beneficiaryId: String!
+    signerId: String!
+  ): FinalExecutionOutcome!
 
-"""
-  JsonRpcProvider Query Functions (Implemented, Tested)
-"""
+  # deploy a contract
+  deployContract(
+    data: Bytes!
+    contractId: String!
+    signerId: String!
+  ): FinalExecutionOutcome!
 
-  status(): NodeStatusResult!
+  # transfer Near from signer to receiver
+  sendMoney(
+    amount: BigInt!
+    receiverId: String!,
+    signerId: String!
+  ): FinalExecutionOutcome!
 
+  # call a contract function
+  functionCall(
+    contractId: String!
+    methodName: String!
+    args: JSON
+    gas: BigInt
+    deposit: BigInt
+    walletMeta: String
+    walletCallbackUrl: String
+    SignerId: String
+  ): FinalExecutionOutcome!
+
+  # add access key to account
+  # TODO: publicKey should be string | Near_PublicKey
+  addKey(
+    publicKey: Near_PublicKey! # | String
+    contractId: String
+    methodNames: [String!],
+    amount: BigInt
+    signerId: String!
+  ): FinalExecutionOutcome!
+
+  # delete access key associated with public key
+  # TODO: publicKey should be string | Near_PublicKey
+  deleteKey(
+    publicKey: Near_PublicKey! # | String
+    signerId: String!
+  ): FinalExecutionOutcome!
+
+  # Create a new account and deploy a contract to it
+  # TODO: publicKey should be string | Near_PublicKey
+  createAndDeployContract(
+    contractId: String!
+    publicKey: Near_PublicKey! # | String
+    data: Bytes!
+    amount: BigInt!
+  ): Boolean!
+
+  """
+    JsonRpcProvider requests functions
+  """
+
+  getBlock(
+    blockQuery: BlockReference!
+  ): BlockResult!
+
+  status: NodeStatusResult!
+
+  # TODO: txHash should be string | bytes
   txStatus(
-    txHash: (Bytes | String)!,
+    txHash: String!,
     accountId: String!
   ): FinalExecutionOutcome!
 
@@ -123,8 +221,9 @@ getBlock(
     blockQuery: BlockReference!
   ): BlockChangeResult!
 
+  # TODO: chunkId should be string | bytes
   chunk(
-    chunkId: (String | [BigInt!])! # chunk hash or [blockId, chunkId]
+    chunkId: String! # chunk hash or [blockId, chunkId]
   ): ChunkResult!
 
   validators(
@@ -168,10 +267,16 @@ getBlock(
   gasPrice(
     blockId: BigInt
   ): BigInt!
+
+  # send a JSON RPC to Near node
+  sendJsonRpc(
+    method: String!
+    params: JSON!
+  ): JSON!
 }
 
 """
-  Query Types
+  Types
 """
 
 type AccountView {
@@ -442,7 +547,7 @@ type SignedTransaction {
   signature: Near_Signature!
 }
 
-# Return value of Mutation.signTransaction(...); contains transaction hash and signed transaction
+# Return value of signTransaction(...); contains transaction hash and signed transaction
 type SignTransactionResult {
   hash: Bytes!
   signedTx: SignedTransaction!
@@ -494,4 +599,9 @@ type FinalExecutionOutcome {
   transaction: Transaction!
   transaction_outcome: ExecutionOutcomeWithId!
   receipts_outcome: [ExecutionOutcomeWithId!]!
+}
+
+type FinalExecutionStatus {
+  successValue: String
+  failure: JSON
 }
