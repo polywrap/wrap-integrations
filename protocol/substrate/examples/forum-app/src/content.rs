@@ -28,6 +28,7 @@ pub struct PostDetail {
     pub post: Post,
     pub comments: Vec<CommentDetail>,
     pub reply_count: usize,
+    pub block_hash: String,
 }
 
 #[derive(Encode, Decode, Debug)]
@@ -64,6 +65,9 @@ impl PostDetail {
     }
     fn block_number(&self) -> u32 {
         self.post.block_number
+    }
+    fn block_link(&self) -> String {
+        format!("{}/{}", crate::BLOCK_EXPLORER, self.block_hash)
     }
 }
 
@@ -152,7 +156,7 @@ impl Content {
                         ),
                         a(
                             [
-                                href(post_detail.link()),
+                                href(post_detail.block_link()),
                                 on_click(move |e| {
                                     e.prevent_default();
                                     Msg::ShowPost(post_id)

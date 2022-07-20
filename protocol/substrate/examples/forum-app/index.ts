@@ -3,7 +3,8 @@ import { ipfsPlugin } from "@polywrap/ipfs-plugin-js";
 import { ethereumPlugin } from "@polywrap/ethereum-plugin-js";
 import { ensResolverPlugin } from "@polywrap/ens-resolver-plugin-js";
 
-let module_uri = "wrap://ens/testnet/substrate.polywrap.eth";
+let module_uri = "wrap://ens/testnet/substrate1.polywrap.eth";
+//let module_uri = "wrap://ens/testnet/substrate.polywrap.eth";
 
 
 class PolywrapClientWrapper extends PolywrapClient{
@@ -16,6 +17,12 @@ class PolywrapClientWrapper extends PolywrapClient{
                   addresses: {
                     testnet: "0xe78A0F7E598Cc8b0Bb87894B0F60dD2a88d6a8Ab"
                   }
+                }),
+              },
+              {
+                uri: "wrap://ens/ipfs.polywrap.eth",
+                plugin: ipfsPlugin({
+                  provider: "http://localhost:8080",
                 }),
               },
               {

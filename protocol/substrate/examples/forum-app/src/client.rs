@@ -69,10 +69,15 @@ impl Api {
                 log::info!("post: {:#?}", post);
                 if let Some(post) = post {
                     let reply_count = self.get_reply_count(post.post_id).await?;
+                    let block_hash = self
+                        .get_block_hash(post.block_number)
+                        .await?
+                        .expect("must have a block_hash");
                     all_post.push(PostDetail {
                         post,
                         reply_count,
                         comments: vec![],
+                        block_hash,
                     });
                 }
             }
@@ -97,10 +102,15 @@ impl Api {
         if let Some(post) = post {
             let comment_replies = self.get_comment_replies(post_id).await?;
             let reply_count = self.get_reply_count(post_id).await?;
+            let block_hash = self
+                .get_block_hash(post.block_number)
+                .await?
+                .expect("must have a block_hash");
             Ok(Some(PostDetail {
                 post,
                 comments: comment_replies,
                 reply_count,
+                block_hash,
             }))
         } else {
             Ok(None)
@@ -191,5 +201,17 @@ impl Api {
         } else {
             Ok(None)
         }
+    }
+
+    pub async fn get_block_hash(&self, number: u32) -> Result<Option<String>, crate::Error> {
+        let args = json!({
+            "url": self.url,
+            "number": number,
+        });
+        let args = JsValue::from_serde(&args).expect("must convert");
+        let result = self.client.invoke_method("blockHash", args).await;
+        log::info!("result: {:#?}", result);
+        let block_hash: Option<String> = result.into_serde()?;
+        Ok(block_hash)
     }
 }
