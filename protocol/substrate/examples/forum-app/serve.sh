@@ -1,3 +1,3 @@
 #!/bin/bash
 
-yarn build && yarn start
+yarn && yarn build && yarn start
