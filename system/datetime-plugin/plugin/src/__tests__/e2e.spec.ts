@@ -4,7 +4,7 @@ import { dateTimePlugin } from "../";
 describe("e2e", () => {
 
   let client: PolywrapClient;
-  const uri = "ens/datetime-plugin.eth";
+  const uri = "ens/datetime.polywrap.eth";
 
   beforeAll(() => {
     // Add the dateTimePlugin to the PolywrapClient
@@ -21,7 +21,7 @@ describe("e2e", () => {
   it("retrieves current datetime", async () => {
     const result = await client.invoke({
       uri,
-      method: "currentTime"
+      method: "currentTimestamp"
     });
 
     expect(result.error).toBeFalsy();

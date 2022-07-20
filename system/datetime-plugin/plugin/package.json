@@ -1,6 +1,6 @@
 {
   "name": "datetime-plugin",
-  "description": "Polywrap datetime plugin",
+  "description": "Plugin to get current date and time",
   "private": true,
   "version": "0.2.0",
   "main": "build/index.js",

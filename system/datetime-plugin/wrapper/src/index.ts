@@ -1,6 +1,6 @@
-import {Args_currentTime, DateTime_Module} from "./wrap";
+import {Args_currentTimestamp, DateTime_Module} from "./wrap";
 import { BigInt } from "@polywrap/wasm-as";
 
-export function currentTime(_: Args_currentTime): BigInt {
-  return DateTime_Module.currentTime({}).unwrap();
+export function currentTimestamp(_: Args_currentTimestamp): BigInt {
+  return DateTime_Module.currentTimestamp({}).unwrap();
 }

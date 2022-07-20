@@ -1,4 +1,4 @@
-import { Module, Args_currentTime, manifest } from "./wrap";
+import { Module, Args_currentTimestamp, manifest } from "./wrap";
 
 import { PluginFactory } from "@polywrap/core-js";
 
@@ -8,7 +8,7 @@ export class DateTimePlugin extends Module<{}> {
     super(config);
   }
 
-  public currentTime(_: Args_currentTime): string {
+  public currentTimestamp(_: Args_currentTimestamp): string {
     return Date.now().toString();
   }
 }

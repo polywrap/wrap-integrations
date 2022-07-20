@@ -13,7 +13,7 @@ describe("e2e", () => {
       // Create the client w/ test env configuration + the dateTimePlugin
       client = new PolywrapClient({
         plugins: [{
-          uri: "ens/datetime.eth",
+          uri: "ens/datetime.polywrap.eth",
           plugin: dateTimePlugin({}),
         }],
       })
@@ -28,7 +28,7 @@ describe("e2e", () => {
     // in turn query the dateTimePlugin
     const { data, error } = await client.invoke<string>({
       uri,
-      method: "currentTime"
+      method: "currentTimestamp"
     });
 
     expect(error).toBeFalsy();

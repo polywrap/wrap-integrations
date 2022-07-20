@@ -4,5 +4,5 @@ language: wasm/assemblyscript
 schema: ./src/schema.graphql
 module: ./src/index.ts
 import_redirects:
-  - uri: ens/datetime.eth
+  - uri: ens/datetime.polywrap.eth
     schema: ../plugin/build/schema.graphql

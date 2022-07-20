@@ -1,5 +1,5 @@
-#import { Module } into DateTime from "wrap://ens/datetime.eth"
+#import { Module } into DateTime from "wrap://ens/datetime.polywrap.eth"
 
 type Module {
-  currentTime: BigInt!
+  currentTimestamp: BigInt!
 }
