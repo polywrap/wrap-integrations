@@ -7,6 +7,6 @@ stages:
     package: local-dev-ens
     depends_on: ipfs_deploy
     config:
-      domainName: polywrap.substrate.eth
+      domainName: substrate.polywrap.eth
       ports:
         ethereum: 8545
