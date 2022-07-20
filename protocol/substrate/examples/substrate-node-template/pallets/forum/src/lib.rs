@@ -66,9 +66,9 @@ pub mod pallet {
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
 	pub enum Event<T: Config> {
 		/// A post is submitted with post_id, and the author
-		PostSubmitted(u32, T::AccountId),
+		PostSubmitted(u32, T::AccountId, BoundedVec<u8, T::MaxContentLength>),
 		/// A comment is submmited with comment_id and the author)
-		CommentSubmitted(u32, T::AccountId),
+		CommentSubmitted(u32, T::AccountId, BoundedVec<u8, T::MaxContentLength>),
 	}
 
 	// Errors inform users that something went wrong.
@@ -99,20 +99,19 @@ pub mod pallet {
 			// use the total number of items as post_id
 			let post_id = ItemCounter::<T>::get();
 
-			AllPosts::<T>::insert(
+			let post = Post {
 				post_id,
-				Post {
-					post_id,
-					content,
-					timestamp: Self::timestamp(),
-					author: who.clone(),
-					block_number: Self::block_number(),
-				},
-			);
+				content: content.clone(),
+				timestamp: Self::timestamp(),
+				author: who.clone(),
+				block_number: Self::block_number(),
+			};
+
+			AllPosts::<T>::insert(post_id, post);
 			// increment the item counter
 			Self::increment_item_counter();
 			// Emit a PostSubmitted event
-			Self::deposit_event(Event::PostSubmitted(post_id, who));
+			Self::deposit_event(Event::PostSubmitted(post_id, who, content));
 
 			Ok(())
 		}
@@ -155,7 +154,7 @@ pub mod pallet {
 				comment_id,
 				Comment {
 					comment_id,
-					content,
+					content: content.clone(),
 					author: who.clone(),
 					parent_item,
 					timestamp: Self::timestamp(),
@@ -175,7 +174,7 @@ pub mod pallet {
 				log::info!("inserting as a new kid entry: {} -> {}", parent_item, comment_id);
 				Kids::<T>::insert(parent_item, BoundedVec::try_from(vec![comment_id]).unwrap());
 			}
-			Self::deposit_event(Event::CommentSubmitted(comment_id, who));
+			Self::deposit_event(Event::CommentSubmitted(comment_id, who, content));
 			Ok(())
 		}
 

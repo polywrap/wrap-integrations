@@ -2,7 +2,7 @@
 name = "pallet-forum"
 version = "4.0.0-dev"
 description = "This pallet demonstrate a simple application built on top of a substrate node"
-authors = ["Jovansonlee Cesar <ivanceras@gmail.com>"]
+authors = ["Substrate DevHub <https://github.com/substrate-developer-hub>"]
 homepage = "https://substrate.io/"
 edition = "2021"
 license = "Unlicense"
