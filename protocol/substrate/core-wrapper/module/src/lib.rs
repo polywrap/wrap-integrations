@@ -70,7 +70,7 @@ pub fn rpc_methods(arg: ArgsRpcMethods) -> Option<Vec<String>> {
 pub fn block_hash(arg: ArgsBlockHash) -> Option<String> {
     let api = BaseApi::new(&arg.url);
     let block_hash = api.fetch_block_hash(arg.number);
-    block_hash.ok().flatten().map(|h| h.to_string())
+    block_hash.ok().flatten().map(|h| format!("{:#x}", h))
 }
 
 pub fn chain_get_block(arg: ArgsChainGetBlock) -> Option<BlockOutput> {
