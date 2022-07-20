@@ -17,7 +17,7 @@ The Polywrapper is a set of WASM modules that contain the bulk of the logic port
 A call to the Polywrapper might look something like this:
 ```typescript=
 const result = await client.query<{ findAccessKey: AccessKeyInfo }>({
-  uri: "w3://ens/near-api.web3api.eth",
+  uri: "wrap://ens/near-api.web3api.eth",
   query: `query {
     findAccessKey(
       accountId: $accountId
@@ -29,17 +29,16 @@ const result = await client.query<{ findAccessKey: AccessKeyInfo }>({
 });
 ```
 
-A Polywrapper can have two WASM modules--a "Mutation" module and a "Query" module. As the names imply, functions in the Mutation module may change on-chain state while Query functions do not.
+A Polywrapper has one WASM module. Where all the method are defined
 
-The proposed GraphQL schema specification for the Query module:
+The proposed schema specification for the module:
 ```graphql=
-#import { Query, Transaction, Action, PublicKey, KeyType, Signature } into Near from "w3://ens/nearPlugin.web3api.eth"
+#import { Module, Transaction, Action, PublicKey, KeyType, Signature } into Near from "wrap://ens/nearPlugin.web3api.eth"
 
-type Query {
+type Module {
 """
-    Wallet Query Functions (Implemented, Not Tested)
+    Wallet functions (Implemented, Not Tested)
 """
-
   requestSignIn(
     contractId: String
     methodNames: [String!]
@@ -52,9 +51,77 @@ type Query {
   isSignedIn: Boolean!
 
   getAccountId: String
+  
+  """
+    Wallet functions (Implemented, Tested)
+  """
+
+  # create a new Near account
+  createAccount(
+    newAccountId: String!
+    publicKey: Near_PublicKey! # | String
+    amount: BigInt
+    signerId: String!
+  ): FinalExecutionOutcome!
+
+  # delete Near account and transfer remaining funds to beneficiary
+  deleteAccount(
+    accountId: String!
+    beneficiaryId: String!
+    signerId: String!
+  ): FinalExecutionOutcome!
+
+  # deploy a contract
+  deployContract(
+    data: Bytes!
+    contractId: String!
+    signerId: String!
+  ): FinalExecutionOutcome!
+
+  # transfer Near from signer to receiver
+  sendMoney(
+    amount: BigInt!
+    receiverId: String!,
+    signerId: String!
+  ): FinalExecutionOutcome!
+
+  # call a contract function
+  functionCall(
+    contractId: String!
+    methodName: String!
+    args: JSON
+    gas: BigInt
+    deposit: BigInt
+    walletMeta: String
+    walletCallbackUrl: String
+    SignerId: String
+  ): FinalExecutionOutcome!
+
+  # add access key to account
+  addKey(
+    publicKey: Near_PublicKey! # | String
+    contractId: String
+    methodNames: [String!],
+    amount: BigInt
+    signerId: String!
+  ): FinalExecutionOutcome!
+
+  # delete access key associated with public key
+  deleteKey(
+    publicKey: Near_PublicKey! # | String
+    signerId: String!
+  ): FinalExecutionOutcome!
+
+  # Create a new account and deploy a contract to it
+  createAndDeployContract(
+    contractId: String!
+    publicKey: (String | Near_PublicKey)!
+    data: Bytes!
+    amount: BigInt!
+  ): Boolean!
 
 """
-  RPC Query Functions not part of JsonRpcProvider (Implemented, Tested)
+  RPC Functions not part of JsonRpcProvider (Implemented, Tested)
 """
 
   getAccountState(
@@ -68,10 +135,6 @@ type Query {
   getPublicKey(
     accountId: String!
   ): Near_PublicKey
-
-"""
-  RPC Query Functions not part of JsonRpcProvider (Implemented, Tested)
-"""
 
   # get account balance
   getAccountBalance(
@@ -101,7 +164,7 @@ type Query {
   ): [KeyValuePair]!
 
 """
-  Transaction Query Functions (Implemented, Tested)
+  Transaction Functions (Implemented, Tested)
 """
 
   # creates a transaction. If signerId is not provided, creates transaction with wallet.
@@ -115,6 +178,40 @@ type Query {
   signTransaction(
     transaction: Near_Transaction!
   ): SignTransactionResult!
+  
+  # send one or more transactions to NEAR wallet to be signed and executed
+  requestSignTransactions(
+    # list of transactions to sign
+    transactions: [Near_Transaction!]!
+    # url NEAR Wallet will redirect to after transaction signing is complete
+    callbackUrl: String
+    # meta information NEAR Wallet will send back to the application. `meta` will be attached to the `callbackUrl` as a url search param
+    meta: String
+  ): Boolean!
+
+  # sends a signed transaction and awaits execution
+  sendTransaction(
+    signedTx: SignedTransaction!
+  ): FinalExecutionOutcome!
+
+  # sends a signed transaction and immediately returns transaction hash
+  sendTransactionAsync(
+    signedTx: SignedTransaction!
+  ): String!
+
+  # creates, signs, and sends a transaction without wallet and awaits execution
+  signAndSendTransaction(
+    receiverId: String!
+    actions: [Near_Action!]!
+    signerId: String!
+  ): FinalExecutionOutcome!
+
+  # creates, signs, and sends a transaction without wallet and immediately returns transaction hash
+  signAndSendTransactionAsync(
+    receiverId: String!
+    actions: [Near_Action!]!
+    signerId: String!
+  ): String!
 
 """
   Utility Functions (Implemented, Tested)
@@ -131,16 +228,12 @@ type Query {
   ): BigInt!
 
 """
-  JsonRpcProvider Query Functions (Implemented, Tested)
+  JsonRpcProvider Functions
 """
 
-getBlock(
-  blockQuery: BlockReference!
-): BlockResult!
-
-"""
-  JsonRpcProvider Query Functions (Implemented, Tested)
-"""
+  getBlock(
+    blockQuery: BlockReference!
+  ): BlockResult!
 
   status(): NodeStatusResult!
 
@@ -164,7 +257,7 @@ getBlock(
 
   validators(
     blockId: BigInt
-  ):   EpochValidatorInfo!
+  ): EpochValidatorInfo!
 
   experimental_protocolConfig(
     blockReference: BlockReference!
@@ -203,10 +296,16 @@ getBlock(
   gasPrice(
     blockId: BigInt
   ): BigInt!
+  
+  # send a JSON RPC to Near node
+  sendJsonRpc(
+    method: String!
+    params: JSON!
+  ): JSON!
 }
 
 """
-  Query Types
+  Types
 """
 
 type AccountView {
@@ -461,16 +560,12 @@ type KeyValuePair {
   value: Bytes
 }
 
-"""
-Common Types
-"""
-
 type SignedTransaction {
   transaction: Transaction!
   signature: Near_Signature!
 }
 
-# Return value of Mutation.signTransaction(...); contains transaction hash and signed transaction
+# Return value of Module.signTransaction(...); contains transaction hash and signed transaction
 type SignTransactionResult {
   hash: Bytes!
   signedTx: SignedTransaction!
@@ -525,177 +620,6 @@ type FinalExecutionOutcome {
 }
 ```
 
-The proposed GraphQL schema specification for the Mutation module:
-```graphql=
-#import { Query, Transaction, Action, PublicKey, Signature } into Near from "w3://ens/nearPlugin.web3api.eth"
-
-type Mutation {
-
-"""
-  JsonRpcProvider Mutation Functions (Implemented, Tested)
-"""
-
-  # send a JSON RPC to Near node
-  sendJsonRpc(
-    method: String!
-    params: JSON!
-  ): JSON!
-
-"""
-  Generic Mutation Functions (Implemented, Tested)
-"""
-
-  # send one or more transactions to NEAR wallet to be signed and executed
-  requestSignTransactions(
-    # list of transactions to sign
-    transactions: [Near_Transaction!]!
-    # url NEAR Wallet will redirect to after transaction signing is complete
-    callbackUrl: String
-    # meta information NEAR Wallet will send back to the application. `meta` will be attached to the `callbackUrl` as a url search param
-    meta: String
-  ): Boolean!
-
-  # sends a signed transaction and awaits execution
-  sendTransaction(
-    signedTx: SignedTransaction!
-  ): FinalExecutionOutcome!
-
-  # sends a signed transaction and immediately returns transaction hash
-  sendTransactionAsync(
-    signedTx: SignedTransaction!
-  ): String!
-
-  # creates, signs, and sends a transaction without wallet and awaits execution
-  signAndSendTransaction(
-    receiverId: String!
-    actions: [Near_Action!]!
-    signerId: String!
-  ): FinalExecutionOutcome!
-
-  # creates, signs, and sends a transaction without wallet and immediately returns transaction hash
-  signAndSendTransactionAsync(
-    receiverId: String!
-    actions: [Near_Action!]!
-    signerId: String!
-  ): String!
-
-"""
-  Convenience Mutation Functions (Implemented, Tested)
-"""
-
-# create a new Near account
-  createAccount(
-    newAccountId: String!
-    publicKey: Near_PublicKey! # | String
-    amount: BigInt
-    signerId: String!
-  ): FinalExecutionOutcome!
-
-  # delete Near account and transfer remaining funds to beneficiary
-  deleteAccount(
-    accountId: String!
-    beneficiaryId: String!
-    signerId: String!
-  ): FinalExecutionOutcome!
-
-  # deploy a contract
-  deployContract(
-    data: Bytes!
-    contractId: String!
-    signerId: String!
-  ): FinalExecutionOutcome!
-
-  # transfer Near from signer to receiver
-  sendMoney(
-    amount: BigInt!
-    receiverId: String!,
-    signerId: String!
-  ): FinalExecutionOutcome!
-
-  # call a contract function
-  functionCall(
-    contractId: String!
-    methodName: String!
-    args: JSON
-    gas: BigInt
-    deposit: BigInt
-    walletMeta: String
-    walletCallbackUrl: String
-    SignerId: String
-  ): FinalExecutionOutcome!
-
-  # add access key to account
-  addKey(
-    publicKey: Near_PublicKey! # | String
-    contractId: String
-    methodNames: [String!],
-    amount: BigInt
-    signerId: String!
-  ): FinalExecutionOutcome!
-
-  # delete access key associated with public key
-  deleteKey(
-    publicKey: Near_PublicKey! # | String
-    signerId: String!
-  ): FinalExecutionOutcome!
-
-  # Create a new account and deploy a contract to it
-  createAndDeployContract(
-    contractId: String!
-    publicKey: (String | Near_PublicKey)!
-    data: Bytes!
-    amount: BigInt!
-  ): Boolean!
-}
-
-"""
-Common Types
-"""
-
-type SignedTransaction {
-  transaction: Transaction!
-  signature: Near_Signature!
-}
-
-# Return value of Mutation.signTransaction(...); contains transaction hash and signed transaction
-type SignTransactionResult {
-  hash: Bytes!
-  signedTx: SignedTransaction!
-}
-
-type FinalExecutionStatus {
-  successValue: String
-  failure: JSON
-}
-
-type ExecutionStatus {
-  successValue: String
-  successReceiptId: String
-  failure: JSON
-}
-
-type ExecutionOutcomeWithId {
-  id: String!
-  outcome: ExecutionOutcome!
-}
-
-# Execution status of a sent transaction
-type ExecutionOutcome {
-  logs: [String!]!
-  receiptIds: [String!]!
-  gasBurnt: BigInt!
-  status: ExecutionStatus!
-}
-
-# Final outcome of a sent transaction
-type FinalExecutionOutcome {
-  status: FinalExecutionStatus!
-  transaction: Transaction!
-  transaction_outcome: ExecutionOutcomeWithId!
-  receipts_outcome: [ExecutionOutcomeWithId!]!
-}
-```
-
 # Near JavaScript Plugin
 
 A JavaScript plugin is necessary to perform the following actions that cannot be implemented directly within a Polywrapper due to limitations of WASM:
@@ -710,11 +634,12 @@ The plugin would typically be instantiated and configured when instantiating the
 import {
   nearPlugin,
   KeyStores
-} from "@web3api/near-plugin-js";
+} from "@polywrao/near-plugin-js";
+import { PolywrapClient } from "@polywrap/client-js";
 
-const client = new Web3ApiClient({
+const client = new PolywrapClient({
   plugins: [{
-    uri: "w3://ens/near-plugin-js.web3api.eth",
+    uri: "wrap://ens/near-plugin-js.web3api.eth",
     plugin: nearPlugin({
       networkId: "testnet",
       keyStore: new KeyStores.BrowserLocalStorageKeyStore(),
@@ -729,7 +654,7 @@ const client = new Web3ApiClient({
 
 The GraphQL schema of the Near Plugin produced under the scope of the current grant (with types declarations removed for readability):
 ```graphql=
-type Query {
+type Module {
   requestSignIn(
     contractId: String
     methodNames: [String!]
@@ -761,9 +686,7 @@ type Query {
   signTransaction(
     transaction: Transaction!
   ): SignTransactionResult!
-}
-
-type Mutation {
+  
   sendJsonRpc(
     method: String!
     params: JSON!
@@ -788,11 +711,11 @@ type Mutation {
 }
 ```
 
-The proposed GraphQL schema specification for the Plugin:
+The proposed schema specification for the Plugin:
 ```graphql=
-type Query {
+type Module {
   """
-  Wallet Query Functions (Implemented, Not Tested)
+  Wallet Functions (Implemented, Not Tested)
   """
 
   requestSignIn(
@@ -812,28 +735,32 @@ type Query {
     receiverId: String!
     actions: [Action!]!
   ): Transaction!
+  
+  requestSignTransactions(
+    transactions: [Transaction!]!
+    callbackUrl: String
+    meta: String
+  ): Boolean!
 
 
   """
-  KeyStore, KeyPair, and Signer Query Functions (Implemented, Tested)
+  KeyStore, KeyPair, and Signer Functions (Implemented, Tested)
   """
 
   getPublicKey(
     accountId: String!
   ): PublicKey
 
-  """
-  KeyStore, KeyPair, and Signer Query Functions (Implemented, Testeds)
-  """
-
   signMessage(
     message: Bytes!
     signerId: String!
   ): Signature!
-}
-
-type Mutation {
-
+  
+  createKey(
+    accountId: String!
+    networkId: String!
+  ): PublicKey!
+  
   """
   Generic Functions (Implemented, Tested)
   """
@@ -853,15 +780,6 @@ type Mutation {
     callbackUrl: String
     meta: String
   ): Boolean!
-
-  """
-  KeyStore, KeyPair, and Signer Query Functions (Implemented, Tested)
-  """
-
-  createKey(
-    accountId: String!
-    networkId: String!
-  ): PublicKey!
 }
 
 """

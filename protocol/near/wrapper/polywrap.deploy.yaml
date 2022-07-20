@@ -1,0 +1,12 @@
+format: 0.1.0
+stages:
+  ipfs_deploy:
+    package: ipfs
+    uri: fs/./build
+  ens_deploy:
+    package: ens
+    depends_on: ipfs_deploy
+    config:
+      domainName: near-api.eth
+      provider: 'http://localhost:8545'
+      ensRegistryAddress: $ENS_REG_ADDR

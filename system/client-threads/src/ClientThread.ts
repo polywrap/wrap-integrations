@@ -1,17 +1,8 @@
 import { ThreadPool } from "./ThreadPool";
-import {
-  ThreadJob,
-  ThreadStatus
-} from "./ThreadJob";
-import {
-  HostAction,
-  InvokeEvent,
-} from "./messages";
+import { ThreadJob, ThreadStatus } from "./ThreadJob";
+import { HostAction, InvokeEvent } from "./messages";
 
-import {
-  InvokeOptions,
-  InvokeResult,
-} from "@polywrap/client-js";
+import { InvokerOptions, InvokeResult } from "@polywrap/client-js";
 
 interface ClientThreadConfig {
   pool: ThreadPool;
@@ -22,7 +13,7 @@ export class ClientThread {
   constructor(private _config: ClientThreadConfig) { }
 
   public invoke<TData = unknown>(
-    options: InvokeOptions
+    options: InvokerOptions
   ): ThreadJob<InvokeResult> {
     const { pool, clientModule } = this._config;
 

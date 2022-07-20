@@ -4,9 +4,9 @@ import {
   BlockResult,
   LightClientProofRequest,
   NearProtocolConfig,
-} from "../query/w3";
-import { Near_Mutation } from "../mutation/w3";
-import { JSON, JSONEncoder } from "@web3api/wasm-as";
+  Near_Module
+} from "../wrap";
+import { JSON, JSONEncoder } from "@polywrap/wasm-as";
 import {
   fromBlockReference,
   fromLightClientProofRequest,
@@ -66,7 +66,7 @@ export default class JsonRpcProvider {
    * @param params Parameters to the method
    */
   sendJsonRpc(method: string, params: JSON.Value): JSON.Obj {
-    return Near_Mutation.sendJsonRpc({ method, params }).unwrap() as JSON.Obj;
+    return Near_Module.sendJsonRpc({ method, params }).unwrap() as JSON.Obj;
   }
 
   /**

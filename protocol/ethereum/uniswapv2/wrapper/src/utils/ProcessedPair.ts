@@ -1,8 +1,8 @@
-import { Pair, Token, TokenAmount } from "../query/w3";
-import { tokenEquals } from "../query";
+import { Pair, Token, TokenAmount } from "../wrap";
 import { wrapIfEther } from "./utils";
+import { tokenEquals } from "../entities";
 
-import { BigInt } from "@web3api/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
 
 export class ProcessedPair {
   amount: TokenAmount;
