@@ -1,10 +1,13 @@
 import { PolywrapClient } from "@polywrap/client-js";
 import { inMemoryCachePlugin } from "../";
+import { Cache_Module } from "./types";
+
+jest.setTimeout(10000);
 
 describe("e2e", () => {
 
   let client: PolywrapClient;
-  const uri = "ens/in-memory.cache.polywrap.eth";
+  const uri = "ens/cache.eth";
 
   beforeAll(() => {
     client = new PolywrapClient({
@@ -18,37 +21,18 @@ describe("e2e", () => {
   });
 
   test("set", async () => {
-    const setResult = await client.invoke({
-      uri,
-      method: "set",
-      args: {
-        key: "a",
-        value: "1"
-      }
-    });
+    const setResult = await Cache_Module.set({key: "a", value: "1"}, client);
 
     expect(setResult.error).toBeFalsy();
     expect(setResult.data).toBeTruthy();
 
-    const hasResult = await client.invoke({
-      uri,
-      method: "has",
-      args: {
-        key: "a",
-      }
-    });    
+    const hasResult = await Cache_Module.has({key: "a"}, client);
 
     expect(hasResult.error).toBeFalsy();
     expect(hasResult.data).toBeTruthy();
     expect(hasResult.data).toBe(true);
 
-    const getResult = await client.invoke({
-      uri,
-      method: "get",
-      args: {
-        key: "a",
-      }
-    });    
+    const getResult = await Cache_Module.get({key: "a"}, client);   
 
     expect(getResult.error).toBeFalsy();
     expect(getResult.data).toBeTruthy();
@@ -56,36 +40,17 @@ describe("e2e", () => {
   });
 
   test("delete", async () => {
-    const setResult = await client.invoke({
-      uri,
-      method: "set",
-      args: {
-        key: "a",
-        value: "1"
-      }
-    });
+    const setResult = await Cache_Module.set({key: "a", value: "1"}, client);
 
     expect(setResult.error).toBeFalsy();
     expect(setResult.data).toBeTruthy();
 
-    const deleteResult = await client.invoke({
-      uri,
-      method: "delete",
-      args: {
-        key: "a",
-      }
-    });    
+    const deleteResult = await Cache_Module.delete({key: "a"}, client);
 
     expect(deleteResult.error).toBeFalsy();
     expect(deleteResult.data).toBeTruthy();
 
-    const hasResult = await client.invoke({
-      uri,
-      method: "has",
-      args: {
-        key: "a",
-      }
-    });    
+    const hasResult = await Cache_Module.has({key: "a"}, client);  
 
     expect(hasResult.error).toBeFalsy();
     expect(hasResult.data).toBeFalsy();
