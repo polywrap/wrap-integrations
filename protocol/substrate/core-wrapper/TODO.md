@@ -6,7 +6,10 @@
         - [X] storage_maps
     - [ ] pallet constants
 - [X] Deploy and use the substrate-polywrapper to ipfs
-- [ ] Make the the extrinsic api:
+    - [ ] Make use of ENS domain to make the deployment automatic
+        - Currently, there is a need to copy paste the deployed ipfs hash
+- [ ] Make use of signer + provider
+- [ ] Restructure extrinsic api, such that it talks to a service which the user signs the payload and give its public key
         - execute_extrinsic
         - balance_transfer
     use only of the Public key instead of the the Pair, as it would be violating proper security practice.
