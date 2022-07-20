@@ -1,7 +1,7 @@
 # Cache
 It is a caching library for the wrappers. Wrappers can store and retrieve data on cache using this library.
 
-This library has been implemented in easily extensible way. It provides a common caching interface that can be shared across various caching implementations. We have already implemented the in-memory cache implementation and will be adding more such implementations. 
+This library has been implemented in easily extensible way. It provides a common caching interface that can be shared across various caching implementations. We have already implemented the in-memory cache implementation and will be adding more such implementations like local-storage, memcache, redis, ceramic, etc.
 
 ## Usage
 
