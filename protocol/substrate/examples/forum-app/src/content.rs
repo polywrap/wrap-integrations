@@ -1,13 +1,11 @@
 use crate::util;
 use crate::Msg;
-use async_recursion::async_recursion;
 use codec::{Decode, Encode};
 use frame_support::pallet_prelude::ConstU32;
 use frame_support::BoundedVec;
 use sauron::prelude::*;
 use sp_core::crypto::AccountId32;
 use std::borrow::Cow;
-use wasm_bindgen::prelude::*;
 
 pub type MaxComments = ConstU32<1000>;
 pub type MaxContentLength = ConstU32<280>;

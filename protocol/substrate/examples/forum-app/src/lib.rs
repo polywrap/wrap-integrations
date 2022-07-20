@@ -1,9 +1,9 @@
+#![deny(warnings)]
 use client::Api;
 use client::PolywrapClientWrapper;
 use content::*;
 use sauron::prelude::*;
 use serde_json::json;
-use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 
 mod client;
@@ -12,7 +12,7 @@ mod util;
 
 const URL: &str = "http://localhost:9933";
 
-enum Msg {
+pub enum Msg {
     FetchPosts,
     ShowPost(u32),
     PostsReceived(Vec<PostDetail>),
@@ -23,7 +23,7 @@ enum Msg {
 }
 
 #[derive(thiserror::Error, Debug)]
-enum Error {
+pub enum Error {
     #[error("Http Request Error: {0}")]
     RequestError(String),
     #[error("Initialization of substrate API failed: {0}")]
@@ -150,7 +150,7 @@ impl Application<Msg> for App {
                 self.content = Some(Content::from(post_detail));
                 Cmd::none()
             }
-            Msg::UrlChanged(url) => Cmd::none(),
+            Msg::UrlChanged(_url) => Cmd::none(),
             Msg::Errored(error) => {
                 self.content = Some(Content::from(error));
                 Cmd::none()

@@ -4,9 +4,6 @@ use codec::Decode;
 use frame_support::BoundedVec;
 use sauron::prelude::*;
 use serde_json::json;
-use std::collections::BTreeMap;
-use wasm_bindgen::prelude::*;
-use wasm_bindgen_futures::spawn_local;
 
 #[wasm_bindgen]
 extern "C" {
@@ -50,7 +47,6 @@ impl Api {
     pub async fn get_post_list(&self) -> Result<Vec<PostDetail>, crate::Error> {
         let mut all_post = Vec::with_capacity(10);
         log::info!("---->Getting all the post_id...");
-        let next_to: Option<u32> = None;
 
         let args = json!({
             "url": self.url,
