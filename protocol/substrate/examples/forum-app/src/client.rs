@@ -174,9 +174,14 @@ impl Api {
                     .expect("must have a comment entry");
 
                 let kid_comments = self.get_comment_replies(kid).await?;
+                let block_hash = self
+                    .get_block_hash(comment.block_number)
+                    .await?
+                    .expect("must have a block_hash");
                 comment_details.push(CommentDetail {
                     comment,
                     kids: kid_comments,
+                    block_hash,
                 });
             }
         }
