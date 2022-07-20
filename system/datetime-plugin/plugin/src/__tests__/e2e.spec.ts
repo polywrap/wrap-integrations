@@ -7,7 +7,7 @@ describe("e2e", () => {
   const uri = "ens/datetime.polywrap.eth";
 
   beforeAll(() => {
-    // Add the dateTimePlugin to the Web3ApiClient
+    // Add the dateTimePlugin to the PolywrapClient
     client = new PolywrapClient({
       plugins: [
         {
@@ -18,8 +18,8 @@ describe("e2e", () => {
     });
   });
 
-  test("currentTimestamp", async () => {
-    const result = await client.invoke<string>({
+  it("retrieves current datetime", async () => {
+    const result = await client.invoke({
       uri,
       method: "currentTimestamp"
     });
@@ -27,5 +27,6 @@ describe("e2e", () => {
     expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
     expect(typeof result.data).toBe("string");
+    expect(result.data).toMatch(/^\d+$/);
   });
 });

@@ -9,5 +9,11 @@ module.exports = {
   "transform": {
     "^.+\\.(ts|tsx)$": "ts-jest"
   },
-  testEnvironment: 'node'
+  testEnvironment: 'node',
+  globals: {
+    "ts-jest": {
+      tsconfig: "tsconfig.json",
+      diagnostics: false,
+    },
+  },
 }
