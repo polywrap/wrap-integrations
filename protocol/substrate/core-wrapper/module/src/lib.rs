@@ -185,34 +185,6 @@ pub fn get_storage_map_paged(arg: ArgsGetStorageMapPaged) -> Option<Vec<Vec<u8>>
             } else {
                 None
             }
-
-            /*
-            match &*arg.key_type {
-                "u32" => {
-                    let next_to = arg.next_to.map(|k| k.as_u64().map(|k| k as u32)).flatten();
-                    api.fetch_opaque_storage_map_paged(
-                        &arg.pallet,
-                        &arg.storage,
-                        arg.count,
-                        next_to,
-                    )
-                    .ok()
-                    .flatten()
-                }
-                "u128" => {
-                    let next_to = arg.next_to.map(|k| k.as_u64().map(|k| k as u128)).flatten();
-                    api.fetch_opaque_storage_map_paged(
-                        &arg.pallet,
-                        &arg.storage,
-                        arg.count,
-                        next_to,
-                    )
-                    .ok()
-                    .flatten()
-                }
-                _ => todo!(),
-            }
-            */
         })
         .flatten()
 }

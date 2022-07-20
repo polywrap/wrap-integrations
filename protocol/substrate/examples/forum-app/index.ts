@@ -5,6 +5,7 @@ import { ensResolverPlugin } from "@polywrap/ens-resolver-plugin-js";
 
 let module_uri = "wrap://ens/testnet/substrate.polywrap.eth";
 
+
 class PolywrapClientWrapper extends PolywrapClient{
     constructor() {
         super({
