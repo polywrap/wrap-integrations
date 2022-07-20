@@ -1,49 +1,60 @@
 import { NearPlugin } from ".";
-import { Query, Mutation } from "./w3";
+import {
+  Args_createKey,
+  Args_createTransactionWithWallet,
+  Args_getAccountId,
+  Args_getPublicKey,
+  Args_isSignedIn,
+  Args_requestSignIn,
+  Args_requestSignTransactions,
+  Args_sendJsonRpc,
+  Args_sendTransaction,
+  Args_sendTransactionAsync,
+  Args_signMessage,
+  Args_signOut,
+  Args_signTransaction,
+} from "./wrap";
 
-export const query = (plugin: NearPlugin): Query.Module => ({
-  requestSignIn: async (input: Query.Input_requestSignIn) => {
-    return await plugin.requestSignIn(input);
+export const module = (plugin: NearPlugin) => ({
+  requestSignIn: async (args: Args_requestSignIn) => {
+    return await plugin.requestSignIn(args);
   },
-  signOut: async (input: Query.Input_signOut) => {
-    return await plugin.signOut(input);
+  signOut: async (args: Args_signOut) => {
+    return await plugin.signOut(args);
   },
-  isSignedIn: async (input: Query.Input_isSignedIn) => {
-    return await plugin.isSignedIn(input);
+  isSignedIn: async (args: Args_isSignedIn) => {
+    return await plugin.isSignedIn(args);
   },
-  getAccountId: async (input: Query.Input_getAccountId) => {
-    return await plugin.getAccountId(input);
+  getAccountId: async (args: Args_getAccountId) => {
+    return await plugin.getAccountId(args);
   },
-  getPublicKey: async (input: Query.Input_getPublicKey) => {
-    return await plugin.getPublicKey(input);
+  getPublicKey: async (args: Args_getPublicKey) => {
+    return await plugin.getPublicKey(args);
   },
-  signMessage: async (input: Query.Input_signMessage) => {
-    return await plugin.signMessage(input);
+  signMessage: async (args: Args_signMessage) => {
+    return await plugin.signMessage(args);
   },
   createTransactionWithWallet: async (
-    input: Query.Input_createTransactionWithWallet
+    args: Args_createTransactionWithWallet
   ) => {
-    return await plugin.createTransactionWithWallet(input);
+    return await plugin.createTransactionWithWallet(args);
   },
-  signTransaction: async (input: Query.Input_signTransaction) => {
-    return await plugin.signTransaction(input);
+  signTransaction: async (args: Args_signTransaction) => {
+    return await plugin.signTransaction(args);
   },
-});
-
-export const mutation = (plugin: NearPlugin): Mutation.Module => ({
-  sendJsonRpc: (input: Mutation.Input_sendJsonRpc) => {
-    return plugin.sendJsonRpc(input);
+  sendJsonRpc: (args: Args_sendJsonRpc) => {
+    return plugin.sendJsonRpc(args);
   },
-  requestSignTransactions: (input: Mutation.Input_requestSignTransactions) => {
-    return plugin.requestSignTransactions(input);
+  requestSignTransactions: (args: Args_requestSignTransactions) => {
+    return plugin.requestSignTransactions(args);
   },
-  sendTransaction: (input: Mutation.Input_sendTransaction) => {
-    return plugin.sendTransaction(input);
+  sendTransaction: (args: Args_sendTransaction) => {
+    return plugin.sendTransaction(args);
   },
-  sendTransactionAsync: (input: Mutation.Input_sendTransactionAsync) => {
-    return plugin.sendTransactionAsync(input);
+  sendTransactionAsync: (args: Args_sendTransactionAsync) => {
+    return plugin.sendTransactionAsync(args);
   },
-  createKey: (input: Mutation.Input_createKey) => {
-    return plugin.createKey(input);
+  createKey: (args: Args_createKey) => {
+    return plugin.createKey(args);
   },
 });

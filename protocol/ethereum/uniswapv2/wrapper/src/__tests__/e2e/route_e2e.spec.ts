@@ -1,50 +1,49 @@
-import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
+import { ClientConfig, PolywrapClient } from "@polywrap/client-js";
 import * as path from "path";
-import { Pair, Route, Token } from "./types";
-import { getPairData, getPlugins, getTokenList, getUniPairs } from "../testUtils";
+import { getPairData, getTokenList, getUniPairs } from "../testUtils";
+import { getPlugins, initInfra, stopInfra } from "../infraUtils";
 import * as uni from "@uniswap/sdk";
+import * as App from "./types/wrap";
 
 jest.setTimeout(480000);
 
 describe('Route', () => {
 
-  let client: Web3ApiClient;
-  let ensUri: string;
-  let pairSets: Pair[][] = [];
+  let client: PolywrapClient;
+  let fsUri: string;
+  let pairSets: App.Pair[][] = [];
   let uniPairSets: uni.Pair[][] = [];
-  let inputTokens: Token[] = [];
-  let outputTokens: Token[] = [];
+  let inputTokens: App.Token[] = [];
+  let outputTokens: App.Token[] = [];
 
   beforeAll(async () => {
-    const { ethereum: testEnvEtherem, ensAddress, ipfs } = await initTestEnvironment();
+    await initInfra();
     // get client
-    const config: ClientConfig = getPlugins(testEnvEtherem, ipfs, ensAddress);
-    client = new Web3ApiClient(config);
+    const config: Partial<ClientConfig> = getPlugins();
+    client = new PolywrapClient(config);
     // deploy api
-    const apiPath: string = path.resolve(__dirname + "/../../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
-    ensUri = `ens/testnet/${api.ensDomain}`;
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../..");
+    fsUri = "fs/" + wrapperAbsPath + '/build';
     // pick some test case tokens
-    const tokens: Token[] = await getTokenList();
-    const aave: Token = tokens.filter(token => token.currency.symbol === "AAVE")[0];
-    const dai: Token = tokens.filter(token => token.currency.symbol === "DAI")[0];
-    const usdc: Token = tokens.filter(token => token.currency.symbol === "USDC")[0];
-    const comp: Token = tokens.filter(token => token.currency.symbol === "COMP")[0];
-    const weth: Token = tokens.filter(token => token.currency.symbol === "WETH")[0];
-    const wbtc: Token = tokens.filter(token => token.currency.symbol === "WBTC")[0];
-    const uniswap: Token = tokens.filter(token => token.currency.symbol === "UNI")[0];
-    const link: Token = tokens.filter(token => token.currency.symbol === "LINK")[0];
+    const tokens: App.Token[] = await getTokenList();
+    const aave: App.Token = tokens.filter(token => token.currency.symbol === "AAVE")[0];
+    const dai: App.Token = tokens.filter(token => token.currency.symbol === "DAI")[0];
+    const usdc: App.Token = tokens.filter(token => token.currency.symbol === "USDC")[0];
+    const comp: App.Token = tokens.filter(token => token.currency.symbol === "COMP")[0];
+    const weth: App.Token = tokens.filter(token => token.currency.symbol === "WETH")[0];
+    const wbtc: App.Token = tokens.filter(token => token.currency.symbol === "WBTC")[0];
+    const uniswap: App.Token = tokens.filter(token => token.currency.symbol === "UNI")[0];
+    const link: App.Token = tokens.filter(token => token.currency.symbol === "LINK")[0];
     // create test case pairs
-    const aave_dai: Pair | undefined = await getPairData(aave, dai, client, ensUri);
-    const usdc_dai: Pair | undefined = await getPairData(usdc, dai, client, ensUri);
-    const link_usdc: Pair | undefined = await getPairData(link, usdc, client, ensUri);
-    const comp_weth: Pair | undefined = await getPairData(comp, weth, client, ensUri);
-    const uni_link: Pair | undefined = await getPairData(uniswap, link, client, ensUri);
-    const uni_wbtc: Pair | undefined = await getPairData(uniswap, wbtc, client, ensUri);
-    const wbtc_weth: Pair | undefined = await getPairData(wbtc, weth, client, ensUri);
+    const aave_dai: App.Pair | undefined = await getPairData(aave, dai, client, fsUri);
+    const usdc_dai: App.Pair | undefined = await getPairData(usdc, dai, client, fsUri);
+    const link_usdc: App.Pair | undefined = await getPairData(link, usdc, client, fsUri);
+    const comp_weth: App.Pair | undefined = await getPairData(comp, weth, client, fsUri);
+    const uni_link: App.Pair | undefined = await getPairData(uniswap, link, client, fsUri);
+    const uni_wbtc: App.Pair | undefined = await getPairData(uniswap, wbtc, client, fsUri);
+    const wbtc_weth: App.Pair | undefined = await getPairData(wbtc, weth, client, fsUri);
     // create pair sets that can form routes
-    let pairSet: Pair[];
+    let pairSet: App.Pair[];
     // usdc <--> uni
     pairSet = [link_usdc, uni_link].map(pair => pair!);
     pairSets.push(pairSet);
@@ -66,31 +65,21 @@ describe('Route', () => {
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   })
 
   it('constructs a route from an array of pairs', async () => {
     for (let i = 0; i < pairSets.length; i++) {
-      const pairs: Pair[] = pairSets[i];
+      const pairs: App.Pair[] = pairSets[i];
       const uniPairs: uni.Pair[] = uniPairSets[i];
       const inputToken = inputTokens[i];
       const outputToken = outputTokens[i];
       // actual route
-      const actualRoute = await client.query<{
-        createRoute: Route;
-      }>({
-        uri: ensUri,
-        query: `
-        query {
-          createRoute(
-            pairs: $pairs
-            input: $input
-            output: $output
-          )
-        }
-      `,
-        variables: {
-          pairs: pairs,
+      const actualRoute = await client.invoke<App.Route>({
+        uri: fsUri,
+        method: "createRoute",
+        args: {
+          pairs,
           input: inputToken,
           output: outputToken,
         }
@@ -112,15 +101,15 @@ describe('Route', () => {
       )
       const expectedRoute = new uni.Route(uniPairs, uniInputToken, uniOutputToken);
       // compare input
-      const actualRouteInput: string = actualRoute.data?.createRoute?.input.address ?? "";
+      const actualRouteInput: string = actualRoute.data?.input.address ?? "";
       const expectedRouteInput: string = (expectedRoute.input as uni.Token).address;
       expect(actualRouteInput).toStrictEqual(expectedRouteInput);
       // compare output
-      const actualRouteOutput: string = actualRoute.data?.createRoute?.output.address ?? "";
+      const actualRouteOutput: string = actualRoute.data?.output.address ?? "";
       const expectedRouteOutput: string = (expectedRoute.output as uni.Token).address;
       expect(actualRouteOutput).toStrictEqual(expectedRouteOutput);
       // compare path
-      const actualRoutePath: string[] = actualRoute.data?.createRoute?.path?.map(token => token.address) ?? [];
+      const actualRoutePath: string[] = actualRoute.data?.path?.map(token => token.address) ?? [];
       const expectedRoutePath: string[] = expectedRoute.path.map(token => token.address);
       expect(actualRoutePath).toStrictEqual(expectedRoutePath);
     }
@@ -128,26 +117,16 @@ describe('Route', () => {
 
   it('calculates route midPrice', async () => {
     for (let i = 0; i < pairSets.length; i++) {
-      const pairs: Pair[] = pairSets[i];
+      const pairs: App.Pair[] = pairSets[i];
       const uniPairs: uni.Pair[] = uniPairSets[i];
       const inputToken = inputTokens[i];
       const outputToken = outputTokens[i];
       // actual route
-      const actualRoute = await client.query<{
-        createRoute: Route;
-      }>({
-        uri: ensUri,
-        query: `
-        query {
-          createRoute(
-            pairs: $pairs
-            input: $input
-            output: $output
-          )
-        }
-      `,
-        variables: {
-          pairs: pairs,
+      const actualRoute = await client.invoke<App.Route>({
+        uri: fsUri,
+        method: "createRoute",
+        args: {
+          pairs,
           input: inputToken,
           output: outputToken,
         }
@@ -169,23 +148,15 @@ describe('Route', () => {
       )
       const expectedRoute = new uni.Route(uniPairs, uniInputToken, uniOutputToken);
       // actual midPrice
-      const actualMidPrice = await client.query<{
-        routeMidPrice: string;
-      }>({
-        uri: ensUri,
-        query: `
-          query {
-            routeMidPrice(
-              route: $route
-            )
-          }
-        `,
-        variables: {
-          route: actualRoute?.data?.createRoute,
+      const actualMidPrice = await client.invoke<string>({
+        uri: fsUri,
+        method: "routeMidPrice",
+        args: {
+          route: actualRoute?.data,
         }
       });
       // make sure price is correct
-      const actualRouteMidPrice: string = actualMidPrice.data?.routeMidPrice!
+      const actualRouteMidPrice: string = actualMidPrice.data!
       const expectedRouteMidPrice: string = expectedRoute.midPrice.toFixed(18);
       expect(actualRouteMidPrice).toStrictEqual(expectedRouteMidPrice);
     }

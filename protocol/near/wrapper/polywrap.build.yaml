@@ -1,0 +1,10 @@
+format: 0.1.0
+docker:
+  name: near-wrapper-build
+config:
+  node_version: "16.13.0"
+  include:
+    - ./package.json
+    - ./src/index.ts
+    - ./src/schema.graphql
+    - ./src/utils
