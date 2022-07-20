@@ -3,10 +3,5 @@ stages:
   ipfs_deploy:
     package: ipfs
     uri: fs/./build
-  from_deploy:
-    package: local-dev-ens
-    depends_on: ipfs_deploy
     config:
-      domainName: substrate.polywrap.eth
-      ports:
-        ethereum: 8545
+        gatewayUri: https://ipfs.wrappers.io
