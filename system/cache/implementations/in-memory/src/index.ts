@@ -1,5 +1,13 @@
 import { PluginFactory } from "@polywrap/core-js";
-import { Input_add, Input_delete, Input_get, Input_has, Input_set, manifest, Module } from "./wrap";
+import {
+  Args_add,
+  Args_delete,
+  Args_get,
+  Args_has,
+  Args_set,
+  manifest,
+  Module,
+} from "./wrap";
 
 export interface InMemoryCachePluginConfig extends Record<string, unknown> {
   cache?: Map<string, string>;
@@ -17,13 +25,13 @@ export class InMemoryCachePlugin extends Module<InMemoryCachePluginConfig> {
     }
   }
 
-  public set(input: Input_set): boolean {
+  public set(input: Args_set): boolean {
     if (input.timeout) return false; // Timeout not implemented!
     this._cache.set(input.key, input.value);
     return true;
   }
 
-  public add(input: Input_add): boolean {
+  public add(input: Args_add): boolean {
     if (input.timeout) return false; // Timeout not implemented!
     if (this._cache.has(input.key)) return false;
 
@@ -31,7 +39,7 @@ export class InMemoryCachePlugin extends Module<InMemoryCachePluginConfig> {
     return true;
   }
 
-  public delete(input: Input_delete): boolean {
+  public delete(input: Args_delete): boolean {
     return this._cache.delete(input.key);
   }
 
@@ -40,11 +48,11 @@ export class InMemoryCachePlugin extends Module<InMemoryCachePluginConfig> {
     return true;
   }
 
-  public get(input: Input_get): string | null {
+  public get(input: Args_get): string | null {
     return this._cache.get(input.key) ?? null;
   }
 
-  public has(input: Input_has): boolean {
+  public has(input: Args_has): boolean {
     return this._cache.has(input.key);
   }
 }
