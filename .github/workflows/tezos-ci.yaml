@@ -34,7 +34,7 @@ jobs:
         env:
           TEZOS_POLYWRAP_PORT: 20000
           TEZOS_POLYWRAP_BLOCK_TIME: 5
-          TEZOS_POLYWRAP_PROTOCOL: Hangzhou
+          TEZOS_POLYWRAP_PROTOCOL: Jakarta
           TEZOS_POLYWRAP_PLATFORM: linux/amd64
           TEZOS_POLYWRAP_ROOT_PATH: /
 
@@ -44,7 +44,7 @@ jobs:
         env:
           TEZOS_POLYWRAP_PORT: 20000
           TEZOS_POLYWRAP_BLOCK_TIME: 5
-          TEZOS_POLYWRAP_PROTOCOL: Hangzhou
+          TEZOS_POLYWRAP_PROTOCOL: Jakarta
           TEZOS_POLYWRAP_PLATFORM: linux/amd64
           TEZOS_POLYWRAP_ROOT_PATH: /
       #
