@@ -1,13 +1,17 @@
 module.exports = {
-  "roots": [
-    "<rootDir>/src"
+  collectCoverage: false,
+  preset: "ts-jest",
+  testEnvironment: "node",
+  testMatch: ["**/__tests__/**/?(*.)+(spec|test).[jt]s?(x)"],
+  modulePathIgnorePatterns: [
+    "./src/__tests__/mutation",
+    "./src/__tests__/query",
+    "./src/__tests__/utils",
   ],
-  "testMatch": [
-    "**/__tests__/**/*.+(ts|tsx|js)",
-    "**/?(*.)+(spec|test).+(ts|tsx|js)"
-  ],
-  "transform": {
-    "^.+\\.(ts|tsx)$": "ts-jest"
+  globals: {
+    "ts-jest": {
+      tsconfig: "tsconfig.json",
+      diagnostics: false,
+    },
   },
-  testEnvironment: 'node'
-}
+};

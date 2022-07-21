@@ -4,7 +4,7 @@ yarn-error.log
 coverage
 .vscode
 *.log
-w3
+wrap
 .w3
 .DS_Store
 report.*
