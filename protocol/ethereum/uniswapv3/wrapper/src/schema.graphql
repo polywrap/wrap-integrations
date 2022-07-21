@@ -395,8 +395,8 @@ type Module {
     ): Price!
 
     """
-    Given a list of pools, and a fixed amount in, returns the top `maxNumResults` trades that go from an input token
-    amount to an output token, making at most `maxHops` hops.
+    Given a list of pools, and a fixed amount in, returns the top 'maxNumResults' trades that go from an input token
+    amount to an output token, making at most 'maxHops' hops.
     Note this does not consider aggregation, as routes are linear. It's possible a better route exists by splitting
     the amount in among multiple routes.
     """
@@ -413,8 +413,8 @@ type Module {
 
     """
     similar to bestTradeExactIn(...) but instead targets a fixed output amount
-    given a list of pools, and a fixed amount out, returns the top `maxNumResults` trades that go from an input token
-    to an output token amount, making at most `maxHops` hops
+    given a list of pools, and a fixed amount out, returns the top 'maxNumResults' trades that go from an input token
+    to an output token amount, making at most 'maxHops' hops
     note this does not consider aggregation, as routes are linear. it's possible a better route exists by splitting
     the amount in among multiple routes.
     """
@@ -605,9 +605,9 @@ type Module {
     ## Staker
 
     """Returns transaction calldata for calling 'unstakeToken', 'claimReward', and 'stakeToken' in a single transaction on Uniswap's Staker contract.
-    Note:  A `tokenId` can be staked in many programs but to claim rewards and continue the program you must unstake, claim, and then restake."""
+    Note:  A 'tokenId' can be staked in many programs but to claim rewards and continue the program you must unstake, claim, and then restake."""
     collectRewards(
-        """An array of IncentiveKeys that `tokenId` is staked in; claims rewards for each program."""
+        """An array of IncentiveKeys that 'tokenId' is staked in; claims rewards for each program."""
         incentiveKeys: [IncentiveKey!]!
         """ClaimOptions to specify tokenId, recipient, and amount wanting to collect. Note that you can only specify one amount and one recipient across the various programs if you are collecting from multiple programs at once."""
         options: ClaimOptions!
@@ -615,15 +615,15 @@ type Module {
 
     """Returns transaction calldata for unstaking, claiming, and withdrawing in a single transaction on Uniswap's Staker contract."""
     withdrawToken(
-        """A list of incentiveKeys to unstake from. Should include all incentiveKeys (unique staking programs) that `options.tokenId` is staked in."""
+        """A list of incentiveKeys to unstake from. Should include all incentiveKeys (unique staking programs) that 'options.tokenId' is staked in."""
         incentiveKeys: [IncentiveKey!]!
-        """Options for producing claim calldata and withdraw calldata. Can't withdraw without unstaking all programs for `tokenId`."""
+        """Options for producing claim calldata and withdraw calldata. Can't withdraw without unstaking all programs for 'tokenId'."""
         options: FullWithdrawOptions!
     ): MethodParameters!
 
     """Returns an encoded IncentiveKey as a string"""
     encodeDeposit(
-        """An array of IncentiveKeys to be encoded and used in the data parameter in `safeTransferFrom`"""
+        """An array of IncentiveKeys to be encoded and used in the data parameter in 'safeTransferFrom'"""
         incentiveKeys: [IncentiveKey!]!
     ): String!
 
@@ -901,12 +901,8 @@ type Module {
     """The address of Uniswap's pool factory contract"""
     FACTORY_ADDRESS: String!
 
+    """Pool creation byte code hash used for computing pool address"""
     POOL_INIT_CODE_HASH: String!
-
-    POOL_INIT_CODE_HASH_OPTIMISM: String!
-
-    """A historical artifact due to small compiler mismatch"""
-    POOL_INIT_CODE_HASH_OPTIMISM_KOVAN: String!
 
     """Smallest valid tick index in a pool"""
     MIN_TICK: Int32!
@@ -1223,7 +1219,7 @@ type IncentiveKey {
     startTime: BigInt!
     """The time that the incentive program ends."""
     endTime: BigInt!
-    """The address which receives any remaining reward tokens at `endTime`."""
+    """The address which receives any remaining reward tokens at 'endTime'."""
     refundee: String!
 }
 
@@ -1233,15 +1229,15 @@ type ClaimOptions {
     tokenId: BigInt!
     """Address to send rewards to."""
     recipient: String!
-    """The amount of `rewardToken` to claim. 0 claims all."""
+    """The amount of 'rewardToken' to claim. 0 claims all."""
     amount: BigInt
 }
 
 """Options to specify when withdrawing tokens"""
 type FullWithdrawOptions implements ClaimOptions {
-    """Set when withdrawing. The position will be sent to `owner` on withdraw."""
+    """Set when withdrawing. The position will be sent to 'owner' on withdraw."""
     owner: String!
-    """Set when withdrawing. `data` is passed to `safeTransferFrom` when transferring the position from contract back to owner."""
+    """Set when withdrawing. 'data' is passed to 'safeTransferFrom' when transferring the position from contract back to owner."""
     data: String
 }
 
@@ -1293,7 +1289,7 @@ type SafeTransferOptions {
     recipient: String!
     """The id of the token being sent."""
     tokenId: BigInt!
-    """The optional parameter that passes data to the `onERC721Received` call for the staker"""
+    """The optional parameter that passes data to the 'onERC721Received' call for the staker"""
     data: String
 }
 
