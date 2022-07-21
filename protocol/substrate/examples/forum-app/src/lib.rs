@@ -11,7 +11,8 @@ mod content;
 mod util;
 
 const URL: &str = "http://localhost:9933";
-const BLOCK_EXPLORER: &str = "https://polkadot.js.org/apps/#/explorer/query";
+const BLOCK_EXPLORER: &str =
+    "https://polkadot.js.org/apps/?rpc=ws://127.0.0.1:9944#/explorer/query";
 
 pub enum Msg {
     FetchPosts,
