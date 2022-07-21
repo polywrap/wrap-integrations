@@ -1410,20 +1410,6 @@
     js-yaml "3.14.0"
     uuid "8.3.2"
 
-"@polywrap/core-js@0.0.1-prealpha.89":
-  version "0.0.1-prealpha.89"
-  resolved "https://registry.yarnpkg.com/@polywrap/core-js/-/core-js-0.0.1-prealpha.89.tgz#c5fd7aefc181746cb3514ed483b31f0c3200f2dc"
-  integrity sha512-pnqBH7tMKRZBZk/y3YcZPUlAKKc6ZQ6UuEXLOu6QIWPHizlaTPHR2gTK4YjxQXE20iiYTvEXuWe01ksJgwYKiw==
-  dependencies:
-    "@msgpack/msgpack" "2.7.2"
-    "@polywrap/manifest-schemas" "0.0.1-prealpha.89"
-    "@polywrap/tracing-js" "0.0.1-prealpha.89"
-    graphql "15.5.0"
-    graphql-tag "2.10.4"
-    js-yaml "3.14.0"
-    jsonschema "1.4.0"
-    semver "7.3.5"
-
 "@polywrap/core-js@0.1.1":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@polywrap/core-js/-/core-js-0.1.1.tgz#1717588f9b9f7b170f961b51153aa504b9d74085"
@@ -1436,16 +1422,6 @@
     js-yaml "3.14.0"
     jsonschema "1.4.0"
     semver "7.3.5"
-
-"@polywrap/ens-plugin-js@0.0.1-prealpha.89":
-  version "0.0.1-prealpha.89"
-  resolved "https://registry.yarnpkg.com/@polywrap/ens-plugin-js/-/ens-plugin-js-0.0.1-prealpha.89.tgz#98acafe2f9e4a009c85030d4011925517ff30086"
-  integrity sha512-a/NgoxPd9zXJLRxcQUc0qJlfofBJDC9B4dpiG7bxyRiB/W4aKa1w6m9HprwWT5weFYQ43nK0bHPMNYh5FDnUCA==
-  dependencies:
-    "@ethersproject/address" "5.0.7"
-    "@ethersproject/basex" "5.0.7"
-    "@polywrap/core-js" "0.0.1-prealpha.89"
-    ethers "5.0.7"
 
 "@polywrap/ens-resolver-plugin-js@0.1.1":
   version "0.1.1"
@@ -1529,11 +1505,6 @@
   dependencies:
     "@polywrap/core-js" "0.1.1"
 
-"@polywrap/manifest-schemas@0.0.1-prealpha.89":
-  version "0.0.1-prealpha.89"
-  resolved "https://registry.yarnpkg.com/@polywrap/manifest-schemas/-/manifest-schemas-0.0.1-prealpha.89.tgz#dbd9724246b636a74b3f5da0c5c2fa670498bcb4"
-  integrity sha512-uXWHdk59P7ArER2UCiAMDalq4gGYX6VuaEEZAEuyC+PO4E/FyA4DIIcReqKYbNj99fDHruKDU1o16nMAJdZEwQ==
-
 "@polywrap/msgpack-js@0.1.1":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@polywrap/msgpack-js/-/msgpack-js-0.1.1.tgz#8ff51e5b8673b1cc5f1d265434817402e8ee4677"
@@ -1607,23 +1578,6 @@
     axios "0.21.2"
     js-yaml "4.1.0"
     spawn-command "0.0.2-1"
-
-"@polywrap/tracing-js@0.0.1-prealpha.89":
-  version "0.0.1-prealpha.89"
-  resolved "https://registry.yarnpkg.com/@polywrap/tracing-js/-/tracing-js-0.0.1-prealpha.89.tgz#638ed3eca6bd8780df911c4bdbb6ef41086fea1a"
-  integrity sha512-LBrNFv1oUMgJ1zJ/k+fjjWcK2aEQBthIaiHpM/IlN76CsgBNlPBSOyEgT9mkdtf2ls90c4q41WPy0L50aUsoxQ==
-  dependencies:
-    "@opentelemetry/api" "0.20.0"
-    "@opentelemetry/context-zone" "0.20.0"
-    "@opentelemetry/core" "0.20.0"
-    "@opentelemetry/exporter-collector" "0.20.0"
-    "@opentelemetry/exporter-jaeger" "0.20.0"
-    "@opentelemetry/exporter-zipkin" "0.20.0"
-    "@opentelemetry/node" "0.20.0"
-    "@opentelemetry/propagator-b3" "0.20.0"
-    "@opentelemetry/tracing" "0.20.0"
-    "@opentelemetry/web" "0.20.0"
-    browser-util-inspect "0.2.0"
 
 "@polywrap/tracing-js@0.1.1":
   version "0.1.1"
