@@ -5,7 +5,7 @@ import {
   KeyTypeEnum,
   PublicKey,
   Action,
-} from "./w3";
+} from "./wrap";
 
 import * as nearApi from "near-api-js";
 
@@ -150,6 +150,6 @@ export function keyTypeFromStr(keyType: string): KeyTypeEnum {
 
 export const publicKeyToStr = (key: PublicKey): string => {
   const keyTypeStr = keyTypeToStr(key.keyType);
-  const encodedData = nearApi.utils.serialize.base_encode(key.data);
+  const encodedData = nearApi.utils.serialize.base_encode(key.data as Uint8Array);
   return `${keyTypeStr}:${encodedData}`;
 };

@@ -1,13 +1,13 @@
-# Web3API Interface Example
-
-# How To Run
+# Cache Interface
+cache-interface defines a common interface schema for all the caching implementations to enable compatibility ad ease of use for devs and users.
+# How To Build & Deploy
 
 ## Install Dependencies
 `nvm install && nvm use`  
-`yarn`  
+`yarn`
 
-## Start Test Environment
-`yarn test:env:up`  
+## Build
+`yarn build` 
 
-## Build & Deploy Web3API
-`yarn deploy` 
+## Deploy
+`yarn deploy`

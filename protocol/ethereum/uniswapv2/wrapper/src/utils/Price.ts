@@ -1,10 +1,10 @@
 // translated to AS from https://github.com/Uniswap/uniswap-sdk-core/blob/main/src/entities/fractions/fraction.ts
 
-import { Rounding, Token, TokenAmount } from "../query/w3";
+import { Rounding, Token, TokenAmount } from "../wrap";
 import Fraction from "./Fraction";
-import { tokenEquals } from "../query";
+import { tokenEquals } from "../entities";
 
-import { BigInt } from "@web3api/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
 
 export default class Price extends Fraction {
   public readonly baseToken: Token; // input i.e. denominator

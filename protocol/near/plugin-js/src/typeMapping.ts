@@ -11,7 +11,7 @@ import {
   SignedTransaction,
   Transaction,
   FunctionCallPermission,
-} from "./w3";
+} from "./wrap";
 import {
   AccessKeyPermission,
   isAddKey,
@@ -76,7 +76,7 @@ export const fromAction = (action: Action): nearApi.transactions.Action => {
   if (isCreateAccount(action)) {
     return nearApi.transactions.createAccount();
   } else if (isDeployContract(action)) {
-    return nearApi.transactions.deployContract(action.code!);
+    return nearApi.transactions.deployContract(action.code as Uint8Array);
   } else if (isFunctionCall(action)) {
     return nearApi.transactions.functionCall(
       action.methodName!,

@@ -1,20 +1,20 @@
 {
-  "name": "polywrap-client-threads",
-  "description": "Allows invoking wrappers concurrently using threads",
+  "name": "@polywrap/client-threads-js",
+  "description": "Polywrap App Client Threads",
   "private": true,
-  "version": "0.0.1-prealpha.91",
+  "version": "0.2.0",
   "scripts": {
     "build": "rimraf ./build && tsc --project tsconfig.build.json && npx webpack-cli --config webpack.config.js",
     "test": "cross-env TEST=true jest --passWithNoTests --runInBand --verbose"
   },
   "dependencies": {
-    "@polywrap/client-js": "0.0.1-prealpha.91",
+    "@polywrap/client-js": "0.2.0",
     "web-worker": "1.2.0"
   },
   "devDependencies": {
     "@types/jest": "26.0.8",
     "@types/node": "12.12.26",
-    "polywrap": "0.0.1-prealpha.91",
+    "polywrap": "0.2.0",
     "cross-env": "7.0.3",
     "jest": "26.6.3",
     "ts-jest": "26.5.4",

@@ -1,7 +1,4 @@
-import {
-  InvokeEvent,
-  HostAction
-} from "./messages";
+import { InvokeEvent, HostAction } from "./messages";
 
 import { PolywrapClient } from "@polywrap/client-js";
 

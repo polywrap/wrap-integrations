@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { mutation, query } from "./resolvers";
 import {
   manifest,
-  Query,
-  Mutation,
+  Module,
   Transaction,
   SignedTransaction,
   Signature,
@@ -11,32 +9,42 @@ import {
   FinalExecutionOutcome,
   PublicKey,
   Json,
-} from "./w3";
+  Args_requestSignIn,
+  Args_sendJsonRpc,
+  Args_getAccountId,
+  Args_sendTransactionAsync,
+  Args_createKey,
+  Args_requestSignTransactions,
+  Args_signTransaction,
+  Args_isSignedIn,
+  Args_signOut,
+  Args_sendTransaction,
+  Args_signMessage,
+  Args_createTransactionWithWallet,
+  Args_getPublicKey,
+} from "./wrap";
 import { fromAction, fromSignedTx, fromTx, toPublicKey } from "./typeMapping";
 import { parseJsonFinalExecutionOutcome } from "./jsonMapping";
 import { JsonFinalExecutionOutcome } from "./jsonTypes";
 
 import { ConnectConfig } from "near-api-js";
-import {
-  Plugin,
-  PluginFactory,
-  PluginPackageManifest,
-  PluginModules,
-} from "@web3api/core-js";
+import { PluginFactory, PluginPackageManifest } from "@polywrap/core-js";
 import * as nearApi from "near-api-js";
 import sha256 from "js-sha256";
 
 export { keyStores as KeyStores, KeyPair } from "near-api-js";
 
-export interface NearPluginConfig extends ConnectConfig {}
+export interface NearPluginConfig
+  extends ConnectConfig,
+    Record<string, unknown> {}
 
-export class NearPlugin extends Plugin {
+export class NearPlugin extends Module<NearPluginConfig> {
   private near: nearApi.Near;
   private wallet?: nearApi.WalletConnection;
   private _nextId = 123;
 
-  constructor(private _config: NearPluginConfig) {
-    super();
+  constructor(private _nearConfig: NearPluginConfig) {
+    super(_nearConfig);
     void this.connect();
   }
 
@@ -44,22 +52,13 @@ export class NearPlugin extends Plugin {
     return manifest;
   }
 
-  public getModules(): PluginModules {
-    return {
-      query: query(this),
-      mutation: mutation(this),
-    };
-  }
-
-  public async requestSignIn(
-    input: Query.Input_requestSignIn
-  ): Promise<boolean> {
+  public async requestSignIn(args: Args_requestSignIn): Promise<boolean> {
     if (!this.wallet) {
       throw Error(
         "Near wallet is unavailable, likely because the NEAR plugin is operating outside of a browser."
       );
     }
-    const { contractId, methodNames, successUrl, failureUrl } = input;
+    const { contractId, methodNames, successUrl, failureUrl } = args;
     await this.wallet.requestSignIn({
       contractId: contractId ?? undefined,
       methodNames: methodNames ?? undefined,
@@ -70,28 +69,28 @@ export class NearPlugin extends Plugin {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async signOut(input?: Query.Input_signOut): Promise<boolean> {
+  public async signOut(args?: Args_signOut): Promise<boolean> {
     this.wallet?.signOut();
     return true;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async isSignedIn(input?: Query.Input_isSignedIn): Promise<boolean> {
+  public async isSignedIn(args?: Args_isSignedIn): Promise<boolean> {
     return this.wallet?.isSignedIn() ?? false;
   }
 
   public async getAccountId(
-    input?: Query.Input_getAccountId // eslint-disable-line @typescript-eslint/no-unused-vars
+    args?: Args_getAccountId // eslint-disable-line @typescript-eslint/no-unused-vars
   ): Promise<string | null> {
     return this.wallet?.getAccountId() ?? null;
   }
 
   public async getPublicKey(
-    input: Query.Input_getPublicKey
+    args: Args_getPublicKey
   ): Promise<PublicKey | null> {
-    const { accountId } = input;
-    const keyPair = await this._config.keyStore!.getKey(
-      this._config.networkId,
+    const { accountId } = args;
+    const keyPair = await this._nearConfig.keyStore!.getKey(
+      this._nearConfig.networkId,
       accountId
     );
     if (keyPair === null) {
@@ -101,9 +100,9 @@ export class NearPlugin extends Plugin {
   }
 
   public async createTransactionWithWallet(
-    input: Query.Input_createTransactionWithWallet
+    args: Args_createTransactionWithWallet
   ): Promise<Transaction> {
-    const { receiverId, actions } = input;
+    const { receiverId, actions } = args;
     if (!this.wallet || !this.wallet.isSignedIn()) {
       throw Error(
         "Near wallet is unavailable, likely because the NEAR plugin is operating outside of a browser."
@@ -150,9 +149,9 @@ export class NearPlugin extends Plugin {
   }
 
   public async signTransaction(
-    input: Query.Input_signTransaction
+    args: Args_signTransaction
   ): Promise<SignTransactionResult> {
-    const { transaction } = input;
+    const { transaction } = args;
     const tx: nearApi.transactions.Transaction = fromTx(transaction);
     const message = nearApi.utils.serialize.serialize(
       nearApi.transactions.SCHEMA,
@@ -174,30 +173,30 @@ export class NearPlugin extends Plugin {
     return { hash, signedTx };
   }
 
-  public async createKey(input: Mutation.Input_createKey): Promise<PublicKey> {
-    const { networkId, accountId } = input;
-    const keyPair = await this._config.keyStore!.getKey(
-      this._config.networkId,
+  public async createKey(args: Args_createKey): Promise<PublicKey> {
+    const { networkId, accountId } = args;
+    const keyPair = await this._nearConfig.keyStore!.getKey(
+      this._nearConfig.networkId,
       accountId
     );
-    await this._config.keyStore!.setKey(networkId, accountId, keyPair);
+    await this._nearConfig.keyStore!.setKey(networkId, accountId, keyPair);
     return toPublicKey(keyPair.getPublicKey());
   }
 
-  public async sendJsonRpc(input: Mutation.Input_sendJsonRpc): Promise<Json> {
-    const method = input.method;
-    const params = JSON.parse(input.params);
+  public async sendJsonRpc(args: Args_sendJsonRpc): Promise<Json> {
+    const method = args.method;
+    const params = JSON.parse(args.params);
     const result = await this._sendJsonRpc({ method, params });
     return JSON.stringify(result);
   }
 
   public async requestSignTransactions(
-    input: Mutation.Input_requestSignTransactions
+    args: Args_requestSignTransactions
   ): Promise<boolean> {
     if (!this.wallet) {
       return false;
     }
-    const { transactions, callbackUrl, meta } = input;
+    const { transactions, callbackUrl, meta } = args;
     await this.wallet.requestSignTransactions({
       transactions: transactions.map(fromTx),
       callbackUrl: callbackUrl ?? undefined,
@@ -205,13 +204,13 @@ export class NearPlugin extends Plugin {
     });
     return true;
   }
-  public async signMessage(input: Query.Input_signMessage): Promise<Signature> {
-    const { message, signerId } = input;
+  public async signMessage(args: Args_signMessage): Promise<Signature> {
+    const { message, signerId } = args;
     const {
       signature,
       publicKey,
     } = await this.near.connection.signer.signMessage(
-      message,
+      message as Uint8Array,
       signerId,
       this.near.connection.networkId
     );
@@ -223,9 +222,9 @@ export class NearPlugin extends Plugin {
   }
 
   public async sendTransaction(
-    input: Mutation.Input_sendTransaction
+    args: Args_sendTransaction
   ): Promise<FinalExecutionOutcome> {
-    const { signedTx } = input;
+    const { signedTx } = args;
     const nearSignedTx = fromSignedTx(signedTx);
     const bytes = nearSignedTx.encode();
     const outcome = await this._sendJsonRpc<JsonFinalExecutionOutcome>({
@@ -236,9 +235,9 @@ export class NearPlugin extends Plugin {
   }
 
   public async sendTransactionAsync(
-    input: Mutation.Input_sendTransactionAsync
+    args: Args_sendTransactionAsync
   ): Promise<string> {
-    const { signedTx } = input;
+    const { signedTx } = args;
     const nearSignedTx = fromSignedTx(signedTx);
     const bytes = nearSignedTx.encode();
     return this._sendJsonRpc<string>({
@@ -248,18 +247,18 @@ export class NearPlugin extends Plugin {
   }
 
   private async connect(): Promise<boolean> {
-    this.near = new nearApi.Near(this._config);
+    this.near = new nearApi.Near(this._nearConfig);
     if (typeof window !== "undefined") {
       this.wallet = new nearApi.WalletConnection(this.near, null);
     }
     return true;
   }
 
-  private async _sendJsonRpc<T>(input: {
+  private async _sendJsonRpc<T>(args: {
     method: string;
     params: unknown;
   }): Promise<T> {
-    const { method, params } = input;
+    const { method, params } = args;
     const request = {
       method,
       params: params,
@@ -267,7 +266,7 @@ export class NearPlugin extends Plugin {
       jsonrpc: "2.0",
     };
     const { result, error } = await nearApi.utils.web.fetchJson(
-      this._config.nodeUrl,
+      this._nearConfig.nodeUrl,
       JSON.stringify(request)
     );
     if (error) {
