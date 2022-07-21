@@ -206,22 +206,9 @@ impl Content {
     }
 
     fn view_post(&self, post: &Post) -> Node<Msg> {
-        let post_id = post.post_id;
         li(
             [class("post")],
-            [h2(
-                [],
-                [a(
-                    [
-                        href(post.link()),
-                        on_click(move |e| {
-                            e.prevent_default();
-                            Msg::ShowPost(post_id)
-                        }),
-                    ],
-                    [text(post.content())],
-                )],
-            )],
+            [h2([], [pre([class("post-text")], [text(post.content())])])],
         )
     }
 
@@ -255,7 +242,7 @@ impl Content {
     fn view_comment(&self, comment: &Comment) -> Node<Msg> {
         li(
             [class("comment")],
-            [div([class("comment-text")], [text(comment.content())])],
+            [pre([class("comment-text")], [text(comment.content())])],
         )
     }
 }

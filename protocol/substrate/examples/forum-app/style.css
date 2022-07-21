@@ -330,3 +330,7 @@ body {
     font-size: 12pt;
     margin: 20px 20px;
 }
+
+pre.post-text, pre.comment-text{
+    white-space: pre-wrap;
+}
