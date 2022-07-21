@@ -35,6 +35,7 @@ pub fn custom_random_number(buf: &mut [u8]) -> Result<(), getrandom::Error> {
     Ok(())
 }
 
+/// return the chain metadata
 pub fn chain_get_metadata(arg: ArgsChainGetMetadata) -> Option<ChainMetadataOutput> {
     let metadata = BaseApi::new(&arg.url).fetch_metadata();
     let meta = metadata.ok().flatten().expect("must have a metadata");
@@ -55,6 +56,7 @@ pub fn chain_get_metadata(arg: ArgsChainGetMetadata) -> Option<ChainMetadataOutp
     })
 }
 
+/// return the chain
 pub fn state_get_runtime_version(arg: ArgsStateGetRuntimeVersion) -> Option<serde_json::Value> {
     BaseApi::new(&arg.url)
         .fetch_runtime_version()
@@ -63,16 +65,19 @@ pub fn state_get_runtime_version(arg: ArgsStateGetRuntimeVersion) -> Option<serd
         .map(|v| serde_json::to_value(v).expect("must encode to json"))
 }
 
+/// return the rpc methods
 pub fn rpc_methods(arg: ArgsRpcMethods) -> Option<Vec<String>> {
     BaseApi::new(&arg.url).fetch_rpc_methods().ok().flatten()
 }
 
+/// return the block has of a block with number
 pub fn block_hash(arg: ArgsBlockHash) -> Option<String> {
     let api = BaseApi::new(&arg.url);
     let block_hash = api.fetch_block_hash(arg.number);
     block_hash.ok().flatten().map(|h| format!("{:#x}", h))
 }
 
+/// return the Block at number
 pub fn chain_get_block(arg: ArgsChainGetBlock) -> Option<BlockOutput> {
     let api = BaseApi::new(&arg.url);
     let block = api.fetch_opaque_block(arg.number);
@@ -81,6 +86,7 @@ pub fn chain_get_block(arg: ArgsChainGetBlock) -> Option<BlockOutput> {
 
 pub fn balance_transfer() {}
 
+/// return value of storage from a module and storage name
 pub fn get_storage_value(arg: ArgsGetStorageValue) -> Option<Vec<u8>> {
     if let Ok(api) = Api::new(&arg.url) {
         api.fetch_opaque_storage_value(&arg.pallet, &arg.storage)
@@ -90,6 +96,8 @@ pub fn get_storage_value(arg: ArgsGetStorageValue) -> Option<Vec<u8>> {
         None
     }
 }
+
+/// return value of the storage map from a module and storage name with a certain key
 pub fn get_storage_map(arg: ArgsGetStorageMap) -> Option<Vec<u8>> {
     Api::new(&arg.url)
         .ok()
