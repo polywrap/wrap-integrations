@@ -208,4 +208,17 @@ describe("e2e", () => {
       console.log("paged storage map", result);
   });
 
+  it("get account info of Alice", async () => {
+    // You can use the client directly
+    const result = await client.invoke({
+      uri,
+      method: "accountInfo",
+      args: {
+          url: "http://localhost:9933",
+          account: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+      },
+    });
+      console.log("alice account info", result);
+  });
+
 });

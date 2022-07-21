@@ -2,15 +2,18 @@
 
 #[allow(warnings)]
 pub mod wrap;
-use wrap::imported::*;
-pub use wrap::*;
-
 pub use api::Api;
 use api::BaseApi;
 pub use error::Error;
+use num_traits::cast::FromPrimitive;
+use polywrap_wasm_rs::BigNumber;
 use scale_info::TypeDef;
 use scale_info::TypeDefPrimitive;
+use sp_core::crypto::AccountId32;
+use sp_core::crypto::Ss58Codec;
 pub use types::metadata::Metadata;
+use wrap::imported::*;
+pub use wrap::*;
 
 mod api;
 mod error;
@@ -197,9 +200,38 @@ pub fn get_storage_map_paged(arg: ArgsGetStorageMapPaged) -> Option<Vec<Vec<u8>>
         .flatten()
 }
 
+/// return the constant value from a pallet
 pub fn constant(arg: ArgsConstant) -> Option<Vec<u8>> {
     Api::new(&arg.url)
         .ok()
         .map(|api| api.fetch_constant_opaque_value(&arg.pallet, &arg.name).ok())
         .flatten()
+}
+
+pub fn account_info(arg: ArgsAccountInfo) -> Option<AccountInfo> {
+    let account_id =
+        AccountId32::from_ss58check(&arg.account).expect("must be a valid ss58check format");
+    let account_info: Option<crate::types::account_info::AccountInfo> = Api::new(&arg.url)
+        .ok()
+        .map(|api| api.get_account_info(account_id).ok().flatten())
+        .flatten();
+
+    debug!("account info: {:#?}", account_info);
+
+    if let Some(account_info) = account_info {
+        Some(AccountInfo {
+            nonce: account_info.nonce,
+            consumers: account_info.consumers,
+            providers: account_info.providers,
+            sufficients: account_info.sufficients,
+            data: AccountData {
+                free: BigNumber::from_u128(account_info.data.free).unwrap(),
+                reserved: BigNumber::from_u128(account_info.data.reserved).unwrap(),
+                misc_frozen: BigNumber::from_u128(account_info.data.misc_frozen).unwrap(),
+                fee_frozen: BigNumber::from_u128(account_info.data.fee_frozen).unwrap(),
+            },
+        })
+    } else {
+        None
+    }
 }

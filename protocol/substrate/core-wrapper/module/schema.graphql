@@ -19,6 +19,8 @@ type Module {
   getStorageMapPaged(url: String!, pallet: String!, storage: String!, count: UInt32!, nextTo: JSON): [[UInt8!]!]
 
   rpcMethods(url: String!): [String!]
+
+  accountInfo(url: String!, account: String!): AccountInfo
 }
 
 type ChainMetadataOutput {
@@ -30,4 +32,19 @@ type ChainMetadataOutput {
 
 type BlockOutput {
   block: JSON!
+}
+
+type AccountData{
+    free: BigNumber!,
+    reserved: BigNumber!,
+    misc_frozen: BigNumber!,
+    fee_frozen: BigNumber!,
+}
+
+type AccountInfo {
+    nonce: UInt32!,
+    consumers: UInt32!,
+    providers: UInt32!,
+    sufficients: UInt32!,
+    data: AccountData!
 }
