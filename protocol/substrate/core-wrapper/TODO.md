@@ -16,3 +16,5 @@
     The payload/message should be signed by a different api calling on the signer and provider plugin of polywrap
 - [ ] Make the module API take error into considerations
     - Right now, we are only returning `Option` instead of `Result` with proper error codes
+- [ ] Add documentation for each of the api function
+- [ ] Add rust test in rust code
