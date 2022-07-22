@@ -1,5 +1,5 @@
 import { tezosDomainsPlugin } from "..";
-import { AcquisitionInfo } from "../wrap";
+import { AcquisitionInfo } from "./types/wrap";
 
 import { PolywrapClient } from "@polywrap/client-js";
 

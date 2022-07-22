@@ -3,7 +3,7 @@ import { tezosPlugin } from "@blockwatch-cc/tezos-plugin-js"
 import { PolywrapClient } from "@polywrap/client-js"
 import { buildWrapper } from "@polywrap/test-env-js"
 
-import { SwapData, TokenBalance, TokenMetadata } from "../../wrap"
+import { SwapData, TokenBalance, TokenMetadata } from "./types/wrap"
 
 jest.setTimeout(150000)
 

@@ -2,7 +2,7 @@ import { tezosPlugin } from "..";
 import { SIMPLE_CONTRACT, SIMPLE_CONTRACT_STORAGE } from "./contracts/simple-contract"
 import { PolywrapClient } from "@polywrap/client-js";
 import { InMemorySigner } from "@taquito/signer";
-import { TransferParams, OperationStatus, RevealParams, EstimateResult, SendParams, OriginateParams, TxOperation, TransferConfirmation, SignResult, OriginationResponse, OriginationConfirmationResponse } from "../wrap";
+import { TransferParams, OperationStatus, RevealParams, EstimateResult, SendParams, OriginateParams, TxOperation, TransferConfirmation, SignResult, OriginationResponse, OriginationConfirmationResponse } from "./types/wrap";
 
 const { up, down, Account, Node, deployContract } = require("../../../test-env")
 

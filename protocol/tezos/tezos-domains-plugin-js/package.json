@@ -16,7 +16,8 @@
     "build": "rimraf ./build && yarn codegen && tsc --project tsconfig.build.json",
     "codegen": "node ./node_modules/polywrap/bin/polywrap plugin codegen",
     "lint": "eslint --color --ext .ts src/",
-    "test": "jest --passWithNoTests --runInBand --verbose",
+    "codegen:app": "npx polywrap app codegen -m src/__tests__/types/polywrap.app.yaml -g src/__tests__/types/wrap",
+    "test": "yarn codegen:app && jest --passWithNoTests --runInBand --verbose",
     "test:ci": "jest --passWithNoTests --runInBand --verbose",
     "test:watch": "jest --watch --passWithNoTests --verbose"
   },

@@ -1,7 +1,7 @@
 import path from "path"
 import { PolywrapClient } from "@polywrap/client-js"
 import { buildWrapper } from "@polywrap/test-env-js"
-import { AssetCandle, Providers } from "../../wrap"
+import { AssetCandle, Providers } from "./types/wrap"
 
 const { tezosPlugin } = require("../../../../plugin-js")
 

@@ -6,8 +6,7 @@ import { buildWrapper } from "@polywrap/test-env-js"
 
 import { Config } from "./config"
 import { getRandomString, waitForConfirmation } from "./testUtils"
-import { DomainInfo, Tezos_TxOperation } from '../wrap'
-
+import { DomainInfo, Tezos_TxOperation } from "./types/wrap";
 const { tezosPlugin } = require("../../../tezos-domains-plugin-js")
 
 jest.setTimeout(600000)

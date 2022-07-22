@@ -3,7 +3,7 @@ import path from "path"
 import { PolywrapClient } from "@polywrap/client-js"
 import { buildWrapper } from "@polywrap/test-env-js"
 
-import { GetTokenSupplyResponse, Tezos_TransferParams } from "../../wrap"
+import { GetTokenSupplyResponse, Tezos_TransferParams } from "./types/wrap"
 
 const { tezosPlugin } = require("../../../../plugin-js")
 

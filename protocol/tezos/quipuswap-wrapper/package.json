@@ -9,7 +9,8 @@
     "clean": "npx rimraf ./node_modules ./build ./coverage ./.wrap ./**/wrap",
     "build": "npx polywrap build",
     "test": "yarn test:e2e",
-    "test:e2e": "jest --passWithNoTests --runInBand --verbose",
+    "test:e2e": "yarn codegen:app && jest --passWithNoTests --runInBand --verbose",
+    "codegen:app": "npx polywrap app codegen -m src/__tests__/e2e/types/polywrap.app.yaml -g src/__tests__/e2e/types/wrap",
     "test:env:up": "npx polywrap test-env up",
     "test:env:down": "npx polywrap test-env down",
     "deploy": "npx polywrap deploy"
