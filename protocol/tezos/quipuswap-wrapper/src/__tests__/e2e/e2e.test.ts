@@ -1,11 +1,9 @@
 import add from "date-fns/add"
 import path from "path"
 import { PolywrapClient } from "@polywrap/client-js"
-import { InMemorySigner } from "@taquito/signer"
 import { buildWrapper } from "@polywrap/test-env-js"
 
 import { GetTokenSupplyResponse, Tezos_TransferParams } from "../../wrap"
-import { Config } from "../config"
 
 const { tezosPlugin } = require("../../../../plugin-js")
 
@@ -20,7 +18,6 @@ describe("e2e", () => {
     apiUri = `fs/${apiPath}`;
     
     await buildWrapper(apiPath);
-    const signer = await InMemorySigner.fromSecretKey(Config.TZ_SECRET)
     client = new PolywrapClient({
         plugins: [
           {
