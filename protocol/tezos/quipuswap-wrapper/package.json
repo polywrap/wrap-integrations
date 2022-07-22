@@ -7,14 +7,12 @@
   "scripts": {
     "reset": "yarn clean && yarn build",
     "clean": "npx rimraf ./node_modules ./build ./coverage ./.wrap ./**/wrap",
-    "build": "yarn build:polywrap",
-    "build:polywrap": "npx polywrap build",
+    "build": "npx polywrap build",
     "test": "yarn test:e2e",
     "test:e2e": "jest --passWithNoTests --runInBand --verbose",
     "test:env:up": "npx polywrap test-env up",
     "test:env:down": "npx polywrap test-env down",
-    "deploy": "yarn deploy:polywrap",
-    "deploy:polywrap": "npx polywrap build --ipfs http://localhost:5001 --test-ens quipuswap.polywrap.eth"
+    "deploy": "npx polywrap deploy"
   },
   "devDependencies": {
     "@taquito/signer": "12.1.0",

@@ -7,14 +7,12 @@
   "scripts": {
     "reset": "yarn clean && yarn build",
     "clean": "npx rimraf ./node_modules ./build ./coverage ./.wrap ./**/wrap",
-    "build": "yarn build:polywrap",
-    "build:polywrap": "npx polywrap build",
+    "build": "npx polywrap build",
     "test": "yarn test:e2e",
     "test:e2e": "jest --passWithNoTests --runInBand --verbose",
     "test:env:up": "npx polywrap test-env up",
     "test:env:down": "npx polywrap test-env down",
-    "deploy": "yarn deploy:polywrap",
-    "deploy:polywrap": "npx polywrap build"
+    "deploy": "npx polywrap build"
   },
   "devDependencies": {
     "@types/jest": "27.4.0",
