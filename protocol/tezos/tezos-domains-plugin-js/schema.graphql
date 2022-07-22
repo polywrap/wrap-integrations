@@ -1,8 +1,7 @@
 """ Suppported Network """
 enum Network {
   mainnet
-  hangzhounet
-  ithacanet
+  ghostnet
 }
 
 """ State of domain acquisition """
@@ -25,7 +24,7 @@ type AcquisitionInfo {
   state: AcquisitionState!
 }
 
-type Query {
+type Module {
   """ Get Acquisition information """
   getAcquisitionInfo(
     """ Network """

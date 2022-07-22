@@ -1,0 +1,259 @@
+#import { Module, Connection, SendParams, TransferParams } into Tezos from "wrap://ens/tezos.polywrap.eth"
+
+""" Network supported by wrapper """
+enum Network {
+  custom
+  mainnet
+  ghostnet
+}
+
+""" CustomConnection """
+type CustomConnection {
+  """ Tezos connection """
+  connection: Tezos_Connection!
+  """ Contract address """
+  contractAddress: String!
+}
+
+""" Describes the direction to swap """
+enum SwapDirection {
+    a_to_b
+    b_to_a
+}
+
+""" Describes operator parameters """
+type OperatorParams {
+    """ Id of token """
+    tokenId: UInt32!
+    """ Address of operator """
+    operator: String!
+}
+
+""" Describes swap pair """
+type SwapPair {
+    """ Id of pair """
+    pairId: UInt32!
+    """ SwapDirection """
+    direction: SwapDirection!
+}
+
+""" Describes swap parameters """
+type SwapParams {
+    """ Amount in """
+    amountIn: BigInt!
+    """ Minimum amount out """
+    minAmountOut: BigInt!
+    """ Address of receiver """
+    receiver: String!
+    """ Deadline for swap transaction """
+    deadline: String!
+}
+
+""" Describes parameters when swapping between two tokens """
+type SwapDirectParams {
+    """ Id of pair """
+    pairId: UInt32!
+    """ SwapDirection """
+    direction: SwapDirection!
+    """ SwapParams """
+    swapParams: SwapParams!
+}
+
+""" Describes parameters when swapping multiple tokens """
+type SwapMultiHopParams {
+    """ Multiple tokens to swap in sequential order """
+    hops: [SwapPair!]!
+    """ SwapParams """
+    swapParams: SwapParams!
+}
+
+""" Describes parameters to invest """
+type InvestParams {
+    """ Id of pair """
+    pairId: UInt32!
+    """ Shares to invest """
+    shares: BigInt!
+    """ Amount of token A in """
+    tokenAIn: BigInt! 
+    """ Amount of token B in """
+    tokenBIn: BigInt! 
+    """ Deadline for invest transaction """
+    deadline: String!
+}
+
+""" Describes parameters to divest """
+type DivestParams {
+    """ Id of pair """
+    pairId: UInt32!
+    """ Minimum amount of token A out """ 
+    minTokenAOut: BigInt!
+    """ Minimum amount of token B out """
+    minTokenBOut: BigInt!
+    """ Shares to divest """
+    shares: BigInt!
+    """ Deadline for divest transaction """
+    deadline: String!
+}
+
+""" Describes parameters to transfer """
+type TransferParams {
+    """ Address to make transfer """
+    to: String!
+    """ Id of token """
+    tokenId: UInt32!
+    """ Amount to send """
+    amount: BigInt!
+}
+
+""" Describe token supply in pool """
+type GetTokenSupplyResponse {
+  """ Tokens A available """ 
+  token_a_pool: String!
+  """ Tokens B available """
+  token_b_pool: String!
+  """ Total supply """
+  total_supply: String!
+}
+
+type Module {
+  """ Get token pair """
+  getTokenPair(
+    """ Network """
+    network: Network!
+    """ Id of token pair """
+    pairId: String!
+    """ CustomConnection """
+    custom: CustomConnection
+  ): JSON! 
+  
+  """ Token pair list """
+  listTokenPairs(
+    """ Network """
+    network: Network!
+    """ CustomConnection """
+    custom: CustomConnection
+  ): JSON!
+
+  """ Get token supply """
+  getTokenSupply(
+    """ Network """
+    network: Network!
+    """ CustomConnection """
+    custom: CustomConnection
+    """ Id of token pair """
+    pairId: String!
+  ): GetTokenSupplyResponse!
+
+  """ Get token balance """
+  getLPTokenBalance(
+    """ Network """
+    network: Network!
+    """ CustomConnection """
+    custom: CustomConnection
+    """ Owner """
+    owner: String!
+    """ Id of token pair """
+    pairId: String!
+  ): String!
+
+  """ Add an operator """
+    addOperator(
+        """ Network to query """
+        network: Network!
+        """ OperatorParams """
+        params: OperatorParams!
+        """ Contract Address """
+        contractAddress: String
+        """ SendParams """
+        sendParams: Tezos_SendParams
+        """" CustomConnection """
+        custom: CustomConnection
+    ): Tezos_TransferParams!
+
+    """ Remove an operator """
+    removeOperator(
+        """ Network to query """
+        network: Network!
+        """ OperatorParams """
+        params: OperatorParams!
+        """ Contract Address """
+        contractAddress: String
+        """ SendParams """
+        sendParams: Tezos_SendParams
+        """ CustomConnection """
+        custom: CustomConnection
+    ): Tezos_TransferParams!
+    
+    """ swap two tokens directly """
+    swapDirect(
+        """ Network to query """
+        network: Network!
+        """ SwapDirectParams """
+        params: SwapDirectParams!
+        """ SendParams """
+        sendParams: Tezos_SendParams
+        custom: CustomConnection
+    ): [Tezos_TransferParams!]!
+
+    """ swap multiple tokens """
+    swapMultiHop(
+        """ Network to query """
+        network: Network!
+        """ SwapMultiHopParams """
+        params: SwapMultiHopParams!
+        """ SendParams """
+        sendParams: Tezos_SendParams
+        """ CustomConnection """
+        custom: CustomConnection
+    ): [Tezos_TransferParams!]!
+
+    """ invest in liquidity pool """
+    invest(
+        """ Network to query """
+        network: Network!
+        """ InvestParams """
+        params: InvestParams!
+        """ SendParams """
+        sendParams: Tezos_SendParams
+        """ CustomConnection """
+        custom: CustomConnection
+    ): [Tezos_TransferParams!]!
+
+    """ divest in liquidity pool """
+    divest(
+        """ Network to query """
+        network: Network!
+        """ DivestParams """
+        params: DivestParams!
+        """ SendParams """
+        sendParams: Tezos_SendParams
+        """ CustomConnection """
+        custom: CustomConnection
+    ): Tezos_TransferParams!
+
+    """ transfer own tokens """
+    transfer(
+        """ Network to query """
+        network: Network!
+        """ TransferParams """
+        params: TransferParams!
+        """ SendParams """
+        sendParams: Tezos_SendParams
+        """ CustomConnection """
+        custom: CustomConnection
+    ): Tezos_TransferParams!
+    
+    """ transfer caller-defined sender """
+    transferFrom(
+        """ Network to query """
+        network: Network!
+        """ from """
+        from: String!
+        """ TransferParams """
+        params: TransferParams!
+        """ SendParams """
+        sendParams: Tezos_SendParams
+        """ CustomConnection """
+        custom: CustomConnection
+    ): Tezos_TransferParams!
+}
