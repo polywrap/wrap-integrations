@@ -47,25 +47,19 @@ describe("Tezos Domains Wrapper", () => {
 
   describe("Commit", () => {
     it("should be to make a commitment to a domain", async () => {
-      const response =  await client.query<{ commit: string }>({
+      const response =  await client.invoke<{ commit: string }>({
         uri: apiUri,
-        query: `
-          mutation {
-            commit(
-              network: ghostnet,
-              params: $params
-            )
-          }
-        `,
-        variables: {
+        method: "commit",
+        args: {
+          network: "ghostnet",
           params: {
             label: `commit-${getRandomString()}`,
             owner: PKH,
             nonce: 491919002
-          },
+          }
         }
       });
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data?.commit).toBeDefined()
       expect(typeof response.data?.commit).toBe('string')
 
@@ -89,43 +83,30 @@ describe("Tezos Domains Wrapper", () => {
         }
       }
 
-      const commitResponse =  await client.query<{ commit: string }>({
+      const commitResponse =  await client.invoke<{ commit: string }>({
         uri: apiUri,
-        query: `
-          mutation {
-            commit(
-              network: ghostnet,
-              params: $params
-            )
-          }
-        `,
-        variables: {
+        method: "commit",
+        args: {
+          network: "ghostnet",
           params: {
             label: buyParams.label,
             owner: buyParams.owner,
             nonce: buyParams.nonce
-          },
+          }
         }
       });
-      expect(commitResponse.errors).toBeUndefined()
+      expect(commitResponse.error).toBeUndefined()
       expect(commitResponse.data?.commit).toBeDefined()
       expect(typeof commitResponse.data?.commit).toBe('string')
 
       // Wait till the commitment operation has more  confirmations
       await waitForConfirmation(client, commitResponse.data?.commit!)
       
-      const buyResponse = await client.query<{ buy: Tezos_TxOperation }>({
+      const buyResponse = await client.invoke<{ buy: Tezos_TxOperation }>({
         uri: apiUri,
-        query: `
-          mutation {
-            buy(
-              network: ghostnet,
-              params: $params,
-              sendParams: $sendParams
-            )
-          }
-        `,
-        variables: {
+        method: "buy",
+        args: {
+          network: "ghostnet",
           params: {
             label: buyParams.label,
             owner: buyParams.owner,
@@ -139,7 +120,7 @@ describe("Tezos Domains Wrapper", () => {
           }
         }
       });
-      expect(buyResponse.errors).toBeUndefined()
+      expect(buyResponse.error).toBeUndefined()
       expect(buyResponse.data).toBeDefined()
       expect(buyResponse.data?.buy).toBeDefined()
       expect(typeof buyResponse.data?.buy).toBe('string')
@@ -148,22 +129,16 @@ describe("Tezos Domains Wrapper", () => {
 
   describe("resolveDomain", () => {
     it("should resolve a valid domain name", async () => {
-      const response =  await client.query<{ resolveDomain: DomainInfo | null }>({
+      const response =  await client.invoke<{ resolveDomain: DomainInfo | null }>({
         uri: apiUri,
-        query: `
-          query {
-            resolveDomain(
-              network: mainnet,
-              domain: $domain
-            )
-          }
-        `,
-        variables: {
+        method: "resolveDomain",
+        args: {
+          network: "mainnet",
           domain: "alice.tez"
         }
       })
   
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data).toBeDefined()
       expect(response.data?.resolveDomain).toBeDefined()
       expect(response.data?.resolveDomain?.Name).toBeDefined()
@@ -173,22 +148,16 @@ describe("Tezos Domains Wrapper", () => {
     })
   
     it("should return null for an invalid domain name", async () => {
-      const response =  await client.query<{ resolveDomain: DomainInfo | null }>({
+      const response =  await client.invoke<{ resolveDomain: DomainInfo | null }>({
         uri: apiUri,
-        query: `
-          query {
-            resolveDomain(
-              network: mainnet,
-              domain: $domain
-            )
-          }
-        `,
-        variables: {
+        method: "resolveDomain",
+        args: {
+          network: "mainnet",
           domain: `chalak-${Math.random() * 1000}.tez`
         }
       })
   
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data).toBeDefined()
       expect(response.data?.resolveDomain).toBeNull()
     })
@@ -196,22 +165,16 @@ describe("Tezos Domains Wrapper", () => {
 
   describe("resolveAddress", () => {
     it("should resolve address to domain record", async () => {
-      const response =  await client.query<{ resolveAddress: DomainInfo | null }>({
+      const response =  await client.invoke<{ resolveAddress: DomainInfo | null }>({
         uri: apiUri,
-        query: `
-          query {
-            resolveAddress(
-              network: mainnet,
-              address: $address
-            )
-          }
-        `,
-        variables: {
+        method: "resolveAddress",
+        args: {
+          network: "mainnet",
           address: 'tz1PnpYYdcgoVq1RYgj6qSdbzwSJRXXcfU3F'
         }
       })
 
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data).toBeDefined()
       expect(response.data?.resolveAddress).toBeDefined()
       expect(response.data?.resolveAddress?.Name).toBeDefined()

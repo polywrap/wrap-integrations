@@ -40,24 +40,17 @@ describe("Query", () => {
 
   describe("getAssetData", () => {
     it("should get asset data for `XTZ-USD` on mainnet", async () => {
-        const response =  await client.query<{ getAssetData: AssetCandle}>({
+        const response =  await client.invoke<{ getAssetData: AssetCandle}>({
           uri: wrapperUri,
-          query: `
-            query {
-              getAssetData(
-                assetCode: $assetCode,
-                network: mainnet,
-                providerAddress: $providerAddress
-              )
-            }
-          `,
-          variables: {
+          method: "getAssetData",
+          args: {
             assetCode: "XTZ-USD",
+            network: "mainnet",
             providerAddress: "KT1Jr5t9UvGiqkvvsuUbPJHaYx24NzdUwNW9"
-          }
+          },
         })
 
-        expect(response.errors).toBeUndefined()
+        expect(response.error).toBeUndefined()
         expect(response.data).toBeDefined()
         expect(response.data?.getAssetData).toBeDefined()
         expect(response.data?.getAssetData.low).toBeDefined()
@@ -71,31 +64,23 @@ describe("Query", () => {
     })
 
     it("should get asset data for `XTZ-USD` on custom network", async () => {
-      const response =  await client.query<{ getAssetData: AssetCandle}>({
+      const response =  await client.invoke<{ getAssetData: AssetCandle}>({
         uri: wrapperUri,
-        query: `
-        query {
-            getAssetData(
-              assetCode: $assetCode,
-              providerAddress: $providerAddress
-              network: custom,
-              custom: $custom
-            )
-          }
-          `,
-          variables: {
-            custom: {
-              connection: {
-                provider: "https://rpc.tzstats.com",
-                networkNameOrChainId: "mainnet"
-              },
+        method: "getAssetData",
+        args: {
+          assetCode: "XTZ-USD",
+          providerAddress: "KT1Jr5t9UvGiqkvvsuUbPJHaYx24NzdUwNW9",
+          network: "custom",
+          custom: {
+            connection: {
+              provider: "https://rpc.tzstats.com",
+              networkNameOrChainId: "mainnet"
             },
-            providerAddress: "KT1Jr5t9UvGiqkvvsuUbPJHaYx24NzdUwNW9",
-            assetCode: "XTZ-USD",
           }
-        })
+        }
+      })
       
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data).toBeDefined()
       expect(response.data?.getAssetData).toBeDefined()
       expect(response.data?.getAssetData.low).toBeDefined()
@@ -109,41 +94,29 @@ describe("Query", () => {
     })
 
     it("should fail if get connection and oracle address is not provided when using custom network", async () => {
-      const response =  await client.query<{ getAssetData: AssetCandle}>({
+      const response =  await client.invoke<{ getAssetData: AssetCandle}>({
         uri: wrapperUri,
-        query: `
-        query {
-            getAssetData(
-              assetCode: $assetCode,
-              providerAddress: ""
-              network: custom
-            )
-          }
-          `,
-          variables: {
-            assetCode: "XTZ-USD",
-          }
-        })
+        method: "getAssetData",
+        args: {
+          assetCode: "XTZ-USD",
+          providerAddress: "",
+          network: "custom"
+        }
+      })
 
-      expect(response.errors).toBeDefined()
+      expect(response.error).toBeDefined()
       expect(response.data?.getAssetData).toBeUndefined()
     })
   })
 
   describe("listProviders", () => {
     it("should get a list of Assets fron a Provider", async () => {
-      const response =  await client.query<{ listProviders: Providers[]}>({
+      const response =  await client.invoke<{ listProviders: Providers[]}>({
         uri: wrapperUri,
-        query: `
-          query {
-            listProviders
-          }
-        `,
-        variables: {
-        }
+        method: "listProviders",
       })
   
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data).toBeDefined()
       expect(response.data?.listProviders).toBeDefined()
     })
@@ -151,23 +124,16 @@ describe("Query", () => {
 
   describe("listAssets", () => {
     it("should get a list of Assets from a Provider", async () => {
-      const response =  await client.query<{ listAssets: string }>({
+      const response =  await client.invoke<{ listAssets: string }>({
         uri: wrapperUri,
-          query: `
-            query {
-              listAssets(
-                providerAddress: $providerAddress,
-                network: mainnet
-              )
-            }
-            `,
-            variables: {
-              providerAddress: "KT1AdbYiPYb5hDuEuVrfxmFehtnBCXv4Np7r",
-              network: "mainnet",
-            }
-          })
+        method: "listAssets",
+        args: {
+          providerAddress: "KT1AdbYiPYb5hDuEuVrfxmFehtnBCXv4Np7r",
+          network: "mainnet"
+        }
+      })
   
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data).toBeDefined()
       expect(response.data?.listAssets).toBeDefined()
     })
@@ -175,25 +141,17 @@ describe("Query", () => {
 
   describe("getCandle", () => {
     it("should get Candle data from a Provider", async () => {
-      const response =  await client.query<{ getCandle: AssetCandle}>({
+      const response =  await client.invoke<{ getCandle: AssetCandle}>({
         uri: wrapperUri,
-          query: `
-            query {
-              getCandle(
-                providerAddress: $providerAddress,
-                network: mainnet
-                assetCode: $assetCode
-              )
-            }
-            `,
-            variables: {
-              providerAddress: "KT1Jr5t9UvGiqkvvsuUbPJHaYx24NzdUwNW9",
-              assetCode: "XTZ-USD",
-              network: "mainnet",
-            }
-          })
+        method: "getCandle",
+        args: {
+          assetCode: "XTZ-USD",
+          providerAddress: "KT1Jr5t9UvGiqkvvsuUbPJHaYx24NzdUwNW9",
+          network: "mainnet"
+        }
+      })
   
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data).toBeDefined()
       expect(response.data?.getCandle).toBeDefined()
       expect(response.data?.getCandle.low).toBeDefined()
@@ -209,25 +167,17 @@ describe("Query", () => {
 
   describe("getNormalizedPrice", () => {
     it("should get Normalized Price of a crypto pair from a Provider", async () => {
-      const response =  await client.query<{ getNormalizedPrice: string }>({
+      const response =  await client.invoke<{ getNormalizedPrice: string }>({
         uri: wrapperUri,
-          query: `
-            query {
-              getNormalizedPrice(
-                providerAddress: $providerAddress,
-                network: mainnet
-                assetCode: $assetCode
-              )
-            }
-            `,
-            variables: {
-              providerAddress: "KT1AdbYiPYb5hDuEuVrfxmFehtnBCXv4Np7r",
-              assetCode: "XTZ-USD",
-              network: "mainnet",
-            }
-          })
+          method: "getNormalizedPrice",
+          args: {
+            assetCode: "XTZ-USD",
+            providerAddress: "KT1AdbYiPYb5hDuEuVrfxmFehtnBCXv4Np7r",
+            network: "mainnet"
+          }
+        })
   
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data).toBeDefined()
       expect(response.data?.getNormalizedPrice).toBeDefined()
     })

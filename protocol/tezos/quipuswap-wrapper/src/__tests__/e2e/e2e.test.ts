@@ -43,56 +43,47 @@ describe("e2e", () => {
 
   describe("getTokenPair", () => {
     it("should get a token pair", async () => {
-      const response =  await client.query<{ getTokenPair: object }>({
+      const response =  await client.invoke<{ getTokenPair: object }>({
         uri: apiUri,
-        query: `
-          query {
-            getTokenPair(
-              network: ghostnet,
-              pairId: "4"
-            )
-          }
-        `,
+        method: "getTokenPair",
+        args: {
+          network: "ghostnet",
+          pairId: "4"
+        }
       });
 
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data).toBeDefined()
       expect(response.data?.getTokenPair).toBeDefined()
     })
 
     it("throws an error when paidId is invalid", async () => {
-      const response =  await client.query<{ getTokenPair: object }>({
+      const response =  await client.invoke<{ getTokenPair: object }>({
         uri: apiUri,
-        query: `
-          query {
-            getTokenPair(
-              network: ghostnet,
-              pairId: "1000"
-            )
-          }
-        `,
+        method: "getTokenPair",
+        args: {
+          network: "ghostnet",
+          pairId: "1000"
+        }
       });
 
       expect(response.data?.getTokenPair).toBeUndefined()
-      expect(response.errors).toBeDefined()
-      expect(response.errors?.[0].message).toMatch(/invalid pair id/)   
+      expect(response.error).toBeDefined()
+      expect(response.error?.message).toMatch(/invalid pair id/)   
     })
   })
 
   describe("listTokenPairs", () => {
     it("should get a list of token pairs from storage", async () => {
-      const response =  await client.query<{ listTokenPairs: object }>({
+      const response =  await client.invoke<{ listTokenPairs: object }>({
         uri: apiUri,
-        query: `
-          query {
-            listTokenPairs(
-              network: mainnet
-            )
-          }
-        `,
+        method: "listTokenPairs",
+        args: {
+          network: "mainnet"
+        }
       });
 
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data).toBeDefined()
       expect(response.data?.listTokenPairs).toBeDefined()
     })
@@ -100,21 +91,16 @@ describe("e2e", () => {
     
   describe("getTokenSupply", () => {
     it("should get a list of assets from a provider", async () => {
-      const response =  await client.query<{ getTokenSupply: GetTokenSupplyResponse}>({
+      const response =  await client.invoke<{ getTokenSupply: GetTokenSupplyResponse}>({
         uri: apiUri,
-          query: `
-            query {
-              getTokenSupply(
-                pairId: $pairId,
-                network: mainnet
-              )
-            }`,
-        variables: {
-          pairId: "0"
+        method: "getTokenSupply",
+        args: {
+          pairId: "0",
+          network: "mainnet"
         }
       })
   
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data).toBeDefined()
       expect(response.data?.getTokenSupply).toBeDefined()
       expect(response.data?.getTokenSupply.token_a_pool).toBeDefined()
@@ -125,23 +111,17 @@ describe("e2e", () => {
 
   describe("getLPTokenBalance", () => {
     it("should get candle data from a provider", async () => {
-      const response = await client.query<{ getLPTokenBalance: string }>({
+      const response = await client.invoke<{ getLPTokenBalance: string }>({
         uri: apiUri,
-        query: `
-          query {
-            getLPTokenBalance(
-              network: mainnet
-              owner: $owner 
-              pairId: $pairId
-            )
-        }`,
-        variables: {
+        method: "getLPTokenBalance",
+        args: {
+          network: "mainnet",
           owner: "tz1LSMu9PugfVyfX2ynNU9y4eVvSACJKP7sg",
           pairId: "0"
         }
       })
     
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data).toBeDefined()
       expect(response.data?.getLPTokenBalance).toBeDefined()
     })
@@ -149,18 +129,11 @@ describe("e2e", () => {
 
   describe("addOperator", () => {
     it("should add operator", async () => {
-      const response = await client.query<{ addOperator: Tezos_TransferParams }>({
+      const response = await client.invoke<{ addOperator: Tezos_TransferParams }>({
         uri: apiUri,
-        query: `
-          mutation {
-            addOperator(
-              network: ghostnet,
-              contractAddress: $contractAddress
-              params: $params
-            )
-          }
-        `,
-        variables: {
+        method: "addOperator",
+        args: {
+          network: "ghostnet",
           contractAddress: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC",
           params: {
             tokenId: 0,
@@ -169,7 +142,7 @@ describe("e2e", () => {
         }
       })
 
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data?.addOperator).toBeDefined()
       expect(response.data?.addOperator.to).toBeDefined()
       expect(response.data?.addOperator.amount).toBeDefined()
@@ -178,18 +151,11 @@ describe("e2e", () => {
   
   describe("removeOperator", () => {
     it("should remove operator", async () => {
-      const response = await client.query<{ removeOperator: Tezos_TransferParams }>({
+      const response = await client.invoke<{ removeOperator: Tezos_TransferParams }>({
         uri: apiUri,
-        query: `
-          mutation {
-            removeOperator(
-              network: ghostnet,
-              contractAddress: $contractAddress
-              params: $params
-            )
-          }
-        `,
-        variables: {
+        method: "removeOperator",
+        args: {
+          network: "ghostnet",
           contractAddress: "KT1Ni6JpXqGyZKXhJCPQJZ9x5x5bd7tXPNPC",
           params: {
             tokenId: 0,
@@ -198,7 +164,7 @@ describe("e2e", () => {
         }
       })
 
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data?.removeOperator).toBeDefined()
       expect(response.data?.removeOperator.to).toBeDefined()
       expect(response.data?.removeOperator.amount).toBeDefined()
@@ -211,18 +177,11 @@ describe("e2e", () => {
 
   describe("swapDirect", () => {
     it("should be to swap token directly on ghostnet", async () => {
-      const swapResponse = await client.query<{ swapDirect: Tezos_TransferParams[] }>({
+      const swapResponse = await client.invoke<{ swapDirect: Tezos_TransferParams[] }>({
         uri: apiUri,
-        query: `
-          mutation {
-            swapDirect(
-              network: ghostnet,
-              params: $params,
-              sendParams: $sendParams
-            )
-          }
-        `,
-        variables: {
+        method: "swapDirect",
+        args: {
+          network: "ghostnet",
           params: {
             pairId: 3,
             direction: `b_to_a`,
@@ -240,24 +199,17 @@ describe("e2e", () => {
           }
         }
       })
-      expect(swapResponse.errors).toBeUndefined()
+      expect(swapResponse.error).toBeUndefined()
       expect(swapResponse.data?.swapDirect).toBeDefined()
       expect(swapResponse.data?.swapDirect).toHaveLength(3)
     });
 
     it("should swap tokens directly", async() => {
-      const swapResponse = await client.query<{ swapDirect: Tezos_TransferParams[] }>({
+      const swapResponse = await client.invoke<{ swapDirect: Tezos_TransferParams[] }>({
         uri: apiUri,
-        query: `
-          mutation {
-            swapDirect(
-              network: ghostnet,
-              params: $params,
-              sendParams: $sendParams
-            )
-          }
-        `,
-        variables: {
+        method: "swapDirect",
+        args: {
+          network: "ghostnet",
           params: {
             pairId: 14,
             direction: `b_to_a`,
@@ -275,25 +227,19 @@ describe("e2e", () => {
           }
         }
       })
-      expect(swapResponse.errors).toBeUndefined()
+      expect(swapResponse.error).toBeUndefined()
       expect(swapResponse.data?.swapDirect).toBeDefined()
       expect(swapResponse.data?.swapDirect).toHaveLength(3)
       
-      const batchContractCallResponse = await client.query<{ batchContractCalls: string }>({
+      const batchContractCallResponse = await client.invoke<{ batchContractCalls: string }>({
         uri: "wrap://ens/tezos.polywrap.eth",
-        query: `
-          mutation {
-            batchContractCalls(
-              params: $params
-            )
-          }
-        `,
-        variables: {
+        method: "batchContractCalls",
+        args: {
           params: swapResponse.data?.swapDirect
         }
       })
 
-      expect(batchContractCallResponse.errors).toBeUndefined()
+      expect(batchContractCallResponse.error).toBeUndefined()
       expect(batchContractCallResponse.data?.batchContractCalls).toBeDefined()
     });
   })
@@ -301,18 +247,11 @@ describe("e2e", () => {
   describe("transfer", () => {
     it.skip("should transfer token from caller/sender", async () => {
         // transfer
-        const transferResponse = await client.query<{ transfer: Tezos_TransferParams }>({
+        const transferResponse = await client.invoke<{ transfer: Tezos_TransferParams }>({
         uri: apiUri,
-        query: `
-          mutation {
-            transfer(
-              network: ghostnet,
-              params: $params,
-              sendParams: $sendParams
-            )
-          }
-        `,
-        variables: {
+        method: "transfer",
+        args: {
+          network: "ghostnet",
           params: {
             to: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
             tokenId: 0,
@@ -325,25 +264,19 @@ describe("e2e", () => {
           }
         }
       })
-      expect(transferResponse.errors).toBeUndefined()
+      expect(transferResponse.error).toBeUndefined()
       expect(transferResponse.data?.transfer).toBeDefined()
       expect(transferResponse.data?.transfer.mutez).toBe(true)
       expect(transferResponse.data?.transfer.parameter).toBeDefined()
       // batch contract calls
-      const batchContractCallResponse = await client.query<{ batchContractCalls: string }>({
+      const batchContractCallResponse = await client.invoke<{ batchContractCalls: string }>({
         uri: "wrap://ens/tezos.polywrap.eth",
-        query: `
-          mutation {
-            batchContractCalls(
-              params: $params
-            )
-          }
-        `,
-        variables: {
+        method: "batchContractCalls",
+        args: {
           params: [transferResponse.data?.transfer]
         }
       })
-      expect(batchContractCallResponse.errors).toBeUndefined()
+      expect(batchContractCallResponse.error).toBeUndefined()
       expect(batchContractCallResponse.data?.batchContractCalls).toBeDefined()
     });
   })
@@ -351,19 +284,11 @@ describe("e2e", () => {
   describe("transferFrom", () => {
     it.skip("should transfer token from address provided", async () => {
       // transferFrom
-        const transferFromResponse = await client.query<{ transferFrom: Tezos_TransferParams }>({
+        const transferFromResponse = await client.invoke<{ transferFrom: Tezos_TransferParams }>({
         uri: apiUri,
-        query: `
-          mutation {
-            transferFrom(
-              network: ghostnet,
-              from: $from,
-              params: $params,
-              sendParams: $sendParams
-            )
-          }
-        `,
-        variables: {
+        method: "transferFrom",
+        args: {
+          network: "ghostnet",
           from: "tz1ZuBvvtrS9JroGs5e4B3qg2PLntxhj1h8Z",
           params: {
             to: "tz1dUru8MXTpHoXLmcHQrs2iPWmDP1Y9rDEY",
@@ -377,7 +302,7 @@ describe("e2e", () => {
           }
         }
       })
-      expect(transferFromResponse.errors).toBeUndefined()
+      expect(transferFromResponse.error).toBeUndefined()
       expect(transferFromResponse.data?.transferFrom).toBeDefined()
       expect(transferFromResponse.data?.transferFrom.mutez).toBe(true)
       expect(transferFromResponse.data?.transferFrom.parameter).toBeDefined()
@@ -387,18 +312,11 @@ describe("e2e", () => {
   describe("invest", () => {
     it("should invest into a token pair", async () => {
       // invest
-      const investResponse = await client.query<{ invest: Tezos_TransferParams[] }>({
+      const investResponse = await client.invoke<{ invest: Tezos_TransferParams[] }>({
         uri: apiUri,
-        query: `
-          mutation {
-            invest(
-              network: ghostnet,
-              params: $params,
-              sendParams: $sendParams
-            )
-          }
-        `,
-        variables: {
+        method: "invest",
+        args: {
+          network: "ghostnet",
           params: {
             pairId: 14,
             shares: "1",
@@ -413,24 +331,18 @@ describe("e2e", () => {
           }
         }
       })
-      expect(investResponse.errors).toBeUndefined()
+      expect(investResponse.error).toBeUndefined()
       expect(investResponse.data?.invest).toBeDefined()
       expect(investResponse.data?.invest).toHaveLength(5)
       // batch contract calls
-      const batchContractCallResponse = await client.query<{ batchContractCalls: string }>({
+      const batchContractCallResponse = await client.invoke<{ batchContractCalls: string }>({
         uri: "wrap://ens/tezos.polywrap.eth",
-        query: `
-          mutation {
-            batchContractCalls(
-              params: $params
-            )
-          }
-        `,
-        variables: {
+        method: "batchContractCalls",
+        args: {
           params: investResponse.data?.invest
         }
       })
-      expect(batchContractCallResponse.errors).toBeUndefined()
+      expect(batchContractCallResponse.error).toBeUndefined()
       expect(batchContractCallResponse.data?.batchContractCalls).toBeDefined()
     });
   })
@@ -438,18 +350,11 @@ describe("e2e", () => {
   describe("divest", () => {
     it("should divest into a token pair", async () => {
       // divest
-      const divestResponse = await client.query<{ divest: Tezos_TransferParams }>({
+      const divestResponse = await client.invoke<{ divest: Tezos_TransferParams }>({
         uri: apiUri,
-        query: `
-          mutation {
-            divest(
-              network: ghostnet,
-              params: $params,
-              sendParams: $sendParams
-            )
-          }
-        `,
-        variables: {
+        method: "divest",
+        args: {
+          network: "ghostnet",
           params: {
             pairId: 14,
             shares: "10",
@@ -462,27 +367,21 @@ describe("e2e", () => {
             amount: 0,
             mutez: true
           }
-        }
+        },
       });
-      expect(divestResponse.errors).toBeUndefined()
+      expect(divestResponse.error).toBeUndefined()
       expect(divestResponse.data?.divest).toBeDefined()
       expect(divestResponse.data?.divest.mutez).toBe(true)
       expect(divestResponse.data?.divest.parameter).toBeDefined()
       // batch contract calls
-      const batchContractCallResponse = await client.query<{ batchContractCalls: string }>({
+      const batchContractCallResponse = await client.invoke<{ batchContractCalls: string }>({
         uri: "wrap://ens/tezos.polywrap.eth",
-        query: `
-          mutation {
-            batchContractCalls(
-              params: $params
-            )
-          }
-        `,
-        variables: {
+        method: "batchContractCalls",
+        args: {
           params: [divestResponse.data?.divest]
         }
       })
-      expect(batchContractCallResponse.errors).toBeUndefined()
+      expect(batchContractCallResponse.error).toBeUndefined()
       expect(batchContractCallResponse.data?.batchContractCalls).toBeDefined()
     });
   })

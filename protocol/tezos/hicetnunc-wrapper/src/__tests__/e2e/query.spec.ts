@@ -39,24 +39,17 @@ describe("Query", () => {
 
   describe("getBalanceOfData", () => {
     it("should return balance", async () => {
-      const response =  await client.query<{ getBalanceOf: TokenBalance }>({
+      const response =  await client.invoke<{ getBalanceOf: TokenBalance }>({
         uri: wrapperUri,
-        query: `
-          query {
-            getBalanceOf(
-              network: mainnet,
-              owner: $owner, 
-              tokenId: $tokenId 
-            )
-          }
-        `,
-        variables: {
+        method: "getBalanceOf",
+        args: {
           owner: "tz1UBZUkXpKGhYsP5KtzDNqLLchwF4uHrGjw",
+          network: "mainnet",
           tokenId: "152",
         }
       })
   
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data).toBeDefined()
       expect(response.data?.getBalanceOf).toBeDefined()
       expect(response.data?.getBalanceOf.owner).toBeDefined()
@@ -67,22 +60,16 @@ describe("Query", () => {
 
   describe("getTokenMetadata", () => {
     it("should get token metadata on mainnet", async () => {
-      const response =  await client.query<{ getTokenMetadata: TokenMetadata }>({
+      const response =  await client.invoke<{ getTokenMetadata: TokenMetadata }>({
         uri: wrapperUri,
-        query: `
-          query {
-            getTokenMetadata(
-              network: mainnet,
-              tokenId: $tokenId
-            )
-          }
-        `,
-        variables: {
-          tokenId: "703989",
+        method: "getTokenMetadata",
+        args: {
+          network: "mainnet",
+          tokenId: "703989"
         }
       })
   
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data).toBeDefined()
       expect(response.data?.getTokenMetadata.tokenId).toBeDefined()
       expect(response.data?.getTokenMetadata.ipfsHash).toBeDefined()
@@ -91,40 +78,31 @@ describe("Query", () => {
 
   describe("getTokenCountData", () => {
     it("should count token on mainnet", async () => {
-      const response = await client.query<{ getTokenCountData: string }>({
+      const response = await client.invoke<{ getTokenCountData: string }>({
         uri: wrapperUri,
-        query: `
-          query {
-            getTokenCountData(
-              network: mainnet
-            )
-          }
-        `,
+        method: "getTokenCountData",
+        args: {
+          network: "mainnet",
+        }
       })
   
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data?.getTokenCountData).toBeDefined()
     })
   })
 
   describe("getSwapData", () => {
     it("should swap data", async () => {
-      const response =  await client.query<{ getSwapData: SwapData }>({
+      const response =  await client.invoke<{ getSwapData: SwapData }>({
         uri: wrapperUri,
-        query: `
-          query {
-            getSwapData(
-              network: mainnet,
-              swapId: $swapId
-            )
-          }
-        `,
-        variables: {
+        method: "getSwapData",
+        args: {
+          network: "mainnet",
           swapId: "500004"
         }
       });
   
-      expect(response.errors).toBeUndefined()
+      expect(response.error).toBeUndefined()
       expect(response.data).toBeDefined()
       expect(response.data?.getSwapData).toBeDefined()
       expect(response.data?.getSwapData.creator).toBeDefined()
