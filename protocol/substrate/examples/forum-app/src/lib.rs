@@ -11,6 +11,7 @@ use wasm_bindgen_futures::spawn_local;
 
 mod api;
 mod content;
+mod extrinsic;
 mod fetch;
 mod util;
 
