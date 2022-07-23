@@ -1,4 +1,8 @@
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::{
+    DateTime,
+    NaiveDateTime,
+    Utc,
+};
 
 pub fn timestamp_ago(timestamp: u64) -> String {
     log::info!("timestamp: {}", timestamp);

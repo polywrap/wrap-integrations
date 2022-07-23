@@ -1,28 +1,42 @@
-use crate::content::*;
-use crate::Api;
-use crate::Error;
+use crate::{
+    content::*,
+    Api,
+    Error,
+};
 use async_recursion::async_recursion;
-use codec::Compact;
-use codec::Decode;
-use codec::Encode;
-use codec::Input;
-use frame_support::traits::Get;
-use frame_support::BoundedVec;
+use codec::{
+    Compact,
+    Decode,
+    Encode,
+    Input,
+};
+use frame_support::{
+    traits::Get,
+    BoundedVec,
+};
 use sauron::prelude::*;
-use serde::de::DeserializeOwned;
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{
+    de::DeserializeOwned,
+    Deserialize,
+    Serialize,
+};
 use serde_json::json;
-use sp_core::crypto::AccountId32;
-use sp_core::crypto::Ss58Codec;
-use sp_core::Pair;
-use sp_core::H256;
+use sp_core::{
+    crypto::{
+        AccountId32,
+        Ss58Codec,
+    },
+    Pair,
+    H256,
+};
 use sp_keyring::AccountKeyring;
-use sp_runtime::generic::Era;
-use sp_runtime::traits::IdentifyAccount;
-use sp_runtime::MultiAddress;
-use sp_runtime::MultiSignature;
-use sp_runtime::MultiSigner;
+use sp_runtime::{
+    generic::Era,
+    traits::IdentifyAccount,
+    MultiAddress,
+    MultiSignature,
+    MultiSigner,
+};
 use std::fmt;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -54,7 +68,10 @@ pub struct SignedPayload<Call> {
 }
 
 /// TODO: This should be hookup to the browser extension
-pub async fn sign_call_and_encode<Call>(api: &Api, call: Call) -> Result<String, Error>
+pub async fn sign_call_and_encode<Call>(
+    api: &Api,
+    call: Call,
+) -> Result<String, Error>
 where
     Call: Encode + Clone + fmt::Debug,
 {
@@ -99,7 +116,10 @@ where
     Ok(encoded)
 }
 
-pub async fn get_nonce_for_account(api: &Api, account: &AccountId32) -> Result<u32, Error> {
+pub async fn get_nonce_for_account(
+    api: &Api,
+    account: &AccountId32,
+) -> Result<u32, Error> {
     let args = json!({
         "url": api.url,
         "account": account.to_ss58check(),
@@ -112,7 +132,8 @@ pub async fn get_genesis_hash(api: &Api) -> Result<Option<H256>, Error> {
     let args = json!({
         "url": api.url,
     });
-    let runtime_version: Option<H256> = api.invoke_method("genesisHash", args).await?;
+    let runtime_version: Option<H256> =
+        api.invoke_method("genesisHash", args).await?;
     Ok(runtime_version)
 }
 
@@ -120,7 +141,8 @@ pub async fn get_runtime_version(api: &Api) -> Result<RuntimeVersion, Error> {
     let args = json!({
         "url": api.url,
     });
-    let runtime_version: RuntimeVersion = api.invoke_method("getRuntimeVersion", args).await?;
+    let runtime_version: RuntimeVersion =
+        api.invoke_method("getRuntimeVersion", args).await?;
     Ok(runtime_version)
 }
 
@@ -158,7 +180,9 @@ where
 }
 
 /// Same function as in primitives::generic. Needed to be copied as it is private there.
-fn encode_with_vec_prefix<T: Encode, F: Fn(&mut Vec<u8>)>(encoder: F) -> Vec<u8> {
+fn encode_with_vec_prefix<T: Encode, F: Fn(&mut Vec<u8>)>(
+    encoder: F,
+) -> Vec<u8> {
     let size = sp_std::mem::size_of::<T>();
     let reserve = match size {
         0..=0b0011_1111 => 1,
@@ -189,7 +213,8 @@ where
         // with substrate's generic `Vec<u8>` type. Basically this just means accepting that there
         // will be a prefix of vector length (we don't need
         // to use this).
-        let _length_do_not_remove_me_see_above: Vec<()> = Decode::decode(input)?;
+        let _length_do_not_remove_me_see_above: Vec<()> =
+            Decode::decode(input)?;
 
         let version = input.read_byte()?;
 
@@ -213,11 +238,15 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sp_core::Pair;
-    use sp_core::H256 as Hash;
-    use sp_runtime::generic::Era;
-    use sp_runtime::testing::sr25519;
-    use sp_runtime::MultiSignature;
+    use sp_core::{
+        Pair,
+        H256 as Hash,
+    };
+    use sp_runtime::{
+        generic::Era,
+        testing::sr25519,
+        MultiSignature,
+    };
 
     #[test]
     fn encode_decode_roundtrip_works() {

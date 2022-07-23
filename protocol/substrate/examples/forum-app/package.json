@@ -7,6 +7,7 @@
     "build:app": "wasm-pack build --release --target web",
     "build": "yarn build:app && cp -r ./pkg ./dist/",
     "start": "yarn build && parcel index.html",
+    "fmt": "cargo +nightly fmt",
     "clean": "rm -rf node_modules && rm -rf dist cargo clean"
   },
   "devDependencies": {

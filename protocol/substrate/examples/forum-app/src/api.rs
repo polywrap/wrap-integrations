@@ -1,25 +1,37 @@
-use crate::content::*;
-use crate::Error;
+use crate::{
+    content::*,
+    Error,
+};
 use async_recursion::async_recursion;
-use codec::Compact;
-use codec::Decode;
-use codec::Encode;
+use codec::{
+    Compact,
+    Decode,
+    Encode,
+};
 use frame_support::BoundedVec;
 use sauron::prelude::*;
-use serde::de::DeserializeOwned;
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{
+    de::DeserializeOwned,
+    Deserialize,
+    Serialize,
+};
 use serde_json::json;
-use sp_core::crypto::AccountId32;
-use sp_core::crypto::Ss58Codec;
-use sp_core::Pair;
-use sp_core::H256;
+use sp_core::{
+    crypto::{
+        AccountId32,
+        Ss58Codec,
+    },
+    Pair,
+    H256,
+};
 use sp_keyring::AccountKeyring;
-use sp_runtime::generic::Era;
-use sp_runtime::traits::IdentifyAccount;
-use sp_runtime::MultiAddress;
-use sp_runtime::MultiSignature;
-use sp_runtime::MultiSigner;
+use sp_runtime::{
+    generic::Era,
+    traits::IdentifyAccount,
+    MultiAddress,
+    MultiSignature,
+    MultiSigner,
+};
 use std::fmt;
 
 #[wasm_bindgen]
@@ -39,7 +51,8 @@ extern "C" {
     ) -> JsValue;
 
     #[wasm_bindgen(method)]
-    pub async fn invoke(this: &PolywrapClientWrapper, args: JsValue) -> JsValue;
+    pub async fn invoke(this: &PolywrapClientWrapper, args: JsValue)
+        -> JsValue;
 }
 
 #[derive(Clone)]

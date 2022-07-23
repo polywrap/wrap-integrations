@@ -2,8 +2,10 @@ use crate::Msg;
 pub use comment::*;
 use frame_support::pallet_prelude::ConstU32;
 pub use post::*;
-use sauron::html::attributes;
-use sauron::prelude::*;
+use sauron::{
+    html::attributes,
+    prelude::*,
+};
 
 pub mod comment;
 pub mod post;
@@ -38,7 +40,9 @@ impl ParentItem {
 impl Content {
     pub fn view(&self) -> Node<Msg> {
         match self {
-            Content::Posts(post_details) => self.view_post_detail_list(post_details),
+            Content::Posts(post_details) => {
+                self.view_post_detail_list(post_details)
+            }
             Content::PostDetail(post_detail) => post_detail.view(),
             Content::Errored(error) => self.view_error(error),
             Content::SubmitPost => Self::view_submit_post(),
@@ -121,7 +125,9 @@ impl Content {
                             ParentItem::Comment(comment_id) => {
                                 text!("Replying to comment_id: {}", comment_id)
                             }
-                            ParentItem::Post(post_id) => text!("Replying to post_id: {}", post_id),
+                            ParentItem::Post(post_id) => {
+                                text!("Replying to post_id: {}", post_id)
+                            }
                         }],
                     ),
                     textarea(
