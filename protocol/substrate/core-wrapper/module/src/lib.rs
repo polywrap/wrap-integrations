@@ -213,7 +213,7 @@ pub fn account_info(arg: ArgsAccountInfo) -> Option<AccountInfo> {
         AccountId32::from_ss58check(&arg.account).expect("must be a valid ss58check format");
     let account_info: Option<crate::types::account_info::AccountInfo> = Api::new(&arg.url)
         .ok()
-        .map(|api| api.get_account_info(account_id).ok().flatten())
+        .map(|api| api.get_account_info(&account_id).ok().flatten())
         .flatten();
 
     debug!("account info: {:#?}", account_info);
