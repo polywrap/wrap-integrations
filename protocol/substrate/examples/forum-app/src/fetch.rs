@@ -84,6 +84,8 @@ pub async fn get_post_list(api: &Api) -> Result<Vec<PostDetail>, Error> {
     Ok(all_post)
 }
 
+///TODO: include the reply count into the Post and Comment storage
+/// instead of recursively querying here
 pub async fn get_reply_count(api: &Api, post_id: u32) -> Result<usize, Error> {
     let reply_count = get_kids(api, post_id)
         .await?

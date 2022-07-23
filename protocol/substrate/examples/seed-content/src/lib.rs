@@ -171,8 +171,13 @@ async fn add_post(api:&Api, post: &str) -> anyhow::Result<u32>{
     Ok(current_item)
 }
 
-async fn get_current_item(api: &Api) -> anyhow::Result<u32> {
 
+
+/// Note: this is a very unreliable way of determining
+/// the post_id, comment_id of the content that was just posted
+/// since some other threads could be using them.
+/// This is for the sake of simulating replying to some post the user have seen on the UI.
+async fn get_current_item(api: &Api) -> anyhow::Result<u32> {
     let args = json!({
         "url": api.url,
         "pallet": "ForumModule",
@@ -183,9 +188,11 @@ async fn get_current_item(api: &Api) -> anyhow::Result<u32> {
         api.invoke_method("getStorageValue", args).await?;
 
     if let Some(current_item) = current_item {
-        let current_item:u32 = Decode::decode(&mut current_item.as_slice())?;
+        let current_item: u32 = Decode::decode(&mut current_item.as_slice()).expect("must decode");
+        log::info!("current item: {}", current_item);
         Ok(current_item)
     } else {
+        log::error!("can not get the ItemCounter, likely an error");
         Ok(0)
     }
 }
