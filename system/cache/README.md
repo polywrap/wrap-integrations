@@ -9,7 +9,7 @@ This library has been implemented in easily extensible way. It provides a common
 
   - Schema
     ```graphql
-    #import * into Interface from "wrap://ens.interface.cache.polywrap.eth"
+    #import * into Interface from "wrap://ens/interface.cache.polywrap.eth"
     #use { getImplementations } for Interface
 
     type Module{
@@ -22,10 +22,10 @@ This library has been implemented in easily extensible way. It provides a common
     import { 
       Interface,
       Interface_Module,
-      Args_Foo 
+      Args_foo 
     } from "./wrap";
 
-    export function foo(args: Args_Foo) {
+    export function foo(args: Args_foo) {
       const impls = Interface.getImplementations();
       if (impls.length < 1) {
         throw new Error("...")
@@ -47,7 +47,7 @@ const config = {
     ...
     {
       uri: "wrap://ens/in-memory.cache.polywrap.eth"
-      plugin: InMemoryCache()
+      plugin: InMemoryCachePlugin()
     }
   ]
   interfaces: [
