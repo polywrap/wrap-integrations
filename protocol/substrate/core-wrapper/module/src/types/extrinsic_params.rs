@@ -11,6 +11,12 @@ use sp_std::prelude::*;
 #[derive(Decode, Encode, Clone, Eq, PartialEq, Debug)]
 pub struct GenericExtra(pub Era, pub Compact<u32>, pub Compact<u128>);
 
+impl GenericExtra {
+    pub fn immortal_with_nonce_and_tip(nonce: u32, tip: u128) -> Self {
+        Self(Era::immortal(), Compact(nonce), Compact(tip))
+    }
+}
+
 /// This trait allows you to configure the "signed extra" and
 /// "additional" parameters that are signed and used in transactions.
 /// see [`BaseExtrinsicParams`] for an implementation that is compatible with

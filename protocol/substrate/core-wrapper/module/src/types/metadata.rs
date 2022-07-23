@@ -169,6 +169,19 @@ impl Metadata {
         Ok(portable_form)
     }
 
+    pub fn pallet_call_index(
+        &self,
+        pallet_name: &str,
+        call_name: &str,
+    ) -> Result<[u8; 2], MetadataError> {
+        let pallet = self.pallet(pallet_name)?;
+        let call_index = pallet
+            .calls
+            .get(call_name)
+            .ok_or_else(|| MetadataError::CallNotFound(call_name.to_string()))?;
+        Ok([pallet.index, *call_index])
+    }
+
     pub fn storage_map_type(
         &self,
         pallet_name: &str,
