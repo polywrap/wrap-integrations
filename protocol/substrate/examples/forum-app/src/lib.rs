@@ -14,7 +14,7 @@ use wasm_bindgen_futures::spawn_local;
 mod api;
 mod content;
 mod extrinsic;
-mod fetch;
+pub mod fetch;
 mod util;
 
 const URL: &str = "http://localhost:9933";
@@ -489,7 +489,7 @@ impl Application<Msg> for App {
     }
 }
 
-#[wasm_bindgen(start)]
+#[wasm_bindgen]
 pub async fn startup() {
     console_log::init_with_level(log::Level::Trace).ok();
     console_error_panic_hook::set_once();

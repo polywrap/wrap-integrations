@@ -10,8 +10,9 @@
     </head>
     <body>
     <script type=module>
-        import init from "./pkg/forum_app.js"
+        import init,{startup} from "./pkg/forum_app.js"
         await init().catch(console.err);
+        await startup().catch(console.err);
     </script>
     </body>
 </html>
