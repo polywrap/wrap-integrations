@@ -35,10 +35,9 @@ impl Api {
             pub fn chain_get_header<H>(&self, hash: H256) -> Result<Option<H>,Error>
                 where H:Header + DeserializeOwned;
 
-            #[call(submit_extrinsic)]
             pub fn author_submit_extrinsic(
                 &self,
-                hex_extrinsic: &str,
+                hex_extrinsic: String,
             ) -> Result<Option<H256>, Error>;
 
         }

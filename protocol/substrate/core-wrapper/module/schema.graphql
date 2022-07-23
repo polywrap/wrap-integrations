@@ -6,11 +6,13 @@ type Module {
   
   blockHash(url: String!, number: UInt32!): String
 
+  genesisHash(url: String!): String
+
   chainGetBlock(url: String!, number: UInt32!): BlockOutput
 
   constant(url: String!, pallet: String!, name: String!): [UInt8!]
 
-  stateGetRuntimeVersion(url: String!): JSON
+  getRuntimeVersion(url: String!): RuntimeVersion
 
   getStorageValue(url: String!, pallet: String!, storage: String!): [UInt8!]
 
@@ -21,6 +23,13 @@ type Module {
   rpcMethods(url: String!): [String!]
 
   accountInfo(url: String!, account: String!): AccountInfo
+
+  getNonceForAccount(url: String!, account: String!): UInt32
+
+  palletCallIndex(url: String!, pallet: String!, call: String!): [UInt8!]
+
+  authorSubmitExtrinsic(url: String!, extrinsic: String!): String
+
 }
 
 type ChainMetadata {
@@ -47,4 +56,14 @@ type AccountInfo {
     providers: UInt32!,
     sufficients: UInt32!,
     data: AccountData!
+}
+
+type RuntimeVersion {
+    spec_name: String!,
+    impl_name: String!,
+    authoring_version: UInt32!,
+    spec_version: UInt32!,
+    impl_version: UInt32!,
+    transaction_version: UInt32!,
+    state_version: UInt8!,
 }

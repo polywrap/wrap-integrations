@@ -193,7 +193,7 @@ impl BaseApi {
         }
     }
 
-    pub fn submit_extrinsic(&self, hex_extrinsic: &str) -> Result<Option<H256>, Error> {
+    pub fn author_submit_extrinsic(&self, hex_extrinsic: String) -> Result<Option<H256>, Error> {
         let value = self.json_request_value("author_submitExtrinsic", vec![hex_extrinsic])?;
         match value {
             Some(value) => {

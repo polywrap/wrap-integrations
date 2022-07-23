@@ -60,12 +60,20 @@ pub fn chain_get_metadata(arg: ArgsChainGetMetadata) -> Option<ChainMetadata> {
 }
 
 /// return the chain
-pub fn state_get_runtime_version(arg: ArgsStateGetRuntimeVersion) -> Option<serde_json::Value> {
+pub fn get_runtime_version(arg: ArgsGetRuntimeVersion) -> Option<RuntimeVersion> {
     BaseApi::new(&arg.url)
         .fetch_runtime_version()
         .ok()
         .flatten()
-        .map(|v| serde_json::to_value(v).expect("must encode to json"))
+        .map(|v| RuntimeVersion {
+            spec_name: v.spec_name.to_string(),
+            impl_name: v.impl_name.to_string(),
+            authoring_version: v.authoring_version,
+            spec_version: v.spec_version,
+            impl_version: v.impl_version,
+            transaction_version: v.transaction_version,
+            state_version: v.state_version,
+        })
 }
 
 /// return the rpc methods
@@ -80,14 +88,19 @@ pub fn block_hash(arg: ArgsBlockHash) -> Option<String> {
     block_hash.ok().flatten().map(|h| format!("{:#x}", h))
 }
 
+/// return the genesis_hash
+pub fn genesis_hash(arg: ArgsGenesisHash) -> Option<String> {
+    let api = BaseApi::new(&arg.url);
+    let block_hash = api.fetch_genesis_hash();
+    block_hash.ok().flatten().map(|h| format!("{:#x}", h))
+}
+
 /// return the Block at number
 pub fn chain_get_block(arg: ArgsChainGetBlock) -> Option<BlockOutput> {
     let api = BaseApi::new(&arg.url);
     let block = api.fetch_opaque_block(arg.number);
     block.ok().flatten().map(|block| BlockOutput { block })
 }
-
-pub fn balance_transfer() {}
 
 /// return value of storage from a module and storage name
 pub fn get_storage_value(arg: ArgsGetStorageValue) -> Option<Vec<u8>> {
@@ -234,4 +247,33 @@ pub fn account_info(arg: ArgsAccountInfo) -> Option<AccountInfo> {
     } else {
         None
     }
+}
+
+/// return the nonce for this account
+pub fn get_nonce_for_account(arg: ArgsGetNonceForAccount) -> Option<u32> {
+    let account_id =
+        AccountId32::from_ss58check(&arg.account).expect("must be a valid ss58check format");
+    Api::new(&arg.url)
+        .ok()
+        .map(|api| api.get_nonce_for_account(&account_id).ok())
+        .flatten()
+}
+
+pub fn pallet_call_index(arg: ArgsPalletCallIndex) -> Option<Vec<u8>> {
+    Api::new(&arg.url)
+        .ok()
+        .map(|api| {
+            api.pallet_call_index(&arg.pallet, &arg.call)
+                .ok()
+                .map(|v| v.to_vec())
+        })
+        .flatten()
+}
+
+pub fn author_submit_extrinsic(arg: ArgsAuthorSubmitExtrinsic) -> Option<String> {
+    BaseApi::new(&arg.url)
+        .author_submit_extrinsic(arg.extrinsic)
+        .ok()
+        .flatten()
+        .map(|hash| format!("{:#x}", hash))
 }
