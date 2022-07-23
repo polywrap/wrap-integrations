@@ -1,15 +1,15 @@
 # TODO:
 - [ ] Make an example app, showcasing multiple functionalities of the substrate chain
-    - [ ] balance transfer
-    - [ ] storage api
+    - [X] balance transfer
+    - [X] storage api
         - [X] storage_value
         - [X] storage_maps
-    - [ ] pallet constants
+    - [X] pallet constants
 - [X] Deploy and use the substrate-polywrapper to ipfs
     - [ ] Make use of ENS domain to make the deployment automatic
         - Currently, there is a need to copy paste the deployed ipfs hash
 - [ ] Make use of signer + provider
-- [ ] Restructure extrinsic api, such that it talks to a service which the user signs the payload and give its public key
+- [X] Restructure extrinsic api, such that it talks to a service which the user signs the payload and give its public key
         - execute_extrinsic
         - balance_transfer
     use only of the Public key instead of the the Pair, as it would be violating proper security practice.
