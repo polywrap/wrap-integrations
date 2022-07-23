@@ -1,24 +1,33 @@
 //! Contains the api specific to balances pallet
 //! Balance transfer, set_balance api
-use crate::types::account_info::BlockNumber;
-use crate::types::extrinsic_params::PlainTipExtrinsicParamsBuilder;
 use crate::{
     error::Error,
     types::{
-        extrinsic_params::{PlainTip, PlainTipExtrinsicParams},
+        account_info::BlockNumber,
+        extrinsic_params::{
+            PlainTip,
+            PlainTipExtrinsicParams,
+            PlainTipExtrinsicParamsBuilder,
+        },
         extrinsics::GenericAddress,
     },
     Api,
 };
 use codec::Compact;
-use sp_core::crypto::AccountId32;
-use sp_core::Pair;
-use sp_core::H256;
-use sp_runtime::generic::Era;
-use sp_runtime::generic::Header;
-use sp_runtime::traits::BlakeTwo256;
-use sp_runtime::MultiSignature;
-use sp_runtime::MultiSigner;
+use sp_core::{
+    crypto::AccountId32,
+    Pair,
+    H256,
+};
+use sp_runtime::{
+    generic::{
+        Era,
+        Header,
+    },
+    traits::BlakeTwo256,
+    MultiSignature,
+    MultiSigner,
+};
 
 const BALANCES: &str = "Balances";
 
@@ -36,7 +45,8 @@ impl Api {
         MultiSigner: From<P::Public>,
         MultiSignature: From<P::Signature>,
     {
-        let balance_call_index: [u8; 2] = self.pallet_call_index(BALANCES, "transfer")?;
+        let balance_call_index: [u8; 2] =
+            self.pallet_call_index(BALANCES, "transfer")?;
 
         let balance_call: ([u8; 2], GenericAddress, Compact<u128>) =
             (balance_call_index, GenericAddress::Id(to), Compact(amount));

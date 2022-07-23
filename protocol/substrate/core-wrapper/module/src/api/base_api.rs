@@ -1,17 +1,33 @@
-use crate::debug;
-use crate::wrap::imported::http_module;
-use crate::wrap::HttpHeader;
-use crate::wrap::HttpModule;
-use crate::wrap::HttpRequest;
-use crate::wrap::HttpResponse;
-use crate::wrap::HttpResponseType;
-use crate::{error::Error, types::metadata::Metadata, utils::FromHexStr};
+use crate::{
+    debug,
+    error::Error,
+    types::metadata::Metadata,
+    utils::FromHexStr,
+    wrap::{
+        imported::http_module,
+        HttpHeader,
+        HttpModule,
+        HttpRequest,
+        HttpResponse,
+        HttpResponseType,
+    },
+};
 use frame_metadata::RuntimeMetadataPrefixed;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use sp_core::{Decode, H256};
+use serde::{
+    de::DeserializeOwned,
+    Deserialize,
+    Serialize,
+};
+use sp_core::{
+    Decode,
+    H256,
+};
 use sp_runtime::{
     generic::SignedBlock,
-    traits::{Block, Header},
+    traits::{
+        Block,
+        Header,
+    },
 };
 use sp_version::RuntimeVersion;
 
@@ -50,7 +66,9 @@ impl BaseApi {
     /// `curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "state_getMetadata"}' http://localhost:9933/`
     ///
     /// Which makes an rpc call of a substrate node running locally.
-    pub fn fetch_runtime_metadata(&self) -> Result<Option<RuntimeMetadataPrefixed>, Error> {
+    pub fn fetch_runtime_metadata(
+        &self,
+    ) -> Result<Option<RuntimeMetadataPrefixed>, Error> {
         let value = self.json_request_value("state_getMetadata", ())?;
         match value {
             Some(value) => {
@@ -58,7 +76,8 @@ impl BaseApi {
                     .as_str()
                     .expect("Expecting a string value on the result");
                 let data = Vec::from_hex(value_str)?;
-                let rt_metadata = RuntimeMetadataPrefixed::decode(&mut data.as_slice())?;
+                let rt_metadata =
+                    RuntimeMetadataPrefixed::decode(&mut data.as_slice())?;
                 Ok(Some(rt_metadata))
             }
             None => Ok(None),
@@ -82,7 +101,8 @@ impl BaseApi {
         let value = self.json_request_value("rpc_methods", ())?;
         match value {
             Some(value) => {
-                let methods: Vec<String> = serde_json::from_value(value["methods"].clone())?;
+                let methods: Vec<String> =
+                    serde_json::from_value(value["methods"].clone())?;
                 Ok(Some(methods))
             }
             None => Ok(None),
@@ -116,7 +136,10 @@ impl BaseApi {
     }
 
     /// Fetch a substrate signed block by number `n`
-    pub fn fetch_signed_block<B>(&self, n: u32) -> Result<Option<SignedBlock<B>>, Error>
+    pub fn fetch_signed_block<B>(
+        &self,
+        n: u32,
+    ) -> Result<Option<SignedBlock<B>>, Error>
     where
         B: Block + DeserializeOwned,
     {
@@ -155,7 +178,10 @@ impl BaseApi {
     }
 
     /// Fetch a substrate block by its hash `hash`
-    pub fn fetch_signed_block_by_hash<B>(&self, hash: H256) -> Result<Option<SignedBlock<B>>, Error>
+    pub fn fetch_signed_block_by_hash<B>(
+        &self,
+        hash: H256,
+    ) -> Result<Option<SignedBlock<B>>, Error>
     where
         B: Block + DeserializeOwned,
     {
@@ -166,7 +192,10 @@ impl BaseApi {
         }
     }
 
-    pub fn fetch_opaque_block(&self, n: u32) -> Result<Option<serde_json::Value>, Error> {
+    pub fn fetch_opaque_block(
+        &self,
+        n: u32,
+    ) -> Result<Option<serde_json::Value>, Error> {
         let block_hash = self.fetch_block_hash(n)?;
         match block_hash {
             Some(block_hash) => self.fetch_opaque_block_by_hash(block_hash),
@@ -182,19 +211,28 @@ impl BaseApi {
         Ok(value)
     }
 
-    pub fn fetch_runtime_version(&self) -> Result<Option<RuntimeVersion>, Error> {
+    pub fn fetch_runtime_version(
+        &self,
+    ) -> Result<Option<RuntimeVersion>, Error> {
         let version = self.json_request_value("state_getRuntimeVersion", ())?;
         match version {
             Some(version) => {
-                let rt_version: RuntimeVersion = serde_json::from_value(version)?;
+                let rt_version: RuntimeVersion =
+                    serde_json::from_value(version)?;
                 Ok(Some(rt_version))
             }
             None => Ok(None),
         }
     }
 
-    pub fn author_submit_extrinsic(&self, hex_extrinsic: String) -> Result<Option<H256>, Error> {
-        let value = self.json_request_value("author_submitExtrinsic", vec![hex_extrinsic])?;
+    pub fn author_submit_extrinsic(
+        &self,
+        hex_extrinsic: String,
+    ) -> Result<Option<H256>, Error> {
+        let value = self.json_request_value(
+            "author_submitExtrinsic",
+            vec![hex_extrinsic],
+        )?;
         match value {
             Some(value) => {
                 let value_str = value.as_str().expect("must be a string");
@@ -222,7 +260,11 @@ impl BaseApi {
     /// Note: reqwest crate can run in a tokio runtime or in webassembly runtime, which is why
     /// we are able to compile this whole library into wasm.
     ///
-    fn json_request<P: Serialize>(&self, method: &str, params: P) -> Result<JsonResult, Error> {
+    fn json_request<P: Serialize>(
+        &self,
+        method: &str,
+        params: P,
+    ) -> Result<JsonResult, Error> {
         let param = JsonReq {
             id: 1,
             jsonrpc: "2.0".to_string(),
@@ -249,10 +291,12 @@ impl BaseApi {
         };
 
         match response {
-            Some(response) => match response.body {
-                Some(body) => Ok(serde_json::from_str(&body)?),
-                None => Err(Error::NoResponse),
-            },
+            Some(response) => {
+                match response.body {
+                    Some(body) => Ok(serde_json::from_str(&body)?),
+                    None => Err(Error::NoResponse),
+                }
+            }
             None => Err(Error::NoResponse),
         }
     }

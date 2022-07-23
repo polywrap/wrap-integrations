@@ -17,7 +17,11 @@
 
 use crate::types::metadata::MetadataError;
 use codec::Encode;
-use frame_metadata::{StorageEntryMetadata, StorageEntryType, StorageHasher};
+use frame_metadata::{
+    StorageEntryMetadata,
+    StorageEntryType,
+    StorageHasher,
+};
 use scale_info::form::PortableForm;
 use sp_core::storage::StorageKey;
 use std::marker::PhantomData;
@@ -79,9 +83,18 @@ pub trait GetStorage {
         &self,
         pallet_prefix: &str,
     ) -> Result<StorageDoubleMap<K, Q>, MetadataError>;
-    fn get_map<K: Encode>(&self, pallet_prefix: &str) -> Result<StorageMap<K>, MetadataError>;
-    fn get_map_prefix(&self, pallet_prefix: &str) -> Result<StorageKey, MetadataError>;
-    fn get_value(&self, pallet_prefix: &str) -> Result<StorageValue, MetadataError>;
+    fn get_map<K: Encode>(
+        &self,
+        pallet_prefix: &str,
+    ) -> Result<StorageMap<K>, MetadataError>;
+    fn get_map_prefix(
+        &self,
+        pallet_prefix: &str,
+    ) -> Result<StorageKey, MetadataError>;
+    fn get_value(
+        &self,
+        pallet_prefix: &str,
+    ) -> Result<StorageValue, MetadataError>;
 }
 
 impl GetStorage for StorageEntryMetadata<PortableForm> {
@@ -93,8 +106,10 @@ impl GetStorage for StorageEntryMetadata<PortableForm> {
             StorageEntryType::Map { hashers, .. } => {
                 let module_prefix = pallet_prefix.as_bytes().to_vec();
                 let storage_prefix = self.name.as_bytes().to_vec();
-                let hasher1 = hashers.get(0).ok_or(MetadataError::StorageTypeError)?;
-                let hasher2 = hashers.get(1).ok_or(MetadataError::StorageTypeError)?;
+                let hasher1 =
+                    hashers.get(0).ok_or(MetadataError::StorageTypeError)?;
+                let hasher2 =
+                    hashers.get(1).ok_or(MetadataError::StorageTypeError)?;
 
                 log::debug!(
                     "map for '{}' '{}' has hasher1 {:?} hasher2 {:?}",
@@ -117,7 +132,10 @@ impl GetStorage for StorageEntryMetadata<PortableForm> {
         }
     }
 
-    fn get_map<K: Encode>(&self, pallet_prefix: &str) -> Result<StorageMap<K>, MetadataError> {
+    fn get_map<K: Encode>(
+        &self,
+        pallet_prefix: &str,
+    ) -> Result<StorageMap<K>, MetadataError> {
         match &self.ty {
             StorageEntryType::Map { hashers, .. } => {
                 let hasher = hashers
@@ -145,10 +163,14 @@ impl GetStorage for StorageEntryMetadata<PortableForm> {
         }
     }
 
-    fn get_map_prefix(&self, pallet_prefix: &str) -> Result<StorageKey, MetadataError> {
+    fn get_map_prefix(
+        &self,
+        pallet_prefix: &str,
+    ) -> Result<StorageKey, MetadataError> {
         match &self.ty {
             StorageEntryType::Map { .. } => {
-                let mut bytes = sp_core::twox_128(pallet_prefix.as_bytes()).to_vec();
+                let mut bytes =
+                    sp_core::twox_128(pallet_prefix.as_bytes()).to_vec();
                 bytes.extend(&sp_core::twox_128(self.name.as_bytes())[..]);
                 Ok(StorageKey(bytes))
             }
@@ -156,7 +178,10 @@ impl GetStorage for StorageEntryMetadata<PortableForm> {
         }
     }
 
-    fn get_value(&self, pallet_prefix: &str) -> Result<StorageValue, MetadataError> {
+    fn get_value(
+        &self,
+        pallet_prefix: &str,
+    ) -> Result<StorageValue, MetadataError> {
         match &self.ty {
             StorageEntryType::Plain { .. } => {
                 let module_prefix = pallet_prefix.as_bytes().to_vec();
@@ -189,10 +214,12 @@ fn key_hash<K: Encode>(key: &K, hasher: &StorageHasher) -> Vec<u8> {
         StorageHasher::Blake2_256 => sp_core::blake2_256(&encoded_key).to_vec(),
         StorageHasher::Twox128 => sp_core::twox_128(&encoded_key).to_vec(),
         StorageHasher::Twox256 => sp_core::twox_256(&encoded_key).to_vec(),
-        StorageHasher::Twox64Concat => sp_core::twox_64(&encoded_key)
-            .iter()
-            .chain(&encoded_key)
-            .cloned()
-            .collect(),
+        StorageHasher::Twox64Concat => {
+            sp_core::twox_64(&encoded_key)
+                .iter()
+                .chain(&encoded_key)
+                .cloned()
+                .collect()
+        }
     }
 }

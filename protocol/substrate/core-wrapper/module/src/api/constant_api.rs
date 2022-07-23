@@ -1,8 +1,13 @@
 //! fetch metadata constant values
-use crate::{api::Api, Error};
+use crate::{
+    api::Api,
+    Error,
+};
 use frame_metadata::PalletConstantMetadata;
-use scale_info::form::PortableForm;
-use scale_info::Type;
+use scale_info::{
+    form::PortableForm,
+    Type,
+};
 
 impl Api {
     pub fn constant_metadata(

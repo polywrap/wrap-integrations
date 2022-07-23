@@ -4,15 +4,29 @@ use crate::{
     types::{
         account_info::AccountInfo,
         extrinsic_params::{
-            BaseExtrinsicParams, BaseExtrinsicParamsBuilder, ExtrinsicParams, GenericExtra,
+            BaseExtrinsicParams,
+            BaseExtrinsicParamsBuilder,
+            ExtrinsicParams,
+            GenericExtra,
             SignedPayload,
         },
-        extrinsics::{GenericAddress, UncheckedExtrinsicV4},
+        extrinsics::{
+            GenericAddress,
+            UncheckedExtrinsicV4,
+        },
     },
 };
 use codec::Encode;
-use sp_core::{crypto::Pair, H256};
-use sp_runtime::{traits::IdentifyAccount, AccountId32, MultiSignature, MultiSigner};
+use sp_core::{
+    crypto::Pair,
+    H256,
+};
+use sp_runtime::{
+    traits::IdentifyAccount,
+    AccountId32,
+    MultiSignature,
+    MultiSigner,
+};
 use std::fmt;
 
 impl Api {
@@ -25,7 +39,10 @@ impl Api {
         multi_signer.into_account()
     }
 
-    pub fn get_nonce_for_account(&self, account: &AccountId32) -> Result<u32, Error> {
+    pub fn get_nonce_for_account(
+        &self,
+        account: &AccountId32,
+    ) -> Result<u32, Error> {
         let account_info = self.get_account_info(account)?;
         match account_info {
             None => Ok(0),
@@ -42,15 +59,25 @@ impl Api {
         self.get_nonce_for_account(&signer_account)
     }
 
-    pub fn get_account_info(&self, account_id: &AccountId32) -> Result<Option<AccountInfo>, Error> {
+    pub fn get_account_info(
+        &self,
+        account_id: &AccountId32,
+    ) -> Result<Option<AccountInfo>, Error> {
         self.fetch_storage_map("System", "Account", account_id)
     }
 
-    pub fn pallet_call_index(&self, pallet_name: &str, call_name: &str) -> Result<[u8; 2], Error> {
+    pub fn pallet_call_index(
+        &self,
+        pallet_name: &str,
+        call_name: &str,
+    ) -> Result<[u8; 2], Error> {
         Ok(self.metadata().pallet_call_index(pallet_name, call_name)?)
     }
 
-    pub fn unsigned_extrinsic<Call>(&self, call: Call) -> UncheckedExtrinsicV4<Call>
+    pub fn unsigned_extrinsic<Call>(
+        &self,
+        call: Call,
+    ) -> UncheckedExtrinsicV4<Call>
     where
         Call: Encode,
     {
@@ -85,8 +112,8 @@ impl Api {
         Call: Encode + Clone + fmt::Debug,
     {
         let nonce = self.get_nonce(&signer)?;
-        let extra: GenericExtra =
-            extra.unwrap_or(GenericExtra::immortal_with_nonce_and_tip(nonce, 0));
+        let extra: GenericExtra = extra
+            .unwrap_or(GenericExtra::immortal_with_nonce_and_tip(nonce, 0));
         Ok(self.sign_extrinsic_with_extra_and_hash(signer, call, extra, None)?)
     }
 
@@ -125,8 +152,8 @@ impl Api {
         MultiSignature: From<P::Signature>,
         Call: Encode + Clone + fmt::Debug,
     {
-        let signature: P::Signature =
-            raw_payload.using_encoded(|payload| Self::sign_message(&signer, payload));
+        let signature: P::Signature = raw_payload
+            .using_encoded(|payload| Self::sign_message(&signer, payload));
         let multi_signature = MultiSignature::from(signature);
         Ok(multi_signature)
     }
@@ -153,8 +180,12 @@ impl Api {
         MultiSignature: From<P::Signature>,
         Call: Encode + Clone + fmt::Debug,
     {
-        let raw_payload: SignedPayload<Call> =
-            self.compose_payload_with_extra(call.clone(), extra.clone(), head_hash)?;
+        let raw_payload: SignedPayload<Call> = self
+            .compose_payload_with_extra(
+                call.clone(),
+                extra.clone(),
+                head_hash,
+            )?;
 
         let signer_address = Self::derive_signer_address(&signer);
         let multi_signature = Self::sign_payload(signer, raw_payload)?;
@@ -185,8 +216,13 @@ impl Api {
     {
         let nonce = self.get_nonce(&signer)?;
         println!("nonce: {}", nonce);
-        let extra = Self::convert_to_generic_extra::<Params, Tip>(nonce, extrinsic_params);
-        let xt = self.sign_extrinsic_with_extra_and_hash(signer, call, extra, head_hash)?;
+        let extra = Self::convert_to_generic_extra::<Params, Tip>(
+            nonce,
+            extrinsic_params,
+        );
+        let xt = self.sign_extrinsic_with_extra_and_hash(
+            signer, call, extra, head_hash,
+        )?;
         Ok(xt)
     }
 
@@ -207,7 +243,10 @@ impl Api {
     {
         let nonce = self.get_nonce(&signer)?;
         println!("nonce: {}", nonce);
-        let extra = Self::convert_to_generic_extra::<Params, Tip>(nonce, extrinsic_params);
+        let extra = Self::convert_to_generic_extra::<Params, Tip>(
+            nonce,
+            extrinsic_params,
+        );
         let xt = self.sign_extrinsic_with_extra(signer, call, Some(extra))?;
         Ok(xt)
     }
@@ -241,8 +280,10 @@ impl Api {
         u128: From<Tip>,
         Tip: Encode + Default,
     {
-        let other_params: BaseExtrinsicParamsBuilder<Tip> = extrinsic_params.unwrap_or_default();
-        let params: BaseExtrinsicParams<Tip> = BaseExtrinsicParams::new(nonce, other_params);
+        let other_params: BaseExtrinsicParamsBuilder<Tip> =
+            extrinsic_params.unwrap_or_default();
+        let params: BaseExtrinsicParams<Tip> =
+            BaseExtrinsicParams::new(nonce, other_params);
         let extra: GenericExtra = GenericExtra::from(params);
         extra
     }
@@ -265,11 +306,13 @@ impl Api {
     {
         match signer {
             None => Ok(self.unsigned_extrinsic(call)),
-            Some(signer) => Ok(self.sign_extrinsic_with_params::<P, Params, Tip, Call>(
-                signer,
-                call,
-                extrinsic_params,
-            )?),
+            Some(signer) => {
+                Ok(self.sign_extrinsic_with_params::<P, Params, Tip, Call>(
+                    signer,
+                    call,
+                    extrinsic_params,
+                )?)
+            }
         }
     }
 

@@ -7,10 +7,14 @@ use api::BaseApi;
 pub use error::Error;
 use num_traits::cast::FromPrimitive;
 use polywrap_wasm_rs::BigNumber;
-use scale_info::TypeDef;
-use scale_info::TypeDefPrimitive;
-use sp_core::crypto::AccountId32;
-use sp_core::crypto::Ss58Codec;
+use scale_info::{
+    TypeDef,
+    TypeDefPrimitive,
+};
+use sp_core::crypto::{
+    AccountId32,
+    Ss58Codec,
+};
 pub use types::metadata::Metadata;
 use wrap::imported::*;
 pub use wrap::*;
@@ -43,13 +47,17 @@ pub fn chain_get_metadata(arg: ArgsChainGetMetadata) -> Option<ChainMetadata> {
     let metadata = BaseApi::new(&arg.url).fetch_metadata();
     let meta = metadata.ok().flatten().expect("must have a metadata");
 
-    let meta_json = serde_json::to_value(meta.metadata).expect("unable to convert to json");
-    let pallet_json = serde_json::to_value(meta.pallets).expect("unable to convert to json");
+    let meta_json =
+        serde_json::to_value(meta.metadata).expect("unable to convert to json");
+    let pallet_json =
+        serde_json::to_value(meta.pallets).expect("unable to convert to json");
 
     let events = meta.events.into_values().collect::<Vec<_>>();
-    let events_json = serde_json::to_value(events).expect("unable to convert to json");
+    let events_json =
+        serde_json::to_value(events).expect("unable to convert to json");
     let errors = meta.errors.into_values().collect::<Vec<_>>();
-    let errors_json = serde_json::to_value(errors).expect("unable to convert to json");
+    let errors_json =
+        serde_json::to_value(errors).expect("unable to convert to json");
 
     Some(ChainMetadata {
         metadata: meta_json,
@@ -60,19 +68,23 @@ pub fn chain_get_metadata(arg: ArgsChainGetMetadata) -> Option<ChainMetadata> {
 }
 
 /// return the chain
-pub fn get_runtime_version(arg: ArgsGetRuntimeVersion) -> Option<RuntimeVersion> {
+pub fn get_runtime_version(
+    arg: ArgsGetRuntimeVersion,
+) -> Option<RuntimeVersion> {
     BaseApi::new(&arg.url)
         .fetch_runtime_version()
         .ok()
         .flatten()
-        .map(|v| RuntimeVersion {
-            spec_name: v.spec_name.to_string(),
-            impl_name: v.impl_name.to_string(),
-            authoring_version: v.authoring_version,
-            spec_version: v.spec_version,
-            impl_version: v.impl_version,
-            transaction_version: v.transaction_version,
-            state_version: v.state_version,
+        .map(|v| {
+            RuntimeVersion {
+                spec_name: v.spec_name.to_string(),
+                impl_name: v.impl_name.to_string(),
+                authoring_version: v.authoring_version,
+                spec_version: v.spec_version,
+                impl_version: v.impl_version,
+                transaction_version: v.transaction_version,
+                state_version: v.state_version,
+            }
         })
 }
 
@@ -129,24 +141,39 @@ pub fn get_storage_map(arg: ArgsGetStorageMap) -> Option<Vec<u8>> {
                 match primitive {
                     TypeDefPrimitive::U32 => {
                         assert!(arg.key.is_number());
-                        let key = arg.key.as_u64().expect("must cast to u64") as u32;
-                        api.fetch_opaque_storage_map(&arg.pallet, &arg.storage, key)
-                            .ok()
-                            .flatten()
+                        let key =
+                            arg.key.as_u64().expect("must cast to u64") as u32;
+                        api.fetch_opaque_storage_map(
+                            &arg.pallet,
+                            &arg.storage,
+                            key,
+                        )
+                        .ok()
+                        .flatten()
                     }
                     TypeDefPrimitive::U64 => {
                         assert!(arg.key.is_number());
-                        let key = arg.key.as_u64().expect("must cast to u64") as u64;
-                        api.fetch_opaque_storage_map(&arg.pallet, &arg.storage, key)
-                            .ok()
-                            .flatten()
+                        let key =
+                            arg.key.as_u64().expect("must cast to u64") as u64;
+                        api.fetch_opaque_storage_map(
+                            &arg.pallet,
+                            &arg.storage,
+                            key,
+                        )
+                        .ok()
+                        .flatten()
                     }
                     TypeDefPrimitive::U128 => {
                         assert!(arg.key.is_number());
-                        let key = arg.key.as_u64().expect("must cast to u64") as u128;
-                        api.fetch_opaque_storage_map(&arg.pallet, &arg.storage, key)
-                            .ok()
-                            .flatten()
+                        let key =
+                            arg.key.as_u64().expect("must cast to u64") as u128;
+                        api.fetch_opaque_storage_map(
+                            &arg.pallet,
+                            &arg.storage,
+                            key,
+                        )
+                        .ok()
+                        .flatten()
                     }
                     _ => unimplemented!(),
                 }
@@ -158,7 +185,9 @@ pub fn get_storage_map(arg: ArgsGetStorageMap) -> Option<Vec<u8>> {
         .flatten()
 }
 
-pub fn get_storage_map_paged(arg: ArgsGetStorageMapPaged) -> Option<Vec<Vec<u8>>> {
+pub fn get_storage_map_paged(
+    arg: ArgsGetStorageMapPaged,
+) -> Option<Vec<Vec<u8>>> {
     Api::new(&arg.url)
         .ok()
         .map(|api| {
@@ -172,7 +201,10 @@ pub fn get_storage_map_paged(arg: ArgsGetStorageMapPaged) -> Option<Vec<Vec<u8>>
                 //TODO: make this exhaustive to support i8,i16,i32,i64,i128 and u8,u16,u32,u64,u128
                 match primitive {
                     TypeDefPrimitive::U32 => {
-                        let next_to = arg.next_to.map(|k| k.as_u64().map(|k| k as u32)).flatten();
+                        let next_to = arg
+                            .next_to
+                            .map(|k| k.as_u64().map(|k| k as u32))
+                            .flatten();
                         api.fetch_opaque_storage_map_paged(
                             &arg.pallet,
                             &arg.storage,
@@ -183,7 +215,10 @@ pub fn get_storage_map_paged(arg: ArgsGetStorageMapPaged) -> Option<Vec<Vec<u8>>
                         .flatten()
                     }
                     TypeDefPrimitive::U64 => {
-                        let next_to = arg.next_to.map(|k| k.as_u64().map(|k| k as u64)).flatten();
+                        let next_to = arg
+                            .next_to
+                            .map(|k| k.as_u64().map(|k| k as u64))
+                            .flatten();
                         api.fetch_opaque_storage_map_paged(
                             &arg.pallet,
                             &arg.storage,
@@ -194,7 +229,10 @@ pub fn get_storage_map_paged(arg: ArgsGetStorageMapPaged) -> Option<Vec<Vec<u8>>
                         .flatten()
                     }
                     TypeDefPrimitive::U128 => {
-                        let next_to = arg.next_to.map(|k| k.as_u64().map(|k| k as u128)).flatten();
+                        let next_to = arg
+                            .next_to
+                            .map(|k| k.as_u64().map(|k| k as u128))
+                            .flatten();
                         api.fetch_opaque_storage_map_paged(
                             &arg.pallet,
                             &arg.storage,
@@ -222,12 +260,13 @@ pub fn constant(arg: ArgsConstant) -> Option<Vec<u8>> {
 }
 
 pub fn account_info(arg: ArgsAccountInfo) -> Option<AccountInfo> {
-    let account_id =
-        AccountId32::from_ss58check(&arg.account).expect("must be a valid ss58check format");
-    let account_info: Option<crate::types::account_info::AccountInfo> = Api::new(&arg.url)
-        .ok()
-        .map(|api| api.get_account_info(&account_id).ok().flatten())
-        .flatten();
+    let account_id = AccountId32::from_ss58check(&arg.account)
+        .expect("must be a valid ss58check format");
+    let account_info: Option<crate::types::account_info::AccountInfo> =
+        Api::new(&arg.url)
+            .ok()
+            .map(|api| api.get_account_info(&account_id).ok().flatten())
+            .flatten();
 
     debug!("account info: {:#?}", account_info);
 
@@ -239,9 +278,14 @@ pub fn account_info(arg: ArgsAccountInfo) -> Option<AccountInfo> {
             sufficients: account_info.sufficients,
             data: AccountData {
                 free: BigNumber::from_u128(account_info.data.free).unwrap(),
-                reserved: BigNumber::from_u128(account_info.data.reserved).unwrap(),
-                misc_frozen: BigNumber::from_u128(account_info.data.misc_frozen).unwrap(),
-                fee_frozen: BigNumber::from_u128(account_info.data.fee_frozen).unwrap(),
+                reserved: BigNumber::from_u128(account_info.data.reserved)
+                    .unwrap(),
+                misc_frozen: BigNumber::from_u128(
+                    account_info.data.misc_frozen,
+                )
+                .unwrap(),
+                fee_frozen: BigNumber::from_u128(account_info.data.fee_frozen)
+                    .unwrap(),
             },
         })
     } else {
@@ -251,8 +295,8 @@ pub fn account_info(arg: ArgsAccountInfo) -> Option<AccountInfo> {
 
 /// return the nonce for this account
 pub fn get_nonce_for_account(arg: ArgsGetNonceForAccount) -> Option<u32> {
-    let account_id =
-        AccountId32::from_ss58check(&arg.account).expect("must be a valid ss58check format");
+    let account_id = AccountId32::from_ss58check(&arg.account)
+        .expect("must be a valid ss58check format");
     Api::new(&arg.url)
         .ok()
         .map(|api| api.get_nonce_for_account(&account_id).ok())
@@ -270,7 +314,9 @@ pub fn pallet_call_index(arg: ArgsPalletCallIndex) -> Option<Vec<u8>> {
         .flatten()
 }
 
-pub fn author_submit_extrinsic(arg: ArgsAuthorSubmitExtrinsic) -> Option<String> {
+pub fn author_submit_extrinsic(
+    arg: ArgsAuthorSubmitExtrinsic,
+) -> Option<String> {
     BaseApi::new(&arg.url)
         .author_submit_extrinsic(arg.extrinsic)
         .ok()
