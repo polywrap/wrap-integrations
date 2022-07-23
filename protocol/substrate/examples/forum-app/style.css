@@ -282,6 +282,16 @@ body {
   color: var(--text-color);
 }
 
+header{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+}
+header a{
+    margin: 0px 5px;
+    cursor: pointer;
+}
+
 .logo {
     cursor: pointer;
 	padding: 5px 9px;
@@ -294,9 +304,17 @@ body {
 }
 
 
+.content pre{
+    white-space: pre-wrap;
+    padding: 0;
+}
 
-.post-detail li{
+.post-detail-summary li, .comment-detail-summary li{
     list-style: none;
+}
+
+.post-detail-summary li{
+    list-style: inherit;
 }
 
 .post-detail-stats, .comment-stats{
@@ -308,7 +326,7 @@ body {
     color: var(--text-secondary-color);
 }
 
-.posts h2, .post-detail h2 {
+.posts h2, .post-detail h2, .post-detail-summary h2 {
     font-size: 16pt;
     text-decoration: none;
     text-align: left;
@@ -317,8 +335,15 @@ body {
     border: 0;
 }
 
+.post-detail-summary li{
+    list-style: none;
+}
 
 .comment-details li{
+    list-style: none;
+}
+
+.comment-detail li{
     list-style: none;
 }
 
@@ -331,6 +356,36 @@ body {
     margin: 20px 20px;
 }
 
-pre.post-text, pre.comment-text{
-    white-space: pre-wrap;
+
+
+form.post-new, form.comment-new{
+    margin: 10px 10px;
+    padding-left: 2em;
+    display: flex;
+    align-items: flex-start;
+}
+
+.post-new .controls, .comment-new .controls{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.post-new .controls input, .comment-new .controls input{
+    width: 100px;
+}
+
+.post-new-content, .comment-new-content{
+    width: 500px;
+    height: 80px;
+}
+
+.comment-reply-btn {
+    cursor: pointer;
+    font-size: 12pt;
+    text-decoration: underline;
+}
+
+.reply-text-info {
+    font-size: 12pt;
 }

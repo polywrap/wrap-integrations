@@ -7,7 +7,7 @@
     "build:app": "wasm-pack build --release --target web",
     "build": "yarn build:app && cp -r ./pkg ./dist/",
     "start": "yarn build && parcel index.html",
-    "clean": "rm -rf node_modules && cargo clean"
+    "clean": "rm -rf node_modules && rm -rf dist cargo clean"
   },
   "devDependencies": {
     "parcel-bundler": "~1.12.5",
