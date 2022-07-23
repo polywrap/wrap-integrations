@@ -2,7 +2,7 @@
 
 type Module {
 
-  chainGetMetadata(url: String!): ChainMetadataOutput
+  chainGetMetadata(url: String!): ChainMetadata
   
   blockHash(url: String!, number: UInt32!): String
 
@@ -23,7 +23,7 @@ type Module {
   accountInfo(url: String!, account: String!): AccountInfo
 }
 
-type ChainMetadataOutput {
+type ChainMetadata {
   metadata: JSON!
   pallets: JSON!
   events: JSON!

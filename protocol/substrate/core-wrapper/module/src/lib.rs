@@ -39,7 +39,7 @@ pub fn custom_random_number(buf: &mut [u8]) -> Result<(), getrandom::Error> {
 }
 
 /// return the chain metadata
-pub fn chain_get_metadata(arg: ArgsChainGetMetadata) -> Option<ChainMetadataOutput> {
+pub fn chain_get_metadata(arg: ArgsChainGetMetadata) -> Option<ChainMetadata> {
     let metadata = BaseApi::new(&arg.url).fetch_metadata();
     let meta = metadata.ok().flatten().expect("must have a metadata");
 
@@ -51,7 +51,7 @@ pub fn chain_get_metadata(arg: ArgsChainGetMetadata) -> Option<ChainMetadataOutp
     let errors = meta.errors.into_values().collect::<Vec<_>>();
     let errors_json = serde_json::to_value(errors).expect("unable to convert to json");
 
-    Some(ChainMetadataOutput {
+    Some(ChainMetadata {
         metadata: meta_json,
         pallets: pallet_json,
         events: events_json,
