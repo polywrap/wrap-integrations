@@ -37,4 +37,5 @@ class PolywrapClientWrapper extends PolywrapClient{
 }
 
 // attach the PolywrapClient to the window so we can access it later in the rust code
+// See `src/api.rs` this is linked into the rust code using `wasm-bindgen`.
 window.PolywrapClientWrapper = PolywrapClientWrapper;

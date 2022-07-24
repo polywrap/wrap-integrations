@@ -2,7 +2,11 @@
 
 ## Forum app
 A forum application backed by a blockchain
-pattern to [hackernews](https://news.ycombinator.com/)
+
+This forum-app is an example web3 application showcasing the use of polywrap client specific to substrate node.
+Additionally, the forum app is written in rust and compiled to wasm and is meant to be run on the browser.
+Under the hood, it is using `wasm-bindgen` to manipulate DOM objects from rust and `sauron` web framework to simplify writing the application UI and components lifecycle.
+
 
 ## Frameworks and libraries used
 - [substrate-node-template](https://github.com/substrate-developer-hub/substrate-node-template)
@@ -25,13 +29,27 @@ We modified the `substrate-node-template` with the following changes
         - We tell the node to archive the block, so we can reference it later for the demo.
 
 2. Open [polkadot.js.org/apps](https://polkadot.js.org/apps/)
+    - This requires to have the [polkadot-js extension](https://polkadot.js.org/extension/) be installed on your browser.
     - Show that we can interact with the `substrate-node-template` with the `ForumModule` storage and extrinsics.
 
 3. Compile the and deploy the `core-wrapper` module of `polywrap-substrate`
     - `cd core-wrapper && yarn && yarn rebuild && yarn deploy`
-    - Copy the `ipfs` has returned in the deploy into the `forum-app/index.ts`
+    - Copy the `ipfs hash` returned in the deploy into the `forum-app/index.ts`
 
 4. Start the forum-app example
+    - `cd examples/forum-app && yarn && yarn start`
+    - The `forum-app` will be our UI that the user will see.
+      The app would be interacting with the modified `substrate-node-template` through polywrap-client to fetch the data stored in the chain storage which will then be displayed in the UI.
+    - Take note, that the `forum-app` does not use the `pallet-forum` as it's dependency, neither as the `core-wrapper` module.
+        - The `forum-app` will use the `core-wrapper` module through `polywrap` client and dynamically invoke the methods of `pallet-forum`.
+        ```bob
+
+         .-------------.                        .---------------.                        .------------------------.                    .----------------.
+         |forum-app(UI)|----(wasm-bindgen)----->|polywrap-client|---(polywrap-runtime)-->| substrate core-wrapper |-----(http rpc)---->| substrate node |
+         `-------------'                        `---------------'                        `------------------------'                    `----------------'
+              (rust)                                  (js)                                      (wasm)                                (rcp-server http://localhost:9933)
+
+        ```
     - A little explanation about the `pallet-forum`
         - `pallet-forum` is implemented with 4 storage in substrate
             1. `AllPosts` - is a storage map keyed by a `post_id(u32)` and `Post` struct as the value.
@@ -172,7 +190,7 @@ We modified the `substrate-node-template` with the following changes
 
 
 ## Missing part
-- The wiring the `signer-provider` plugin in creating a signature of a message.
+- The usage of `signer-provider` plugin in creating a signature of a message.
 - This will be the last leg of the development process, the code for submitting extrinsic has already
     been prepared as we have decoupled the `composing`, `signing` and `submitting` the extrinsics into each functions to allow more flexibility.
 - Development plan:
@@ -181,7 +199,6 @@ We modified the `substrate-node-template` with the following changes
         and only have to deal with calling `extrinsic` functions with their `pallet` and `call` name alongside with it's parameters.
 
     ```rust
-
         //********************************
         // -- This is the only part where private key is being used,
         // this should be delegated into the `signer-provider` plugin.
@@ -195,25 +212,20 @@ We modified the `substrate-node-template` with the following changes
 
         let multi_signer = MultiSigner::from(signer.public());
         let signer_account = multi_signer.into_account();
-
         let nonce = get_nonce_for_account(client, &signer_account).await?;
         let signer_address: MultiAddress<AccountId32, ()> = signer_account.into();
 
-
         let extra = <..>;
-
 
         let call_index: [u8; 2] =
             pallet_call_index(client, "Balances", "transfer").await?;
 
         let dest: MultiAddress<AccountId32, ()> = MultiAddress::Id(to);
-
         let call: (
             [u8; 2],
             MultiAddress<AccountId32, ()>,
             Compact<u128>,
         ) = (call_index, dest, Compact(amount));
-
 
         let raw_payload = SignedPayload {
             call,
@@ -228,10 +240,7 @@ We modified the `substrate-node-template` with the following changes
 
         // Use the signing function above to generate a signature from the payload
         let signature = raw_payload.using_encoded(signing_function);
-
         let multi_signature = MultiSignature::from(signature);
-
-    }
     ```
     Then the signature can be included into an extrinsic which we can encode and submit into the
     chain using polywrap client.
