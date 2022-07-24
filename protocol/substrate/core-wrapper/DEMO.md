@@ -8,6 +8,14 @@ Additionally, the forum app is written in rust and compiled to wasm and is meant
 Under the hood, it is using `wasm-bindgen` to manipulate DOM objects from rust and `sauron` web framework to simplify writing the application UI and components lifecycle.
 
 
+## Prerequisite
+Make sure the following cli tools are installed
+- docker
+- git
+- curl
+- rust
+- wasm-pack
+
 ## Frameworks and libraries used
 - [substrate-node-template](https://github.com/substrate-developer-hub/substrate-node-template)
 - [wasm-bindgen](https://rustwasm.github.io/docs/wasm-bindgen/)
