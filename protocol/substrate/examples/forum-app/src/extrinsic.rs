@@ -71,6 +71,7 @@ pub struct SignedPayload<Call> {
 pub async fn sign_call_and_encode<Call>(
     api: &Api,
     call: Call,
+    tip: Option<u128>,
 ) -> Result<String, Error>
 where
     Call: Encode + Clone + fmt::Debug,
@@ -91,7 +92,7 @@ where
         .await?
         .expect("must have a genesis hash");
 
-    let extra = (Era::Immortal, Compact(nonce), Compact(0));
+    let extra = (Era::Immortal, Compact(nonce), Compact(tip.unwrap_or(0)));
 
     let raw_payload = SignedPayload {
         call: call.clone(),

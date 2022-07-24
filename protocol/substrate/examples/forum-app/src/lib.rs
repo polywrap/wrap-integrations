@@ -22,7 +22,8 @@ const BLOCK_EXPLORER: &str =
     "https://polkadot.js.org/apps/?rpc=ws://127.0.0.1:9944#/explorer/query";
 
 const M_UNIT: u128 = 1_000_000_000_000_000_000;
-const REWARD_AMOUNT: u128 = M_UNIT / 100 - 1;
+const REWARD_AMOUNT: u128 = M_UNIT / 100; //reward amount to the post author
+const NETWORK_TIP_AMOUNT: u128 = REWARD_AMOUNT / 2; //a generous tip amount that goes to the network
 const COMMENT_DEPTH: usize = 10;
 
 pub enum Msg {
@@ -253,7 +254,7 @@ impl App {
             let async_fetch = |program: Program<Self, Msg>| {
                 async move {
                     let api = api.unwrap();
-                    match fetch::send_reward(&api, author, reward_amount).await
+                    match fetch::send_reward(&api, author, reward_amount, Some(NETWORK_TIP_AMOUNT)).await
                     {
                         Ok(tx_hash) => {
                             log::info!(
