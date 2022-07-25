@@ -1,9 +1,9 @@
 # Datetime
-It is a simple library that allows fetching current unix timestamp from the host.
+It is a simple library that allows fetching the current unix timestamp from the host.
 
 ## Usage
 
-- **If you are a Wrap Developer** - then you just need to import the datetime plugin with its registered uri and call the methods it provide like you'd normally with any imported wrappers.
+- **If you are a Wrapper Developer** - You just need to import the Datetime plugin with its registered uri and call the methods it provides like you would with any other imported wrapper.
 
   - Schema
     ```graphql
@@ -28,7 +28,7 @@ It is a simple library that allows fetching current unix timestamp from the host
   
 
 
-- **If you are an App Developer** - then you need to register the datetime plugin using client config.
+- **If you are an App Developer** - You need to register the Datetime plugin using the client config.
 
 ```ts
 const config = {
