@@ -1,9 +1,12 @@
 # Logger
-It is a helper library that allows logging to different streams using different loggers simultaneously. This removes the burden of choosing appropriate logging service from wrap developer to the app developer that wants to integrates the wrapper.
+It is a helper library that allows logging to different streams using different loggers simultaneously. 
+This removes the burden of choosing the appropriate logging service from the wrapper developer, and shifts it to the app developer that wants to integrate the wrapper.
 
 ## Usage
 
-- **If you are a Wrap Developer** - then you just need to import the cache interface and can get all the implementations that client has registered in the wrapper using `Interface.getImplementations` function and use one or all of them to store and retrive the data from the cache. Alternatively you can also specify the uri of the particular implementation that you want to support.
+- **If you are a Wrapper Developer** - You just need to import the Logger interface, and you can get all the implementations that the client has registered in the wrapper using the `Interface.getImplementations` function.
+    You can use one or all of them to print to the console. 
+    Alternatively, you can specify the uri of the particular implementation that you want to support.
 
   - Schema
     ```graphql
@@ -28,7 +31,7 @@ It is a helper library that allows logging to different streams using different 
   
 
 
-- **If you are an App Developer** - then you need to register the implementations of the logger interface using client config.
+- **If you are an App Developer** - You need to register the implementations of the Logger interface using the client config.
 
 ```ts
 const config = {
