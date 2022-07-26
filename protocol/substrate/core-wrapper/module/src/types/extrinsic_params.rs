@@ -1,12 +1,5 @@
-use codec::{
-    Compact,
-    Decode,
-    Encode,
-};
-use sp_core::{
-    blake2_256,
-    H256,
-};
+use codec::{Compact, Decode, Encode};
+use sp_core::{blake2_256, H256};
 use sp_runtime::generic::Era;
 use sp_std::prelude::*;
 
@@ -65,31 +58,6 @@ pub struct BaseExtrinsicParamsBuilder<Tip> {
     era: Era,
     mortality_checkpoint: Option<H256>,
     tip: Tip,
-}
-
-impl<Tip: Default> BaseExtrinsicParamsBuilder<Tip> {
-    /// Instantiate the default set of [`BaseExtrinsicParamsBuilder`]
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// Set the [`Era`], which defines how long the transaction will be valid for
-    /// (it can be either immortal, or it can be mortal and expire after a certain amount
-    /// of time). The second argument is the block hash after which the transaction
-    /// becomes valid, and must align with the era phase (see the [`Era::Mortal`] docs
-    /// for more detail on that).
-    pub fn era(mut self, era: Era, checkpoint: H256) -> Self {
-        self.era = era;
-        self.mortality_checkpoint = Some(checkpoint);
-        self
-    }
-
-    /// Set the tip you'd like to give to the block author
-    /// for this transaction.
-    pub fn tip(mut self, tip: impl Into<Tip>) -> Self {
-        self.tip = tip.into();
-        self
-    }
 }
 
 impl<Tip: Default> Default for BaseExtrinsicParamsBuilder<Tip> {
