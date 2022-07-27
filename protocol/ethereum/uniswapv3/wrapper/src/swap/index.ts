@@ -16,13 +16,12 @@ import {
 } from "../wrap";
 import { ROUTER_ADDRESS, execCall, fetchPoolFromAddress } from "../utils";
 import { _wrapToken, tokenEquals } from "../token";
-import { createRoute, swapCallParameters } from "../router";
+import { swapCallParameters } from "../router";
+import { createRoute } from "../route";
 import { getPoolAddress } from "../pool";
-import { createTradeExactIn, createTradeExactOut } from "./trade";
+import { createTradeExactIn, createTradeExactOut } from "../trade";
 
 import { BigInt } from "@polywrap/wasm-as";
-
-export * from "./trade";
 
 export function execSwap(args: Args_execSwap): Ethereum_TxResponse {
   const trades: Trade[] = args.trades;

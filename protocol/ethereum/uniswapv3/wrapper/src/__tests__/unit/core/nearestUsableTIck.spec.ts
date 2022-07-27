@@ -1,31 +1,31 @@
 import { nearestUsableTick } from "../../..";
-import { MAX_TICK, MIN_TICK } from "../../../utils";
+import { _MAX_TICK, _MIN_TICK } from "../../../utils";
 
 describe('nearestUsableTick', () => {
 
   it('throws if tickSpacing is 0', () => {
     const throwsSpacing = (): void => {
-      const _error: i32 = nearestUsableTick({ tick: 1, tickSpacing: 0 });
+      nearestUsableTick({ tick: 1, tickSpacing: 0 });
     };
     expect(throwsSpacing).toThrow('TICK_SPACING: tick spacing must be greater than 0');
   });
 
   it('throws if tickSpacing is negative', () => {
     const throwsSpacing = (): void => {
-      const _error: i32 = nearestUsableTick({ tick: 1, tickSpacing: -5 });
+      nearestUsableTick({ tick: 1, tickSpacing: -5 });
     };
     expect(throwsSpacing).toThrow('TICK_SPACING: tick spacing must be greater than 0');
   });
 
   it('throws if tick > MAX_TICK or  tick < MIN_TICK', () => {
     const throwsTickMax = (): void => {
-      const _error: i32 = nearestUsableTick({ tick: MAX_TICK + 1, tickSpacing: 1 });
+      nearestUsableTick({ tick: _MAX_TICK + 1, tickSpacing: 1 });
     };
     const throwsTickMin = (): void => {
-      const _error: i32 = nearestUsableTick({ tick: MIN_TICK - 1, tickSpacing: 1 });
+      nearestUsableTick({ tick: _MIN_TICK - 1, tickSpacing: 1 });
     };
-    expect(throwsTickMax).toThrow(`TICK_BOUND: tick index is out of range ${MIN_TICK} to ${MAX_TICK}`);
-    expect(throwsTickMin).toThrow(`TICK_BOUND: tick index is out of range ${MIN_TICK} to ${MAX_TICK}`);
+    expect(throwsTickMax).toThrow(`TICK_BOUND: tick index is out of range ${_MIN_TICK} to ${_MAX_TICK}`);
+    expect(throwsTickMin).toThrow(`TICK_BOUND: tick index is out of range ${_MIN_TICK} to ${_MAX_TICK}`);
   });
 
   it('rounds at positive half', () => {
@@ -45,12 +45,12 @@ describe('nearestUsableTick', () => {
   });
 
   it('cannot round past MIN_TICK', () => {
-    const spacing: i32 = MAX_TICK / 2 + 100;
-    expect(nearestUsableTick({ tick: MIN_TICK, tickSpacing: spacing })).toStrictEqual(-spacing);
+    const spacing: i32 = _MAX_TICK / 2 + 100;
+    expect(nearestUsableTick({ tick: _MIN_TICK, tickSpacing: spacing })).toStrictEqual(-spacing);
   });
 
   it('cannot round past MAX_TICK', () => {
-    const spacing: i32 = MAX_TICK / 2 + 100;
-    expect(nearestUsableTick({ tick: MAX_TICK, tickSpacing: spacing })).toStrictEqual(spacing);
+    const spacing: i32 = _MAX_TICK / 2 + 100;
+    expect(nearestUsableTick({ tick: _MAX_TICK, tickSpacing: spacing })).toStrictEqual(spacing);
   });
 });

@@ -15,11 +15,11 @@ import {
   getAmount1Delta,
   _getFeeAmount,
   MAX_FEE,
-  MAX_SQRT_RATIO,
-  MAX_TICK,
-  MIN_SQRT_RATIO,
-  MIN_TICK,
-  POOL_INIT_CODE_HASH,
+  _MAX_SQRT_RATIO,
+  _MAX_TICK,
+  _MIN_SQRT_RATIO,
+  _MIN_TICK,
+  _POOL_INIT_CODE_HASH,
   concat,
   getChecksumAddress,
   getNextSqrtPriceFromInput,
@@ -89,7 +89,7 @@ export function computePoolAddress(args: Args_computePoolAddress): string {
   const fee: u32 = _getFeeAmount(args.fee);
   const initCodeHash: string =
     args.initCodeHashManualOverride == null
-      ? POOL_INIT_CODE_HASH
+      ? _POOL_INIT_CODE_HASH
       : args.initCodeHashManualOverride!;
 
   const salt: string = SHA3_Module.hex_keccak_256({
@@ -128,14 +128,14 @@ export function simulateSwap(
     _sqrtPriceLimitX96 = sqrtPriceLimitX96;
   } else {
     _sqrtPriceLimitX96 = zeroForOne
-      ? BigInt.add(MIN_SQRT_RATIO, BigInt.ONE)
-      : BigInt.sub(MAX_SQRT_RATIO, BigInt.ONE);
+      ? BigInt.add(_MIN_SQRT_RATIO, BigInt.ONE)
+      : BigInt.sub(_MAX_SQRT_RATIO, BigInt.ONE);
   }
 
   if (zeroForOne) {
-    if (_sqrtPriceLimitX96 <= MIN_SQRT_RATIO) {
+    if (_sqrtPriceLimitX96 <= _MIN_SQRT_RATIO) {
       throw new Error(
-        `RATIO_MIN: input sqrtPriceLimitX96 ${_sqrtPriceLimitX96.toString()} is less than or equal to the minimum sqrt ratio ${MIN_SQRT_RATIO.toString()}`
+        `RATIO_MIN: input sqrtPriceLimitX96 ${_sqrtPriceLimitX96.toString()} is less than or equal to the minimum sqrt ratio ${_MIN_SQRT_RATIO.toString()}`
       );
     }
     if (_sqrtPriceLimitX96 >= pool.sqrtRatioX96) {
@@ -144,9 +144,9 @@ export function simulateSwap(
       );
     }
   } else {
-    if (_sqrtPriceLimitX96 >= MAX_SQRT_RATIO) {
+    if (_sqrtPriceLimitX96 >= _MAX_SQRT_RATIO) {
       throw new Error(
-        `RATIO_MAX: input sqrtPriceLimitX96 ${_sqrtPriceLimitX96.toString()} is greater than or equal to the maximum sqrt ratio ${MAX_SQRT_RATIO.toString()}`
+        `RATIO_MAX: input sqrtPriceLimitX96 ${_sqrtPriceLimitX96.toString()} is greater than or equal to the maximum sqrt ratio ${_MAX_SQRT_RATIO.toString()}`
       );
     }
     if (_sqrtPriceLimitX96 <= pool.sqrtRatioX96) {
@@ -196,10 +196,10 @@ export function simulateSwap(
     step.tickNext = nextTickResult.index;
     step.initialized = nextTickResult.found;
 
-    if (step.tickNext < MIN_TICK) {
-      step.tickNext = MIN_TICK;
-    } else if (step.tickNext > MAX_TICK) {
-      step.tickNext = MAX_TICK;
+    if (step.tickNext < _MIN_TICK) {
+      step.tickNext = _MIN_TICK;
+    } else if (step.tickNext > _MAX_TICK) {
+      step.tickNext = _MAX_TICK;
     }
 
     step.sqrtPriceNextX96 = getSqrtRatioAtTick({

@@ -2,13 +2,12 @@ import { runCLI } from "@polywrap/test-env-js";
 import axios from "axios";
 import { ClientConfig } from "@polywrap/client-js";
 import { ethereumPlugin } from "@polywrap/ethereum-plugin-js";
-import { ethersSolidity } from "ethers-solidity-plugin-js";
 
 export function getPlugins(): Partial<ClientConfig> {
   return {
     plugins: [
       {
-        uri: "wrap://ens/ethereum.web3api.eth",
+        uri: "wrap://ens/ethereum.polywrap.eth",
         plugin: ethereumPlugin({
           networks: {
             MAINNET: {
@@ -17,11 +16,6 @@ export function getPlugins(): Partial<ClientConfig> {
           },
           defaultNetwork: "MAINNET"
         }),
-      },
-      {
-        uri: "wrap://ens/ethers-solidity.polywrap.eth",
-        // @ts-ignore
-        plugin: ethersSolidity({}),
       },
     ]
   };

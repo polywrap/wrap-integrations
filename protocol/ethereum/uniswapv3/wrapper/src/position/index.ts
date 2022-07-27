@@ -16,13 +16,6 @@ import {
   Price as PriceType,
   TokenAmount,
 } from "../wrap";
-import {
-  MAX_SQRT_RATIO,
-  MAX_TICK,
-  MAX_UINT_256,
-  MIN_SQRT_RATIO,
-  MIN_TICK,
-} from "../utils/constants";
 import { createPool, getPoolTickSpacing } from "../pool";
 import {
   getSqrtRatioAtTick,
@@ -30,6 +23,11 @@ import {
   tickToPrice,
 } from "../tickList";
 import {
+  _MAX_SQRT_RATIO,
+  _MAX_TICK,
+  MAX_UINT_256,
+  _MIN_SQRT_RATIO,
+  _MIN_TICK,
   encodeSqrtRatioX96,
   getAmount0Delta,
   getAmount1Delta,
@@ -61,12 +59,12 @@ export function createPosition(args: Args_createPosition): Position {
       "TICK_ORDER: upper tick index must be greater than lower tick index"
     );
   }
-  if (tickLower < MIN_TICK || tickLower % getPoolTickSpacing({ pool }) != 0) {
+  if (tickLower < _MIN_TICK || tickLower % getPoolTickSpacing({ pool }) != 0) {
     throw new Error(
       "TICK_LOWER: lower tick index is less than minimum or not aligned with tick spacing"
     );
   }
-  if (tickUpper > MAX_TICK || tickUpper % getPoolTickSpacing({ pool }) != 0) {
+  if (tickUpper > _MAX_TICK || tickUpper % getPoolTickSpacing({ pool }) != 0) {
     throw new Error(
       "TICK_UPPER: upper tick index is greater than maximum or not aligned with tick spacing"
     );
@@ -489,15 +487,15 @@ function ratiosAfterSlippage(
     amount1: priceLower.numerator,
     amount0: priceLower.denominator,
   });
-  if (sqrtRatioX96Lower <= MIN_SQRT_RATIO) {
-    sqrtRatioX96Lower = MIN_SQRT_RATIO.addInt(1);
+  if (sqrtRatioX96Lower <= _MIN_SQRT_RATIO) {
+    sqrtRatioX96Lower = _MIN_SQRT_RATIO.addInt(1);
   }
   let sqrtRatioX96Upper = encodeSqrtRatioX96({
     amount1: priceUpper.numerator,
     amount0: priceUpper.denominator,
   });
-  if (sqrtRatioX96Upper >= MAX_SQRT_RATIO) {
-    sqrtRatioX96Upper = MAX_SQRT_RATIO.subInt(1);
+  if (sqrtRatioX96Upper >= _MAX_SQRT_RATIO) {
+    sqrtRatioX96Upper = _MAX_SQRT_RATIO.subInt(1);
   }
   return [sqrtRatioX96Lower, sqrtRatioX96Upper];
 }

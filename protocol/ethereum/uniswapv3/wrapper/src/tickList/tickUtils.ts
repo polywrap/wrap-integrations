@@ -12,11 +12,11 @@ import {
   mostSignificantBit,
   encodeSqrtRatioX96,
   Price,
-  MAX_SQRT_RATIO,
-  MAX_TICK,
+  _MAX_SQRT_RATIO,
+  _MAX_TICK,
   MAX_UINT_256,
-  MIN_SQRT_RATIO,
-  MIN_TICK,
+  _MIN_SQRT_RATIO,
+  _MIN_TICK,
   Q192,
   Q32,
 } from "../utils";
@@ -34,16 +34,16 @@ export function nearestUsableTick(args: Args_nearestUsableTick): i32 {
   if (tickSpacing <= 0) {
     throw new Error("TICK_SPACING: tick spacing must be greater than 0");
   }
-  if (tick < MIN_TICK || tick > MAX_TICK) {
+  if (tick < _MIN_TICK || tick > _MAX_TICK) {
     throw new Error(
-      `TICK_BOUND: tick index is out of range ${MIN_TICK} to ${MAX_TICK}`
+      `TICK_BOUND: tick index is out of range ${_MIN_TICK} to ${_MAX_TICK}`
     );
   }
 
   const rounded: i32 = <i32>Math.round(<f64>tick / tickSpacing) * tickSpacing;
 
-  if (rounded < MIN_TICK) return rounded + tickSpacing;
-  else if (rounded > MAX_TICK) return rounded - tickSpacing;
+  if (rounded < _MIN_TICK) return rounded + tickSpacing;
+  else if (rounded > _MAX_TICK) return rounded - tickSpacing;
   else return rounded;
 }
 
@@ -121,9 +121,9 @@ export function priceToClosestTick(args: Args_priceToClosestTick): i32 {
  */
 export function getSqrtRatioAtTick(args: Args_getSqrtRatioAtTick): BigInt {
   const tick: i32 = args.tick;
-  if (tick < MIN_TICK || tick > MAX_TICK) {
+  if (tick < _MIN_TICK || tick > _MAX_TICK) {
     throw new Error(
-      `TICK_BOUND: tick index is out of range ${MIN_TICK} to ${MAX_TICK}`
+      `TICK_BOUND: tick index is out of range ${_MIN_TICK} to ${_MAX_TICK}`
     );
   }
   const absTick: i32 = tick < 0 ? tick * -1 : tick;
@@ -187,9 +187,9 @@ export function getSqrtRatioAtTick(args: Args_getSqrtRatioAtTick): BigInt {
  */
 export function getTickAtSqrtRatio(args: Args_getTickAtSqrtRatio): i32 {
   const sqrtRatioX96: BigInt = args.sqrtRatioX96;
-  if (sqrtRatioX96 < MIN_SQRT_RATIO || sqrtRatioX96 > MAX_SQRT_RATIO) {
+  if (sqrtRatioX96 < _MIN_SQRT_RATIO || sqrtRatioX96 > _MAX_SQRT_RATIO) {
     throw new Error(
-      `SQRT_RATIO_BOUND: sqrt ratio is out of range ${MIN_SQRT_RATIO} to ${MAX_SQRT_RATIO}`
+      `SQRT_RATIO_BOUND: sqrt ratio is out of range ${_MIN_SQRT_RATIO} to ${_MAX_SQRT_RATIO}`
     );
   }
 

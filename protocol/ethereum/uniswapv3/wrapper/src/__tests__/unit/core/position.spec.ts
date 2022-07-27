@@ -5,7 +5,7 @@ import { createPool, encodeSqrtRatioX96, getTickAtSqrtRatio, nearestUsableTick, 
   positionAmount0,
   positionAmount1 } from "../../..";
 import { BigInt } from "@polywrap/wasm-as";
-import { MAX_SQRT_RATIO, MAX_TICK, MIN_SQRT_RATIO, MIN_TICK, _feeAmountToTickSpacing } from "../../../utils";
+import { _MAX_SQRT_RATIO, _MAX_TICK, _MIN_SQRT_RATIO, _MIN_TICK, _feeAmountToTickSpacing } from "../../../utils";
 
 const USDC: Token = {
   chainId: ChainId.MAINNET,
@@ -62,8 +62,8 @@ describe('Position', () => {
     const position: Position = createPosition({
       pool: DAI_USDC_POOL,
       liquidity: BigInt.ONE,
-      tickLower: nearestUsableTick({ tick: MIN_TICK, tickSpacing: TICK_SPACING}),
-      tickUpper: nearestUsableTick({ tick: MAX_TICK, tickSpacing: TICK_SPACING}),
+      tickLower: nearestUsableTick({ tick: _MIN_TICK, tickSpacing: TICK_SPACING}),
+      tickUpper: nearestUsableTick({ tick: _MAX_TICK, tickSpacing: TICK_SPACING}),
     });
     expect(position.liquidity).toStrictEqual(BigInt.ONE);
   });
@@ -109,7 +109,7 @@ describe('Position', () => {
       createPosition({
         pool: DAI_USDC_POOL,
         liquidity: BigInt.ONE,
-        tickLower: nearestUsableTick({ tick: MIN_TICK, tickSpacing: TICK_SPACING}) - TICK_SPACING,
+        tickLower: nearestUsableTick({ tick: _MIN_TICK, tickSpacing: TICK_SPACING}) - TICK_SPACING,
         tickUpper: 10,
       });
     };
@@ -134,7 +134,7 @@ describe('Position', () => {
         pool: DAI_USDC_POOL,
         liquidity: BigInt.ONE,
         tickLower: -10,
-        tickUpper: nearestUsableTick({ tick: MAX_TICK, tickSpacing: TICK_SPACING}) + TICK_SPACING,
+        tickUpper: nearestUsableTick({ tick: _MAX_TICK, tickSpacing: TICK_SPACING}) + TICK_SPACING,
       });
     };
     expect(error).toThrow("TICK_UPPER: upper tick index is greater than maximum or not aligned with tick spacing");
@@ -326,7 +326,7 @@ describe('Position', () => {
     describe('5% slippage tolerance', () => {
       it('is correct for pool at min price', () => {
         const position: Position = createPosition({
-          pool: createPool({ tokenA: DAI, tokenB: USDC, fee: FeeAmount.LOW, sqrtRatioX96: MIN_SQRT_RATIO, liquidity: BigInt.ZERO, tickCurrent: MIN_TICK, ticks: null }),
+          pool: createPool({ tokenA: DAI, tokenB: USDC, fee: FeeAmount.LOW, sqrtRatioX96: _MIN_SQRT_RATIO, liquidity: BigInt.ZERO, tickCurrent: _MIN_TICK, ticks: null }),
           liquidity: bi100e18,
           tickLower: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) + TICK_SPACING,
           tickUpper: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) + TICK_SPACING * 2,
@@ -338,7 +338,7 @@ describe('Position', () => {
 
       it('is correct for pool at max price', () => {
         const position: Position = createPosition({
-          pool: createPool({ tokenA: DAI, tokenB: USDC, fee: FeeAmount.LOW, sqrtRatioX96: MAX_SQRT_RATIO.subInt(1), liquidity: BigInt.ZERO, tickCurrent: MAX_TICK - 1, ticks: null }),
+          pool: createPool({ tokenA: DAI, tokenB: USDC, fee: FeeAmount.LOW, sqrtRatioX96: _MAX_SQRT_RATIO.subInt(1), liquidity: BigInt.ZERO, tickCurrent: _MAX_TICK - 1, ticks: null }),
           liquidity: bi100e18,
           tickLower: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) + TICK_SPACING,
           tickUpper: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) + TICK_SPACING * 2,
@@ -431,7 +431,7 @@ describe('Position', () => {
     describe('5% slippage tolerance', () => {
       it('is correct for pool at min price', () => {
         const position: Position = createPosition({
-          pool: createPool({ tokenA: DAI, tokenB: USDC, fee: FeeAmount.LOW, sqrtRatioX96: MIN_SQRT_RATIO, liquidity: BigInt.ZERO, tickCurrent: MIN_TICK, ticks: null }),
+          pool: createPool({ tokenA: DAI, tokenB: USDC, fee: FeeAmount.LOW, sqrtRatioX96: _MIN_SQRT_RATIO, liquidity: BigInt.ZERO, tickCurrent: _MIN_TICK, ticks: null }),
           liquidity: bi100e18,
           tickLower: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) + TICK_SPACING,
           tickUpper: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) + TICK_SPACING * 2,
@@ -443,7 +443,7 @@ describe('Position', () => {
 
       it('is correct for pool at max price', () => {
         const position: Position = createPosition({
-          pool: createPool({ tokenA: DAI, tokenB: USDC, fee: FeeAmount.LOW, sqrtRatioX96: MAX_SQRT_RATIO.subInt(1), liquidity: BigInt.ZERO, tickCurrent: MAX_TICK - 1, ticks: null }),
+          pool: createPool({ tokenA: DAI, tokenB: USDC, fee: FeeAmount.LOW, sqrtRatioX96: _MAX_SQRT_RATIO.subInt(1), liquidity: BigInt.ZERO, tickCurrent: _MAX_TICK - 1, ticks: null }),
           liquidity: bi100e18,
           tickLower: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) + TICK_SPACING,
           tickUpper: nearestUsableTick({ tick: POOL_TICK_CURRENT, tickSpacing: TICK_SPACING}) + TICK_SPACING * 2,

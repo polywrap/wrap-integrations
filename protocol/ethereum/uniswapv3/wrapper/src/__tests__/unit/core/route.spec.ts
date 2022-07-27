@@ -1,8 +1,14 @@
 import { ETHER, _getWETH } from "../../../token";
 import { ChainId, FeeAmount, Pool, Price, Route, Token } from "../../../wrap";
-import { createPool, encodeSqrtRatioX96, getTickAtSqrtRatio, createRoute, routeChainId, routeMidPrice } from "../../..";
-import { BigInt } from "@polywrap/wasm-as";
-import { BigFloat } from "as-bigfloat";
+import {
+  createPool,
+  encodeSqrtRatioX96,
+  getTickAtSqrtRatio,
+  createRoute,
+  routeChainId,
+  routeMidPrice,
+} from "../../..";
+import { BigInt, BigNumber } from "@polywrap/wasm-as";
 
 const getTestToken = (i: i32): Token => {
   return {
@@ -169,7 +175,7 @@ describe('Route', () => {
         outToken: token2,
       });
       expect(price).toStrictEqual(route.midPrice);
-      expect(price.price.substring(0, 6)).toStrictEqual('0.1000');
+      expect(price.price.substring(0, 6)).toStrictEqual('0.1');
       expect(price.baseToken).toStrictEqual(token0);
       expect(price.quoteToken).toStrictEqual(token2);
     });
@@ -220,7 +226,7 @@ describe('Route', () => {
         outToken: weth,
       });
       expect(price).toStrictEqual(route.midPrice);
-      const priceStr: string = BigFloat.fromString(price.price).toFixed(4);
+      const priceStr: string = BigNumber.fromString(price.price).toFixed(4);
       expect(priceStr).toStrictEqual('0.1429');
       expect(price.baseToken).toStrictEqual(token1);
       expect(price.quoteToken).toStrictEqual(weth);
@@ -238,7 +244,7 @@ describe('Route', () => {
         outToken: weth,
       });
       expect(price).toStrictEqual(route.midPrice);
-      const priceStr: string = BigFloat.fromString(price.price).toFixed(6);
+      const priceStr: string = BigNumber.fromString(price.price).toFixed(6);
       expect(priceStr).toStrictEqual('0.009524');
       expect(price.baseToken).toStrictEqual(eth);
       expect(price.quoteToken).toStrictEqual(weth);
@@ -256,7 +262,7 @@ describe('Route', () => {
         outToken: eth,
       });
       expect(price).toStrictEqual(route.midPrice);
-      const priceStr: string = BigFloat.fromString(price.price).toFixed(6);
+      const priceStr: string = BigNumber.fromString(price.price).toFixed(6);
       expect(priceStr).toStrictEqual('0.009524');
       expect(price.baseToken).toStrictEqual(weth);
       expect(price.quoteToken).toStrictEqual(eth);

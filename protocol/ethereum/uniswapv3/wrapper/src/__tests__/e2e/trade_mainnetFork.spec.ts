@@ -1,4 +1,3 @@
-import { buildWrapper } from "@polywrap/test-env-js";
 import { PolywrapClient } from "@polywrap/client-js";
 import {
   ChainIdEnum, Pool, Tick, Token, TokenAmount, Trade,
@@ -26,8 +25,8 @@ describe("Trade (mainnet fork)", () => {
     // get client
     const config = getPlugins();
     client = new PolywrapClient(config);
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
-    await buildWrapper(wrapperAbsPath);
+    // get uri
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     const sliceStart = 0;

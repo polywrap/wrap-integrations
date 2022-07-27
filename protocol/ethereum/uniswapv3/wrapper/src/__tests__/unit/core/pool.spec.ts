@@ -1,4 +1,4 @@
-import { BigInt } from "@polywrap/wasm-as";
+import { BigInt, BigNumber } from "@polywrap/wasm-as";
 import { ChainId, FeeAmount, Pool, PoolChangeResult, Price, Token, TokenAmount } from "../../../wrap";
 import { _getWETH } from "../../../token";
 import {
@@ -12,8 +12,7 @@ import {
   poolToken0Price,
   poolToken1Price, tokenEquals
 } from "../../..";
-import { MAX_TICK, MIN_TICK, _feeAmountToTickSpacing } from "../../../utils";
-import { BigFloat } from "as-bigfloat";
+import { _MAX_TICK, _MIN_TICK, _feeAmountToTickSpacing } from "../../../utils";
 
 
 const ONE_ETHER: BigInt = BigInt.pow(BigInt.fromUInt16(10), 18);
@@ -233,7 +232,7 @@ describe('Pool', () => {
         token1: poolA.token1,
         sqrtRatioX96: poolA.sqrtRatioX96
       });
-      expect(priceA.price.substring(0, 5)).toStrictEqual("1.010");
+      expect(BigNumber.from(priceA.price).toSignificant(5)).toStrictEqual("1.01");
       expect(priceA).toStrictEqual(poolA.token0Price);
 
       const poolB: Pool = createPool({
@@ -250,7 +249,7 @@ describe('Pool', () => {
         token1: poolB.token1,
         sqrtRatioX96: poolB.sqrtRatioX96
       });
-      expect(priceB.price.substring(0, 5)).toStrictEqual("1.010");
+      expect(BigNumber.from(priceB.price).toSignificant(5)).toStrictEqual("1.01");
       expect(priceB).toStrictEqual(poolB.token0Price);
 
     });
@@ -275,7 +274,7 @@ describe('Pool', () => {
         token1: poolA.token1,
         sqrtRatioX96: poolA.sqrtRatioX96
       });
-      const priceRoundedA: string = BigFloat.fromString(priceA.price).toFixed(4);
+      const priceRoundedA: string = BigNumber.fromString(priceA.price).toFixed(4);
       expect(priceRoundedA).toStrictEqual("0.9901");
       expect(priceA).toStrictEqual(poolA.token1Price);
 
@@ -293,7 +292,7 @@ describe('Pool', () => {
         token1: poolB.token1,
         sqrtRatioX96: poolB.sqrtRatioX96
       });
-      const priceRoundedB: string = BigFloat.fromString(priceB.price).toFixed(4);
+      const priceRoundedB: string = BigNumber.fromString(priceB.price).toFixed(4);
       expect(priceRoundedB).toStrictEqual("0.9901");
       expect(priceB).toStrictEqual(poolB.token1Price);
     });
@@ -387,12 +386,12 @@ describe('Pool', () => {
         tickCurrent: 0,
         ticks: [
           {
-            index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
+            index: nearestUsableTick({ tick: _MIN_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
             liquidityNet: ONE_ETHER,
             liquidityGross: ONE_ETHER
           },
           {
-            index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
+            index: nearestUsableTick({ tick: _MAX_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
             liquidityNet: ONE_ETHER.opposite(),
             liquidityGross: ONE_ETHER
           }],

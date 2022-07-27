@@ -1,6 +1,6 @@
 import { FeeAmount, Args_nextInitializedTick, Args_validateTickList, Tick } from "../../../wrap";
 import { BigInt } from "@polywrap/wasm-as";
-import { MAX_TICK, MIN_TICK, _feeAmountToTickSpacing } from "../../../utils";
+import { _MAX_TICK, _MIN_TICK, _feeAmountToTickSpacing } from "../../../utils";
 import * as TickList from "../../../tickList/index";
 import * as TickListUtils from "../../../tickList/utils";
 import { nearestUsableTick } from "../../..";
@@ -14,7 +14,7 @@ describe('TickList', () => {
 
   beforeEach(() => {
     lowTick = {
-      index: MIN_TICK + 1,
+      index: _MIN_TICK + 1,
       liquidityNet: BigInt.fromUInt16(10),
       liquidityGross: BigInt.fromUInt16(10),
     };
@@ -24,7 +24,7 @@ describe('TickList', () => {
       liquidityGross: BigInt.fromUInt16(5),
     };
     highTick = {
-      index: MAX_TICK - 1,
+      index: _MAX_TICK - 1,
       liquidityNet: BigInt.fromString("-5"),
       liquidityGross: BigInt.fromUInt16(5),
     };
@@ -59,14 +59,14 @@ describe('TickList', () => {
 
   it('isBelowSmallest', () => {
     const ticks: Tick[] = [lowTick, midTick, highTick];
-    expect(TickListUtils.tickIsBelowSmallest({ ticks: ticks, tick: MIN_TICK })).toStrictEqual(true);
-    expect(TickListUtils.tickIsBelowSmallest({ticks: ticks, tick: MIN_TICK + 1 })).toStrictEqual(false);
+    expect(TickListUtils.tickIsBelowSmallest({ ticks: ticks, tick: _MIN_TICK })).toStrictEqual(true);
+    expect(TickListUtils.tickIsBelowSmallest({ticks: ticks, tick: _MIN_TICK + 1 })).toStrictEqual(false);
   });
 
   it('isAtOrAboveLargest', () => {
     const ticks: Tick[] = [lowTick, midTick, highTick];
-    expect(TickListUtils.tickIsAtOrAboveLargest({ ticks: ticks, tick: MAX_TICK - 2 })).toStrictEqual(false);
-    expect(TickListUtils.tickIsAtOrAboveLargest({ ticks: ticks, tick: MAX_TICK - 1 })).toStrictEqual(true);
+    expect(TickListUtils.tickIsAtOrAboveLargest({ ticks: ticks, tick: _MAX_TICK - 2 })).toStrictEqual(false);
+    expect(TickListUtils.tickIsAtOrAboveLargest({ ticks: ticks, tick: _MAX_TICK - 1 })).toStrictEqual(true);
   });
 
   describe('nextInitializedTick', () => {
@@ -77,18 +77,18 @@ describe('TickList', () => {
 
     it('low - lte = true', () => {
       const _error = (): void => {
-        const args: Args_nextInitializedTick = { ticks: ticks, tick: MIN_TICK, lte: true };
+        const args: Args_nextInitializedTick = { ticks: ticks, tick: _MIN_TICK, lte: true };
         TickListUtils.nextInitializedTick(args);
       };
       expect(_error).toThrow("BELOW_SMALLEST: tick is below smallest tick index in the list");
 
-      expect(TickListUtils.nextInitializedTick({ ticks: ticks, tick: MIN_TICK + 1, lte: true })).toStrictEqual(lowTick);
-      expect(TickListUtils.nextInitializedTick({ ticks: ticks, tick: MIN_TICK + 2, lte: true })).toStrictEqual(lowTick);
+      expect(TickListUtils.nextInitializedTick({ ticks: ticks, tick: _MIN_TICK + 1, lte: true })).toStrictEqual(lowTick);
+      expect(TickListUtils.nextInitializedTick({ ticks: ticks, tick: _MIN_TICK + 2, lte: true })).toStrictEqual(lowTick);
     });
 
     it('low - lte = false', () => {
-      expect(TickListUtils.nextInitializedTick({ ticks: ticks, tick: MIN_TICK, lte: false })).toStrictEqual(lowTick);
-      expect(TickListUtils.nextInitializedTick({ ticks: ticks, tick: MIN_TICK + 1, lte: false })).toStrictEqual(midTick);
+      expect(TickListUtils.nextInitializedTick({ ticks: ticks, tick: _MIN_TICK, lte: false })).toStrictEqual(lowTick);
+      expect(TickListUtils.nextInitializedTick({ ticks: ticks, tick: _MIN_TICK + 1, lte: false })).toStrictEqual(midTick);
     });
 
     it('mid - lte = true', () => {
@@ -102,19 +102,19 @@ describe('TickList', () => {
     });
 
     it('high - lte = true', () => {
-      expect(TickListUtils.nextInitializedTick({ ticks: ticks, tick: MAX_TICK - 1, lte: true })).toStrictEqual(highTick);
-      expect(TickListUtils.nextInitializedTick({ ticks: ticks, tick: MAX_TICK, lte: true })).toStrictEqual(highTick);
+      expect(TickListUtils.nextInitializedTick({ ticks: ticks, tick: _MAX_TICK - 1, lte: true })).toStrictEqual(highTick);
+      expect(TickListUtils.nextInitializedTick({ ticks: ticks, tick: _MAX_TICK, lte: true })).toStrictEqual(highTick);
     });
 
     it('high - lte = false', () => {
       const _error = (): void => {
-        const args: Args_nextInitializedTick = { ticks: ticks, tick: MAX_TICK - 1, lte: false };
+        const args: Args_nextInitializedTick = { ticks: ticks, tick: _MAX_TICK - 1, lte: false };
         TickListUtils.nextInitializedTick(args);
       };
       expect(_error).toThrow("AT_OR_ABOVE_LARGEST: tick is at or above largest tick index in the list");
 
-      expect(TickListUtils.nextInitializedTick({ ticks: ticks, tick: MAX_TICK - 2, lte: false })).toStrictEqual(highTick)
-      expect(TickListUtils.nextInitializedTick({ ticks: ticks, tick: MAX_TICK - 3, lte: false })).toStrictEqual(highTick)
+      expect(TickListUtils.nextInitializedTick({ ticks: ticks, tick: _MAX_TICK - 2, lte: false })).toStrictEqual(highTick)
+      expect(TickListUtils.nextInitializedTick({ ticks: ticks, tick: _MAX_TICK - 3, lte: false })).toStrictEqual(highTick)
     });
   });
 
@@ -312,12 +312,12 @@ describe('TickList', () => {
       const ONE_ETHER: BigInt = BigInt.pow(BigInt.fromUInt16(10), 18);
       ticks = [
         {
-          index: nearestUsableTick({ tick: MIN_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
+          index: nearestUsableTick({ tick: _MIN_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
           liquidityNet: ONE_ETHER,
           liquidityGross: ONE_ETHER
         },
         {
-          index: nearestUsableTick({ tick: MAX_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
+          index: nearestUsableTick({ tick: _MAX_TICK, tickSpacing: _feeAmountToTickSpacing(FeeAmount.LOW) }),
           liquidityNet: ONE_ETHER.opposite(),
           liquidityGross: ONE_ETHER
         }];

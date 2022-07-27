@@ -1,162 +1,7 @@
 #import { Module, TxResponse } into Ethereum from "wrap://ens/ethereum.polywrap.eth"
 #import { Module } into SHA3 from "wrap://ens/sha3.polywrap.eth"
 #import { Module } into ERC20 from "wrap://ipfs/Qma94j3q3tPYyLq6uiF1DN32F8AiLadM4SEy5h2K4DDB9a"
-#import { Module } into Subgraph from "wrap://ipfs/QmbzfkRKB3hpN6bFqH7HCLGHNh6bCmxm6qKGjwXFQgzATN"
-
-"""Transaction gas configuration"""
-type GasOptions {
-    """The gas price to set for the transaction"""
-    gasPrice: BigInt
-    """The gas limit to set for the transaction"""
-    gasLimit: BigInt
-}
-
-"""Return value of nextInitializedTickWithinOneWord(...)"""
-type NextTickResult {
-    """Tick index of returned next tick"""
-    index: Int32!
-    """True if the returned tick index represents an initialized tick, or false if max or min tick are returned instead"""
-    found: Boolean!
-}
-
-"""Input or output amount and next pool state; return value of getPoolInputAmount(...) and getPoolOutputAmount(...)"""
-type PoolChangeResult {
-    """input or output amount resulting from simulated swap"""
-    amount: TokenAmount!
-    """Pool state after simulated swap"""
-    nextPool: Pool!
-}
-
-"""Input used to create a trade"""
-type TradeRoute {
-    """The route of the trade"""
-    route: Route!
-    """The amount being passed in or out, depending on the trade type"""
-    amount: TokenAmount!
-}
-
-"""Represents a unique staking program."""
-type IncentiveKey {
-    """The token rewarded for participating in the staking program."""
-    rewardToken: Token!
-    """The pool that the staked positions must provide in."""
-    pool: Pool!
-    """The time when the incentive program begins."""
-    startTime: BigInt!
-    """The time that the incentive program ends."""
-    endTime: BigInt!
-    """The address which receives any remaining reward tokens at `endTime`."""
-    refundee: String!
-}
-
-"""Options to specify when claiming rewards."""
-type ClaimOptions {
-    """The id of the NFT"""
-    tokenId: BigInt!
-    """Address to send rewards to."""
-    recipient: String!
-    """The amount of `rewardToken` to claim. 0 claims all."""
-    amount: BigInt
-}
-
-"""Options to specify when withdrawing tokens"""
-type FullWithdrawOptions implements ClaimOptions {
-    """Set when withdrawing. The position will be sent to `owner` on withdraw."""
-    owner: String!
-    """Set when withdrawing. `data` is passed to `safeTransferFrom` when transferring the position from contract back to owner."""
-    data: String
-}
-
-"""Optional arguments to send to the quoter."""
-type QuoteOptions {
-    """The optional price limit for the trade."""
-    sqrtPriceLimitX96: BigInt
-}
-
-"""Options for producing the calldata to add liquidity."""
-type CommonAddLiquidityOptions {
-    """How much the pool price is allowed to move."""
-    slippageTolerance: String!
-    """When the transaction expires, in epoch seconds."""
-    deadline: BigInt!
-    """Whether to spend ether. If true, one of the pool tokens must be WETH, by default false"""
-    useNative: Token
-    """The optional permit parameters for spending token0"""
-    token0Permit: PermitOptions
-    """The optional permit parameters for spending token1"""
-    token1Permit: PermitOptions
-}
-
-#type MintOptions implements CommonAddLiquidityOptions {
-#  recipient: String! # The account that should receive the minted NFT.
-#  createPool: Boolean # Creates pool if not initialized before mint.
-#}
-#
-#type IncreaseOptions implements CommonAddLiquidityOptions {
-#  tokenId: BigInt! # Indicates the ID of the position to increase liquidity for.
-#}
-
-# TODO: Use union type once union type support is merged
-"""Union of MintOptions and IncreaseOptions; one of either recipient or tokenId is required."""
-type AddLiquidityOptions implements CommonAddLiquidityOptions {
-    """The account that should receive the minted NFT."""
-    recipient: String
-    """Creates pool if not initialized before mint. Ignored if recipient is not null."""
-    createPool: Boolean
-    """Indicates the ID of the position to increase liquidity for. Ignored if recipient is not null."""
-    tokenId: BigInt
-}
-
-"""Options to specify when calling safeTransferFrom(...) to transfer an NFT"""
-type SafeTransferOptions {
-    """The account sending the NFT."""
-    sender: String!
-    """The account that should receive the NFT."""
-    recipient: String!
-    """The id of the token being sent."""
-    tokenId: BigInt!
-    """The optional parameter that passes data to the `onERC721Received` call for the staker"""
-    data: String
-}
-
-"""Options to specify when calling collectCallParameters(...) to collect liquidity provider rewards or removeCallParameters(...) to exit a liquidity position."""
-type CollectOptions {
-    """Indicates the ID of the position to collect for. Ignored when CollectOptions is as property of RemoveLiquidityOptions for use in removeCallParameters(...)."""
-    tokenId: BigInt!
-    """Expected value of tokensOwed0, including as-of-yet-unaccounted-for fees/liquidity value to be burned"""
-    expectedCurrencyOwed0: TokenAmount!
-    """Expected value of tokensOwed1, including as-of-yet-unaccounted-for fees/liquidity value to be burned"""
-    expectedCurrencyOwed1: TokenAmount!
-    """The account that should receive the tokens."""
-    recipient: String!
-}
-
-"""Permission parameters for NFT transfers, in case the transaction is being sent by an account that does not own the NFT"""
-type NFTPermitOptions {
-    v: PermitV!
-    r: String!
-    s: String!
-    deadline: BigInt!
-    spender: String!
-}
-
-"""Options for producing the calldata to exit a position."""
-type RemoveLiquidityOptions {
-    """The ID of the token to exit"""
-    tokenId: BigInt!
-    """The percentage of position liquidity to exit."""
-    liquidityPercentage: String!
-    """How much the pool price is allowed to move."""
-    slippageTolerance: String!
-    """When the transaction expires, in epoch seconds."""
-    deadline: BigInt!
-    """Whether the NFT should be burned if the entire position is being exited, by default false."""
-    burnToken: Boolean
-    """The optional permit of the token ID being exited, in case the exit transaction is being sent by an account that does not own the NFT"""
-    permit: NFTPermitOptions
-    """Parameters to be passed on to collect; tokenId is ignored."""
-    collectOptions: CollectOptions!
-}
+#import { Module } into Subgraph from "wrap://ipfs/QmZMg5ojMeFunry5Rwb2XeSJbVaGohMNpLSraPDVgBDR2e"
 
 type Module {
     """Call the approve(...) function of an ERC20 token contract on-chain, allowing the Uniswap router contract to transfer tokens"""
@@ -550,8 +395,8 @@ type Module {
     ): Price!
 
     """
-    Given a list of pools, and a fixed amount in, returns the top `maxNumResults` trades that go from an input token
-    amount to an output token, making at most `maxHops` hops.
+    Given a list of pools, and a fixed amount in, returns the top 'maxNumResults' trades that go from an input token
+    amount to an output token, making at most 'maxHops' hops.
     Note this does not consider aggregation, as routes are linear. It's possible a better route exists by splitting
     the amount in among multiple routes.
     """
@@ -568,8 +413,8 @@ type Module {
 
     """
     similar to bestTradeExactIn(...) but instead targets a fixed output amount
-    given a list of pools, and a fixed amount out, returns the top `maxNumResults` trades that go from an input token
-    to an output token amount, making at most `maxHops` hops
+    given a list of pools, and a fixed amount out, returns the top 'maxNumResults' trades that go from an input token
+    to an output token amount, making at most 'maxHops' hops
     note this does not consider aggregation, as routes are linear. it's possible a better route exists by splitting
     the amount in among multiple routes.
     """
@@ -760,9 +605,9 @@ type Module {
     ## Staker
 
     """Returns transaction calldata for calling 'unstakeToken', 'claimReward', and 'stakeToken' in a single transaction on Uniswap's Staker contract.
-    Note:  A `tokenId` can be staked in many programs but to claim rewards and continue the program you must unstake, claim, and then restake."""
+    Note:  A 'tokenId' can be staked in many programs but to claim rewards and continue the program you must unstake, claim, and then restake."""
     collectRewards(
-        """An array of IncentiveKeys that `tokenId` is staked in; claims rewards for each program."""
+        """An array of IncentiveKeys that 'tokenId' is staked in; claims rewards for each program."""
         incentiveKeys: [IncentiveKey!]!
         """ClaimOptions to specify tokenId, recipient, and amount wanting to collect. Note that you can only specify one amount and one recipient across the various programs if you are collecting from multiple programs at once."""
         options: ClaimOptions!
@@ -770,15 +615,15 @@ type Module {
 
     """Returns transaction calldata for unstaking, claiming, and withdrawing in a single transaction on Uniswap's Staker contract."""
     withdrawToken(
-        """A list of incentiveKeys to unstake from. Should include all incentiveKeys (unique staking programs) that `options.tokenId` is staked in."""
+        """A list of incentiveKeys to unstake from. Should include all incentiveKeys (unique staking programs) that 'options.tokenId' is staked in."""
         incentiveKeys: [IncentiveKey!]!
-        """Options for producing claim calldata and withdraw calldata. Can't withdraw without unstaking all programs for `tokenId`."""
+        """Options for producing claim calldata and withdraw calldata. Can't withdraw without unstaking all programs for 'tokenId'."""
         options: FullWithdrawOptions!
     ): MethodParameters!
 
     """Returns an encoded IncentiveKey as a string"""
     encodeDeposit(
-        """An array of IncentiveKeys to be encoded and used in the data parameter in `safeTransferFrom`"""
+        """An array of IncentiveKeys to be encoded and used in the data parameter in 'safeTransferFrom'"""
         incentiveKeys: [IncentiveKey!]!
     ): String!
 
@@ -1052,6 +897,24 @@ type Module {
     getPermitV(
         permitV: PermitV!
     ): Int32!
+
+    """The address of Uniswap's pool factory contract"""
+    FACTORY_ADDRESS: String!
+
+    """Pool creation byte code hash used for computing pool address"""
+    POOL_INIT_CODE_HASH: String!
+
+    """Smallest valid tick index in a pool"""
+    MIN_TICK: Int32!
+
+    """Largest valid tick index in a pool"""
+    MAX_TICK: Int32!
+
+    """Smallest valid sqrtRatioX96 in a pool"""
+    MIN_SQRT_RATIO: BigInt!
+
+    """Largest valid sqrtRatioX96 in a pool"""
+    MAX_SQRT_RATIO: BigInt!
 }
 
 
@@ -1067,8 +930,7 @@ enum ChainId {
     ARBITRUM_ONE
     ARBITRUM_RINKEBY
     POLYGON
-    POLYGON_MUMBAI,
-    SEPOLIA
+    POLYGON_MUMBAI
 }
 
 """Pool swap fee amount"""
@@ -1313,4 +1175,159 @@ type MethodParameters {
     calldata: String!
     """The amount of ether (wei) to send in hex."""
     value: String!
+}
+
+"""Transaction gas configuration"""
+type GasOptions {
+    """The gas price to set for the transaction"""
+    gasPrice: BigInt
+    """The gas limit to set for the transaction"""
+    gasLimit: BigInt
+}
+
+"""Return value of nextInitializedTickWithinOneWord(...)"""
+type NextTickResult {
+    """Tick index of returned next tick"""
+    index: Int32!
+    """True if the returned tick index represents an initialized tick, or false if max or min tick are returned instead"""
+    found: Boolean!
+}
+
+"""Input or output amount and next pool state; return value of getPoolInputAmount(...) and getPoolOutputAmount(...)"""
+type PoolChangeResult {
+    """input or output amount resulting from simulated swap"""
+    amount: TokenAmount!
+    """Pool state after simulated swap"""
+    nextPool: Pool!
+}
+
+"""Input used to create a trade"""
+type TradeRoute {
+    """The route of the trade"""
+    route: Route!
+    """The amount being passed in or out, depending on the trade type"""
+    amount: TokenAmount!
+}
+
+"""Represents a unique staking program."""
+type IncentiveKey {
+    """The token rewarded for participating in the staking program."""
+    rewardToken: Token!
+    """The pool that the staked positions must provide in."""
+    pool: Pool!
+    """The time when the incentive program begins."""
+    startTime: BigInt!
+    """The time that the incentive program ends."""
+    endTime: BigInt!
+    """The address which receives any remaining reward tokens at 'endTime'."""
+    refundee: String!
+}
+
+"""Options to specify when claiming rewards."""
+type ClaimOptions {
+    """The id of the NFT"""
+    tokenId: BigInt!
+    """Address to send rewards to."""
+    recipient: String!
+    """The amount of 'rewardToken' to claim. 0 claims all."""
+    amount: BigInt
+}
+
+"""Options to specify when withdrawing tokens"""
+type FullWithdrawOptions implements ClaimOptions {
+    """Set when withdrawing. The position will be sent to 'owner' on withdraw."""
+    owner: String!
+    """Set when withdrawing. 'data' is passed to 'safeTransferFrom' when transferring the position from contract back to owner."""
+    data: String
+}
+
+"""Optional arguments to send to the quoter."""
+type QuoteOptions {
+    """The optional price limit for the trade."""
+    sqrtPriceLimitX96: BigInt
+}
+
+"""Options for producing the calldata to add liquidity."""
+type CommonAddLiquidityOptions {
+    """How much the pool price is allowed to move."""
+    slippageTolerance: String!
+    """When the transaction expires, in epoch seconds."""
+    deadline: BigInt!
+    """Whether to spend ether. If true, one of the pool tokens must be WETH, by default false"""
+    useNative: Token
+    """The optional permit parameters for spending token0"""
+    token0Permit: PermitOptions
+    """The optional permit parameters for spending token1"""
+    token1Permit: PermitOptions
+}
+
+#type MintOptions implements CommonAddLiquidityOptions {
+#  recipient: String! # The account that should receive the minted NFT.
+#  createPool: Boolean # Creates pool if not initialized before mint.
+#}
+#
+#type IncreaseOptions implements CommonAddLiquidityOptions {
+#  tokenId: BigInt! # Indicates the ID of the position to increase liquidity for.
+#}
+
+# TODO: Use union type once union type support is merged
+"""Union of MintOptions and IncreaseOptions; one of either recipient or tokenId is required."""
+type AddLiquidityOptions implements CommonAddLiquidityOptions {
+    """The account that should receive the minted NFT."""
+    recipient: String
+    """Creates pool if not initialized before mint. Ignored if recipient is not null."""
+    createPool: Boolean
+    """Indicates the ID of the position to increase liquidity for. Ignored if recipient is not null."""
+    tokenId: BigInt
+}
+
+"""Options to specify when calling safeTransferFrom(...) to transfer an NFT"""
+type SafeTransferOptions {
+    """The account sending the NFT."""
+    sender: String!
+    """The account that should receive the NFT."""
+    recipient: String!
+    """The id of the token being sent."""
+    tokenId: BigInt!
+    """The optional parameter that passes data to the 'onERC721Received' call for the staker"""
+    data: String
+}
+
+"""Options to specify when calling collectCallParameters(...) to collect liquidity provider rewards or removeCallParameters(...) to exit a liquidity position."""
+type CollectOptions {
+    """Indicates the ID of the position to collect for. Ignored when CollectOptions is as property of RemoveLiquidityOptions for use in removeCallParameters(...)."""
+    tokenId: BigInt!
+    """Expected value of tokensOwed0, including as-of-yet-unaccounted-for fees/liquidity value to be burned"""
+    expectedCurrencyOwed0: TokenAmount!
+    """Expected value of tokensOwed1, including as-of-yet-unaccounted-for fees/liquidity value to be burned"""
+    expectedCurrencyOwed1: TokenAmount!
+    """The account that should receive the tokens."""
+    recipient: String!
+}
+
+"""Permission parameters for NFT transfers, in case the transaction is being sent by an account that does not own the NFT"""
+type NFTPermitOptions {
+    v: PermitV!
+    r: String!
+    s: String!
+    deadline: BigInt!
+    spender: String!
+}
+
+"""Options for producing the calldata to exit a position."""
+type RemoveLiquidityOptions {
+    """The ID of the token to exit"""
+    tokenId: BigInt!
+    """The percentage of position liquidity to exit."""
+    liquidityPercentage: String!
+    """How much the pool price is allowed to move."""
+    slippageTolerance: String!
+    """When the transaction expires, in epoch seconds."""
+    deadline: BigInt!
+    """Whether the NFT should be burned if the entire position is being exited, by default false."""
+    burnToken: Boolean
+    """The optional permit of the token ID being exited, in case the exit transaction is being sent by an account that does not own the NFT"""
+    permit: NFTPermitOptions
+    """Parameters to be passed on to collect; tokenId is ignored."""
+    collectOptions: CollectOptions!
 }

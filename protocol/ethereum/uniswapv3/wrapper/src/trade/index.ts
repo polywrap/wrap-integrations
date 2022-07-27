@@ -40,7 +40,7 @@ import {
   poolInvolvesToken,
 } from "../pool";
 import { Price, Fraction, PriorityQueue } from "../utils";
-import { createRoute } from "../router";
+import { createRoute } from "../route";
 
 import { BigInt, Option } from "@polywrap/wasm-as";
 

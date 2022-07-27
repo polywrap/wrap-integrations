@@ -1,16 +1,27 @@
 import { PolywrapClient } from "@polywrap/client-js";
 import path from "path";
 import {
-  createPool, encodeSqrtRatioX96, createCallParameters, addCallParameters, collectCallParameters, removeCallParameters, safeTransferFromParameters, feeAmountToTickSpacing, createPosition,
-  ChainIdEnum, FeeAmountEnum, Pool, SafeTransferOptions, Token, TokenAmount,
-  getPlugins, initInfra, stopInfra,
+  createPool,
+  encodeSqrtRatioX96,
+  createCallParameters,
+  addCallParameters,
+  collectCallParameters,
+  removeCallParameters,
+  safeTransferFromParameters,
+  feeAmountToTickSpacing,
+  createPosition,
+  ChainIdEnum,
+  FeeAmountEnum,
+  Pool,
+  SafeTransferOptions,
+  Token,
+  TokenAmount,
   getFakeTestToken
 } from "./helpers";
-import {buildWrapper} from "@polywrap/test-env-js";
 
 jest.setTimeout(120000);
 
-describe('NonfungiblePositionManager', () => {
+describe('NonfungiblePositionManager (SDK test replication)', () => {
   const recipient = '0x0000000000000000000000000000000000000003';
   const sender = '0x0000000000000000000000000000000000000004';
   const tokenId = "1";
@@ -45,12 +56,10 @@ describe('NonfungiblePositionManager', () => {
   let fsUri: string;
 
   beforeAll(async () => {
-    await initInfra();
     // get client
-    const config = getPlugins();
-    client = new PolywrapClient(config);
+    client = new PolywrapClient();
+    // get uri
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
-    await buildWrapper(wrapperAbsPath);
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     token0 = getFakeTestToken(0);
@@ -58,10 +67,6 @@ describe('NonfungiblePositionManager', () => {
     const sqrtRatioX96: string = await encodeSqrtRatioX96(client, fsUri, 1, 1);
     pool_0_1 = await createPool(client, fsUri, token0, token1, FeeAmountEnum.MEDIUM, sqrtRatioX96, 0, 0, []);
     pool_1_weth = await createPool(client, fsUri, token1, weth, FeeAmountEnum.MEDIUM, sqrtRatioX96, 0, 0, []);
-  });
-
-  afterAll(async () => {
-    await stopInfra();
   });
 
   describe('createCallParameters', () => {

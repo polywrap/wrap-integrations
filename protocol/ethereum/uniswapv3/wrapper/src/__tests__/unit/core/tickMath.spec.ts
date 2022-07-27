@@ -1,4 +1,4 @@
-import { MIN_TICK, MAX_TICK, MIN_SQRT_RATIO, MAX_SQRT_RATIO } from "../../../utils";
+import { _MIN_TICK, _MAX_TICK, _MIN_SQRT_RATIO, _MAX_SQRT_RATIO } from "../../../utils";
 import * as TickUtils from "../../..";
 import { BigInt } from "@polywrap/wasm-as";
 
@@ -6,28 +6,28 @@ describe('TickMath', () => {
   
   describe('MIN_TICK', () => {
     it('equals correct value', () => {
-      expect(MIN_TICK).toStrictEqual(-887272);
+      expect(_MIN_TICK).toStrictEqual(-887272);
     });
   });
 
   describe('MAX_TICK', () => {
     it('equals correct value', () => {
-      expect(MAX_TICK).toStrictEqual(887272)
+      expect(_MAX_TICK).toStrictEqual(887272)
     })
   })
 
   describe('getSqrtRatioAtTick', () => {
 
     it('throws for tick too small', () => {
-      expect(() => TickUtils.getSqrtRatioAtTick({ tick: MIN_TICK - 1 })).toThrow(`TICK_BOUND: tick index is out of range ${MIN_TICK} to ${MAX_TICK}`);
+      expect(() => TickUtils.getSqrtRatioAtTick({ tick: _MIN_TICK - 1 })).toThrow(`TICK_BOUND: tick index is out of range ${_MIN_TICK} to ${_MAX_TICK}`);
     });
 
     it('throws for tick too large', () => {
-      expect(() => TickUtils.getSqrtRatioAtTick({ tick: MAX_TICK + 1 })).toThrow(`TICK_BOUND: tick index is out of range ${MIN_TICK} to ${MAX_TICK}`);
+      expect(() => TickUtils.getSqrtRatioAtTick({ tick: _MAX_TICK + 1 })).toThrow(`TICK_BOUND: tick index is out of range ${_MIN_TICK} to ${_MAX_TICK}`);
     });
 
     it('returns the correct value for min tick', () => {
-      expect(TickUtils.getSqrtRatioAtTick({ tick: MIN_TICK}).toString()).toStrictEqual(MIN_SQRT_RATIO.toString());
+      expect(TickUtils.getSqrtRatioAtTick({ tick: _MIN_TICK}).toString()).toStrictEqual(_MIN_SQRT_RATIO.toString());
     });
 
     it('returns the correct value for tick 0', () => {
@@ -35,18 +35,18 @@ describe('TickMath', () => {
     });
 
     it('returns the correct value for max tick', () => {
-      expect(TickUtils.getSqrtRatioAtTick({ tick: MAX_TICK }).toString()).toStrictEqual(MAX_SQRT_RATIO.toString());
+      expect(TickUtils.getSqrtRatioAtTick({ tick: _MAX_TICK }).toString()).toStrictEqual(_MAX_SQRT_RATIO.toString());
     });
   });
 
   describe('getTickAtSqrtRatio', () => {
 
     it('returns the correct value for sqrt ratio at min tick', () => {
-      expect(TickUtils.getTickAtSqrtRatio({sqrtRatioX96: MIN_SQRT_RATIO })).toStrictEqual(MIN_TICK);
+      expect(TickUtils.getTickAtSqrtRatio({sqrtRatioX96: _MIN_SQRT_RATIO })).toStrictEqual(_MIN_TICK);
     });
 
     it('returns the correct value for sqrt ratio at max tick', () => {
-      expect(TickUtils.getTickAtSqrtRatio({sqrtRatioX96: MAX_SQRT_RATIO.subInt(1)})).toStrictEqual(MAX_TICK - 1);
+      expect(TickUtils.getTickAtSqrtRatio({sqrtRatioX96: _MAX_SQRT_RATIO.subInt(1)})).toStrictEqual(_MAX_TICK - 1);
     });
   });
 })
