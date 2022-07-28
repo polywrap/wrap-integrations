@@ -1,6 +1,6 @@
 import {
   Args_getNative,
-  Args_getWETH,
+  Args_getWrappedNative,
   Args_isNative,
   Args_wrapToken,
   Args_wrapAmount,
@@ -15,8 +15,8 @@ export function getNative(args: Args_getNative): Token {
   return _getNative(args.chainId);
 }
 
-export function getWETH(args: Args_getWETH): Token {
-  return _getWETH(args.chainId);
+export function getWrappedNative(args: Args_getWrappedNative): Token {
+  return _getWrappedNative(args.chainId);
 }
 
 export function isNative(args: Args_isNative): boolean {
@@ -37,10 +37,10 @@ export const ETHER: Currency = {
   symbol: "ETH",
 };
 
-export const wethCurrency: Currency = {
+export const wEthCurrency: Currency = {
   decimals: 18,
-  symbol: "WETH",
   name: "Wrapped Ether",
+  symbol: "WETH",
 };
 
 export const MATIC: Currency = {
@@ -48,28 +48,39 @@ export const MATIC: Currency = {
   name: "Matic",
   symbol: "MATIC",
 };
-const MATIC_ADDRESS = "0x0000000000000000000000000000000000001010";
+export const mMATIC: Currency = {
+  name: "Polygon Mumbai Matic",
+  symbol: "mMATIC",
+  decimals: 18,
+};
+
+export const wMaticCurrency: Currency = {
+  decimals: 18,
+  name: "Wrapped MATIC",
+  symbol: "WMATIC",
+};
 
 export function _getNative(chainId: ChainId): Token {
-  if (chainId < ChainId.MAINNET || chainId >= ChainId._MAX_) {
+  if (chainId < 0 || chainId >= ChainId._MAX_) {
     throw new Error("Unknown chain ID");
   }
-  if (chainId == ChainId.POLYGON || chainId == ChainId.POLYGON_MUMBAI) {
-    return {
-      chainId: chainId,
-      address: MATIC_ADDRESS,
-      currency: copyCurrency(MATIC),
-    };
+  let currency: Currency;
+  if (chainId == ChainId.POLYGON) {
+    currency = copyCurrency(MATIC);
+  } else if (chainId == ChainId.POLYGON_MUMBAI) {
+    currency = copyCurrency(mMATIC);
+  } else {
+    currency = copyCurrency(ETHER);
   }
   return {
     chainId: chainId,
     address: "",
-    currency: copyCurrency(ETHER),
+    currency: currency,
   };
 }
 
-export function _getWETH(chainId: ChainId): Token {
-  let address: string;
+export function _getWrappedNative(chainId: ChainId): Token {
+  let address: string = "";
   switch (chainId) {
     case ChainId.MAINNET:
       address = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
@@ -95,45 +106,44 @@ export function _getWETH(chainId: ChainId): Token {
       address = "0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681";
       break;
     case ChainId.POLYGON:
-      address = "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619";
-      break;
+      return {
+        chainId: ChainId.POLYGON,
+        address: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
+        currency: copyCurrency(wMaticCurrency),
+      };
     case ChainId.POLYGON_MUMBAI:
-      address = "0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa";
-      break;
+      return {
+        chainId: ChainId.POLYGON_MUMBAI,
+        address: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
+        currency: copyCurrency(wMaticCurrency),
+      };
     default:
       throw new Error("Unknown chain ID");
   }
+
   return {
     chainId: chainId,
     address: address,
-    currency: copyCurrency(wethCurrency),
+    currency: copyCurrency(wEthCurrency),
   };
 }
 
 export function _isNative(token: Token): boolean {
-  if (
-    token.chainId == ChainId.POLYGON ||
-    token.chainId == ChainId.POLYGON_MUMBAI
-  ) {
-    return (
-      currencyEquals({ currencyA: token.currency, currencyB: MATIC }) &&
-      token.address == MATIC_ADDRESS
-    );
+  if (token.address != "") {
+    return false;
   }
-  return (
-    currencyEquals({ currencyA: token.currency, currencyB: ETHER }) &&
-    token.address == ""
-  );
+  if (token.chainId == ChainId.POLYGON) {
+    return currencyEquals({ currencyA: token.currency, currencyB: MATIC });
+  } else if (token.chainId == ChainId.POLYGON_MUMBAI) {
+    return currencyEquals({ currencyA: token.currency, currencyB: mMATIC });
+  }
+  return currencyEquals({ currencyA: token.currency, currencyB: ETHER });
 }
 
 // check if need to wrap ether
 export function _wrapToken(token: Token): Token {
-  if (
-    _isNative(token) &&
-    token.chainId != ChainId.POLYGON &&
-    token.chainId != ChainId.POLYGON_MUMBAI
-  ) {
-    return _getWETH(token.chainId);
+  if (_isNative(token)) {
+    return _getWrappedNative(token.chainId);
   }
   return token;
 }

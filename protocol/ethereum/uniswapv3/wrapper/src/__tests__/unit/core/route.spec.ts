@@ -1,4 +1,4 @@
-import { ETHER, _getWETH } from "../../../token";
+import { ETHER, _getWrappedNative } from "../../../token";
 import { ChainId, FeeAmount, Pool, Price, Route, Token } from "../../../wrap";
 import {
   createPool,
@@ -40,7 +40,7 @@ const eth: Token = {
   address: "",
   currency: ETHER,
 };
-const weth: Token = _getWETH(ChainId.MAINNET);
+const weth: Token = _getWrappedNative(ChainId.MAINNET);
 const token0: Token = getTestToken(0);
 const token1: Token = getTestToken(1);
 const token2: Token = getTestToken(2);
