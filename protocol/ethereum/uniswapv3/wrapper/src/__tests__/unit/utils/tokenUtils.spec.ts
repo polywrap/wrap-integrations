@@ -17,11 +17,6 @@ export const MATIC: Currency = {
   name: "Polygon Matic",
   symbol: "MATIC",
 };
-const mMATIC: Currency = {
-  name: "Polygon Mumbai Matic",
-  symbol: "mMATIC",
-  decimals: 18,
-};
 export const WMATIC: Currency = {
   decimals: 18,
   name: "Wrapped MATIC",
@@ -43,10 +38,8 @@ describe('Token utils', () => {
   it('getNative', () => {
     for (let i = ChainId.MAINNET; i < ChainId._MAX_; i++) {
       let currency: Currency;
-      if (i == ChainId.POLYGON) {
+      if (i == ChainId.POLYGON || i == ChainId.POLYGON_MUMBAI) {
         currency = MATIC;
-      }  else if (i == ChainId.POLYGON_MUMBAI) {
-        currency = mMATIC;
       } else {
         currency = Eth;
       }

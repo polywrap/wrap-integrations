@@ -49,34 +49,36 @@ const MATIC: Currency = {
   symbol: "MATIC",
 };
 
-const mMATIC: Currency = {
-  decimals: 18,
-  name: "Polygon Mumbai Matic",
-  symbol: "mMATIC",
-};
-
 const wMaticCurrency: Currency = {
   decimals: 18,
   name: "Wrapped MATIC",
   symbol: "WMATIC",
 };
 
+function isMatic(chainId: ChainId): boolean {
+  return chainId == ChainId.POLYGON || chainId == ChainId.POLYGON_MUMBAI;
+}
+
+export function _isNative(token: Token): boolean {
+  if (token.address != "") {
+    return false;
+  }
+  const currencyA = token.currency;
+  const currencyB = isMatic(token.chainId) ? MATIC : ETHER;
+  return currencyEquals({ currencyA, currencyB });
+}
+
 function _getNative(chainId: ChainId): Token {
   if (chainId < 0 || chainId >= ChainId._MAX_) {
     throw new Error("Unknown chain ID");
   }
-  let currency: Currency;
-  if (chainId == ChainId.POLYGON) {
-    currency = copyCurrency(MATIC);
-  } else if (chainId == ChainId.POLYGON_MUMBAI) {
-    currency = copyCurrency(mMATIC);
-  } else {
-    currency = copyCurrency(ETHER);
-  }
+  const currency: Currency = isMatic(chainId)
+    ? copyCurrency(MATIC)
+    : copyCurrency(ETHER);
   return {
-    chainId: chainId,
+    chainId,
     address: "",
-    currency: currency,
+    currency,
   };
 }
 
@@ -109,25 +111,10 @@ function _getWrappedNativeAddress(chainId: ChainId): string {
 
 function _getWrappedNative(chainId: ChainId): Token {
   const address = _getWrappedNativeAddress(chainId);
-  const currency =
-    chainId == ChainId.POLYGON || chainId == ChainId.POLYGON_MUMBAI
-      ? copyCurrency(wMaticCurrency)
-      : copyCurrency(wEthCurrency);
+  const currency = isMatic(chainId)
+    ? copyCurrency(wMaticCurrency)
+    : copyCurrency(wEthCurrency);
   return { chainId, address, currency };
-}
-
-export function _isNative(token: Token): boolean {
-  if (token.address != "") {
-    return false;
-  }
-  const currencyA = token.currency;
-  const currencyB =
-    token.chainId == ChainId.POLYGON
-      ? MATIC
-      : token.chainId == ChainId.POLYGON_MUMBAI
-      ? mMATIC
-      : ETHER;
-  return currencyEquals({ currencyA, currencyB });
 }
 
 // check if need to wrap ether
