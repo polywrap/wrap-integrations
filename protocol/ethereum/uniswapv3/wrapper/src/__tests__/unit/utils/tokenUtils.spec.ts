@@ -14,7 +14,7 @@ const WETH: Currency = {
 };
 export const MATIC: Currency = {
   decimals: 18,
-  name: "Matic",
+  name: "Polygon Matic",
   symbol: "MATIC",
 };
 const mMATIC: Currency = {

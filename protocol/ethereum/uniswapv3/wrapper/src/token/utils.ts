@@ -2,12 +2,12 @@ import {
   Args_getNative,
   Args_getWrappedNative,
   Args_isNative,
-  Args_wrapToken,
   Args_wrapAmount,
-  Token,
-  TokenAmount,
+  Args_wrapToken,
   ChainId,
   Currency,
+  Token,
+  TokenAmount,
 } from "../wrap";
 import { currencyEquals } from "./index";
 
@@ -31,37 +31,37 @@ export function wrapAmount(args: Args_wrapAmount): TokenAmount {
   return _wrapAmount(args.amount);
 }
 
-export const ETHER: Currency = {
+const ETHER: Currency = {
   decimals: 18,
   name: "Ether",
   symbol: "ETH",
 };
 
-export const wEthCurrency: Currency = {
+const wEthCurrency: Currency = {
   decimals: 18,
   name: "Wrapped Ether",
   symbol: "WETH",
 };
 
-export const MATIC: Currency = {
+const MATIC: Currency = {
   decimals: 18,
   name: "Polygon Matic",
   symbol: "MATIC",
 };
 
-export const mMATIC: Currency = {
+const mMATIC: Currency = {
   decimals: 18,
   name: "Polygon Mumbai Matic",
   symbol: "mMATIC",
 };
 
-export const wMaticCurrency: Currency = {
+const wMaticCurrency: Currency = {
   decimals: 18,
   name: "Wrapped MATIC",
   symbol: "WMATIC",
 };
 
-export function _getNative(chainId: ChainId): Token {
+function _getNative(chainId: ChainId): Token {
   if (chainId < 0 || chainId >= ChainId._MAX_) {
     throw new Error("Unknown chain ID");
   }
@@ -80,65 +80,54 @@ export function _getNative(chainId: ChainId): Token {
   };
 }
 
-export function _getWrappedNative(chainId: ChainId): Token {
-  let address: string = "";
+function _getWrappedNativeAddress(chainId: ChainId): string {
   switch (chainId) {
     case ChainId.MAINNET:
-      address = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
-      break;
+      return "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
     case ChainId.ROPSTEN:
     case ChainId.RINKEBY:
-      address = "0xc778417E063141139Fce010982780140Aa0cD5Ab";
-      break;
+      return "0xc778417E063141139Fce010982780140Aa0cD5Ab";
     case ChainId.GOERLI:
-      address = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
-      break;
+      return "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
     case ChainId.KOVAN:
-      address = "0xd0A1E359811322d97991E03f863a0C30C2cF029C";
-      break;
+      return "0xd0A1E359811322d97991E03f863a0C30C2cF029C";
     case ChainId.OPTIMISM:
     case ChainId.OPTIMISTIC_KOVAN:
-      address = "0x4200000000000000000000000000000000000006";
-      break;
+      return "0x4200000000000000000000000000000000000006";
     case ChainId.ARBITRUM_ONE:
-      address = "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1";
-      break;
+      return "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1";
     case ChainId.ARBITRUM_RINKEBY:
-      address = "0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681";
-      break;
+      return "0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681";
     case ChainId.POLYGON:
-      return {
-        chainId: ChainId.POLYGON,
-        address: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
-        currency: copyCurrency(wMaticCurrency),
-      };
+      return "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
     case ChainId.POLYGON_MUMBAI:
-      return {
-        chainId: ChainId.POLYGON_MUMBAI,
-        address: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
-        currency: copyCurrency(wMaticCurrency),
-      };
+      return "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889";
     default:
       throw new Error("Unknown chain ID");
   }
+}
 
-  return {
-    chainId: chainId,
-    address: address,
-    currency: copyCurrency(wEthCurrency),
-  };
+function _getWrappedNative(chainId: ChainId): Token {
+  const address = _getWrappedNativeAddress(chainId);
+  const currency =
+    chainId == ChainId.POLYGON || chainId == ChainId.POLYGON_MUMBAI
+      ? copyCurrency(wMaticCurrency)
+      : copyCurrency(wEthCurrency);
+  return { chainId, address, currency };
 }
 
 export function _isNative(token: Token): boolean {
   if (token.address != "") {
     return false;
   }
-  if (token.chainId == ChainId.POLYGON) {
-    return currencyEquals({ currencyA: token.currency, currencyB: MATIC });
-  } else if (token.chainId == ChainId.POLYGON_MUMBAI) {
-    return currencyEquals({ currencyA: token.currency, currencyB: mMATIC });
-  }
-  return currencyEquals({ currencyA: token.currency, currencyB: ETHER });
+  const currencyA = token.currency;
+  const currencyB =
+    token.chainId == ChainId.POLYGON
+      ? MATIC
+      : token.chainId == ChainId.POLYGON_MUMBAI
+      ? mMATIC
+      : ETHER;
+  return currencyEquals({ currencyA, currencyB });
 }
 
 // check if need to wrap ether
@@ -157,7 +146,7 @@ export function _wrapAmount(tokenAmount: TokenAmount): TokenAmount {
   };
 }
 
-export function copyCurrency(currency: Currency): Currency {
+function copyCurrency(currency: Currency): Currency {
   return {
     name: currency.name,
     symbol: currency.symbol,
@@ -165,7 +154,7 @@ export function copyCurrency(currency: Currency): Currency {
   };
 }
 
-export function copyToken(token: Token): Token {
+function copyToken(token: Token): Token {
   return {
     chainId: token.chainId,
     address: token.address,
