@@ -1,4 +1,4 @@
-name: CI
+name: ENS-CI
 
 on:
   pull_request:

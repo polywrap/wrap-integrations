@@ -1,0 +1,15 @@
+format: 0.1.0
+stages:
+  ipfs_deploy:
+    package: ipfs
+    uri: fs/./build
+    config:
+      gatewayUri: "https://ipfs.wrappers.io"
+  ens_deploy:
+    package: ens
+    depends_on: ipfs_deploy
+    config:
+      domainName: interface.cache.integrations.wraplib.eth
+      provider: $INFURA
+      ensRegistryAddress: $ENS
+      privateKey: $PKEY

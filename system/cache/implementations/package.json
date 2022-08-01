@@ -1,0 +1,14 @@
+{
+  "name": "@polywrap/cache-implementations",
+  "description": "Cache Implementations",
+  "private": true,
+  "version": "1.0.1",
+  "scripts": {
+    "install": "yarn install:in-memory",
+    "install:in-memory": "yarn install --cwd ./in-memory --nonInteractive --frozen-lockfile --prefer-offline",
+    "build": "yarn build:in-memory",
+    "build:in-memory": "yarn build --cwd ./in-memory",
+    "test": "yarn test:in-memory",
+    "test:in-memory": "yarn test --cwd ./in-memory"
+  }
+}

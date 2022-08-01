@@ -1,0 +1,13 @@
+{
+  "name": "@polywrap/concurrent",
+  "description": "Implements concurrency support for wrappers",
+  "private": true,
+  "version": "1.0.1",
+  "scripts": {
+    "build": "yarn build:interface && yarn build:impls",
+    "build:interface": "yarn build --cwd ./interface",
+    "build:impls": "yarn build --cwd ./implementations",
+    "test": "yarn test:implementations",
+    "test:resolvers": "yarn test --cwd ./implementations"
+  }
+}

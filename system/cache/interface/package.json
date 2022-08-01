@@ -1,5 +1,5 @@
 {
-  "name": "cache-interface",
+  "name": "@polywrap/cache-interface",
   "description": "Polywrap Caching interface",
   "private": true,
   "version": "0.1.0",

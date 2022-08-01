@@ -1,5 +1,5 @@
 {
-  "name": "@polywrap/console-wrapper",
+  "name": "@polywrap/logger-wrapper",
   "description": "Polywrap for logging",
   "private": true,
   "version": "0.2.0",

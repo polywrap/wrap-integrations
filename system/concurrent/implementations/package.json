@@ -1,0 +1,12 @@
+{
+  "name": "@polywrap/concurrent-implementations",
+  "description": "Concurrent Implementations",
+  "private": true,
+  "version": "1.0.1",
+  "scripts": {
+    "build": "yarn build:promise",
+    "build:promise": "yarn build --cwd ./promise",
+    "test": "yarn test:promise",
+    "test:promise": "yarn test --cwd ./promise"
+  }
+}

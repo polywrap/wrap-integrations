@@ -1,4 +1,4 @@
-# Concurrency
+# Concurrent
 It allows wrappers to subinvoke multiple wrappers concurrently. 
 
 

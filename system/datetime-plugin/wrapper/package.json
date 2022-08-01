@@ -1,5 +1,5 @@
 {
-  "name": "datetime-wrapper-demo",
+  "name": "@polywrap/datetime-wrapper-demo",
   "description": "DateTime Wrapper Demo",
   "private": true,
   "version": "0.2.0",

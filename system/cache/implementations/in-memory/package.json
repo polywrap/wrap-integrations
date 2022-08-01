@@ -1,5 +1,5 @@
 {
-  "name": "in-memory-cache",
+  "name": "@polywrap/in-memory-cache-plugin",
   "description": "In-memory cache implementation",
   "private": true,
   "version": "0.1.0",

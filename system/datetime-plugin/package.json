@@ -1,0 +1,14 @@
+{
+  "name": "@polywrap/datetime",
+  "description": "Implements datetime support for wrappers",
+  "private": true,
+  "version": "1.0.1",
+  "scripts": {
+    "build": "yarn build:plugin && yarn build:wrapper",
+    "build:plugin": "yarn build --cwd ./plugin",
+    "build:wrapper": "yarn build --cwd ./wrapper",
+    "test": "yarn test:plugin && yarn test:wrapper",
+    "test:plugin": "yarn test --cwd ./plugin",
+    "test:wrapper": "yarn test --cwd ./wrapper"
+  }
+}

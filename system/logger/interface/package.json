@@ -1,6 +1,6 @@
 {
-  "name": "@polywrap/concurrent-interface",
-  "description": "Concurrent interface",
+  "name": "@polywrap/logger-interface",
+  "description": "logger interface",
   "private": true,
   "version": "0.2.0",
   "scripts": {

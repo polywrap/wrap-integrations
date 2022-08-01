@@ -1,0 +1,16 @@
+{
+  "name": "@polywrap/cache",
+  "description": "Implements caching support for wrappers",
+  "private": true,
+  "version": "1.0.1",
+  "scripts": {
+    "install": "yarn install:interface && yarn install:impls",
+    "install:interface": "yarn install --cwd ./interface --nonInteractive --frozen-lockfile --prefer-offline",
+    "install:impls": "yarn install --cwd ./implementations",
+    "build": "yarn build:interface && yarn build:impls",
+    "build:interface": "yarn build --cwd ./interface",
+    "build:impls": "yarn build --cwd ./implementations",
+    "test": "yarn test:implementations",
+    "test:resolvers": "yarn test --cwd ./implementations"
+  }
+}

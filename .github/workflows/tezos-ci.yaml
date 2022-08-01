@@ -1,4 +1,4 @@
-name: CI
+name: Tezos-CI
 
 on:
   pull_request:

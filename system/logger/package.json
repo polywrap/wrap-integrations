@@ -1,0 +1,13 @@
+{
+  "name": "@polywrap/logger",
+  "description": "Implements logging support for wrappers",
+  "private": true,
+  "version": "1.0.1",
+  "scripts": {
+    "build": "yarn build:interface && yarn build:wrapper",
+    "build:interface": "yarn build --cwd ./interface",
+    "build:wrapper": "yarn build --cwd ./wrapper",
+    "test": "yarn test:wrapper",
+    "test:wrapper": "yarn test --cwd ./wrapper"
+  }
+}

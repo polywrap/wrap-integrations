@@ -4,7 +4,7 @@ import { ethereumPlugin } from "@polywrap/ethereum-plugin-js";
 import { ipfsPlugin } from "@polywrap/ipfs-plugin-js";
 import { ensAddresses, providers } from "@polywrap/test-env-js";
 
-import { concurrentPromisePlugin } from "../";
+import { concurrentPromisePlugin } from "..";
 
 export interface TestEnvironment {
   ipfs: string;

@@ -1,4 +1,4 @@
-name: CI
+name: UniswapV3-CI
 
 on:
   pull_request:
