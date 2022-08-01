@@ -45,13 +45,14 @@ export const wEthCurrency: Currency = {
 
 export const MATIC: Currency = {
   decimals: 18,
-  name: "Matic",
+  name: "Polygon Matic",
   symbol: "MATIC",
 };
+
 export const mMATIC: Currency = {
+  decimals: 18,
   name: "Polygon Mumbai Matic",
   symbol: "mMATIC",
-  decimals: 18,
 };
 
 export const wMaticCurrency: Currency = {
