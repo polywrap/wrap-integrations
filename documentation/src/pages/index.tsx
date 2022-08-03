@@ -5,15 +5,17 @@ import Minihacks from "../components/Minihacks";
 import SocialCallout from "../components/SocialCallout";
 import { darkTheme } from "../mui-theme";
 import { ThemeProvider } from "@mui/material";
+import TitleCard from "@site/src/components/TitleCard";
 
 export default function Home() {
   return (
     <Layout>
-    <ThemeProvider theme={darkTheme}>
+      <ThemeProvider theme={darkTheme}>
+        <TitleCard/>
         <Showcase/>
         <Minihacks/>
         <SocialCallout/>
-    </ThemeProvider>
+      </ThemeProvider>
     </Layout>
   );
 }

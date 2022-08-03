@@ -1,47 +1,45 @@
 ---
-sidebar_position: 1
+id: intro
+title: Welcome to Polywrap Integrations
+sidebar_position: 0
 ---
 
-# Tutorial Intro
+[**Polywrap**](https://polywrap.io) is a developer tool that enables easy integration of Web3 protocols into any application. It makes it possible for applications on any platform, written in any language, to read and write data to Web3 protocols.
 
-Let's discover **Docusaurus in less than 5 minutes**.
+:::tip
+Have questions or want to get involved? Join our [Discord](https://discord.com/invite/Z5m88a5qWu) or [open an issue](https://github.com/polywrap/monorepo/issues) on our GitHub repo.
+:::
 
-## Getting Started
+## Web3 protocol integration
 
-Get started by **creating a new site**.
+Web3 developers may want to integrate functions into their own app that allows users to perform a token swap, for example. The main way that developers do this today is by installing a JavaScript SDK like the Uniswap SDK as a dependency into their app. While JavaScript SDKs is one way for apps to interact with protocols, they come with major disadvantages.
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+## What's inside a Polywrap Wasm wrapper?
 
-### What you'll need
+A Polywrap Wasm "wrapper" consists of the following files:
 
-- [Node.js](https://nodejs.org/en/download/) version 16.14 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
+- **A Wasm module** containing the protocol's business logic functions (e.g. Uniswap's swap functions)
+- **Wrap Manifest** file that orchestrates the wrapper, and provides types and parameters for the module functions
 
-## Generate a new site
+## Where is it deployed?
 
-Generate a new Docusaurus site using the **classic template**.
+We currently support deploying wrappers to decentralized endpoints, [Ethereum Name Service (ENS)](https://ens.domains/), a decentralized Ethereum-based naming system and [InterPlanetary File System (IPFS)](https://ipfs.io/), a distributed P2P file system.
 
-The classic template will automatically be added to your project after you run the command:
+You can see a list of all deployed wrappers here:  
+https://wrappers.io/pins
 
-```bash
-npm init docusaurus@latest my-website classic
-```
+## How can apps integrate this deployed wrapper?
 
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
+In a JavaScript application, a developer would first install the Polywrap JavaScript client. At that point, a Polywrap-enabled app will be able to download and use the protocol's functions. These functions are exported from WebAssembly (Wasm) modules, and can be used in any environment that can execute Wasm functions (like your web browser!).
 
-The command also installs all necessary dependencies you need to run Docusaurus.
+:::tip
+The Polywrap JavaScript client allows the app to use **any** deployed wrapper. After instantiating the client, the app can call queries to the wrapper using familiar GraphQL or our streamlined invocation syntax. All that is needed is:
 
-## Start your site
+1. The URI specifying the ENS or IPFS resolving to content containing the wrapper
+2. Specifying the function and arguments provided by that wrapper
 
-Run the development server:
+For detailed information on how to integrate in apps, take a look at our [Create a JS App](../../quick-start/integrate-wrappers/install-client) guide.
 
-```bash
-cd my-website
-npm run start
-```
+For a guide on how to build your own Polywrap and deploy it for other developers to integrate into their own app, see our [Creating a Wasm wrapper guide](../../quick-start/create-wasm-wrappers/tutorial/project-setup).
 
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
-
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
-
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+:::

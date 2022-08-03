@@ -67,7 +67,7 @@ const config = {
         },
         items: [
           {
-            label: 'Website',
+            label: 'Polywrap.io',
             href: 'https://polywrap.io',
           },
           {

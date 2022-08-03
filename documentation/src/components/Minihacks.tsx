@@ -40,7 +40,7 @@ export default function Minihacks() {
                 },
               }}
             >
-              <img src={"../../static/img/minihacks.png"}/>
+              <img src={"img/minihacks.png"}/>
             </Box>
           </Grid>
           <Grid item xs={12} sm={9} md={10}>
