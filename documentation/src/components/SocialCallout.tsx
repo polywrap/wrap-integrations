@@ -1,13 +1,35 @@
 import React from "react";
-import { Box, Container, Typography } from "@mui/material";
-import CardLink from "./CardLink";
+import { Box, Container, Link, Theme, Typography, useTheme } from "@mui/material";
+import { useColorMode } from "@docusaurus/theme-common";
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme: Theme) => ({
+  link: {
+    color: `${theme.palette.primary.dark} !important`,
+    fontWeight: 800,
+  },
+}));
 
 export default function AdditionalLinks() {
-
+  const theme = useTheme();
+  const classes = useStyles(theme);
+  const { colorMode } = useColorMode();
   return (
-    <Box my={8}>
-      <Container maxWidth="lg">
-        <CardLink link="https://discord.gg/Z5m88a5qWu">
+    <Box mt={6} mb={6} position="relative" zIndex={0}>
+    <Container maxWidth="lg">
+      <Box
+        sx={{
+          background: `rgba(0,0,0,${colorMode === "dark" ? 0.08 : 0.02})`,
+          border: `1px solid ${colorMode === "dark" ? theme.palette.primary.main : "#228eb9"}30`,
+          borderRadius: theme.spacing(4),
+          display: "block",
+          overflow: "hidden",
+          padding: theme.spacing(4),
+          transform: "translateY(0)",
+          transition: "all 0.25s ease-in-out",
+          backdropFilter: "blur(16px)",
+        }}
+      >
           <Box display="flex">
             <Box 
               sx={{
@@ -33,14 +55,14 @@ export default function AdditionalLinks() {
                 </Typography>
               </Box>
               <Box mt={1}>
-                <Typography variant="body1" fontWeight="800" className="card-link">
+                <Link href="https://github.com/polywrap/mini-hacks" target="_blank" rel="noredirect" underline="hover" className={classes.link}>
                   Join now &#8250;
-                </Typography>
+                </Link>
               </Box>
             </Box>
           </Box>
-        </CardLink>
-      </Container>
+      </Box>
+    </Container>
     </Box>
   );
 } 

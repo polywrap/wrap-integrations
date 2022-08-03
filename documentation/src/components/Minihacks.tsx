@@ -16,6 +16,7 @@ export default function Minihacks() {
   const { colorMode } = useColorMode();
 
   return (
+    <Box mt={6} mb={6} position="relative" zIndex={0}>
     <Container maxWidth="lg">
       <Box
         sx={{
@@ -44,7 +45,7 @@ export default function Minihacks() {
             </Box>
           </Grid>
           <Grid item xs={12} sm={9} md={10}>
-            <Typography variant="h4" component="h3" fontWeight="800">
+            <Typography variant="h5" component="h3" fontWeight="800">
               Polywrap Minihack Submissions are Open!
             </Typography>
             <Box mt={2}>
@@ -61,5 +62,6 @@ export default function Minihacks() {
         </Grid>
       </Box>
     </Container>
+    </Box>
   );
 } 

@@ -30,6 +30,7 @@
   --ifm-background-color: #f7f8fa;
   --ifm-navbar-background-color: #f7f8fa;
 }
+
 /* General styling */
 html[data-theme='dark'] {
   --ifm-color-primary: #74DD9F;
