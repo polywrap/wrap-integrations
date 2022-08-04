@@ -1,0 +1,27 @@
+{
+  "name": "@polywrap/ipfs-http-wrapper",
+  "description": "IPFS HTTP Wrapper",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "build": "npx polywrap build",
+    "deploy": "yarn deploy:contract && yarn deploy:polywrap",
+    "deploy:polywrap": "npx polywrap deploy",
+    "deploy:contract": "node ./scripts/deploy-contracts.js",
+    "test": "yarn test:e2e",
+    "test:e2e": "jest --passWithNoTests --runInBand --verbose"
+  },
+  "dependencies": {
+    "@polywrap/wasm-as": "0.3.0",
+    "as-base64": "0.1.1"
+  },
+  "devDependencies": {
+    "@as-pect/cli": "^6.0.0",
+    "@types/jest": "26.0.8",
+    "polywrap": "0.3.0",
+    "jest": "26.6.3",
+    "ts-jest": "26.5.4",
+    "typescript": "4.4.3"
+  }
+}

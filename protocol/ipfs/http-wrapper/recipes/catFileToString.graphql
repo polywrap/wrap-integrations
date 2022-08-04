@@ -1,0 +1,8 @@
+query {
+  catFileToString(
+    ipfs: {
+      provider: $ipfsUrl
+    }
+    cid: $cid
+  )
+}

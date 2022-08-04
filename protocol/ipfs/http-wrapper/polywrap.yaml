@@ -1,0 +1,5 @@
+format: "0.1"
+name: ipfs-http-wrapper
+language: wasm/assemblyscript
+schema: ./schema.graphql
+module: ./src/index.ts
