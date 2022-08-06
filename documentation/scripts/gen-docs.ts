@@ -1,72 +1,87 @@
 import path from "path";
 import fs from "fs";
 import { runCLI } from "@polywrap/test-env-js";
-import { executeCommand, match, partialSort, readJsonFile } from "./utils";
+import { direntComparator, executeCommand, match, readJsonFile, writeReadme } from "./utils";
+
+export const manifestNames = ["polywrap.yaml", "polywrap.yml", "polywrap.plugin.yaml", "polywrap.plugin.yml"];
 
 export async function main() {
   const directories = ["protocol", "system"];
-  const docsDir = path.resolve(path.join(__dirname, "../docs"));
-  const integrationsRoot = path.resolve(path.join(__dirname, "../../"));
+  const docsRoot = path.resolve(path.join(__dirname, "../docs"));
+  const searchRoot = path.resolve(path.join(__dirname, "../../"));
 
   for (const dir of directories) {
-    const searchDir = path.join(integrationsRoot, dir);
-    await generateDocs(docsDir, searchDir);
+    await generateDocs(docsRoot, searchRoot, dir);
   }
 }
 
-async function generateDocs( docsDir: string, searchDir: string) {
-  const dirents = fs.readdirSync(searchDir, { withFileTypes: true });
-
-  // Only search specific types of files
-  const manifests = ["polywrap.yaml", "polywrap.yml", "polywrap.plugin.yaml", "polywrap.plugin.yml"];
-
+async function generateDocs(docsRoot: string, searchRoot: string, pathFromRoot: string) {
   // Ignore specific directories
-  const filter = ["node_modules"];
+  const filter = ["node_modules", "src", "build"];
+
+  const searchDir = path.join(searchRoot, pathFromRoot);
+  const dirents = fs.readdirSync(searchDir, { withFileTypes: true });
 
   // make sure we build plugins and interfaces first since they are usually dependencies
   // A wasm wrapper can be a dependency, but that is not an issue in this repo right now,
   // and it's a harder problem to solve.
-  partialSort(dirents);
+  // We also need to make sure wrapper docs are generated before README docs are added.
+  // Otherwise, docgen will replace the folder containing the README and the README will be lost.
+  dirents.sort(direntComparator);
 
   for (const dirent of dirents) {
-    const direntPath = path.join(searchDir, dirent.name);
 
-    if (dirent.isFile() && manifests.includes(dirent.name)) {
-      console.log("\n" + "🌎 found " + direntPath);
+    if (dirent.isFile()) {
+      const direntPath = path.join(searchDir, dirent.name);
 
-      // get wrapper name
-      const manifestJson = await readJsonFile(direntPath);
-      const wrapperName = manifestJson["name"];
-      const wrapperDocsDir = path.join(docsDir, wrapperName);
+      // TODO: should readme be added to meta manifest?
+      // use readme as project intro doc
+      if (dirent.name === "README.md") {
+        const docsDir = path.join(docsRoot, pathFromRoot);
+        const readme = await fs.promises.readFile(direntPath, 'utf-8');
+        await writeReadme(docsDir, readme);
+      // if found wrapper, generate docs
+      } else if (manifestNames.includes(dirent.name)) {
+        console.log("\n" + "🌎 found " + direntPath);
 
-      // build wrapper
-      try {
-        await executeCommand("yarn", ["install", "--cwd", searchDir, "--pure-lockfile"], searchDir);
-        await executeCommand("yarn", ["build"], searchDir);
-      } catch (e) {
-        console.error(e);
-        continue;
-      }
+        // build wrapper
+        try {
+          await executeCommand("yarn", ["install", "--cwd", searchDir, "--pure-lockfile"], searchDir);
+          await executeCommand("yarn", ["build"], searchDir);
+        } catch (e) {
+          console.error(e);
+          continue;
+        }
 
-      // Code generation cannot be run for Polywrap Interface projects
-      // But we need to build them in case they are another wrapper's dependency
-      if (manifestJson["language"].indexOf("interface") > -1) {
-        console.log("Code generation cannot be run for Polywrap Interface projects")
-        continue;
-      }
+        // read wrapper manifest
+        const manifestJson = await readJsonFile(direntPath);
 
-      // generate docs
-      const { exitCode: code, stdout: output, stderr: error } = await runCLI({
-        args: ["docgen", "docusaurus", `-m ${direntPath}`, `-g ${wrapperDocsDir}`],
-      });
-      if (code === 0) {
-        console.log("✔️ Generated docs for " + wrapperName);
-      } else {
-        console.error(output);
-        console.error(error);
+        // Code generation cannot be run for Polywrap Interface projects
+        // But we need to build them in case they are another wrapper's dependency
+        if (manifestJson["language"].indexOf("interface") > -1) {
+          console.log("Code generation cannot be run for Polywrap Interface projects")
+          continue;
+        }
+
+        const docsDir = path.join(docsRoot, pathFromRoot);
+        if (!fs.existsSync(docsDir)) {
+          fs.mkdirSync(docsDir, { recursive: true });
+        }
+
+        // generate docs
+        const { exitCode: code, stdout: output, stderr: error } = await runCLI({
+          args: ["docgen", "docusaurus", `-m ${direntPath}`, `-g ${docsDir}`],
+        });
+        if (code === 0) {
+          console.log("✔️ Generated docs for " + manifestJson["name"]);
+        } else {
+          console.error(output);
+          console.error(error);
+        }
       }
     } else if (dirent.isDirectory() && !match(dirent.name, filter)) {
-      await generateDocs(docsDir, direntPath)
+      const nextPathFromRoot = path.join(pathFromRoot, dirent.name);
+      await generateDocs(docsRoot, searchRoot, nextPathFromRoot)
     }
   }
 }
