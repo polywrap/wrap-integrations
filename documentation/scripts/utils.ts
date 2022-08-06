@@ -80,3 +80,18 @@ sidebar_position: 0
 ` + readme;
   fs.writeFileSync(readmePath, readmeDoc);
 }
+
+export function redirectInternalLinks(readme: string): string {
+  const toAppend = "/readme-doc)";
+  let start = readme.indexOf("(./");
+  while (start >= 0) {
+    const end = readme.indexOf(")", start);
+    const nextStart = end + toAppend.length;
+    readme = readme.slice(0, start) +
+      readme.slice(start, end) +
+      toAppend +
+      readme.slice(nextStart);
+    start = readme.indexOf("(./", nextStart);
+  }
+  return readme;
+}

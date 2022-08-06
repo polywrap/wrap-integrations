@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 import { runCLI } from "@polywrap/test-env-js";
-import { direntComparator, executeCommand, match, readJsonFile, writeReadme } from "./utils";
+import { direntComparator, executeCommand, match, readJsonFile, redirectInternalLinks, writeReadme } from "./utils";
 
 export const manifestNames = ["polywrap.yaml", "polywrap.yml", "polywrap.plugin.yaml", "polywrap.plugin.yml"];
 
@@ -10,8 +10,17 @@ export async function main() {
   const docsRoot = path.resolve(path.join(__dirname, "../docs"));
   const searchRoot = path.resolve(path.join(__dirname, "../../"));
 
+  // generate docs and copy readmes
   for (const dir of directories) {
     await generateDocs(docsRoot, searchRoot, dir);
+  }
+
+  // copy top-level readme
+  const readmePath = path.join(searchRoot, "README.md");
+  if (fs.existsSync(readmePath)) {
+    let readme = fs.readFileSync(readmePath, 'utf-8');
+    readme = redirectInternalLinks(readme);
+    writeReadme(docsRoot, readme);
   }
 }
 

@@ -6,7 +6,7 @@ const content =   {
     title: "Go to Docs",
     description: "Read documentation for every integration.",
     cta: "Get Started!",
-    link: "/docs/intro",
+    link: "/docs/readme-doc",
   };
 
 export default function Showcase() {
