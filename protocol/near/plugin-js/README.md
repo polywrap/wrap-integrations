@@ -42,4 +42,4 @@ client = new Web3ApiClient({
 
 ```
 
-Now you're ready to make queries to the [Near wrapper](./../wrapper).
+Now you're ready to make queries to the Near wrapper.

@@ -17,7 +17,7 @@ export async function main() {
 
 async function generateDocs(docsRoot: string, searchRoot: string, pathFromRoot: string) {
   // Ignore specific directories
-  const filter = ["node_modules", "src", "build"];
+  const filter = ["node_modules", "src", "build", "recipes", "workflows", "scripts", "meta"];
 
   const searchDir = path.join(searchRoot, pathFromRoot);
   const dirents = fs.readdirSync(searchDir, { withFileTypes: true });
@@ -34,12 +34,11 @@ async function generateDocs(docsRoot: string, searchRoot: string, pathFromRoot: 
     if (dirent.isFile()) {
       const direntPath = path.join(searchDir, dirent.name);
 
-      // TODO: should readme be added to meta manifest?
       // use readme as project intro doc
       if (dirent.name === "README.md") {
         const docsDir = path.join(docsRoot, pathFromRoot);
-        const readme = await fs.promises.readFile(direntPath, 'utf-8');
-        await writeReadme(docsDir, readme);
+        const readme = fs.readFileSync(direntPath, 'utf-8');
+        writeReadme(docsDir, readme);
       // if found wrapper, generate docs
       } else if (manifestNames.includes(dirent.name)) {
         console.log("\n" + "🌎 found " + direntPath);
@@ -54,7 +53,7 @@ async function generateDocs(docsRoot: string, searchRoot: string, pathFromRoot: 
         }
 
         // read wrapper manifest
-        const manifestJson = await readJsonFile(direntPath);
+        const manifestJson = readJsonFile(direntPath);
 
         // Code generation cannot be run for Polywrap Interface projects
         // But we need to build them in case they are another wrapper's dependency
