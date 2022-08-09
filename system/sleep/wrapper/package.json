@@ -1,0 +1,17 @@
+{
+  "name": "@polywrap/sleep-wrapper",
+  "description": "Wasm wrapper for sleep",
+  "private": true,
+  "version": "0.3.0",
+  "scripts": {
+    "build": "polywrap build",
+    "codegen": "polywrap codegen",
+    "deploy": "polywrap deploy",
+    "test": "polywrap run ./workflows/e2e.yaml -c ./workflows/config.ts"
+  },
+  "devDependencies": {
+    "@polywrap/wasm-as": "0.3.0",
+    "polywrap": "0.3.0",
+    "assemblyscript": "0.19.23"
+  }
+}
