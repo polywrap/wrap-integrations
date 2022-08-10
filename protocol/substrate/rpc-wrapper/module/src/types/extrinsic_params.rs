@@ -37,13 +37,6 @@ pub trait ExtrinsicParams {
     fn encode_extra_to(&self, v: &mut Vec<u8>);
 }
 
-/// A struct representing the signed extra and additional parameters required
-/// to construct a transaction and pay in token fees
-pub type PlainTipExtrinsicParams = BaseExtrinsicParams<PlainTip>;
-/// A builder which leads to [`PlainTipExtrinsicParams`] being constructed.
-/// This is what you provide to methods like `sign_and_submit()`.
-pub type PlainTipExtrinsicParamsBuilder = BaseExtrinsicParamsBuilder<PlainTip>;
-
 #[derive(Decode, Encode, Clone, Eq, PartialEq, Debug)]
 pub struct BaseExtrinsicParams<Tip> {
     era: Era,

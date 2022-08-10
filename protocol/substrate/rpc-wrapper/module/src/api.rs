@@ -1,9 +1,4 @@
-#![allow(warnings)]
-
-use crate::{
-    Error,
-    Metadata,
-};
+use crate::{Error, Metadata};
 pub use base_api::BaseApi;
 use delegate::delegate;
 use serde::de::DeserializeOwned;

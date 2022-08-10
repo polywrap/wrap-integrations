@@ -3,12 +3,6 @@
 use crate::{
     error::Error,
     types::{
-        account_info::BlockNumber,
-        extrinsic_params::{
-            PlainTip,
-            PlainTipExtrinsicParams,
-            PlainTipExtrinsicParamsBuilder,
-        },
         extrinsics::GenericAddress,
     },
     Api,
@@ -20,11 +14,6 @@ use sp_core::{
     H256,
 };
 use sp_runtime::{
-    generic::{
-        Era,
-        Header,
-    },
-    traits::BlakeTwo256,
     MultiSignature,
     MultiSigner,
 };

@@ -3,10 +3,7 @@ use crate::{
     error::Error,
     types::{
         account_info::AccountInfo,
-        extrinsic_params::{
-            BaseExtrinsicParams, BaseExtrinsicParamsBuilder, ExtrinsicParams,
-            GenericExtra, SignedPayload,
-        },
+        extrinsic_params::{GenericExtra, SignedPayload},
         extrinsics::{GenericAddress, UncheckedExtrinsicV4},
     },
 };

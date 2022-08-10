@@ -1,9 +1,4 @@
-use codec::{
-    Decode,
-    Encode,
-};
-/// The block number type used in this runtime.
-pub type BlockNumber = u64;
+use codec::{Decode, Encode};
 /// Index of a transaction.
 //fixme: make generic
 pub type Index = u32;
