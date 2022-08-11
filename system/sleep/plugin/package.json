@@ -2,7 +2,7 @@
   "name": "sleep-plugin-js",
   "description": "Plugin to pause thread for specified time",
   "private": false,
-  "version": "0.3.1",
+  "version": "0.3.2",
   "main": "build/index.js",
   "files": [
     "build"

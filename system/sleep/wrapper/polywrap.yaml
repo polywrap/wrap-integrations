@@ -5,5 +5,5 @@ schema: ./src/schema.graphql
 module: ./src/index.ts
 deploy: ./polywrap.deploy.yaml
 import_redirects:
-  - uri: wrap://ens/sleep.polywrap.eth
+  - uri: wrap://ens/goerli/interface.sleep.wrappers.eth
     schema: ../interface/build/schema.graphql

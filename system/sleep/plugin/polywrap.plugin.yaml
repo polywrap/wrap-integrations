@@ -4,5 +4,5 @@ language: plugin/typescript
 schema: ./src/schema.graphql
 module: ./src/index.ts
 import_redirects:
-  - uri: wrap://ens/sleep.polywrap.eth
+  - uri: wrap://ens/goerli/interface.sleep.polywrap.eth
     schema: ../interface/build/schema.graphql

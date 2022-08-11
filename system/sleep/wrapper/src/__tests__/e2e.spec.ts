@@ -23,7 +23,7 @@ describe("e2e", () => {
       ],
       interfaces: [
         {
-          interface: "ens/sleep.polywrap.eth",
+          interface: "ens/goerli/interface.sleep.wrappers.eth",
           implementations: ["ens/sleep-js.polywrap.eth"],
         }
       ]
