@@ -3,7 +3,6 @@ pub use wrap::*;
 use sha3;
 use sha3::{Digest, digest::{Update, ExtendableOutput, XofReader}};
 use hex;
-use sha3::digest::DynDigest;
 
 pub fn sha3_512(args: ArgsSha3512) -> String {
     let data = sha3::Sha3_512::new().chain_update(args.message).finalize();
