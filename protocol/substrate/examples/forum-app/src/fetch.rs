@@ -243,6 +243,43 @@ pub async fn get_block_hash(
     Ok(block_hash)
 }
 
+pub async fn get_nonce_for_account(api: &Api, account_id: &AccountId32) -> Result<Option<u32>, Error>{
+    let args = json!({
+        "url": api.url,
+        "account": account_id.to_ss58check(),
+    });
+
+    let nonce = api.invoke_method("getNonceForAccount", args).await?;
+    Ok(nonce)
+}
+
+pub async fn compose_opaque_payload_and_extra<Call>(api: &Api, nonce:u32, call:Call) -> Result<(Vec<u8>,Vec<u8>), Error>
+where Call: Encode + Clone + fmt::Debug,
+{
+    let args = json!({
+        "url": api.url,
+        "nonce": nonce,
+        "call": call.encode(),
+    });
+    let (payload, extra) = api.invoke_method("composeOpaquePayloadAndExtra",args).await?;
+    Ok((payload, extra))
+}
+
+pub async fn submit_signed_call<Call>(api: &Api, call: Call, signer_account: &AccountId32, multi_signature: MultiSignature, extra: Vec<u8>) -> Result<Option<H256>, Error>
+    where Call: Clone + fmt::Debug + Encode
+{
+    let args = json!({
+        "url": api.url,
+        "call": call.encode(),
+        "signer_account": signer_account.to_ss58check(),
+        "multi_signature": multi_signature.encode(),
+        "extra": extra,
+    });
+    let hash = api.invoke_method("submitSignedCall", args).await?;
+    Ok(None)
+}
+
+
 pub async fn add_post(api: &Api, post: &str) -> Result<Option<H256>, Error> {
     let bounded_content = BoundedVec::try_from(post.as_bytes().to_vec())
         .or_else(|_e| {

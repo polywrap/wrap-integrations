@@ -30,6 +30,10 @@ type Module {
 
   authorSubmitExtrinsic(url: String!, extrinsic: String!): String
 
+  composeOpaquePayloadAndExtra(url: String!, nonce: UInt32!, call: [UInt8!]!): [[UInt8!]!]
+
+  submitSignedCall(url: String!, call: [UInt8!]!, signer_account: String!, multi_signature: [UInt8!]!, extra: [UInt8!]!): String
+
 }
 
 type ChainMetadata {

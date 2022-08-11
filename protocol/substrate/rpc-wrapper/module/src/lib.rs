@@ -4,17 +4,13 @@
 pub mod wrap;
 pub use api::Api;
 use api::BaseApi;
+use codec::Decode;
 pub use error::Error;
 use num_traits::cast::FromPrimitive;
 use polywrap_wasm_rs::BigNumber;
-use scale_info::{
-    TypeDef,
-    TypeDefPrimitive,
-};
-use sp_core::crypto::{
-    AccountId32,
-    Ss58Codec,
-};
+use scale_info::{TypeDef, TypeDefPrimitive};
+use sp_core::crypto::{AccountId32, Ss58Codec};
+use sp_runtime::MultiSignature;
 pub use types::metadata::Metadata;
 use wrap::imported::*;
 pub use wrap::*;
@@ -75,16 +71,14 @@ pub fn get_runtime_version(
         .fetch_runtime_version()
         .ok()
         .flatten()
-        .map(|v| {
-            RuntimeVersion {
-                spec_name: v.spec_name.to_string(),
-                impl_name: v.impl_name.to_string(),
-                authoring_version: v.authoring_version,
-                spec_version: v.spec_version,
-                impl_version: v.impl_version,
-                transaction_version: v.transaction_version,
-                state_version: v.state_version,
-            }
+        .map(|v| RuntimeVersion {
+            spec_name: v.spec_name.to_string(),
+            impl_name: v.impl_name.to_string(),
+            authoring_version: v.authoring_version,
+            spec_version: v.spec_version,
+            impl_version: v.impl_version,
+            transaction_version: v.transaction_version,
+            state_version: v.state_version,
         })
 }
 
@@ -322,4 +316,41 @@ pub fn author_submit_extrinsic(
         .ok()
         .flatten()
         .map(|hash| format!("{:#x}", hash))
+}
+
+pub fn compose_opaque_payload_and_extra(
+    arg: ArgsComposeOpaquePayloadAndExtra,
+) -> Option<Vec<Vec<u8>>> {
+    Api::new(&arg.url)
+        .ok()
+        .map(|api| {
+            api.compose_opaque_payload_and_extra(
+                arg.nonce, arg.call, None, None, None,
+            )
+            .ok()
+        })
+        .flatten()
+        .map(|(payload, extra)| [payload, extra].to_vec())
+}
+
+pub fn submit_signed_call(arg: ArgsSubmitSignedCall) -> Option<String> {
+    let signer_account = AccountId32::from_ss58check(&arg.signer_account)
+        .expect("must be a valid account");
+    let multi_signature =
+        MultiSignature::decode(&mut arg.multi_signature.as_slice())
+            .expect("must decode");
+    Api::new(&arg.url)
+        .ok()
+        .map(|api| {
+            api.submit_signed_call(
+                arg.call,
+                &signer_account,
+                multi_signature,
+                arg.extra,
+            )
+            .ok()
+        })
+        .flatten()
+        .flatten()
+        .map(|h| format!("{:#x}", h))
 }
