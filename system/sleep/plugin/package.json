@@ -1,9 +1,12 @@
 {
   "name": "sleep-plugin-js",
   "description": "Plugin to pause thread for specified time",
-  "private": true,
-  "version": "0.3.0",
+  "private": false,
+  "version": "0.3.1",
   "main": "build/index.js",
+  "files": [
+    "build"
+  ],
   "scripts": {
     "build": "rimraf ./build && yarn codegen && tsc --project tsconfig.json",
     "codegen": "npx polywrap plugin codegen",
