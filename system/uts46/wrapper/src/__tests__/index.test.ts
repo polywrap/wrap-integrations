@@ -2,6 +2,7 @@ import { PolywrapClient } from "@polywrap/client-js";
 const uts46 = require("idna-uts46-hx/uts46bundle.js");
 import path from "path";
 import * as Wrap from "./types/wrap";
+import { Uts46_UnicodeResult } from "./types/wrap";
 
 describe("IDNA UTS #46", () => {
   const cases = ["xn-bb-eka.at", 'öbb.at', 'xn--fa-hia.de'];
@@ -33,7 +34,7 @@ describe("IDNA UTS #46", () => {
 
     it("ToUnicode matches", async () => {
       const expected = uts46.toUnicode(textToConvert);
-      const response = await client.invoke<string>({
+      const response = await client.invoke<Uts46_UnicodeResult>({
         uri: fsUri,
         method: "toUnicode",
         args: {
@@ -42,7 +43,7 @@ describe("IDNA UTS #46", () => {
       });
 
       expect(response.error).toBeUndefined();
-      expect(response.data).toBe(expected);
+      expect(response.data.value).toBe(expected);
     });
 
     it("Convert matches", async () => {

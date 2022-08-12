@@ -1,6 +1,6 @@
 type Module {
   """
-  Convert Unicode to ASCII/Punycode following UTS #46 standard
+  Convert Unicode to ASCII/Punycode following UTS #46 standard. Throws if an error is encountered.
   https://www.unicode.org/reports/tr46/#ToASCII
   """
   toAscii(
@@ -9,14 +9,14 @@ type Module {
   ): String!
 
   """
-  Convert ASCII/Punycode to Unicode following UTS #46 standard
+  Convert ASCII/Punycode to Unicode following UTS #46 standard. Always returns a unicode string, even if an error is encountered during processing.
   Only use_std3_ascii_rules is used in flags.
   https://www.unicode.org/reports/tr46/#ToUnicode
   """
   toUnicode(
     value: String!
     flags: Flags
-  ): String!
+  ): UnicodeResult!
 
   """
   Converts a domain name in correct way, returning IDNA2003 / IDNA2008 strings where it makes sense as this is dependent on the domain extension / TLD.
@@ -24,6 +24,14 @@ type Module {
   convert(
     value: String!
   ): ConvertResult!
+}
+
+"""
+Per the unicode standard, the toUnicode method always returns a string, even if it's processed with errors.
+"""
+type UnicodeResult {
+  value: String!
+  withError: Boolean!
 }
 
 type ConvertResult {

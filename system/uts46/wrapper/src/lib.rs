@@ -22,7 +22,7 @@ pub fn to_ascii(args: ArgsToAscii) -> String {
     }
 }
 
-pub fn to_unicode(args: ArgsToUnicode) -> String {
+pub fn to_unicode(args: ArgsToUnicode) -> UnicodeResult {
     let flags = match args.flags {
         None => unic_idna::Flags {
             use_std3_ascii_rules: false,
@@ -36,8 +36,8 @@ pub fn to_unicode(args: ArgsToUnicode) -> String {
         },
     };
     match unic_idna::to_unicode(&args.value, flags) {
-        (unicode, Ok(_)) => unicode,
-        (unicode, Err(e)) => unicode // panic!("{:?}", e), TODO: change return type to include errors?
+        (unicode, Ok(_)) => UnicodeResult { value: unicode, with_error: false },
+        (unicode, Err(e)) => UnicodeResult { value: unicode, with_error: true },
     }
 }
 
