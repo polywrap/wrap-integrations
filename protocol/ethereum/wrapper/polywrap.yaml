@@ -1,0 +1,9 @@
+format: 0.1.0
+name: ethereum-wrapper
+language: wasm/rust
+build: ./polywrap.build.yaml
+module: ./Cargo.toml
+schema: ./schema.graphql
+import_redirects:
+  - uri: wrap://ens/ethereum-signer.polywrap.eth
+    schema: ../plugin-js/build/schema.graphql

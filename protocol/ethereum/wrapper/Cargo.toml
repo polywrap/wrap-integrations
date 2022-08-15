@@ -1,0 +1,26 @@
+[package]
+name = "ethereum-wrapper"
+version = "0.1.0"
+description = "Module of Ethereum polywrapper"
+authors = [
+  "Nestor Amesty <nestor@dorg.tech>"
+]
+repository = "https://github.com/polywrap/monorepo"
+license = "MIT"
+edition = "2021"
+
+[dependencies]
+thiserror = "1.0.30"
+getrandom = { version = "*", features = ["custom"] }
+polywrap-wasm-rs = "0.3.0"
+serde = { version = "1.0", features = ["derive"] }
+ethers-core = { git = "https://github.com/gakonst/ethers-rs", features = [] }
+regex = "1.6.0"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[profile.release]
+opt-level = 'z'
+lto = true
+panic = 'abort'

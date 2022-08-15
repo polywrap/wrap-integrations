@@ -1,0 +1,10 @@
+node_modules
+build
+yarn-error.log
+coverage
+.vscode
+*.log
+.polywrap
+wrap
+.DS_Store
+report.*
