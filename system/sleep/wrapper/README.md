@@ -1,39 +1,33 @@
-# Sleep wrapper
+# Sleep Wasm wrapper
 
-Uses the `Sleep` interface and implementations execute a sleep (i.e. pause thread for specified milliseconds). 
+The sleep Wasm wrapper uses the `Sleep` interface and an implementation to execute a sleep (i.e. pause thread for specified milliseconds). 
 
-By configuring the client with implementations for uri `wrap://ens/sleep.polywrap.eth`, we are able to
-fetch those and trigger them.
+By configuring the client with implementations for URI `wrap://ens/goerli/interface.sleep.wrappers.eth`, we are able to fetch those and trigger them. The sleep wrapper executes the first implementation registered in the client configuration.
 
 In this example, the client is being instantiated:
 
 ```typescript
-/**
- * This is the default configuration of client.
- * Check https://github.com/polywrap/monorepo/blob/prealpha/packages/js/client/src/default-client-config.ts#L26-L121
- * for more information
- */
 const client = new PolywrapClient({
   ...,
   plugins: {
     ...,
     {
-      uri: "wrap://ens/js-sleep.polywrap.eth",
+      uri: "wrap://ens/sleep-js.polywrap.eth",
       plugin: sleepPlugin({})  
     }
   }, 
   interfaces: {
     ...,
-    interface: "wrap://ens/sleep.polywrap.eth",
+    interface: "wrap://ens/goerli/interface.sleep.wrappers.eth",
     implementations: [
-      new Uri("wrap://ens/js-sleep.polywrap.eth"),
+      new Uri("wrap://ens/sleep-js.polywrap.eth"),
     ]
   },
   ...
 })
 ```
-The implementation is being injected because we are defining the plugin with an URI and then adding it into
-the implementations array on interface `wrap://ens/sleep.polywrap.eth`.
+The implementation is being injected because we are defining the plugin with a URI and then adding it into
+the implementations array on interface `wrap://ens/goerli/interface.sleep.wrappers.eth`.
 
 Then, in the `schema.graphql` we declare the interface and use the `getImplementations` method.
 ```graphql
@@ -73,8 +67,8 @@ nvm use && yarn && yarn build
 
 This method will create the `build` folder which will be then accessed just by doing `wrap://fs/./build`
 
-### 2. Test The wrapper Using A Workflow
+### 2. Test The wrapper Using Jest
 
 ```
-npx polywrap run ./workflows/e2e.yhaml
+yarn test
 ```
