@@ -9,9 +9,8 @@
     "test:env:up": "npx polywrap infra up --modules=eth-ens-ipfs",
     "test:env:down": "npx polywrap infra down --modules=eth-ens-ipfs",
     "deploy": "npx polywrap deploy",
-    "test": "yarn test:e2e && yarn test:workflow",
-    "test:e2e": "jest --passWithNoTests --runInBand --verbose",
-    "test:workflow": "npx polywrap run -o ./workflows/output.json -v ./workflows/validator.cue ./workflows/e2e.yaml"
+    "test": "yarn test:e2e",
+    "test:e2e": "jest --passWithNoTests --runInBand --verbose"
   },
   "devDependencies": {
     "@types/jest": "27.0.3",
