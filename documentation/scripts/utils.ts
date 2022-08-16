@@ -44,13 +44,8 @@ const executeCommand = async (
 };
 
 export async function buildPackage(cwd: string): Promise<void> {
-  try {
-    await executeCommand("yarn", ["install", "--cwd", cwd, "--pure-lockfile"], cwd);
-    await executeCommand("yarn", ["build"], cwd);
-  } catch (e) {
-    console.error(e);
-    return;
-  }
+  await executeCommand("yarn", ["install", "--cwd", cwd, "--pure-lockfile"], cwd);
+  await executeCommand("yarn", ["build"], cwd);
 }
 
 export async function generateDocs(outputDir: string, manifestPath: string): Promise<void> {
@@ -58,12 +53,19 @@ export async function generateDocs(outputDir: string, manifestPath: string): Pro
     fs.mkdirSync(outputDir, { recursive: true });
   }
 
-  const { exitCode: code, stdout: output, stderr: error } = await runCLI({
+  const { exitCode, stdout, stderr } = await runCLI({
     args: ["docgen", "docusaurus", `-m ${manifestPath}`, `-g ${outputDir}`],
   });
-  if (code !== 0) {
-    console.error(output);
-    console.error(error);
+  if (exitCode !== 0) {
+    const message = stderr.trim().length === 0 ? stdout : stderr;
+    if (message.length > 1000) {
+      throw Error(`Error when generating docs for ${manifestPath}` +
+        `\n${message.substring(0, 1000)}` +
+        "\n..." +
+        "\nERROR TRUNCATED TO 1000 CHARS"
+      );
+    }
+   throw Error(`Error when generating docs for ${manifestPath}\n${message}`);
   }
 }
 
@@ -80,7 +82,7 @@ export async function buildPackageAndGenerateDocs(
 }
 
 export async function parallelize(tasks: (() => Promise<void>)[]): Promise<void[]> {
-  const promises: Promise<void>[] = tasks.map((task) => task().catch((e) => console.log("failed")));
+  const promises: Promise<void>[] = tasks.map((task) => task().catch((e) => console.error(e)));
   return Promise.all(promises);
 }
 

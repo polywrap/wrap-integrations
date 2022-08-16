@@ -16,7 +16,6 @@ interface Projects {
   plugin: (() => Promise<void>)[];
   wasm: (() => Promise<void>)[];
   readme: (() => void)[];
-  debug: string[];
 }
 
 // manifest names to search for
@@ -34,7 +33,6 @@ export async function main() {
     plugin: [],
     wasm: [],
     readme: [],
-    debug: [],
   }
 
   // find projects, build them, and generate docs
@@ -44,7 +42,6 @@ export async function main() {
   await parallelize(projects.interface);
   await parallelize(projects.plugin);
   await parallelize(projects.wasm);
-  console.log(projects.debug);
   projects.readme.map((readme) => readme());
 
   // copy top-level readme
@@ -85,10 +82,6 @@ function findProjects(docsRoot: string, searchRoot: string, pathFromRoot: string
 
       // add promise to build package
       projects[projectType].push(() => buildPackageAndGenerateDocs(searchDir, outputDir, filePath, projectType));
-
-      if (projectType === "wasm") {
-        projects.debug.push(filePath);
-      }
 
     } else if (dirent.isDirectory() && !match(dirent.name, filter)) {
       const nextPathFromRoot = path.join(pathFromRoot, dirent.name);
