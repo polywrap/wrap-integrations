@@ -2,7 +2,7 @@ import {
   Tezos_Connection,
   CustomConnection,
   Network
-} from "../query/w3"
+} from "../wrap"
 
 import { JSON } from "assemblyscript-json"; 
 
@@ -41,11 +41,11 @@ export function getConnection(network: Network, providerAddress: string, custom:
         contractAddress: providerAddress,
       }
       break;
-    case Network.hangzhounet: 
+    case Network.ghostnet: 
       connectionDetails = {
         connection: <Tezos_Connection> {
-          provider: "https://rpc.hangzhou.tzstats.com",
-          networkNameOrChainId: "mainnet"  
+          provider: "https://rpc.ghost.tzstats.com",
+          networkNameOrChainId: "ghostnet"  
         },
         contractAddress: providerAddress,
       }

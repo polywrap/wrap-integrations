@@ -1,6 +1,6 @@
-import { Near_KeyType, Near_PublicKey, Near_AccessKey, Near_AccessKeyPermission } from "../query/w3";
+import { Near_KeyType, Near_PublicKey, Near_AccessKey, Near_AccessKeyPermission } from "../wrap";
 import * as bs58 from "as-base58";
-import { BigInt } from "@web3api/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
 
 export function keyTypeToStr(keyType: Near_KeyType): string {
   switch (keyType) {

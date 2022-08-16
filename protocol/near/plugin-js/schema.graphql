@@ -1,4 +1,4 @@
-type Query {
+type Module {
   requestSignIn(
     contractId: String
     methodNames: [String!]
@@ -35,9 +35,7 @@ type Query {
   signTransaction(
     transaction: Transaction!
   ): SignTransactionResult!
-}
 
-type Mutation {
   sendJsonRpc(
     method: String!
     params: JSON!
@@ -66,10 +64,7 @@ type Mutation {
   sendTransactionAsync(
     signedTx: SignedTransaction!
   ): String!
-
-
 }
-
 # Account public key data
 type PublicKey {
   keyType: KeyType!

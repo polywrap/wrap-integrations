@@ -28,7 +28,19 @@ module.exports = {
   /**
    * Add your required AssemblyScript imports here.
    */
-  imports: {},
+  imports: {
+    wrap: {
+      __wrap_invoke_args: () => {},
+      __wrap_invoke_result: () => {},
+      __wrap_invoke_error: () => {},
+      __wrap_subinvoke: () => {},
+      __wrap_subinvoke_result: () => {},
+      __wrap_subinvoke_result_len: () => {},
+      __wrap_subinvoke_error: () => {},
+      __wrap_subinvoke_error_len: () => {},
+      __wrap_abort: () => {},
+    }
+  },
   /**
    * All performance statistics reporting can be configured here.
    */

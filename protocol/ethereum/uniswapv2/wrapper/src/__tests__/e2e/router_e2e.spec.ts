@@ -1,67 +1,53 @@
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
-import { ClientConfig, Web3ApiClient } from "@web3api/client-js";
-import {
-  ChainId,
-  Pair,
-  Token,
-  TokenAmount,
-  Trade,
-  TradeOptions,
-  SwapParameters,
-  TradeType,
-  TxResponse, StaticTxResult
-} from "./types";
+import { ClientConfig, PolywrapClient } from "@polywrap/client-js";
 import path from "path";
 import {
   getBestTradeExactIn,
   getBestTradeExactOut,
   getPairData,
-  getPlugins,
   getTokenList,
-  getUniPairs
+  getUniPairs,
+  getSwapMethodAbi,
 } from "../testUtils";
+import { getPlugins, initInfra, stopInfra } from "../infraUtils";
 import { ethers } from "ethers";
 import * as uni from "@uniswap/sdk";
-import { getSwapMethodAbi } from "../../mutation/abi";
-
 jest.setTimeout(120000);
+import * as App from "./types/wrap";
 
 describe("Router", () => {
 
-  let client: Web3ApiClient;
+  let client: PolywrapClient;
   let recipient: string;
-  let ensUri: string;
+  let fsUri: string;
   let ethersProvider: ethers.providers.JsonRpcProvider;
-  let tokens: Token[] = [];
-  let pairs: Pair[] = [];
+  let tokens: App.Token[] = [];
+  let pairs: App.Pair[] = [];
   let uniPairs: uni.Pair[];
-  let ethToken: Token;
+  let ethToken: App.Token;
 
   beforeAll(async () => {
-    const { ethereum: testEnvEtherem, ensAddress, ipfs } = await initTestEnvironment();
+    await initInfra();
     // get client
-    const config: ClientConfig = getPlugins(testEnvEtherem, ipfs, ensAddress);
-    client = new Web3ApiClient(config);
-
+    const config: Partial<ClientConfig> = getPlugins();
+    client = new PolywrapClient(config);
     // deploy api
-    const apiPath: string = path.resolve(__dirname + "../../../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
-    ensUri = `ens/testnet/${api.ensDomain}`;
-    ethersProvider = new ethers.providers.JsonRpcProvider("http://localhost:8546");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../..");
+    fsUri = "fs/" + wrapperAbsPath + '/build';
+    ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546") as ethers.providers.JsonRpcProvider;
     recipient = await ethersProvider.getSigner().getAddress();
 
     // set up test case data -> pairs
-    const allTokens: Token[] = await getTokenList();
-    const aave: Token = allTokens.filter(token => token.currency.symbol === "AAVE")[0];
-    const dai: Token = allTokens.filter(token => token.currency.symbol === "DAI")[0];
-    const usdc: Token = allTokens.filter(token => token.currency.symbol === "USDC")[0];
-    const comp: Token = allTokens.filter(token => token.currency.symbol === "COMP")[0];
-    const weth: Token = allTokens.filter(token => token.currency.symbol === "WETH")[0];
-    const wbtc: Token = allTokens.filter(token => token.currency.symbol === "WBTC")[0];
-    const uniswap: Token = allTokens.filter(token => token.currency.symbol === "UNI")[0];
-    const link: Token = allTokens.filter(token => token.currency.symbol === "LINK")[0];
+    const allTokens: App.Token[] = await getTokenList();
+    const aave: App.Token = allTokens.filter(token => token.currency.symbol === "AAVE")[0];
+    const dai: App.Token = allTokens.filter(token => token.currency.symbol === "DAI")[0];
+    const usdc: App.Token = allTokens.filter(token => token.currency.symbol === "USDC")[0];
+    const comp: App.Token = allTokens.filter(token => token.currency.symbol === "COMP")[0];
+    const weth: App.Token = allTokens.filter(token => token.currency.symbol === "WETH")[0];
+    const wbtc: App.Token = allTokens.filter(token => token.currency.symbol === "WBTC")[0];
+    const uniswap: App.Token = allTokens.filter(token => token.currency.symbol === "UNI")[0];
+    const link: App.Token = allTokens.filter(token => token.currency.symbol === "LINK")[0];
     ethToken = {
-      chainId: ChainId.MAINNET,
+      chainId: App.ChainIdEnum.MAINNET,
       address: "",
       currency: {
         decimals: 18,
@@ -71,13 +57,13 @@ describe("Router", () => {
     }
     tokens = [aave, dai, usdc, comp, weth, wbtc, uniswap, link];
     // create test case pairs
-    const aave_dai: Pair | undefined = await getPairData(aave, dai, client, ensUri);
-    const usdc_dai: Pair | undefined = await getPairData(usdc, dai, client, ensUri);
-    const link_usdc: Pair | undefined = await getPairData(link, usdc, client, ensUri);
-    const comp_weth: Pair | undefined = await getPairData(comp, weth, client, ensUri);
-    const uni_link: Pair | undefined = await getPairData(uniswap, link, client, ensUri);
-    const uni_wbtc: Pair | undefined = await getPairData(uniswap, wbtc, client, ensUri);
-    const wbtc_weth: Pair | undefined = await getPairData(wbtc, weth, client, ensUri);
+    const aave_dai: App.Pair | undefined = await getPairData(aave, dai, client, fsUri);
+    const usdc_dai: App.Pair | undefined = await getPairData(usdc, dai, client, fsUri);
+    const link_usdc: App.Pair | undefined = await getPairData(link, usdc, client, fsUri);
+    const comp_weth: App.Pair | undefined = await getPairData(comp, weth, client, fsUri);
+    const uni_link: App.Pair | undefined = await getPairData(uniswap, link, client, fsUri);
+    const uni_wbtc: App.Pair | undefined = await getPairData(uniswap, wbtc, client, fsUri);
+    const wbtc_weth: App.Pair | undefined = await getPairData(wbtc, weth, client, fsUri);
     [aave_dai, usdc_dai, link_usdc, uni_link, uni_wbtc, wbtc_weth, comp_weth].forEach(pair => {
       if (pair) {
         pairs.push(pair)
@@ -89,24 +75,14 @@ describe("Router", () => {
 
     // approve token transfers
     for (let token of tokens) {
-      const txResponse = await client.query<{approve: TxResponse}>({
-        uri: ensUri,
-        query: `
-        mutation {
-          approve(
-            token: $token
-          )
-        }
-      `,
-        variables: {
+      const txResponse = await client.invoke<App.Ethereum_TxResponse>({
+        uri: fsUri,
+        method: 'approve',
+        args: {
           token: token,
         },
       });
-      if (txResponse.errors) {
-        console.log("approval error(s) for " + token.currency.symbol)
-        txResponse.errors.forEach(console.log)
-      }
-      const approvedHash: string = txResponse.data?.approve.hash ?? "";
+      const approvedHash: string = txResponse.data?.hash ?? "";
       if (!approvedHash) {
         throw new Error("Failed to approve token: " + token.currency.symbol);
       }
@@ -114,21 +90,21 @@ describe("Router", () => {
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   });
 
   it("successfully constructs swap call parameters with tokens in and out", async () => {
     // we3api tokens and trades
     const token0 = tokens[0];
     const token1 = tokens[1];
-    const tokenAmount: TokenAmount = {
+    const tokenAmount: App.TokenAmount = {
         token: token0,
         amount: "100000000"
       };
-    const bestTradeInArray: Trade[] = await getBestTradeExactIn(pairs, tokenAmount, token1, null, client, ensUri);
-    const bestTradeIn: Trade = bestTradeInArray[0];
-    const bestTradeOutArray: Trade[] = await getBestTradeExactOut(pairs, token1, tokenAmount, null, client, ensUri);
-    const bestTradeOut: Trade = bestTradeOutArray[0];
+    const bestTradeInArray: App.Trade[] = await getBestTradeExactIn(pairs, tokenAmount, token1, null, client, fsUri);
+    const bestTradeIn: App.Trade = bestTradeInArray[0];
+    const bestTradeOutArray: App.Trade[] = await getBestTradeExactOut(pairs, token1, tokenAmount, null, client, fsUri);
+    const bestTradeOut: App.Trade = bestTradeOutArray[0];
 
     // uni tokens and trades
     const uniAmount: uni.TokenAmount = new uni.TokenAmount(new uni.Token(
@@ -154,7 +130,7 @@ describe("Router", () => {
       {bestTrade: bestTradeOut, feeRule: false}
     ];
     for (const {bestTrade, feeRule} of testCases) {
-      const tradeOptions: TradeOptions = {
+      const tradeOptions: App.TradeOptions = {
         feeOnTransfer: feeRule,
         recipient,
         allowedSlippage: "0.1",
@@ -168,31 +144,21 @@ describe("Router", () => {
         deadline: parseInt((new Date().getTime() / 1000).toFixed(0)) + 1800
       }
 
-      const swapParametersQuery = await client.query<{ swapCallParameters: SwapParameters }>({
-        uri: ensUri,
-        query: `
-          query {
-            swapCallParameters(
-              trade: $trade
-              tradeOptions: $tradeOptions
-            )
-          }
-        `,
-        variables: {
+      const swapParametersInvocation = await client.invoke<App.SwapParameters>({
+        uri: fsUri,
+        method: "swapCallParameters",
+        args: {
           trade: bestTrade,
           tradeOptions: tradeOptions
         },
       });
-      if (swapParametersQuery.errors) {
-        swapParametersQuery.errors.forEach(console.log)
-      }
-      const swapParameters: SwapParameters = swapParametersQuery.data?.swapCallParameters!;
+      const swapParameters: App.SwapParameters = swapParametersInvocation.data!;
       const parsedArgs: (string | string[])[] = swapParameters.args.map((arg: string) =>
         arg.startsWith("[") && arg.endsWith("]") ? JSON.parse(arg) : arg
       );
 
       let expectedSwapParameters: uni.SwapParameters;
-      if (bestTrade.tradeType === TradeType.EXACT_INPUT) {
+      if (bestTrade.tradeType === App.TradeTypeEnum.EXACT_INPUT || bestTrade.tradeType === "EXACT_INPUT") {
         expectedSwapParameters = uni.Router.swapCallParameters(uniBestTradeIn, uniTradeOptions);
       } else {
         expectedSwapParameters = uni.Router.swapCallParameters(uniBestTradeOut, uniTradeOptions);
@@ -208,14 +174,14 @@ describe("Router", () => {
     // we3api tokens and trades
     const token0 = ethToken;
     const token1 = tokens.filter(token => token.currency.symbol === "WBTC")[0];
-    const tokenAmount: TokenAmount = {
+    const tokenAmount: App.TokenAmount = {
       token: token0,
       amount: "1000000000000000000"
     };
-    const bestTradeInArray: Trade[] = await getBestTradeExactIn(pairs, tokenAmount, token1, null, client, ensUri);
-    const bestTradeIn: Trade = bestTradeInArray[0];
-    const bestTradeOutArray: Trade[] = await getBestTradeExactOut(pairs, token1, tokenAmount, null, client, ensUri);
-    const bestTradeOut: Trade = bestTradeOutArray[0];
+    const bestTradeInArray: App.Trade[] = await getBestTradeExactIn(pairs, tokenAmount, token1, null, client, fsUri);
+    const bestTradeIn: App.Trade = bestTradeInArray[0];
+    const bestTradeOutArray: App.Trade[] = await getBestTradeExactOut(pairs, token1, tokenAmount, null, client, fsUri);
+    const bestTradeOut: App.Trade = bestTradeOutArray[0];
 
     // uni tokens and trades
     const uniAmount: uni.CurrencyAmount = uni.CurrencyAmount.ether(tokenAmount.amount)
@@ -237,7 +203,7 @@ describe("Router", () => {
     ];
     for (const {bestTrade, feeRule} of testCases) {
 
-      const tradeOptions: TradeOptions = {
+      const tradeOptions: App.TradeOptions = {
         feeOnTransfer: feeRule,
         recipient,
         allowedSlippage: "0.1",
@@ -251,31 +217,21 @@ describe("Router", () => {
         deadline: parseInt((new Date().getTime() / 1000).toFixed(0)) + 1800
       }
 
-      const swapParametersQuery = await client.query<{ swapCallParameters: SwapParameters }>({
-        uri: ensUri,
-        query: `
-          query {
-            swapCallParameters(
-              trade: $trade
-              tradeOptions: $tradeOptions
-            )
-          }
-        `,
-        variables: {
+      const swapParametersInvocation = await client.invoke<App.SwapParameters>({
+        uri: fsUri,
+        method: "swapCallParameters",
+        args: {
           trade: bestTrade,
           tradeOptions: tradeOptions
         },
       });
-      if (swapParametersQuery.errors) {
-        swapParametersQuery.errors.forEach(console.log)
-      }
-      const swapParameters: SwapParameters = swapParametersQuery.data?.swapCallParameters!;
+      const swapParameters: App.SwapParameters = swapParametersInvocation.data!;
       const parsedArgs: (string | string[])[] = swapParameters.args.map((arg: string) =>
         arg.startsWith("[") && arg.endsWith("]") ? JSON.parse(arg) : arg
       );
 
       let expectedSwapParameters: uni.SwapParameters;
-      if (bestTrade.tradeType === TradeType.EXACT_INPUT) {
+      if (bestTrade.tradeType === App.TradeTypeEnum.EXACT_INPUT || bestTrade.tradeType === "EXACT_INPUT") {
         expectedSwapParameters = uni.Router.swapCallParameters(uniBestTradeIn, uniTradeOptions);
       } else {
         expectedSwapParameters = uni.Router.swapCallParameters(uniBestTradeOut, uniTradeOptions);
@@ -288,17 +244,17 @@ describe("Router", () => {
   });
 
   it("successfully constructs swap call parameters with inexact eth in/out", async () => {
-    // we3api tokens and trades
+    // wrapper tokens and trades
     const token0 = tokens.filter(token => token.currency.symbol === "WBTC")[0];
     const token1 = ethToken;
-    const tokenAmount: TokenAmount = {
+    const tokenAmount: App.TokenAmount = {
       token: token0,
       amount: "100000000"
     };
-    const bestTradeInArray: Trade[] = await getBestTradeExactIn(pairs, tokenAmount, token1, null, client, ensUri);
-    const bestTradeIn: Trade = bestTradeInArray[0];
-    const bestTradeOutArray: Trade[] = await getBestTradeExactOut(pairs, token1, tokenAmount, null, client, ensUri);
-    const bestTradeOut: Trade = bestTradeOutArray[0];
+    const bestTradeInArray: App.Trade[] = await getBestTradeExactIn(pairs, tokenAmount, token1, null, client, fsUri);
+    const bestTradeIn: App.Trade = bestTradeInArray[0];
+    const bestTradeOutArray: App.Trade[] = await getBestTradeExactOut(pairs, token1, tokenAmount, null, client, fsUri);
+    const bestTradeOut: App.Trade = bestTradeOutArray[0];
 
     // uni tokens and trades
     const uniAmount: uni.TokenAmount = new uni.TokenAmount(new uni.Token(
@@ -319,7 +275,7 @@ describe("Router", () => {
     ];
     for (const {bestTrade, feeRule} of testCases) {
 
-      const tradeOptions: TradeOptions = {
+      const tradeOptions: App.TradeOptions = {
         feeOnTransfer: feeRule,
         recipient,
         allowedSlippage: "0.1",
@@ -333,31 +289,21 @@ describe("Router", () => {
         deadline: parseInt((new Date().getTime() / 1000).toFixed(0)) + 1800
       }
 
-      const swapParametersQuery = await client.query<{ swapCallParameters: SwapParameters }>({
-        uri: ensUri,
-        query: `
-          query {
-            swapCallParameters(
-              trade: $trade
-              tradeOptions: $tradeOptions
-            )
-          }
-        `,
-        variables: {
+      const swapParametersInvocation = await client.invoke<App.SwapParameters>({
+        uri: fsUri,
+        method: "swapCallParameters",
+        args: {
           trade: bestTrade,
           tradeOptions: tradeOptions
         },
       });
-      if (swapParametersQuery.errors) {
-        swapParametersQuery.errors.forEach(console.log)
-      }
-      const swapParameters: SwapParameters = swapParametersQuery.data?.swapCallParameters!;
+      const swapParameters: App.SwapParameters = swapParametersInvocation.data!;
       const parsedArgs: (string | string[])[] = swapParameters.args.map((arg: string) =>
         arg.startsWith("[") && arg.endsWith("]") ? JSON.parse(arg) : arg
       );
 
       let expectedSwapParameters: uni.SwapParameters;
-      if (bestTrade.tradeType === TradeType.EXACT_INPUT) {
+      if (bestTrade.tradeType === App.TradeTypeEnum.EXACT_INPUT || bestTrade.tradeType === "EXACT_INPUT") {
         expectedSwapParameters = uni.Router.swapCallParameters(uniBestTradeIn, uniTradeOptions);
       } else {
         expectedSwapParameters = uni.Router.swapCallParameters(uniBestTradeOut, uniTradeOptions);
@@ -372,14 +318,14 @@ describe("Router", () => {
   it("Should successfully estimate swap call gas", async () => {
     const token0 = ethToken;
     const token1 = tokens.filter(token => token.currency.symbol === "WBTC")[0];
-    const tokenAmount: TokenAmount = {
+    const tokenAmount: App.TokenAmount = {
       token: token0,
       amount: "1000000000000000000"
     };
-    const bestTradeInArray: Trade[] = await getBestTradeExactIn(pairs, tokenAmount, token1, null, client, ensUri);
-    const bestTradeIn: Trade = bestTradeInArray[0];
+    const bestTradeInArray: App.Trade[] = await getBestTradeExactIn(pairs, tokenAmount, token1, null, client, fsUri);
+    const bestTradeIn: App.Trade = bestTradeInArray[0];
 
-    const tradeOptions: TradeOptions = {
+    const tradeOptions: App.TradeOptions = {
       feeOnTransfer: false,
       recipient,
       allowedSlippage: "0.1",
@@ -387,45 +333,25 @@ describe("Router", () => {
       ttl: 1800
     }
 
-    const swapParametersQuery = await client.query<{ swapCallParameters: SwapParameters}>({
-      uri: ensUri,
-      query: `
-        query {
-          swapCallParameters(
-            trade: $trade
-            tradeOptions: $tradeOptions
-          )
-        }
-      `,
-      variables: {
+    const swapParametersInvocation = await client.invoke<App.SwapParameters>({
+      uri: fsUri,
+      method: "swapCallParameters",
+      args: {
         trade: bestTradeIn,
         tradeOptions: tradeOptions,
       },
     });
-    if (swapParametersQuery.errors) {
-      swapParametersQuery.errors.forEach(console.log)
-    }
-    const swapParameters: SwapParameters = swapParametersQuery.data?.swapCallParameters!;
+    const swapParameters: App.SwapParameters = swapParametersInvocation.data!;
 
-    const gasEstimateQuery = await client.query<{ estimateGas: string}>({
-      uri: ensUri,
-      query: `
-        query {
-          estimateGas(
-            parameters: $parameters
-            chainId: $chainId
-          )
-        }
-      `,
-      variables: {
+    const gasEstimateQuery = await client.invoke<string>({
+      uri: fsUri,
+      method: "estimateGas",
+      args: {
         parameters: swapParameters,
         chainId: token0.chainId
       },
     });
-    const actualGasEstimate: string = gasEstimateQuery.data?.estimateGas ?? "";
-    if (gasEstimateQuery.errors) {
-      gasEstimateQuery.errors.forEach(console.log);
-    }
+    const actualGasEstimate: string = gasEstimateQuery.data ?? "";
 
     // parse swap parameters args
     const parsedArgs: (string | string[])[] = swapParameters.args.map((arg: string) =>
@@ -445,28 +371,21 @@ describe("Router", () => {
   });
 
   it("Should call a swap statically (i.e. does not actually execute but \"pretends\" to execute) and return revert reason", async () => {
-    const uniToken: Token = tokens.filter(token => token.currency.symbol === "UNI")[0];
+    const uniToken: App.Token = tokens.filter(token => token.currency.symbol === "UNI")[0];
     for (const tokenIn of [ethToken, uniToken]) {
-      const tokenOut: Token = tokens.filter(token => token.currency.symbol === "WBTC")[0];
-      const tokenAmount: TokenAmount = {
+      const tokenOut: App.Token = tokens.filter(token => token.currency.symbol === "WBTC")[0];
+      const tokenAmount: App.TokenAmount = {
         token: tokenIn,
         amount: "10000000000000000000000000000000000000000000000"
       };
 
-      const bestTradeInArray: Trade[] = await getBestTradeExactIn(pairs, tokenAmount, tokenOut, null, client, ensUri);
-      const bestTrade: Trade = bestTradeInArray[0];
+      const bestTradeInArray: App.Trade[] = await getBestTradeExactIn(pairs, tokenAmount, tokenOut, null, client, fsUri);
+      const bestTrade: App.Trade = bestTradeInArray[0];
 
-      const swapParametersQuery = await client.query<{ swapCallParameters: SwapParameters }>({
-        uri: ensUri,
-        query: `
-        query {
-          swapCallParameters(
-            trade: $trade
-            tradeOptions: $tradeOptions
-          )
-        }
-      `,
-        variables: {
+      const swapParametersInvocation = await client.invoke<App.SwapParameters>({
+        uri: fsUri,
+        method: "swapCallParameters",
+        args: {
           trade: bestTrade,
           tradeOptions: {
             allowedSlippage: "0.1",
@@ -476,32 +395,17 @@ describe("Router", () => {
           }
         },
       });
-      if (swapParametersQuery.errors) {
-        console.log("swap parameter errors")
-        swapParametersQuery.errors.forEach(console.log)
-      }
-      const swapParameters: SwapParameters = swapParametersQuery.data?.swapCallParameters!;
+      const swapParameters: App.SwapParameters = swapParametersInvocation.data!;
 
-      const swapStatic = await client.query<{ execCallStatic: StaticTxResult }>({
-        uri: ensUri,
-        query: `
-        query {
-          execCallStatic(
-            parameters: $parameters
-            chainId: $chainId
-          )
-        }
-    `,
-        variables: {
+      const swapStatic = await client.invoke<App.Ethereum_StaticTxResult>({
+        uri: fsUri,
+        method: "execCallStatic",
+        args: {
           parameters: swapParameters,
           chainId: tokenIn.chainId,
         },
       });
-      if (swapStatic.errors) {
-        console.log("callStatic errors");
-        swapStatic.errors.forEach(console.log)
-      }
-      const exception: StaticTxResult | undefined = swapStatic.data?.execCallStatic;
+      const exception: App.Ethereum_StaticTxResult | undefined = swapStatic.data;
       expect(exception?.error).toStrictEqual(true)
 
       // parse swap parameters args

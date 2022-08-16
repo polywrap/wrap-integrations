@@ -30,6 +30,6 @@
     "src/scripts/*.ts"  
   ],
   "exclude": [
-    "./**/.w3/**/*.ts"
+    "./**/.wrap/**/*.ts"
   ]
 }

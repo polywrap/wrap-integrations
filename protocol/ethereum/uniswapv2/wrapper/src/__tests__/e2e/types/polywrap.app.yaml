@@ -1,0 +1,4 @@
+format: 0.1.0
+name: generate-typescript-types
+language: app/typescript
+schema: ../../../schema.graphql

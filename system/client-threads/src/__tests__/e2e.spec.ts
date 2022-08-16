@@ -8,6 +8,9 @@ import { transpileTypescriptModule } from "./typescript";
 jest.setTimeout(360000);
 
 describe("e2e", () => {
+
+  const uniswapV2Uri = 'wrap://ipfs/QmYqoQBhzubLaGspwAbsoD3G14LvDkfPA6jUU6cwBC1bZy';
+
   it("Invoke HelloWorld Wrapper", async () => {
     const pool = new ThreadPool({
       maxThreads: 50,
@@ -18,7 +21,7 @@ describe("e2e", () => {
     });
 
     const job = thread.invoke({
-      uri: "ens/helloworld.polywrap.eth",
+      uri: "ens/helloworld.polytest.eth",
       method: "logMessage",
       args: {
         message: "message!"
@@ -42,7 +45,7 @@ describe("e2e", () => {
     });
 
     const job = thread.invoke({
-      uri: "ens/v2.uniswap.polywrap.eth",
+      uri: uniswapV2Uri,
       method: "fetchTokenData",
       args: {
         chainId: "MAINNET",
@@ -76,7 +79,7 @@ describe("e2e", () => {
     });
 
     const job = thread.invoke({
-      uri: "ens/v2.uniswap.polywrap.eth",
+      uri: uniswapV2Uri,
       method: "fetchTokenData",
       args: {
         chainId: "MAINNET",
@@ -118,7 +121,7 @@ describe("e2e", () => {
     });
 
     const job = thread.invoke({
-      uri: "ens/helloworld.polywrap.eth",
+      uri: "ens/helloworld.polytest.eth",
       method: "logMessage",
       args: {
         message: "message!"

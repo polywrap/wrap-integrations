@@ -1,0 +1,90 @@
+#import { Module, Connection } into Tezos from "wrap://ens/tezos.polywrap.eth"
+
+""" Wrapper supported networks """
+enum Network {
+  custom
+  mainnet
+}
+
+""" Describes custom connection """
+type CustomConnection {
+  """ Connection """
+  connection: Tezos_Connection!
+  """ Contract address """
+  contractAddress: String!
+}
+
+""" Describes balance of owner """
+type TokenBalance {
+  """ Address of owner """
+  owner: String!
+  """ Token id """
+  tokenId: String!
+  """ Balance """ 
+  balance: String!
+}
+
+""" Describes token metadata """
+type TokenMetadata {
+  """ Id of token """
+  tokenId: String! 
+  """ Ipfs hash for uploaded metadata file """ 
+  ipfsHash: String!
+}
+
+""" SwapData """
+type SwapData {
+  """ Address of creator """
+  creator: String! 
+  """ Address of issuer """
+  issuer: String!
+  """ Amount of objkt """
+  objktAmount: String!
+  """ Id of objkt """
+  objktId: String!
+  """ Royalties to be paid to issuer """
+  royalties: String!
+}
+
+type Module {
+  """ Read the number of NFTs of a specific token id owned by an address """
+  getBalanceOf(
+    """ Network to query """
+    network: Network!
+    """ Address of owner """
+    owner: String! 
+    """ Token id  """
+    tokenId: String!
+    """ CustomConnection """ 
+    custom: CustomConnection
+  ): TokenBalance!
+
+  """ Read the IPFS metadata hash for one or multiple NFT """
+  getTokenMetadata(
+    """ Network to query """
+    network: Network!
+    """ Token id """
+    tokenId: String!
+    """ CustomConnection """
+    custom: CustomConnection
+  ): TokenMetadata!
+
+  """ Read number of NFTs minted """
+  getTokenCountData(
+    """ Network to query """
+    network: Network!
+    """ CustomConnection """
+    custom: CustomConnection
+  ): String!
+  
+  """ Read active sell offers """
+  getSwapData(
+    """ Network to query """
+    network: Network!
+    """ Swap id """
+    swapId: String!
+    """ CustomConnection """
+    custom: CustomConnection
+  ): SwapData!
+}
+

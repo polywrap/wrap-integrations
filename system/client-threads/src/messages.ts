@@ -1,22 +1,16 @@
-import {
-  InvokeOptions,
-  InvokeResult
-} from "@polywrap/client-js";
+import { InvokerOptions, InvokeResult } from "@polywrap/client-js";
 
 // Thread events
-export type ThreadEvent =
-  | InvokeEvent;
+export type ThreadEvent = InvokeEvent;
 
 export interface InvokeEvent {
   readonly type: "Invoke";
   readonly clientModule?: string;
-  readonly invoke: InvokeOptions;
+  readonly invoke: InvokerOptions;
 }
 
 // Host (main thread) actions
-export type HostAction =
-  | InvokeResultAction
-  | InvokeExceptionAction;
+export type HostAction = InvokeResultAction | InvokeExceptionAction;
 
 export interface InvokeResultAction {
   readonly type: "InvokeResult";

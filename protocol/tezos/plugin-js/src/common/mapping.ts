@@ -6,14 +6,12 @@ import {
   SendParams,
   OriginateParams,
   OriginationOperation,
-  TransferParams
-} from "../query/w3";
-import {
+  TransferParams,
   TxOperation,
   SignResult,
   TransferConfirmation,
   Block,
-} from "../mutation/w3";
+} from "../wrap";
 import * as Taquito from "./taquito-types";
 
 import taquito from "@taquito/taquito";
