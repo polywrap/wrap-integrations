@@ -2,7 +2,7 @@ import fs from "fs";
 import YAML from "yaml";
 import { spawn } from "child_process";
 import path from "path";
-import { manifestNames } from "./gen-docs";
+import { runCLI } from "@polywrap/test-env-js";
 
 export const match = (str: string, tests: string[]) => {
   for (const test of tests) {
@@ -13,12 +13,12 @@ export const match = (str: string, tests: string[]) => {
   return false;
 }
 
-export function readJsonFile(path): Record<string, any> {
+export function readJsonFile(path: string): Record<string, any> {
   const file = fs.readFileSync(path, "utf8");
   return YAML.parse(file);
 }
 
-export const executeCommand = async (
+const executeCommand = async (
   command: string,
   args: string[],
   root: string
@@ -43,34 +43,52 @@ export const executeCommand = async (
   });
 };
 
-// sorts folders to: interface < plugin < other
-// sorts files to: manifest < other
-// order otherwise doesn't matter
-export function direntComparator(a: fs.Dirent, b: fs.Dirent): number {
-  const aName: string = a.name.toLowerCase();
-  const bName: string = b.name.toLowerCase();
-
-  if (a.isDirectory() && b.isDirectory()) {
-    if (aName.indexOf("interface") > -1) return -1;
-    if (bName.indexOf("interface") > -1) return 1;
-
-    if (aName.indexOf("plugin") > -1) return -1;
-    if (bName.indexOf("plugin") > -1) return 1;
-
-    return 0;
+export async function buildPackage(cwd: string): Promise<void> {
+  try {
+    await executeCommand("yarn", ["install", "--cwd", cwd, "--pure-lockfile"], cwd);
+    await executeCommand("yarn", ["build"], cwd);
+  } catch (e) {
+    console.error(e);
+    return;
   }
-
-  if (a.isFile() && manifestNames.includes(aName)) return -1;
-  if (b.isFile() && manifestNames.includes(bName)) return 1;
-
-  return 0;
 }
 
-export function writeReadme(dir: string, readme: string): void {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+export async function generateDocs(outputDir: string, manifestPath: string): Promise<void> {
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
   }
-  const readmePath = path.join(dir, "readme-doc.md");
+
+  const { exitCode: code, stdout: output, stderr: error } = await runCLI({
+    args: ["docgen", "docusaurus", `-m ${manifestPath}`, `-g ${outputDir}`],
+  });
+  if (code !== 0) {
+    console.error(output);
+    console.error(error);
+  }
+}
+
+export async function buildPackageAndGenerateDocs(
+  cwd: string,
+  outputDir: string,
+  manifestPath: string,
+  projectType: string
+): Promise<void> {
+  await buildPackage(cwd);
+  if (projectType !== "interface") {
+    await generateDocs(outputDir, manifestPath);
+  }
+}
+
+export async function parallelize(tasks: (() => Promise<void>)[]): Promise<void[]> {
+  const promises: Promise<void>[] = tasks.map((task) => task().catch((e) => console.log("failed")));
+  return Promise.all(promises);
+}
+
+export function writeReadme(outputDir: string, readme: string): void {
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
+  const readmePath = path.join(outputDir, "readme-doc.md");
   const readmeDoc = `---
 id: readme-doc
 title: Readme
@@ -79,6 +97,11 @@ sidebar_position: 0
 
 ` + readme;
   fs.writeFileSync(readmePath, readmeDoc);
+}
+
+export function readAndWriteReadme(outputDir: string, inputPath: string): void {
+  const readme = fs.readFileSync(inputPath, 'utf-8');
+  writeReadme(outputDir, readme);
 }
 
 export function redirectInternalLinks(readme: string): string {
