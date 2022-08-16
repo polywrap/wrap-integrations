@@ -1,0 +1,5 @@
+format: 0.1.0
+name: uts46-plugin-js
+language: plugin/typescript
+module: ./src/index.ts
+schema: ./src/schema.graphql
