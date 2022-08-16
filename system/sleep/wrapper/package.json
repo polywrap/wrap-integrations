@@ -1,0 +1,24 @@
+{
+  "name": "@polywrap/sleep-wrapper",
+  "description": "Wasm wrapper for sleep",
+  "private": true,
+  "version": "0.3.0",
+  "scripts": {
+    "build": "polywrap build",
+    "codegen": "polywrap codegen",
+    "deploy": "polywrap deploy",
+    "test": "jest --passWithNoTests --runInBand --verbose"
+  },
+  "devDependencies": {
+    "@polywrap/wasm-as": "0.3.0",
+    "polywrap": "0.3.0",
+    "assemblyscript": "0.19.23",
+    "@types/jest": "26.0.8",
+    "@polywrap/client-js": "0.3.0",
+    "jest": "26.6.3",
+    "rimraf": "3.0.2",
+    "ts-jest": "26.5.4",
+    "ts-node": "8.10.2",
+    "typescript": "4.0.7"
+  }
+}
