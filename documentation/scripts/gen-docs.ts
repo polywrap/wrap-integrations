@@ -89,7 +89,11 @@ async function generateDocs(docsRoot: string, searchRoot: string, pathFromRoot: 
       }
     } else if (dirent.isDirectory() && !match(dirent.name, filter)) {
       const nextPathFromRoot = path.join(pathFromRoot, dirent.name);
-      await generateDocs(docsRoot, searchRoot, nextPathFromRoot)
+      if (dirent.name.indexOf("interface") > 0 || dirent.name.indexOf("plugin") > 0) {
+        await generateDocs(docsRoot, searchRoot, nextPathFromRoot);
+      } else {
+        return generateDocs(docsRoot, searchRoot, nextPathFromRoot)
+      }
     }
   }
 }
