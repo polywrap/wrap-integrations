@@ -24,7 +24,7 @@ export async function main() {
   }
 }
 
-async function generateDocs(docsRoot: string, searchRoot: string, pathFromRoot: string) {
+async function generateDocs(docsRoot: string, searchRoot: string, pathFromRoot: string): Promise<void> {
   // Ignore specific directories
   const filter = ["node_modules", "src", "build", "recipes", "workflows", "scripts", "meta"];
 
