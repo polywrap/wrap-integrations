@@ -261,7 +261,7 @@ where Call: Encode + Clone + fmt::Debug,
         "nonce": nonce,
         "call": call.encode(),
     });
-    let (payload, extra) = api.invoke_method("composeOpaquePayloadAndExtra",args).await?;
+    let (payload, extra) = api.invoke_method("composeBalanceCallPayloadAndExtra",args).await?;
     Ok((payload, extra))
 }
 
@@ -275,8 +275,8 @@ pub async fn submit_signed_call<Call>(api: &Api, call: Call, signer_account: &Ac
         "multi_signature": multi_signature.encode(),
         "extra": extra,
     });
-    let hash = api.invoke_method("submitSignedCall", args).await?;
-    Ok(None)
+    let hash = api.invoke_method("submitSignedBalanceCall", args).await?;
+    Ok(hash)
 }
 
 
@@ -323,6 +323,31 @@ pub async fn add_comment(
     Ok(tx_hash)
 }
 
+pub async fn sign_and_submit_call<Call>(
+    api: &Api,
+    call: Call,
+) -> Result<Option<H256>, Error>
+where
+    Call: Encode + Clone + fmt::Debug,
+{
+    // we use alice for now, for simplicity
+    let signer: sp_core::sr25519::Pair = AccountKeyring::Alice.pair();
+    let signer_account = AccountId32::from(signer.public());
+    log::info!("getting nonce...");
+    let nonce = get_nonce_for_account(api, &signer_account).await?.expect("must have a nonce");
+    log::info!("nonce: {:?}", nonce);
+
+    let (payload, extra) = compose_opaque_payload_and_extra(api, nonce, call.clone()).await?;
+    log::info!("got payload: {:?}", payload);
+    log::info!("got extra: {:?}", extra);
+    let signature = signer.sign(&payload);
+    log::info!("got signature: {:?}", signature);
+
+    let tx_hash = submit_signed_call(api, call, &signer_account, signature.into(), extra).await?;
+    log::info!("submitted with tx_hash: {:?}", tx_hash);
+    Ok(tx_hash)
+}
+
 /// send some certain amount to this user
 pub async fn send_reward(
     api: &Api,
@@ -341,8 +366,11 @@ pub async fn send_reward(
         Compact<u128>,
     ) = (balance_transfer_call_index, dest, Compact(amount));
 
+    /*
     let extrinsic = sign_call_and_encode(api, balance_transfer_call,tip).await?;
     let tx_hash = author_submit_extrinsic(api, extrinsic).await?;
+    */
+    let tx_hash = sign_and_submit_call(api, balance_transfer_call).await?;
     log::debug!("Sent some coins to with a tx_hash: {:?}", tx_hash);
     Ok(tx_hash)
 }

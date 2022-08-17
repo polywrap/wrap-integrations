@@ -4,12 +4,14 @@
 pub mod wrap;
 pub use api::Api;
 use api::BaseApi;
+use codec::Compact;
 use codec::Decode;
 pub use error::Error;
 use num_traits::cast::FromPrimitive;
 use polywrap_wasm_rs::BigNumber;
 use scale_info::{TypeDef, TypeDefPrimitive};
 use sp_core::crypto::{AccountId32, Ss58Codec};
+use sp_runtime::MultiAddress;
 use sp_runtime::MultiSignature;
 pub use types::metadata::Metadata;
 use wrap::imported::*;
@@ -318,14 +320,25 @@ pub fn author_submit_extrinsic(
         .map(|hash| format!("{:#x}", hash))
 }
 
-pub fn compose_opaque_payload_and_extra(
-    arg: ArgsComposeOpaquePayloadAndExtra,
+pub fn compose_balance_call_payload_and_extra(
+    arg: ArgsComposeBalanceCallPayloadAndExtra,
 ) -> Option<Vec<Vec<u8>>> {
+    let balance_call: ([u8; 2], MultiAddress<AccountId32, ()>, Compact<u128>) =
+        Decode::decode(&mut arg.call.as_slice()).unwrap_or_else(|e| {
+            debug!("error decoding call: {}", e);
+            panic!("Error decoding: {}", e);
+        });
+    debug!("decoded call: {:?}", balance_call);
+    let nonce: u32 = arg.nonce;
     Api::new(&arg.url)
         .ok()
         .map(|api| {
             api.compose_opaque_payload_and_extra(
-                arg.nonce, arg.call, None, None, None,
+                nonce,
+                balance_call,
+                None,
+                None,
+                None,
             )
             .ok()
         })
@@ -333,20 +346,32 @@ pub fn compose_opaque_payload_and_extra(
         .map(|(payload, extra)| [payload, extra].to_vec())
 }
 
-pub fn submit_signed_call(arg: ArgsSubmitSignedCall) -> Option<String> {
+pub fn submit_signed_balance_call(
+    arg: ArgsSubmitSignedBalanceCall,
+) -> Option<String> {
     let signer_account = AccountId32::from_ss58check(&arg.signer_account)
         .expect("must be a valid account");
     let multi_signature =
         MultiSignature::decode(&mut arg.multi_signature.as_slice())
             .expect("must decode");
+
+    let balance_call: ([u8; 2], MultiAddress<AccountId32, ()>, Compact<u128>) =
+        Decode::decode(&mut arg.call.as_slice()).unwrap_or_else(|e| {
+            debug!("error decoding call: {}", e);
+            panic!("Error decoding: {}", e);
+        });
+
+    let extra: Vec<u8> = arg.extra;
+
+    debug!("decoded call: {:?}", balance_call);
     Api::new(&arg.url)
         .ok()
         .map(|api| {
             api.submit_signed_call(
-                arg.call,
+                balance_call,
                 &signer_account,
                 multi_signature,
-                arg.extra,
+                extra,
             )
             .ok()
         })

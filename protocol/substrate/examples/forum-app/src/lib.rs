@@ -493,24 +493,6 @@ impl Application<Msg> for App {
 }
 
 
-pub async fn sign_and_submit_call<Call>(
-    api: &Api,
-    call: Call,
-) -> Result<Option<H256>, Error>
-where
-    Call: Encode + Clone + fmt::Debug + Serialize,
-{
-    // we use alice for now, for simplicity
-    let signer: sp_core::sr25519::Pair = AccountKeyring::Alice.pair();
-    let signer_account = AccountId32::from(signer.public());
-    let nonce = fetch::get_nonce_for_account(api, &signer_account).await?.expect("must have a nonce");
-
-    let (payload, extra) = fetch::compose_opaque_payload_and_extra(api, nonce, call.clone()).await?;
-    let signature = signer.sign(&payload);
-
-    let tx_hash = fetch::submit_signed_call(api, call, &signer_account, signature.into(), extra).await?;
-    Ok(tx_hash)
-}
 
 #[wasm_bindgen]
 pub async fn startup() {
