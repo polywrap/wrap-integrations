@@ -16,9 +16,12 @@ mod storage_api;
 /// runtime version
 pub struct Api {
     base_api: BaseApi,
-    metadata: Metadata,
-    genesis_hash: H256,
-    runtime_version: RuntimeVersion,
+    /// The blockchain metadata
+    pub metadata: Metadata,
+    /// The genesish hash of the blockchain
+    pub genesis_hash: H256,
+    /// The runtime version of the blockchain
+    pub runtime_version: RuntimeVersion,
 }
 
 impl Api {
@@ -41,6 +44,8 @@ impl Api {
         }
     }
 
+    /// Try to create an instance of this api
+    /// where it fetch metadata, the genesis_hash and runtime_version
     pub fn new(url: &str) -> Result<Self, Error> {
         let base_api = BaseApi::new(url);
         let metadata = match base_api.fetch_metadata()? {
@@ -62,17 +67,5 @@ impl Api {
             genesis_hash,
             runtime_version,
         })
-    }
-
-    pub fn metadata(&self) -> &Metadata {
-        &self.metadata
-    }
-
-    pub fn runtime_version(&self) -> &RuntimeVersion {
-        &self.runtime_version
-    }
-
-    pub fn genesis_hash(&self) -> H256 {
-        self.genesis_hash
     }
 }

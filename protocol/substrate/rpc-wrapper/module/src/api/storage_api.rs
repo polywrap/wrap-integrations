@@ -90,28 +90,6 @@ impl Api {
         self.fetch_opaque_storage_by_key_hash(storage_key)
     }
 
-    /*
-    pub fn fetch_opaque_storage_double_map<K, Q>(
-        &self,
-        module: &str,
-        storage_name: &str,
-        first: K,
-        second: Q,
-    ) -> Result<Option<Vec<u8>>, Error>
-    where
-        K: Encode,
-        Q: Encode,
-    {
-        let storage_key = self.metadata.storage_double_map_key(
-            module,
-            storage_name,
-            first,
-            second,
-        )?;
-        self.fetch_opaque_storage_by_key_hash(storage_key)
-    }
-    */
-
     fn fetch_opaque_storage_by_key_hash(
         &self,
         storage_key: StorageKey,
@@ -169,7 +147,7 @@ impl Api {
         module: &str,
         storage_name: &str,
     ) -> Result<Option<(&Type<PortableForm>, &Type<PortableForm>)>, Error> {
-        Ok(self.metadata().storage_map_type(module, storage_name)?)
+        Ok(self.metadata.storage_map_type(module, storage_name)?)
     }
 
     pub fn fetch_opaque_storage_keys_paged<K>(

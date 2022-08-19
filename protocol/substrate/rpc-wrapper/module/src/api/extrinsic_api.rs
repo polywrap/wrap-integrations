@@ -59,7 +59,7 @@ impl Api {
         pallet_name: &str,
         call_name: &str,
     ) -> Result<[u8; 2], Error> {
-        Ok(self.metadata().pallet_call_index(pallet_name, call_name)?)
+        Ok(self.metadata.pallet_call_index(pallet_name, call_name)?)
     }
 
     pub fn unsigned_extrinsic<Call>(
