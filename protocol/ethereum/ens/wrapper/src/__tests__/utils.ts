@@ -25,11 +25,11 @@ export function getPlugins(
     },
     {
       uri: "ens/ipfs-resolver.polywrap.eth",
-      plugin: ipfsResolverPlugin({ provider: ipfs }),
+      plugin: ipfsResolverPlugin({ provider: ipfs, fallbackProviders: ["ipfs.wrappers.io"] }),
     },
     {
       uri: "ens/ipfs.polywrap.eth",
-      plugin: ipfsPlugin({ provider: ipfs }),
+      plugin: ipfsPlugin({ provider: ipfs, fallbackProviders: ["ipfs.wrappers.io"] }),
     },
     {
       uri: "ens/ens-resolver.polywrap.eth",
