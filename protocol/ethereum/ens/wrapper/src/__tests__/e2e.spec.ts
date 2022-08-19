@@ -62,7 +62,17 @@ describe("ENS Wrapper", () => {
 
     // get client
     const plugins = getPlugins(testEnvProviders.ethereum, testEnvProviders.ipfs, ensAddresses.ensAddress);
-    ownerClient = new PolywrapClient({ plugins });
+    const redirects = [
+      {
+        from: "wrap://ens/uts46.polywrap.eth",
+        to: "wrap://ipfs/QmZFz2KxpugGU7Lgo8mkEiAZVBGHqgMt7FLP42LRGRqsHT"
+      },
+      {
+        from: "wrap://ens/sha3.polywrap.eth",
+        to: "wrap://ipfs/QmYFWh4D91sAiYKf8o37EravLwFKAtUAmut4Xnevnt4QZR"
+      }
+    ];
+    ownerClient = new PolywrapClient({ plugins, redirects });
 
     const anotherOwnerRedirects = getPlugins(
       testEnvProviders.ethereum, 
@@ -70,7 +80,7 @@ describe("ENS Wrapper", () => {
       ensAddresses.ensAddress, 
       anotherOwner
     );
-    anotherOwnerClient = new PolywrapClient({ plugins: anotherOwnerRedirects });
+    anotherOwnerClient = new PolywrapClient({ plugins: anotherOwnerRedirects, redirects });
   });
 
   afterAll(async () => {

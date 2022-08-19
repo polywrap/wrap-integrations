@@ -1,5 +1,4 @@
-import { SHA3_Module } from "./wrap/imported/SHA3_Module";
-import { UTS46_Module } from "./wrap/imported/UTS46_Module";
+import { UTS46_Module, SHA3_Module } from "./wrap";
 
 export function namehash(inputName: string): string {
   let node = "";
