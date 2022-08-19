@@ -43,11 +43,6 @@ impl BaseApi {
     }
 
     /// Get the runtime metadata of a substrate node.
-    /// This is equivalent to running the following command
-    ///
-    /// `curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "state_getMetadata"}' http://localhost:9933/`
-    ///
-    /// Which makes an rpc call of a substrate node running locally.
     pub fn fetch_runtime_metadata(
         &self,
     ) -> Result<Option<RuntimeMetadataPrefixed>, Error> {
@@ -78,7 +73,11 @@ impl BaseApi {
         }
     }
 
-    // curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "rpc_methods"}' http://localhost:9933/
+    /// Call on the substrate node api to return the available rpc methods
+    /// This is equivalent to running the following cli command:
+    ///
+    /// `curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "rpc_methods"}' http://localhost:9933/`
+    ///
     pub fn fetch_rpc_methods(&self) -> Result<Option<Vec<String>>, Error> {
         let value = self.json_request_value("rpc_methods", ())?;
         match value {
@@ -104,10 +103,12 @@ impl BaseApi {
         }
     }
 
+    /// return the genesis hash of the block chain
     pub fn fetch_genesis_hash(&self) -> Result<Option<H256>, Error> {
         self.fetch_block_hash(0)
     }
 
+    /// return the latest finalized head block hash of the chain
     pub fn fetch_finalized_head(&self) -> Result<Option<H256>, Error> {
         let value = self.json_request_value("chain_getFinalizedHead", ())?;
         match value {
@@ -119,6 +120,7 @@ impl BaseApi {
         }
     }
 
+    /// return the header of the chain with the specified `hash`
     pub fn fetch_header<H>(&self, hash: H256) -> Result<Option<H>, Error>
     where
         H: Header + DeserializeOwned,

@@ -18,21 +18,10 @@
 //! Primitives for substrate extrinsics.
 
 use crate::types::extrinsic_params::GenericExtra;
-use codec::{
-    Decode,
-    Encode,
-    Error,
-    Input,
-};
+use codec::{Decode, Encode, Error, Input};
 use sp_runtime::MultiSignature;
-pub use sp_runtime::{
-    AccountId32,
-    MultiAddress,
-};
-use sp_std::{
-    fmt,
-    prelude::*,
-};
+pub use sp_runtime::{AccountId32, MultiAddress};
+use sp_std::{fmt, prelude::*};
 
 pub type GenericAddress = sp_runtime::MultiAddress<AccountId32, ()>;
 
@@ -169,20 +158,8 @@ fn encode_with_vec_prefix<T: Encode, F: Fn(&mut Vec<u8>)>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::extrinsic_params::{
-        BaseExtrinsicParams,
-        ExtrinsicParams,
-        PlainTipExtrinsicParamsBuilder,
-    };
-    use sp_core::{
-        Pair,
-        H256 as Hash,
-    };
-    use sp_runtime::{
-        generic::Era,
-        testing::sr25519,
-        MultiSignature,
-    };
+    use sp_core::Pair;
+    use sp_runtime::{generic::Era, testing::sr25519, MultiSignature};
 
     #[test]
     fn encode_decode_roundtrip_works() {
@@ -191,15 +168,12 @@ mod tests {
         let signature = pair.sign(&msg);
         let multi_sig = MultiSignature::from(signature);
         let account: AccountId32 = pair.public().into();
-        let tx_params = PlainTipExtrinsicParamsBuilder::new()
-            .era(Era::mortal(8, 0), Hash::from([0u8; 32]));
 
-        let default_extra = BaseExtrinsicParams::new(0, tx_params);
         let xt = UncheckedExtrinsicV4::new_signed(
             vec![1, 1, 1],
             account.into(),
             multi_sig,
-            GenericExtra::from(default_extra),
+            GenericExtra::new(Era::mortal(8, 0), 0, 0),
         );
         let xt_enc = xt.encode();
         assert_eq!(xt, Decode::decode(&mut xt_enc.as_slice()).unwrap())
