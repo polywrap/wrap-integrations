@@ -1,7 +1,7 @@
-import { Web3ApiClient } from "@web3api/client-js";
-import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
-import { ethereumPlugin, EthereumProvider } from "@web3api/ethereum-plugin-js";
-import { ensPlugin } from "@web3api/ens-plugin-js";
+import { PolywrapClient } from "@polywrap/client-js";
+import { ipfsPlugin } from "@polywrap/ipfs-plugin-js";
+import { ethereumPlugin, EthereumProvider } from "@polywrap/ethereum-plugin-js";
+import { ensPlugin } from "@polywrap/ens-plugin-js";
 
 import { ethers, Wallet } from "ethers";
 import axios from "axios";
@@ -12,7 +12,7 @@ async function main() {
   const uri = "ipfs/QmdAsjKDB8rJEdYc8nqCCXVMcCweDArau2oZ9qaF33KJZr";
   const ensAddress = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e";
   const network = "rinkeby";
-  const domain = "open.web3api.eth";
+  const domain = "open.polywrap.eth";
   const privKey = process.env.ETH_PRIV_KEY as string;
 
   if (!privKey) {
@@ -25,17 +25,17 @@ async function main() {
 
   const rinkebyProvider = ethers.getDefaultProvider("rinkeby");
 
-  const client = new Web3ApiClient({
+  const client = new PolywrapClient({
     redirects: [
       {
-        from: "w3://ens/ipfs.web3api.eth",
+        from: "w3://ens/ipfs.polywrap.eth",
         to: ipfsPlugin({
           provider: "http://localhost:5001",
           fallbackProviders: ["https://ipfs.io"]
         }),
       },
       {
-        from: "w3://ens/ens.web3api.eth",
+        from: "w3://ens/ens.polywrap.eth",
         to: ensPlugin({
           addresses: {
             testnet: testnetEnsAddress
@@ -43,7 +43,7 @@ async function main() {
         }),
       },
       {
-        from: "w3://ens/ethereum.web3api.eth",
+        from: "w3://ens/ethereum.polywrap.eth",
         to: ethereumPlugin({
           networks: {
             rinkeby: {

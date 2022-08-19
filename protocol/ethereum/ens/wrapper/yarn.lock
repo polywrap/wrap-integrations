@@ -1368,7 +1368,7 @@
   resolved "https://registry.yarnpkg.com/@polywrap/wasm-as/-/wasm-as-0.3.0.tgz#dbb949e6e76df6971cca1a1ab8d1c52e9fcb295c"
   integrity sha512-rxQaVKPu67AqgzozUdB3EQ2UKhp8bqq6ZExS8aApfgAcGhN8uH9wuk64qTbvgS725Wsw+eUWBaA471vNf1EfXw==
   dependencies:
-    "@web3api/assemblyscript-json" "1.2.0"
+    "@polywrap/assemblyscript-json" "1.2.0"
     as-bigint "0.5.3"
     as-bignumber "0.2.1"
     as-container "0.6.1"
@@ -1509,9 +1509,9 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@web3api/assemblyscript-json@1.2.0":
+"@polywrap/assemblyscript-json@1.2.0":
   version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@web3api/assemblyscript-json/-/assemblyscript-json-1.2.0.tgz#f01f11f12a66cd1a319d43f12e476307d1ad3da8"
+  resolved "https://registry.yarnpkg.com/@polywrap/assemblyscript-json/-/assemblyscript-json-1.2.0.tgz#f01f11f12a66cd1a319d43f12e476307d1ad3da8"
   integrity sha512-x+wchJpH1giJzXj3dYs8vh2SKMXepeqVXiaFV/YCtXg4X/KaUnxi0kp5JugbEAyEJurEScH1YuV6IvGhGui/fw==
 
 "@wry/equality@^0.1.2":

@@ -5,11 +5,11 @@
   "Reverse": "0xe982E462b094850F12AF94d21D470e21bE9D0E9C",
   "Signer": "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1",
   "CID": "0x64EC88CA00B268E5BA1A35678A1B5316D212F4F366B2477232534A8AECA37F3C",
-  "Domain": "web3api.eth",
+  "Domain": "polywrap.eth",
   "Domain2": "record.eth",
-  "Subdomain": "test.web3api.eth",
+  "Subdomain": "test.polywrap.eth",
   "Label": "label",
-  "Tld": "test.web3api.eth",
+  "Tld": "test.polywrap.eth",
   "Ttl": "0",
   "AlternateOwner": "0xf9F77f613Ee7D374C954fADA27618E21eA31FB76"
 }
