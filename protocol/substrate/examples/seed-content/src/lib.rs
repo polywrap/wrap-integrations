@@ -1,7 +1,69 @@
+#![deny(warnings)]
+use wasm_bindgen_futures::spawn_local;
 use wasm_bindgen::prelude::*;
 use forum_app::Api;
 use codec::Decode;
 use serde_json::json;
+use sauron::async_delay;
+use sauron::prelude::*;
+
+
+const DELAY: i32 = 3000;
+
+pub enum Msg {
+    ClickedStart,
+}
+
+#[derive(Default)]
+pub struct App {}
+
+impl Application<Msg> for App {
+
+    fn view(&self) -> Node<Msg> {
+        sauron::html::main(
+            [],
+            [
+                h1([], [text("Seed forum content")]),
+                div(
+                    [],
+                    [input(
+                        [
+                            r#type("button"),
+                            value("Start seeding"),
+                            on_click(|_| {
+                                Msg::ClickedStart
+                            }),
+                        ],
+                        [],
+                    )],
+                ),
+            ],
+        )
+    }
+
+    fn update(&mut self, msg: Msg) -> Cmd<Self, Msg> {
+        match msg {
+            Msg::ClickedStart => spawn_local(start_seeding()),
+        }
+        Cmd::none()
+    }
+}
+
+async fn start_seeding(){
+    let api = Api::new("http://localhost:9933").await.expect("must not error");
+    add_post(&api, "Posted from seeding app").await.expect("must not error");
+    seed1(&api).await.expect("must have no error");
+
+}
+
+#[wasm_bindgen]
+pub async fn entry_point() {
+    console_log::init_with_level(log::Level::Trace).ok();
+    console_error_panic_hook::set_once();
+    log::info!("Starting to put seed content into forum");
+    Program::mount_to_body(App::default());
+}
+
 
 
 async fn seed1(api: &Api) -> anyhow::Result<()> {
@@ -100,11 +162,14 @@ async fn seed1(api: &Api) -> anyhow::Result<()> {
 
     for (post, replies0) in entries {
         println!("post: {}", post);
+        async_delay(DELAY).await;
         let post_id = add_post(&api, post).await?;
         for (reply, replies1) in replies0 {
             println!("\t>{}", reply);
+            async_delay(DELAY).await;
             let comment_id = add_comment(&api, post_id, reply).await?;
             for reply in replies1 {
+                async_delay(DELAY).await;
                 println!("\t\t>{}", reply);
                 let _comment_id =
                     add_comment(&api, comment_id, reply).await?;
@@ -149,11 +214,13 @@ async fn more_seed(
         "I'm not your random dude, Dad",
     ];
 
+    async_delay(DELAY).await;
     let mut parent_item = add_post(api, chain[0]).await?;
     println!("post: {}", chain[0]);
 
-    for (i, reply) in chain.iter().skip(1).enumerate() {
+    for (_i, reply) in chain.iter().skip(1).enumerate() {
         println!("reply: {}", reply);
+        async_delay(DELAY).await;
         parent_item = add_comment(api, parent_item, reply).await?;
     }
     Ok(())
@@ -197,13 +264,3 @@ async fn get_current_item(api: &Api) -> anyhow::Result<u32> {
     }
 }
 
-#[wasm_bindgen]
-pub async fn start_seed() {
-    console_log::init_with_level(log::Level::Trace).ok();
-    console_error_panic_hook::set_once();
-    log::info!("Starting to put seed content into forum");
-    let api = Api::new("http://localhost:9933").await.expect("must not error");
-    add_post(&api, "Posted from seeding app").await.expect("must not error");
-    seed1(&api).await.expect("must have no error");
-
-}
