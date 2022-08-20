@@ -4,10 +4,9 @@ import { ethereumPlugin } from "@polywrap/ethereum-plugin-js";
 import { ensResolverPlugin } from "@polywrap/ens-resolver-plugin-js";
 
 
-//let module_uri = "wrap://ipfs/QmQDqV2Y3QD87CG48quXmWXigLBZ3J2qn5z4BY4ZhwMTtL";
-//let module_uri = "wrap://ipfs/QmU84DBJw2Eb5z4LCQ3TCJmiKuC3M57QzQLZkG13jsDNp4";
-//let module_uri = "wrap://ipfs/QmXiiSBd2XvRuJ4FCc2E1GR4RvEFu3vzZ4SVjErtUYyPEc";
-let module_uri = "wrap://ipfs/QmNQMkw2qFAz75G75NB8NHEB1K8vqiJgafdFvCHQKMJrbo";
+//let module_uri = "wrap://ipfs/QmRcW1mpMD1vL9rRTFHtAng4jbMWz3ceo6JyhsoUSA2BMa";
+let module_uri = "wrap://ipfs/QmZAXrGF6exDL4rb8EKqkDd5Ds9B95Zf2fnizVccjVsaqM";
+let module_uri = "wrap://ipfs/QmNdPLkAF4H36N99wfbdbvygG9gQXbp9xVDtjX81cfpAon";
 
 class PolywrapClientWrapper extends PolywrapClient{
     constructor() {

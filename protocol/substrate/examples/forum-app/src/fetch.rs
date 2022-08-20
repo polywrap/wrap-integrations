@@ -253,27 +253,34 @@ pub async fn get_nonce_for_account(api: &Api, account_id: &AccountId32) -> Resul
     Ok(nonce)
 }
 
-pub async fn compose_opaque_payload_and_extra<Call>(api: &Api, nonce:u32, call:Call) -> Result<(Vec<u8>,Vec<u8>), Error>
-where Call: Encode + Clone + fmt::Debug,
+pub async fn compose_balance_transfer(api: &Api, nonce:u32, to: &AccountId32,
+    amount: u128, tip: Option<u128>)
+    -> Result<(Vec<u8>,Vec<u8>), Error>
 {
     let args = json!({
         "url": api.url,
         "nonce": nonce,
-        "call": call.encode(),
+        "to": to,
+        "amount": amount.to_string(),
+        "tip": tip.map(|tip|tip.to_string()),
     });
-    let (payload, extra) = api.invoke_method("composeBalanceCallPayloadAndExtra",args).await?;
+    let (payload, extra) = api.invoke_method("composeBalanceTransfer",args).await?;
     Ok((payload, extra))
 }
 
-pub async fn submit_signed_call<Call>(api: &Api, call: Call, signer_account: &AccountId32, multi_signature: MultiSignature, extra: Vec<u8>) -> Result<Option<H256>, Error>
-    where Call: Clone + fmt::Debug + Encode
+pub async fn submit_signed_balance_call(api: &Api, signer_account: &AccountId32,
+    to: AccountId32,
+    amount: u128,
+ extra: Vec<u8>,
+    multi_signature: MultiSignature) -> Result<Option<H256>, Error>
 {
     let args = json!({
         "url": api.url,
-        "call": call.encode(),
         "signer_account": signer_account.to_ss58check(),
-        "multi_signature": multi_signature.encode(),
+        "to": to.to_ss58check(),
+        "amount": amount.to_string(),
         "extra": extra,
+        "multi_signature": multi_signature.encode(),
     });
     let hash = api.invoke_method("submitSignedBalanceCall", args).await?;
     Ok(hash)
@@ -323,30 +330,6 @@ pub async fn add_comment(
     Ok(tx_hash)
 }
 
-pub async fn sign_and_submit_call<Call>(
-    api: &Api,
-    call: Call,
-) -> Result<Option<H256>, Error>
-where
-    Call: Encode + Clone + fmt::Debug,
-{
-    // we use alice for now, for simplicity
-    let signer: sp_core::sr25519::Pair = AccountKeyring::Alice.pair();
-    let signer_account = AccountId32::from(signer.public());
-    log::info!("getting nonce...");
-    let nonce = get_nonce_for_account(api, &signer_account).await?.expect("must have a nonce");
-    log::info!("nonce: {:?}", nonce);
-
-    let (payload, extra) = compose_opaque_payload_and_extra(api, nonce, call.clone()).await?;
-    log::info!("got payload: {:?}", payload);
-    log::info!("got extra: {:?}", extra);
-    let signature = signer.sign(&payload);
-    log::info!("got signature: {:?}", signature);
-
-    let tx_hash = submit_signed_call(api, call, &signer_account, signature.into(), extra).await?;
-    log::info!("submitted with tx_hash: {:?}", tx_hash);
-    Ok(tx_hash)
-}
 
 /// send some certain amount to this user
 pub async fn send_reward(
@@ -358,19 +341,23 @@ pub async fn send_reward(
     let balance_transfer_call_index: [u8; 2] =
         pallet_call_index(api, "Balances", "transfer").await?;
 
-    let dest: MultiAddress<AccountId32, ()> = MultiAddress::Id(to);
+    let dest: MultiAddress<AccountId32, ()> = MultiAddress::Id(to.clone());
 
-    let balance_transfer_call: (
-        [u8; 2],
-        MultiAddress<AccountId32, ()>,
-        Compact<u128>,
-    ) = (balance_transfer_call_index, dest, Compact(amount));
+    // we use alice for now, for simplicity
+    let signer: sp_core::sr25519::Pair = AccountKeyring::Alice.pair();
+    let signer_account = AccountId32::from(signer.public());
+    log::info!("getting nonce...");
+    let nonce = get_nonce_for_account(api, &signer_account).await?.expect("must have a nonce");
+    log::info!("nonce: {:?}", nonce);
 
-    /*
-    let extrinsic = sign_call_and_encode(api, balance_transfer_call,tip).await?;
-    let tx_hash = author_submit_extrinsic(api, extrinsic).await?;
-    */
-    let tx_hash = sign_and_submit_call(api, balance_transfer_call).await?;
+    let (payload, extra) = compose_balance_transfer(api, nonce, &to, amount, tip).await?;
+    log::info!("got payload: {:?}", payload);
+    log::info!("got extra: {:?}", extra);
+    let signature = signer.sign(&payload);
+    log::info!("got signature: {:?}", signature);
+
+    let tx_hash = submit_signed_balance_call(api, &signer_account, to,  amount, extra, signature.into(),).await?;
+    log::info!("submitted with tx_hash: {:?}", tx_hash);
     log::debug!("Sent some coins to with a tx_hash: {:?}", tx_hash);
     Ok(tx_hash)
 }

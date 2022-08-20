@@ -30,9 +30,9 @@ type Module {
 
   authorSubmitExtrinsic(url: String!, extrinsic: String!): String
 
-  composeBalanceCallPayloadAndExtra(url: String!, nonce: UInt32!, call: [UInt8!]!): [[UInt8!]!]
+  composeBalanceTransfer(url: String!, nonce: UInt32!, to: String!, amount: BigNumber!, tip: BigNumber): [[UInt8!]!]
 
-  submitSignedBalanceCall(url: String!, call: [UInt8!]!, signer_account: String!, multi_signature: [UInt8!]!, extra: [UInt8!]!): String
+  submitSignedBalanceCall(url: String!, signer_account: String!, to: String!, amount: BigNumber!, extra: [UInt8!]!, multi_signature: [UInt8!]!): String
 
 }
 
