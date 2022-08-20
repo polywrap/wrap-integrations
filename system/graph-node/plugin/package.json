@@ -12,9 +12,10 @@
     "build"
   ],
   "scripts": {
-    "build": "rimraf ./build && yarn codegen && tsc --project tsconfig.build.json",
-    "codegen": "polywrap plugin codegen",
-    "lint": "eslint --color -c ./.eslintrc.js src/",
+    "build": "rimraf ./build && tsc --project tsconfig.build.json",
+    "codegen": "npx polywrap plugin codegen",
+    "codegen:patch": "npx plugin codegen && rimraf ./src/wrap",
+    "lint": "eslint --color -c ../../../../.eslintrc.js src/",
     "test": "jest --passWithNoTests --runInBand --verbose",
     "test:ci": "jest --passWithNoTests --runInBand --verbose",
     "test:watch": "jest --watch --passWithNoTests --verbose"
