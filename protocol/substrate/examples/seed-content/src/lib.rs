@@ -1,12 +1,13 @@
 #![deny(warnings)]
-use wasm_bindgen_futures::spawn_local;
-use wasm_bindgen::prelude::*;
-use forum_app::Api;
 use codec::Decode;
+use forum_app::Api;
+use sauron::{
+    async_delay,
+    prelude::*,
+};
 use serde_json::json;
-use sauron::async_delay;
-use sauron::prelude::*;
-
+use wasm_bindgen::prelude::*;
+use wasm_bindgen_futures::spawn_local;
 
 const DELAY: i32 = 3000;
 
@@ -18,7 +19,6 @@ pub enum Msg {
 pub struct App {}
 
 impl Application<Msg> for App {
-
     fn view(&self) -> Node<Msg> {
         sauron::html::main(
             [],
@@ -30,9 +30,7 @@ impl Application<Msg> for App {
                         [
                             r#type("button"),
                             value("Start seeding"),
-                            on_click(|_| {
-                                Msg::ClickedStart
-                            }),
+                            on_click(|_| Msg::ClickedStart),
                         ],
                         [],
                     )],
@@ -49,11 +47,14 @@ impl Application<Msg> for App {
     }
 }
 
-async fn start_seeding(){
-    let api = Api::new("http://localhost:9933").await.expect("must not error");
-    add_post(&api, "Posted from seeding app").await.expect("must not error");
+async fn start_seeding() {
+    let api = Api::new("http://localhost:9933")
+        .await
+        .expect("must not error");
+    add_post(&api, "Posted from seeding app")
+        .await
+        .expect("must not error");
     seed1(&api).await.expect("must have no error");
-
 }
 
 #[wasm_bindgen]
@@ -63,8 +64,6 @@ pub async fn entry_point() {
     log::info!("Starting to put seed content into forum");
     Program::mount_to_body(App::default());
 }
-
-
 
 async fn seed1(api: &Api) -> anyhow::Result<()> {
     let entries: Vec<(&str,Vec<(&str, Vec<&str>)>)> = vec![
@@ -159,7 +158,6 @@ async fn seed1(api: &Api) -> anyhow::Result<()> {
         ),
     ];
 
-
     for (post, replies0) in entries {
         println!("post: {}", post);
         async_delay(DELAY).await;
@@ -171,8 +169,7 @@ async fn seed1(api: &Api) -> anyhow::Result<()> {
             for reply in replies1 {
                 async_delay(DELAY).await;
                 println!("\t\t>{}", reply);
-                let _comment_id =
-                    add_comment(&api, comment_id, reply).await?;
+                let _comment_id = add_comment(&api, comment_id, reply).await?;
             }
         }
     }
@@ -180,9 +177,7 @@ async fn seed1(api: &Api) -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn more_seed(
-    api: &Api,
-) -> anyhow::Result<()> {
+async fn more_seed(api: &Api) -> anyhow::Result<()> {
     let chain = vec![
         "Gordon Ramsay doesn't like being called \"mate\"",
         "I'm not your mate buddy",
@@ -226,19 +221,21 @@ async fn more_seed(
     Ok(())
 }
 
-async fn add_comment(api:&Api, parent_item: u32, reply: &str) -> anyhow::Result<u32>{
+async fn add_comment(
+    api: &Api,
+    parent_item: u32,
+    reply: &str,
+) -> anyhow::Result<u32> {
     let current_item = get_current_item(api).await?;
     forum_app::fetch::add_comment(api, parent_item, reply).await?;
     Ok(current_item)
 }
 
-async fn add_post(api:&Api, post: &str) -> anyhow::Result<u32>{
+async fn add_post(api: &Api, post: &str) -> anyhow::Result<u32> {
     let current_item = get_current_item(api).await?;
     forum_app::fetch::add_post(api, post).await?;
     Ok(current_item)
 }
-
-
 
 /// Note: this is a very unreliable way of determining
 /// the post_id, comment_id of the content that was just posted
@@ -255,7 +252,8 @@ async fn get_current_item(api: &Api) -> anyhow::Result<u32> {
         api.invoke_method("getStorageValue", args).await?;
 
     if let Some(current_item) = current_item {
-        let current_item: u32 = Decode::decode(&mut current_item.as_slice()).expect("must decode");
+        let current_item: u32 =
+            Decode::decode(&mut current_item.as_slice()).expect("must decode");
         log::info!("current item: {}", current_item);
         Ok(current_item)
     } else {
@@ -263,4 +261,3 @@ async fn get_current_item(api: &Api) -> anyhow::Result<u32> {
         Ok(0)
     }
 }
-

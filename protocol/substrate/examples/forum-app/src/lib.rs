@@ -2,16 +2,16 @@
 pub use api::Api;
 use content::*;
 use sauron::prelude::*;
+use serde::Serialize;
 use sp_core::{
     crypto::AccountId32,
+    Encode,
     Pair,
     H256,
 };
 use sp_keyring::AccountKeyring;
 use std::fmt;
 use wasm_bindgen_futures::spawn_local;
-use sp_core::Encode;
-use serde::Serialize;
 
 mod api;
 mod content;
@@ -256,7 +256,13 @@ impl App {
             let async_fetch = |program: Program<Self, Msg>| {
                 async move {
                     let api = api.unwrap();
-                    match fetch::send_reward(&api, author, reward_amount, Some(NETWORK_TIP_AMOUNT)).await
+                    match fetch::send_reward(
+                        &api,
+                        author,
+                        reward_amount,
+                        Some(NETWORK_TIP_AMOUNT),
+                    )
+                    .await
                     {
                         Ok(tx_hash) => {
                             log::info!(
@@ -491,8 +497,6 @@ impl Application<Msg> for App {
         )
     }
 }
-
-
 
 #[wasm_bindgen]
 pub async fn startup() {

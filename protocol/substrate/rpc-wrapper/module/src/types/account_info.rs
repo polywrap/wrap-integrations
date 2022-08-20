@@ -1,4 +1,7 @@
-use codec::{Decode, Encode};
+use codec::{
+    Decode,
+    Encode,
+};
 
 /// Redefinition from `pallet-balances`. Currently, pallets break `no_std` builds, see:
 /// https://github.com/paritytech/substrate/issues/8891

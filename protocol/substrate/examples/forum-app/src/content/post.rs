@@ -1,6 +1,13 @@
 pub use super::comment::*;
-use crate::{util, Msg, *};
-use codec::{Decode, Encode};
+use crate::{
+    util,
+    Msg,
+    *,
+};
+use codec::{
+    Decode,
+    Encode,
+};
 use frame_support::BoundedVec;
 use sauron::html::attributes;
 use sp_core::crypto::AccountId32;

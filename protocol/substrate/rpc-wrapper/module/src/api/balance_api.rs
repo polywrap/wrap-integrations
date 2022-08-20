@@ -1,11 +1,22 @@
 //! Contains the api specific to balances pallet
 //! Balance transfer, set_balance api
-use crate::{error::Error, types::extrinsics::GenericAddress, Api};
+use crate::{
+    error::Error,
+    types::extrinsics::GenericAddress,
+    Api,
+};
 use codec::Compact;
-use sp_core::{crypto::AccountId32, Pair, H256};
-use sp_runtime::generic::Era;
-use sp_runtime::MultiAddress;
-use sp_runtime::{MultiSignature, MultiSigner};
+use sp_core::{
+    crypto::AccountId32,
+    Pair,
+    H256,
+};
+use sp_runtime::{
+    generic::Era,
+    MultiAddress,
+    MultiSignature,
+    MultiSigner,
+};
 
 const BALANCES: &str = "Balances";
 const TRANSFER: &str = "transfer";

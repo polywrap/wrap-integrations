@@ -3,17 +3,31 @@ use crate::{
     error::Error,
     types::{
         account_info::AccountInfo,
-        extrinsic_params::{GenericExtra, SignedPayload},
-        extrinsics::{GenericAddress, UncheckedExtrinsicV4},
+        extrinsic_params::{
+            GenericExtra,
+            SignedPayload,
+        },
+        extrinsics::{
+            GenericAddress,
+            UncheckedExtrinsicV4,
+        },
     },
 };
-use codec::Compact;
-use codec::Decode;
-use codec::Encode;
-use sp_core::{crypto::Pair, H256};
-use sp_runtime::generic::Era;
+use codec::{
+    Compact,
+    Decode,
+    Encode,
+};
+use sp_core::{
+    crypto::Pair,
+    H256,
+};
 use sp_runtime::{
-    traits::IdentifyAccount, AccountId32, MultiSignature, MultiSigner,
+    generic::Era,
+    traits::IdentifyAccount,
+    AccountId32,
+    MultiSignature,
+    MultiSigner,
 };
 use std::fmt;
 
