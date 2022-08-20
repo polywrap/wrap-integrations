@@ -1,0 +1,7 @@
+format: 0.1.0
+name: uts46-lite-wasm-rs
+language: wasm/rust
+build: ./polywrap.build.yaml
+deploy: ./polywrap.deploy.yaml
+module: ./Cargo.toml
+schema: ./src/schema.graphql
