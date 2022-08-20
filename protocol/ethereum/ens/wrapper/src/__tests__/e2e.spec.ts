@@ -65,11 +65,11 @@ describe("ENS Wrapper", () => {
     const redirects = [
       {
         from: "wrap://ens/uts46.polywrap.eth",
-        to: "wrap://ipfs/QmZFz2KxpugGU7Lgo8mkEiAZVBGHqgMt7FLP42LRGRqsHT"
+        to: "wrap://ens/goerli/uts46.wrappers.eth"
       },
       {
         from: "wrap://ens/sha3.polywrap.eth",
-        to: "wrap://ipfs/QmYFWh4D91sAiYKf8o37EravLwFKAtUAmut4Xnevnt4QZR"
+        to: "wrap://ens/goerli/sha3.wrappers.eth"
       }
     ];
     ownerClient = new PolywrapClient({ plugins, redirects });
