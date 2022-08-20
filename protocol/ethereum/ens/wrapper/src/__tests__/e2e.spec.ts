@@ -65,7 +65,7 @@ describe("ENS Wrapper", () => {
     const redirects = [
       {
         from: "wrap://ens/uts46.polywrap.eth",
-        to: "wrap://ens/goerli/uts46.wrappers.eth"
+        to: "wrap://ens/goerli/uts46-lite.wrappers.eth"
       },
       {
         from: "wrap://ens/sha3.polywrap.eth",
