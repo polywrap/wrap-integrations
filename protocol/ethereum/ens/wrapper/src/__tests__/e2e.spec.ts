@@ -3,7 +3,7 @@ import {
   initTestEnvironment,
   stopTestEnvironment,
   providers as testEnvProviders,
-  ensAddresses,
+  ensAddresses, buildWrapper
 } from "@polywrap/test-env-js";
 import { PolywrapClient } from "@polywrap/client-js";
 import path from "path";
@@ -60,16 +60,26 @@ describe("ENS Wrapper", () => {
     resolverAddress = ensAddresses.resolverAddress;
     reverseRegistryAddress = ensAddresses.reverseAddress;
 
+    // build sha3 wrapper
+    const sha3Path = path.resolve(path.join(__dirname, "../../../../../../system/sha3/wrapper"));
+    await buildWrapper(sha3Path);
+    const sha3Uri = `wrap://fs/${sha3Path}/build`;
+
+    // build uts46 wrapper
+    const uts46Path = path.resolve(path.join(__dirname, "../../../../../../system/uts46-lite/wrapper"));
+    await buildWrapper(uts46Path);
+    const uts46Uri = `wrap://fs/${uts46Path}/build`;
+
     // get client
     const plugins = getPlugins(testEnvProviders.ethereum, testEnvProviders.ipfs, ensAddresses.ensAddress);
     const redirects = [
       {
         from: "wrap://ens/uts46.polywrap.eth",
-        to: "wrap://ens/goerli/uts46-lite.wrappers.eth"
+        to: uts46Uri
       },
       {
         from: "wrap://ens/sha3.polywrap.eth",
-        to: "wrap://ens/goerli/sha3.wrappers.eth"
+        to: sha3Uri
       }
     ];
     ownerClient = new PolywrapClient({ plugins, redirects });

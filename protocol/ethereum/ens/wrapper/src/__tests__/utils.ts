@@ -19,14 +19,6 @@ export function getPlugins(
             provider: ethereum,
             signer,
           },
-          mainnet: {
-            provider:
-              "https://mainnet.infura.io/v3/b00b2c2cc09c487685e9fb061256d6a6",
-          },
-          goerli: {
-            provider:
-              "https://goerli.infura.io/v3/b00b2c2cc09c487685e9fb061256d6a6",
-          },
         },
         defaultNetwork: "testnet",
       }),
@@ -37,7 +29,7 @@ export function getPlugins(
     },
     {
       uri: "ens/ipfs.polywrap.eth",
-      plugin: ipfsPlugin({ provider: ipfs, fallbackProviders: ["ipfs.wrappers.io", "https://ipfs.io"] }),
+      plugin: ipfsPlugin({ provider: ipfs }),
     },
     {
       uri: "ens/ens-resolver.polywrap.eth",
