@@ -84,14 +84,14 @@ pub fn get_runtime_version(
         })
 }
 
-/// return the rpc methods
+/// return the rpc methods exposed in this chain
 pub fn rpc_methods(
     ArgsRpcMethods { url }: ArgsRpcMethods,
 ) -> Option<Vec<String>> {
     BaseApi::new(&url).fetch_rpc_methods().ok().flatten()
 }
 
-/// return the block has of a block with number
+/// return the block hash of a block with the specified block number `number`.
 pub fn block_hash(
     ArgsBlockHash { url, number }: ArgsBlockHash,
 ) -> Option<String> {
