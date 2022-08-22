@@ -6,23 +6,11 @@ pub use api::Api;
 use api::BaseApi;
 use codec::Decode;
 pub use error::Error;
-use num_traits::{
-    cast::FromPrimitive,
-    ToPrimitive,
-};
+use num_traits::{cast::FromPrimitive, ToPrimitive};
 use polywrap_wasm_rs::BigNumber;
-use scale_info::{
-    TypeDef,
-    TypeDefPrimitive,
-};
-use sp_core::crypto::{
-    AccountId32,
-    Ss58Codec,
-};
-use sp_runtime::{
-    MultiAddress,
-    MultiSignature,
-};
+use scale_info::{TypeDef, TypeDefPrimitive};
+use sp_core::crypto::{AccountId32, Ss58Codec};
+use sp_runtime::{MultiAddress, MultiSignature};
 pub use types::metadata::Metadata;
 use wrap::imported::*;
 pub use wrap::*;
@@ -85,16 +73,14 @@ pub fn get_runtime_version(
         .fetch_runtime_version()
         .ok()
         .flatten()
-        .map(|v| {
-            RuntimeVersion {
-                spec_name: v.spec_name.to_string(),
-                impl_name: v.impl_name.to_string(),
-                authoring_version: v.authoring_version,
-                spec_version: v.spec_version,
-                impl_version: v.impl_version,
-                transaction_version: v.transaction_version,
-                state_version: v.state_version,
-            }
+        .map(|v| RuntimeVersion {
+            spec_name: v.spec_name.to_string(),
+            impl_name: v.impl_name.to_string(),
+            authoring_version: v.authoring_version,
+            spec_version: v.spec_version,
+            impl_version: v.impl_version,
+            transaction_version: v.transaction_version,
+            state_version: v.state_version,
         })
 }
 
@@ -149,7 +135,7 @@ pub fn get_storage_value(
     }
 }
 
-/// return value of the storage map from a module and storage name with a certain key
+/// Get the value in bytes from a storage map from a pallet with the specified `key`.
 pub fn get_storage_map(
     ArgsGetStorageMap {
         url,
@@ -204,6 +190,11 @@ pub fn get_storage_map(
         .flatten()
 }
 
+/// Get a the storage value in bytes from a storage map of the specified pallet.
+///
+/// `pallet` the pallet or module the storage belongs to.
+/// `count` the number of items to be returned
+/// `next_to` an optional `key` for storage map as a marker for the offset of the returned data.
 pub fn get_storage_map_paged(
     ArgsGetStorageMapPaged {
         url,
@@ -274,6 +265,7 @@ pub fn constant(
         .flatten()
 }
 
+/// Get the account information of `account`
 pub fn account_info(
     ArgsAccountInfo { url, account }: ArgsAccountInfo,
 ) -> Option<AccountInfo> {
@@ -310,7 +302,8 @@ pub fn account_info(
     }
 }
 
-/// return the nonce for this account
+/// Get the `nonce` for this account.
+/// `nonce` are used for composing a payload derived from a call.
 pub fn get_nonce_for_account(
     ArgsGetNonceForAccount { url, account }: ArgsGetNonceForAccount,
 ) -> Option<u32> {
@@ -322,6 +315,10 @@ pub fn get_nonce_for_account(
         .flatten()
 }
 
+/// Get the index of the pallet and the call/function name.
+/// It returns [u8;2], but since graphql don't support this type, we convert the type
+/// to a Vec<u8> of 2 elements, the element in index `0` is the pallet index.
+/// The element in index `1` is the call/function index.
 pub fn pallet_call_index(
     ArgsPalletCallIndex { url, pallet, call }: ArgsPalletCallIndex,
 ) -> Option<Vec<u8>> {
@@ -335,6 +332,7 @@ pub fn pallet_call_index(
         .flatten()
 }
 
+/// Submit an extrinsic to the blockchain
 pub fn author_submit_extrinsic(
     ArgsAuthorSubmitExtrinsic { url, extrinsic }: ArgsAuthorSubmitExtrinsic,
 ) -> Option<String> {
@@ -345,6 +343,11 @@ pub fn author_submit_extrinsic(
         .map(|hash| format!("{:#x}", hash))
 }
 
+/// Create a balance api call and return the encoded payload and extra
+/// `nonce` - the current nonce of the `signer_account`.
+/// `to` - the address of the balance transfer
+/// `amount` - the amount that will be transfer from the signer_account to the `to` address.
+/// `tip` - add an optional tip as a reward to the validator.
 pub fn compose_balance_transfer(
     ArgsComposeBalanceTransfer {
         url,
@@ -371,6 +374,15 @@ pub fn compose_balance_transfer(
         .map(|(payload, extra)| [payload, extra].to_vec())
 }
 
+/// submit a balance call derived from the `to`, `amount`.
+/// The `multisignature` is created from signing the `payload` created in
+/// `compose_balance_transfer` and signed using the signer-provider of `signer_account`.
+/// The `extra` parameter is also from the `compose_balance_transfer` passed as is.
+/// The `multi_signature` is the result of signing the `payload` by the `signer_account`.
+///
+/// Important: The `to` and `amount` parameter must match what is passed when composing the payload
+/// in `compose_balance_transfer`, otherwise the `multi_signature` passed here will match, thus the
+/// transaction will fail.
 pub fn submit_signed_balance_call(
     ArgsSubmitSignedBalanceCall {
         url,
