@@ -1,5 +1,11 @@
-import { Substrate_Module } from "./wrap";
-
+import { Substrate_BlockOutput, 
+    Substrate_ChainMetadata, 
+    Substrate_RuntimeVersion, 
+    Substrate_AccountInfo,
+    UInt8,
+    String,
+} from "./wrap";
+import { InvokeResult } from "@polywrap/core-js";
 import { Uri, PolywrapClient } from "@polywrap/client-js";
 import { runCLI } from "@polywrap/test-env-js";
 import path from "path";
@@ -31,9 +37,8 @@ describe("e2e", () => {
   });
 
   it("blockHash", async () => {
-      console.log("uri: ", uri);
     // You can use the client directly
-    let result_alt = await client.invoke({
+    let result = await client.invoke({
       uri,
       method: "blockHash",
         args: {
@@ -41,27 +46,14 @@ describe("e2e", () => {
           number: 0
         }
     });
+    
+      expect(result.error).toBeFalsy();
+      expect(result.data).toBeTruthy();
 
-    // Or use the test app's codegen types (see web3api.app.yaml)
-    const result = await Substrate_Module.blockHash(
-      {
-          url: "http://localhost:9933",
-          number: 0
-      },
-      client,
-      uri
-    );
-
-
-      console.log("result:", result);
-      console.log("result_alt: ", result_alt);
-
-      expect(JSON.stringify(result_alt) == JSON.stringify(result)).toBe(true);
   });
 
-  it("block", async () => {
-    // You can use the client directly
-    const result_alt = await client.invoke({
+  it("retrieves genesis block parent hash is 00000", async () => {
+    const result:InvokeResult<Substrate_BlockOutput> = await client.invoke({
       uri,
       method: "chainGetBlock",
         args: {
@@ -70,24 +62,20 @@ describe("e2e", () => {
         },
     });
 
-    // Or use the test app's codegen types (see web3api.app.yaml)
-    const result = await Substrate_Module.chainGetBlock(
-      {
-          url: "http://localhost:9933",
-          number: 0
-      },
-      client,
-      uri
-    );
 
-      console.log("block result:", result);
-      expect(JSON.stringify(result_alt) == JSON.stringify(result)).toBe(true);
+      expect(result.error).toBeFalsy();
+      expect(result.data).toBeTruthy();
+      const block: Substrate_BlockOutput = result.data!;
+      expect(block.block).toBeTruthy();
+
+      const json_block = JSON.parse(block.block);
+      // The parent hash of genesis is always 00000
+      expect(json_block.block.header.parentHash).toStrictEqual("0x0000000000000000000000000000000000000000000000000000000000000000");
 
   });
 
-  it("chainGetMetadata", async () => {
-    // You can use the client directly
-    const result_alt = await client.invoke({
+  it("retrieves the chain metadata", async () => {
+    const result: InvokeResult<Substrate_ChainMetadata> = await client.invoke({
       uri,
       method: "chainGetMetadata",
         args: {
@@ -95,36 +83,42 @@ describe("e2e", () => {
         }
     });
 
-    // Or use the test app's codegen types (see web3api.app.yaml)
-    const result = await Substrate_Module.chainGetMetadata(
-      {
-          url: "http://localhost:9933"
-      },
-      client,
-      uri
-    );
+      expect(result.error).toBeFalsy();
+      expect(result.data).toBeTruthy();
 
-      console.log("http response: ", result);
-      expect(JSON.stringify(result_alt) == JSON.stringify(result)).toBe(true);
+      let chainMetadata: Substrate_ChainMetadata = result.data!;
+      expect(chainMetadata.metadata).toBeTruthy();
+      expect(chainMetadata.pallets).toBeTruthy();
+      expect(chainMetadata.events).toBeTruthy();
+      expect(chainMetadata.errors).toBeTruthy();
   });
 
   it("state get runtime version", async () => {
     // You can use the client directly
-    const result = await client.invoke({
+    const result: InvokeResult<Substrate_RuntimeVersion> = await client.invoke({
       uri,
-      method: "stateGetRuntimeVersion",
+      method: "getRuntimeVersion",
         args: {
           url: "http://localhost:9933"
         }
     });
 
       console.log("runtime version: ", result);
+      expect(result.data).toBeTruthy();
+      expect(result.error).toBeFalsy();
+      let runtimeVersion: Substrate_RuntimeVersion = result.data!;
+      expect(runtimeVersion.spec_name).toStrictEqual("forum-node");
+      expect(runtimeVersion.impl_name).toStrictEqual("forum-node");
+      expect(runtimeVersion.authoring_version).toStrictEqual(1);
+      expect(runtimeVersion.spec_version).toStrictEqual(100);
+      expect(runtimeVersion.impl_version).toStrictEqual(1);
+      expect(runtimeVersion.state_version).toStrictEqual(1);
   });
 
 
   it("storage value", async () => {
     // You can use the client directly
-    const result_alt = await client.invoke({
+    const result:InvokeResult<UInt8[]> = await client.invoke({
       uri,
       method: "getStorageValue",
       args: {
@@ -134,25 +128,18 @@ describe("e2e", () => {
       },
     });
 
-    // Or use the test app's codegen types (see web3api.app.yaml)
-    const result = await Substrate_Module.getStorageValue(
-      {
-          url: "http://localhost:9933",
-          pallet: "TemplateModule",
-          storage: "Something"
-      },
-      client,
-      uri
-    );
 
-      console.log("template module Something:", result);
-      expect(JSON.stringify(result_alt) == JSON.stringify(result)).toBe(true);
+    console.log("something: ", result);
+    expect(result).toBeTruthy();
+      expect(result.error).toBeFalsy();
+    expect(result.data).toBeFalsy();
+
 
   });
 
   it("return constant values", async () => {
     // You can use the client directly
-    const existentialDeposit = await client.invoke({
+    const result:InvokeResult<UInt8[]> = await client.invoke({
       uri,
       method: "constant",
       args: {
@@ -161,24 +148,40 @@ describe("e2e", () => {
           name: "ExistentialDeposit"
       },
     });
-      console.log("Balances ExistentialDeposit", existentialDeposit);
+
+      console.log("existential deposit: ", result);
+      expect(result).toBeTruthy();
+      expect(result.error).toBeFalsy();
+      expect(result.data).toBeTruthy();
+      expect(result.data).toStrictEqual([
+        244, 1, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0
+      ]);
+
   });
 
   it("rpc_methods", async () => {
     // You can use the client directly
-    const result = await client.invoke({
+    const result: InvokeResult<String[]> = await client.invoke({
       uri,
       method: "rpcMethods",
       args: {
           url: "http://localhost:9933",
       },
     });
-      console.log("result", result);
+
+      expect(result.error).toBeFalsy();
+      expect(result.data).toBeTruthy();
+      let methods = result.data!;
+      //There are 85 rpc methods exposed in `examples/substrate-note-template`
+      expect(methods.length).toStrictEqual(85);
+
   });
 
   it("get storage maps", async () => {
     // You can use the client directly
-    const result = await client.invoke({
+    const result: InvokeResult<UInt8[]> = await client.invoke({
       uri,
       method: "getStorageMap",
       args: {
@@ -188,13 +191,16 @@ describe("e2e", () => {
           key: "0",
       },
     });
-      console.log("result", result);
+
+      expect(result.error).toBeFalsy();
+      expect(result).toBeTruthy();
+
   });
 
 
   it("get storage maps paged", async () => {
     // You can use the client directly
-    const result = await client.invoke({
+    const result: InvokeResult<UInt8[]> = await client.invoke({
       uri,
       method: "getStorageMapPaged",
       args: {
@@ -205,20 +211,30 @@ describe("e2e", () => {
           nextTo: null,
       },
     });
-      console.log("paged storage map", result);
+
+      expect(result.error).toBeFalsy();
+      expect(result).toBeTruthy();
+
   });
 
   it("get account info of Alice", async () => {
-    // You can use the client directly
-    const result = await client.invoke({
+    const result:InvokeResult<Substrate_AccountInfo> = await client.invoke({
       uri,
       method: "accountInfo",
       args: {
           url: "http://localhost:9933",
+          //Alice account
           account: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
       },
     });
-      console.log("alice account info", result);
-  });
 
+      expect(result).toBeTruthy();
+      expect(result.error).toBeFalsy();
+      expect(result.data).toBeTruthy();
+
+      let account_info: Substrate_AccountInfo = result.data!;
+      console.log("account info: ", account_info);
+
+  });
+    
 });
