@@ -44,6 +44,8 @@ const ALL_POSTS: &str = "AllPosts";
 const ALL_COMMENTS: &str = "AllComments";
 const KIDS: &str = "Kids";
 
+
+/// Get a list of the `Post` stored in `AllPosts` from the `ForumModule`
 pub async fn get_post_list(api: &Api) -> Result<Vec<PostDetail>, Error> {
     let mut all_post = Vec::with_capacity(10);
     log::info!("---->Getting all the post_id...");
@@ -84,7 +86,9 @@ pub async fn get_post_list(api: &Api) -> Result<Vec<PostDetail>, Error> {
     Ok(all_post)
 }
 
-///TODO: include the reply count into the Post and Comment storage
+/// Count the number of reply for this post with post_id `post_id`.
+///
+/// TODO: include the reply count into the Post and Comment storage
 /// instead of recursively querying here
 pub async fn get_reply_count(api: &Api, post_id: u32) -> Result<usize, Error> {
     let reply_count = get_kids(api, post_id)
@@ -94,6 +98,9 @@ pub async fn get_reply_count(api: &Api, post_id: u32) -> Result<usize, Error> {
     Ok(reply_count)
 }
 
+
+/// Retrieve the linked Data of this post such as the `Comment`, the number of replies of this post
+/// and the block at which this Post is stored.
 pub async fn get_post_details(
     api: &Api,
     post_id: u32,
@@ -117,6 +124,7 @@ pub async fn get_post_details(
     }
 }
 
+/// Retrieve the `Post` object with `post_id` stored in `AllPosts` from the `ForumModule` pallet.
 pub async fn get_post(api: &Api, post_id: u32) -> Result<Option<Post>, Error> {
     let args = json!({
         "url": api.url,
@@ -134,6 +142,8 @@ pub async fn get_post(api: &Api, post_id: u32) -> Result<Option<Post>, Error> {
     }
 }
 
+/// Get the children `item_id` for this `item_id`.
+/// This retrieves the heirarchial relations between post, and the comments.
 async fn get_kids(
     api: &Api,
     item_id: u32,
@@ -155,6 +165,7 @@ async fn get_kids(
     }
 }
 
+/// Recursively retrieve the replies of a post or comment with item_id `item_id`.
 #[async_recursion(?Send)]
 pub async fn get_comment_replies(
     api: &Api,
@@ -189,6 +200,8 @@ pub async fn get_comment_replies(
     Ok(comment_details)
 }
 
+/// Retrieve the `Comment` and the linked data such as child comments and block at which this
+/// comment is stored.
 pub async fn get_comment_detail(
     api: &Api,
     comment_id: u32,
@@ -209,6 +222,7 @@ pub async fn get_comment_detail(
     }
 }
 
+/// Retrieve the `Comment` with comment_id `comment_id` in `AllComment` from `ForumModule` pallet.
 pub async fn get_comment(
     api: &Api,
     comment_id: u32,
@@ -230,6 +244,7 @@ pub async fn get_comment(
     }
 }
 
+/// Get the block hash with the specified block number `number`.
 pub async fn get_block_hash(
     api: &Api,
     number: u32,

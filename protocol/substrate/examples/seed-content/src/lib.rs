@@ -6,7 +6,6 @@ use sauron::{
     prelude::*,
 };
 use serde_json::json;
-use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 
 const DELAY: i32 = 3000;
