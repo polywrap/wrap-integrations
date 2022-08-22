@@ -1,19 +1,10 @@
-use crate::{
-    api::Api,
-    utils::FromHexStr,
-    Error,
-};
-use codec::{
-    Decode,
-    Encode,
-};
-use scale_info::{
-    form::PortableForm,
-    Type,
-};
+use crate::{api::Api, utils::FromHexStr, Error};
+use codec::{Decode, Encode};
+use scale_info::{form::PortableForm, Type};
 use sp_core::storage::StorageKey;
 
 impl Api {
+    /// Retrieve a value from storage value named `storage_name` in pallet `module`.
     pub fn fetch_storage_value<V>(
         &self,
         module: &str,
@@ -27,6 +18,7 @@ impl Api {
         self.fetch_storage_by_key_hash(storage_key)
     }
 
+    /// Retrieve a value from a storage map named `storage_name` with a key `key` in pallet `module`
     pub fn fetch_storage_map<K, V>(
         &self,
         module: &str,
@@ -42,6 +34,8 @@ impl Api {
         self.fetch_storage_by_key_hash(storage_key)
     }
 
+    /// Retrieve a value from a storage double map named `storage_name` with keys `first` and
+    /// `second` in pallet `module`.
     pub fn fetch_storage_double_map<K, Q, V>(
         &self,
         module: &str,
@@ -76,6 +70,7 @@ impl Api {
         }
     }
 
+    /// Retrieve a value in bytes from storage value named `storage_name` in pallet `module`.
     pub fn fetch_opaque_storage_value(
         &self,
         module: &str,
@@ -86,6 +81,7 @@ impl Api {
         self.fetch_opaque_storage_by_key_hash(storage_key)
     }
 
+    /// Retrieve a value in bytes from a storage map named `storage_name` with a key `key` in pallet `module`
     pub fn fetch_opaque_storage_map<K>(
         &self,
         module: &str,
@@ -119,6 +115,11 @@ impl Api {
         }
     }
 
+    /// Retrieve a paged list of values in bytes from a storage map named `storage_name`
+    /// `module` - the pallet where the storage is created from.
+    /// `storage_name` - the given name of the storage in the pallet.
+    /// `count` - the number of values to be returned
+    /// `start_key` - the key used as an offset marker to start getting the list of records.
     pub fn fetch_opaque_storage_map_paged<K>(
         &self,
         module: &str,
@@ -152,6 +153,7 @@ impl Api {
         }
     }
 
+    /// return the data type of this storage named `storage_name` from pallet `module`.
     pub fn storage_map_type(
         &self,
         module: &str,
@@ -160,6 +162,11 @@ impl Api {
         Ok(self.metadata.storage_map_type(module, storage_name)?)
     }
 
+    /// Retrieve a paged list of the keys from a storage map named `storage_name` in pallet `module`
+    /// `module` - the pallet where the storage is created from.
+    /// `storage_name` - the given name of the storage in the pallet.
+    /// `count` - the number of values to be returned
+    /// `start_key` - the key used as an offset marker to start getting the list of records.
     pub fn fetch_opaque_storage_keys_paged<K>(
         &self,
         module: &str,
