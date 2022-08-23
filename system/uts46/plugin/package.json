@@ -20,7 +20,7 @@
     "test:watch": "jest --watch --passWithNoTests --verbose"
   },
   "dependencies": {
-    "@polywrap/core-js": "0.4.0",
+    "@polywrap/core-js": "0.4.1",
     "idna-uts46-hx": "3.4.0"
   },
   "devDependencies": {
@@ -31,7 +31,7 @@
     "ts-jest": "26.1.4",
     "ts-node": "8.10.2",
     "typescript": "4.0.7",
-    "@polywrap/client-js":  "0.4.0",
+    "@polywrap/client-js":  "0.4.1",
     "@typescript-eslint/eslint-plugin": "4.11.1",
     "@typescript-eslint/parser": "4.11.1",
     "eslint": "7.16.0",
@@ -39,7 +39,7 @@
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-prettier": "3.4.0",
     "prettier": "2.2.1",
-    "polywrap": "0.4.0"
+    "polywrap": "0.4.1"
   },
   "gitHead": "7346adaf5adb7e6bbb70d9247583e995650d390a",
   "publishConfig": {
