@@ -35,7 +35,6 @@ describe("e2e", () => {
   });
 
   it("blockHash", async () => {
-    // You can use the client directly
     const result = await Substrate_Module.blockHash({
         url: "http://localhost:9933",
         number: 0
@@ -87,7 +86,6 @@ describe("e2e", () => {
   });
 
   it("state get runtime version", async () => {
-    // You can use the client directly
     const result = await Substrate_Module.getRuntimeVersion({
         url: "http://localhost:9933"
       },
@@ -108,7 +106,6 @@ describe("e2e", () => {
 
 
   it("storage value", async () => {
-    // You can use the client directly
     const result = await Substrate_Module.getStorageValue({
        url: "http://localhost:9933",
         pallet: "TemplateModule",
@@ -124,7 +121,6 @@ describe("e2e", () => {
   });
 
   it("return constant values", async () => {
-    // You can use the client directly
     const result = await Substrate_Module.constant({
        url: "http://localhost:9933",
         pallet: "Balances",
@@ -145,7 +141,6 @@ describe("e2e", () => {
   });
 
   it("rpc_methods", async () => {
-    // You can use the client directly
     const result = await Substrate_Module.rpcMethods({
         url: "http://localhost:9933",
       },
@@ -161,7 +156,6 @@ describe("e2e", () => {
   });
 
   it("get storage maps", async () => {
-    // You can use the client directly
     const result = await Substrate_Module.getStorageMap({
         url: "http://localhost:9933",
         pallet: "ForumModule",
@@ -178,7 +172,6 @@ describe("e2e", () => {
 
 
   it("get storage maps paged", async () => {
-    // You can use the client directly
     const result = await Substrate_Module.getStorageMapPaged({
         url: "http://localhost:9933",
         pallet: "ForumModule",
