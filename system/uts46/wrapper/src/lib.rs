@@ -37,7 +37,7 @@ pub fn to_unicode(args: ArgsToUnicode) -> UnicodeResult {
     };
     match unic_idna::to_unicode(&args.value, flags) {
         (unicode, Ok(_)) => UnicodeResult { value: unicode, with_error: false },
-        (unicode, Err(e)) => UnicodeResult { value: unicode, with_error: true },
+        (unicode, Err(_e)) => UnicodeResult { value: unicode, with_error: true },
     }
 }
 

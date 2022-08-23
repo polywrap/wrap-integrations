@@ -43,7 +43,7 @@ describe("IDNA UTS #46", () => {
       });
 
       expect(response.error).toBeUndefined();
-      expect(response.data.value).toBe(expected);
+      expect(response.data?.value).toBe(expected);
     });
 
     it("Convert matches", async () => {
