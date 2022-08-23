@@ -1,14 +1,14 @@
 [package]
 name = "uts46-wasm-rs"
-version = "0.1.0"
-description = "A Polywrap Wasm wrapper for uts46 operations"
+version = "0.4.0"
+description = "A Polywrap Wasm wrapper for uts46 conversions"
 authors = ["Polywrap"]
 repository = "https://github.com/polywrap/monorepo"
 license = "MIT"
 edition = "2021"
 
 [dependencies]
-polywrap-wasm-rs = { version = "0.1.0" }
+polywrap-wasm-rs = { version = "0.4.1" }
 serde = { version = "1.0", features = ["derive"] }
 unic-idna = "0.9.0"
 regex = { version = "1.6.0", default-features = false, features=["std", "perf-dfa", "perf-inline"] }
