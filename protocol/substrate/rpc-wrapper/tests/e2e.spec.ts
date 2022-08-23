@@ -1,12 +1,11 @@
-import { Substrate_BlockOutput, 
-    Substrate_ChainMetadata, 
-    Substrate_RuntimeVersion, 
-    Substrate_AccountInfo,
-    UInt8,
-    String,
+import {
+  Substrate_Module,
+  Substrate_BlockOutput,
+  Substrate_ChainMetadata,
+  Substrate_RuntimeVersion,
+  Substrate_AccountInfo,
 } from "./wrap";
-import { InvokeResult } from "@polywrap/core-js";
-import { Uri, PolywrapClient } from "@polywrap/client-js";
+import { PolywrapClient, Uri } from "@polywrap/client-js";
 import { runCLI } from "@polywrap/test-env-js";
 import path from "path";
 
@@ -14,7 +13,7 @@ jest.setTimeout(360000);
 
 describe("e2e", () => {
   let client: PolywrapClient;
-  let uri: string;
+  const uri = new Uri("file/" + path.join(__dirname, "../build")).uri;
 
   beforeAll(async () => {
 
@@ -32,34 +31,32 @@ describe("e2e", () => {
       );
     }
 
-    uri = new Uri(`fs/${wrapperDir}/build`).uri;
     client = new PolywrapClient();
   });
 
   it("blockHash", async () => {
     // You can use the client directly
-    let result = await client.invoke({
-      uri,
-      method: "blockHash",
-        args: {
-          url: "http://localhost:9933",
-          number: 0
-        }
-    });
+    const result = await Substrate_Module.blockHash({
+        url: "http://localhost:9933",
+        number: 0
+      },
+      client,
+      uri
+    );
 
     expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
+    console.log(result.data);
   });
 
   it("retrieves genesis block parent hash is 00000", async () => {
-    const result:InvokeResult<Substrate_BlockOutput> = await client.invoke({
-      uri,
-      method: "chainGetBlock",
-        args: {
-          url: "http://localhost:9933",
-          number: 0
-        },
-    });
+    const result = await Substrate_Module.chainGetBlock({
+        url: "http://localhost:9933",
+        number: 0
+      },
+      client,
+      uri
+    );
 
     expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
@@ -72,18 +69,17 @@ describe("e2e", () => {
   });
 
   it("retrieves the chain metadata", async () => {
-    const result: InvokeResult<Substrate_ChainMetadata> = await client.invoke({
-      uri,
-      method: "chainGetMetadata",
-        args: {
-          url: "http://localhost:9933"
-        }
-    });
+    const result = await Substrate_Module.chainGetMetadata({
+        url: "http://localhost:9933"
+      },
+      client,
+      uri
+    );
 
     expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    let chainMetadata: Substrate_ChainMetadata = result.data!;
+    const chainMetadata: Substrate_ChainMetadata = result.data!;
     expect(chainMetadata.metadata).toBeTruthy();
     expect(chainMetadata.pallets).toBeTruthy();
     expect(chainMetadata.events).toBeTruthy();
@@ -92,17 +88,16 @@ describe("e2e", () => {
 
   it("state get runtime version", async () => {
     // You can use the client directly
-    const result: InvokeResult<Substrate_RuntimeVersion> = await client.invoke({
-      uri,
-      method: "getRuntimeVersion",
-        args: {
-          url: "http://localhost:9933"
-        }
-    });
+    const result = await Substrate_Module.getRuntimeVersion({
+        url: "http://localhost:9933"
+      },
+      client,
+      uri
+    );
 
     expect(result.data).toBeTruthy();
     expect(result.error).toBeFalsy();
-    let runtimeVersion: Substrate_RuntimeVersion = result.data!;
+    const runtimeVersion: Substrate_RuntimeVersion = result.data!;
     expect(runtimeVersion.spec_name).toStrictEqual("forum-node");
     expect(runtimeVersion.impl_name).toStrictEqual("forum-node");
     expect(runtimeVersion.authoring_version).toStrictEqual(1);
@@ -114,15 +109,14 @@ describe("e2e", () => {
 
   it("storage value", async () => {
     // You can use the client directly
-    const result:InvokeResult<UInt8[]> = await client.invoke({
-      uri,
-      method: "getStorageValue",
-      args: {
-          url: "http://localhost:9933",
-          pallet: "TemplateModule",
-          storage: "Something"
+    const result = await Substrate_Module.getStorageValue({
+       url: "http://localhost:9933",
+        pallet: "TemplateModule",
+        storage: "Something"
       },
-    });
+      client,
+      uri
+    );
 
     expect(result).toBeTruthy();
     expect(result.error).toBeFalsy();
@@ -131,15 +125,14 @@ describe("e2e", () => {
 
   it("return constant values", async () => {
     // You can use the client directly
-    const result:InvokeResult<UInt8[]> = await client.invoke({
-      uri,
-      method: "constant",
-      args: {
-          url: "http://localhost:9933",
-          pallet: "Balances",
-          name: "ExistentialDeposit"
+    const result = await Substrate_Module.constant({
+       url: "http://localhost:9933",
+        pallet: "Balances",
+        name: "ExistentialDeposit"
       },
-    });
+      client,
+      uri
+    );
 
     expect(result).toBeTruthy();
     expect(result.error).toBeFalsy();
@@ -153,33 +146,31 @@ describe("e2e", () => {
 
   it("rpc_methods", async () => {
     // You can use the client directly
-    const result: InvokeResult<String[]> = await client.invoke({
-      uri,
-      method: "rpcMethods",
-      args: {
-          url: "http://localhost:9933",
+    const result = await Substrate_Module.rpcMethods({
+        url: "http://localhost:9933",
       },
-    });
+      client,
+      uri
+    );
 
     expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
-    let methods = result.data!;
+    const methods = result.data!;
     //There are 85 rpc methods exposed in `examples/substrate-note-template`
     expect(methods.length).toStrictEqual(85);
   });
 
   it("get storage maps", async () => {
     // You can use the client directly
-    const result: InvokeResult<UInt8[]> = await client.invoke({
-      uri,
-      method: "getStorageMap",
-      args: {
-          url: "http://localhost:9933",
-          pallet: "ForumModule",
-          storage: "AllPosts",
-          key: "0",
+    const result = await Substrate_Module.getStorageMap({
+        url: "http://localhost:9933",
+        pallet: "ForumModule",
+        storage: "AllPosts",
+        key: "0",
       },
-    });
+      client,
+      uri
+    );
 
     expect(result.error).toBeFalsy();
     expect(result).toBeTruthy();
@@ -188,38 +179,36 @@ describe("e2e", () => {
 
   it("get storage maps paged", async () => {
     // You can use the client directly
-    const result: InvokeResult<UInt8[]> = await client.invoke({
-      uri,
-      method: "getStorageMapPaged",
-      args: {
-          url: "http://localhost:9933",
-          pallet: "ForumModule",
-          storage: "AllPosts",
-          count: 10,
-          nextTo: null,
+    const result = await Substrate_Module.getStorageMapPaged({
+        url: "http://localhost:9933",
+        pallet: "ForumModule",
+        storage: "AllPosts",
+        count: 10,
+        nextTo: null,
       },
-    });
+      client,
+      uri
+    );
 
     expect(result.error).toBeFalsy();
     expect(result).toBeTruthy();
   });
 
   it("get account info of Alice", async () => {
-    const result:InvokeResult<Substrate_AccountInfo> = await client.invoke({
-      uri,
-      method: "accountInfo",
-      args: {
-          url: "http://localhost:9933",
-          //Alice account
-          account: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+    const result = await Substrate_Module.accountInfo({
+        url: "http://localhost:9933",
+        //Alice account
+        account: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
       },
-    });
+      client,
+      uri
+    );
 
     expect(result).toBeTruthy();
     expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    let account_info: Substrate_AccountInfo = result.data!;
+    const account_info: Substrate_AccountInfo = result.data!;
     console.log("account info: ", account_info);
   });
 });
