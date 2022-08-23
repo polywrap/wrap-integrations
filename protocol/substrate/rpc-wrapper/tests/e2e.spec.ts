@@ -46,10 +46,9 @@ describe("e2e", () => {
           number: 0
         }
     });
-    
-      expect(result.error).toBeFalsy();
-      expect(result.data).toBeTruthy();
 
+    expect(result.error).toBeFalsy();
+    expect(result.data).toBeTruthy();
   });
 
   it("retrieves genesis block parent hash is 00000", async () => {
@@ -62,16 +61,14 @@ describe("e2e", () => {
         },
     });
 
+    expect(result.error).toBeFalsy();
+    expect(result.data).toBeTruthy();
+    const block: Substrate_BlockOutput = result.data!;
+    expect(block.block).toBeTruthy();
 
-      expect(result.error).toBeFalsy();
-      expect(result.data).toBeTruthy();
-      const block: Substrate_BlockOutput = result.data!;
-      expect(block.block).toBeTruthy();
-
-      const json_block = JSON.parse(block.block);
-      // The parent hash of genesis is always 00000
-      expect(json_block.block.header.parentHash).toStrictEqual("0x0000000000000000000000000000000000000000000000000000000000000000");
-
+    const json_block = JSON.parse(block.block);
+    // The parent hash of genesis is always 00000
+    expect(json_block.block.header.parentHash).toStrictEqual("0x0000000000000000000000000000000000000000000000000000000000000000");
   });
 
   it("retrieves the chain metadata", async () => {
@@ -83,14 +80,14 @@ describe("e2e", () => {
         }
     });
 
-      expect(result.error).toBeFalsy();
-      expect(result.data).toBeTruthy();
+    expect(result.error).toBeFalsy();
+    expect(result.data).toBeTruthy();
 
-      let chainMetadata: Substrate_ChainMetadata = result.data!;
-      expect(chainMetadata.metadata).toBeTruthy();
-      expect(chainMetadata.pallets).toBeTruthy();
-      expect(chainMetadata.events).toBeTruthy();
-      expect(chainMetadata.errors).toBeTruthy();
+    let chainMetadata: Substrate_ChainMetadata = result.data!;
+    expect(chainMetadata.metadata).toBeTruthy();
+    expect(chainMetadata.pallets).toBeTruthy();
+    expect(chainMetadata.events).toBeTruthy();
+    expect(chainMetadata.errors).toBeTruthy();
   });
 
   it("state get runtime version", async () => {
@@ -103,16 +100,15 @@ describe("e2e", () => {
         }
     });
 
-      console.log("runtime version: ", result);
-      expect(result.data).toBeTruthy();
-      expect(result.error).toBeFalsy();
-      let runtimeVersion: Substrate_RuntimeVersion = result.data!;
-      expect(runtimeVersion.spec_name).toStrictEqual("forum-node");
-      expect(runtimeVersion.impl_name).toStrictEqual("forum-node");
-      expect(runtimeVersion.authoring_version).toStrictEqual(1);
-      expect(runtimeVersion.spec_version).toStrictEqual(100);
-      expect(runtimeVersion.impl_version).toStrictEqual(1);
-      expect(runtimeVersion.state_version).toStrictEqual(1);
+    expect(result.data).toBeTruthy();
+    expect(result.error).toBeFalsy();
+    let runtimeVersion: Substrate_RuntimeVersion = result.data!;
+    expect(runtimeVersion.spec_name).toStrictEqual("forum-node");
+    expect(runtimeVersion.impl_name).toStrictEqual("forum-node");
+    expect(runtimeVersion.authoring_version).toStrictEqual(1);
+    expect(runtimeVersion.spec_version).toStrictEqual(100);
+    expect(runtimeVersion.impl_version).toStrictEqual(1);
+    expect(runtimeVersion.state_version).toStrictEqual(1);
   });
 
 
@@ -128,13 +124,9 @@ describe("e2e", () => {
       },
     });
 
-
-    console.log("something: ", result);
     expect(result).toBeTruthy();
-      expect(result.error).toBeFalsy();
+    expect(result.error).toBeFalsy();
     expect(result.data).toBeFalsy();
-
-
   });
 
   it("return constant values", async () => {
@@ -149,16 +141,14 @@ describe("e2e", () => {
       },
     });
 
-      console.log("existential deposit: ", result);
-      expect(result).toBeTruthy();
-      expect(result.error).toBeFalsy();
-      expect(result.data).toBeTruthy();
-      expect(result.data).toStrictEqual([
-        244, 1, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0
-      ]);
-
+    expect(result).toBeTruthy();
+    expect(result.error).toBeFalsy();
+    expect(result.data).toBeTruthy();
+    expect(result.data).toStrictEqual([
+      244, 1, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0
+    ]);
   });
 
   it("rpc_methods", async () => {
@@ -171,12 +161,11 @@ describe("e2e", () => {
       },
     });
 
-      expect(result.error).toBeFalsy();
-      expect(result.data).toBeTruthy();
-      let methods = result.data!;
-      //There are 85 rpc methods exposed in `examples/substrate-note-template`
-      expect(methods.length).toStrictEqual(85);
-
+    expect(result.error).toBeFalsy();
+    expect(result.data).toBeTruthy();
+    let methods = result.data!;
+    //There are 85 rpc methods exposed in `examples/substrate-note-template`
+    expect(methods.length).toStrictEqual(85);
   });
 
   it("get storage maps", async () => {
@@ -192,9 +181,8 @@ describe("e2e", () => {
       },
     });
 
-      expect(result.error).toBeFalsy();
-      expect(result).toBeTruthy();
-
+    expect(result.error).toBeFalsy();
+    expect(result).toBeTruthy();
   });
 
 
@@ -212,9 +200,8 @@ describe("e2e", () => {
       },
     });
 
-      expect(result.error).toBeFalsy();
-      expect(result).toBeTruthy();
-
+    expect(result.error).toBeFalsy();
+    expect(result).toBeTruthy();
   });
 
   it("get account info of Alice", async () => {
@@ -228,13 +215,11 @@ describe("e2e", () => {
       },
     });
 
-      expect(result).toBeTruthy();
-      expect(result.error).toBeFalsy();
-      expect(result.data).toBeTruthy();
+    expect(result).toBeTruthy();
+    expect(result.error).toBeFalsy();
+    expect(result.data).toBeTruthy();
 
-      let account_info: Substrate_AccountInfo = result.data!;
-      console.log("account info: ", account_info);
-
+    let account_info: Substrate_AccountInfo = result.data!;
+    console.log("account info: ", account_info);
   });
-    
 });
