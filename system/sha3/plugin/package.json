@@ -1,0 +1,48 @@
+{
+  "name": "@polywrap/sha3-plugin-js",
+  "description": "Polywrap SHA3 Javascript Plugin",
+  "version": "0.4.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/polywrap/monorepo.git"
+  },
+  "main": "build/index.js",
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "rimraf ./build && yarn codegen && tsc --project tsconfig.build.json",
+    "codegen": "polywrap plugin codegen",
+    "lint": "eslint --color -c ./.eslintrc.js src/",
+    "test": "jest --passWithNoTests --runInBand --verbose",
+    "test:ci": "jest --passWithNoTests --runInBand --verbose",
+    "test:watch": "jest --watch --passWithNoTests --verbose"
+  },
+  "dependencies": {
+    "@polywrap/core-js": "0.4.1",
+    "js-sha3": "0.8.0"
+  },
+  "devDependencies": {
+    "@polywrap/client-js":  "0.4.1",
+    "@types/jest": "26.0.8",
+    "@types/prettier": "2.6.0",
+    "@typescript-eslint/eslint-plugin": "4.11.1",
+    "@typescript-eslint/parser": "4.11.1",
+    "eslint": "7.16.0",
+    "eslint-config-prettier": "7.1.0",
+    "eslint-plugin-import": "2.22.1",
+    "eslint-plugin-prettier": "3.4.0",
+    "jest": "26.2.2",
+    "rimraf": "3.0.2",
+    "ts-jest": "26.1.4",
+    "ts-node": "8.10.2",
+    "typescript": "4.0.7",
+    "prettier": "2.2.1",
+    "polywrap": "0.4.1"
+  },
+  "gitHead": "7346adaf5adb7e6bbb70d9247583e995650d390a",
+  "publishConfig": {
+    "access": "public"
+  }
+}
