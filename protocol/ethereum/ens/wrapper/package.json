@@ -2,9 +2,10 @@
   "name": "@polywrap/ens-wrapper",
   "description": "ENS wrapper",
   "private": true,
-  "version": "0.0.1-prealpha.92",
+  "version": "0.4.0",
   "scripts": {
     "build": "npx polywrap build",
+    "codegen": "npx polywrap codegen",
     "deploy": "yarn deploy:contract && yarn deploy:polywrap",
     "deploy:polywrap": "npx polywrap deploy",
     "deploy:contract": "node ./scripts/deploy-contracts.js",
@@ -12,16 +13,16 @@
     "test:e2e": "jest --passWithNoTests --runInBand --verbose"
   },
   "dependencies": {
-    "@polywrap/wasm-as": "0.0.1-prealpha.92"
+    "@polywrap/wasm-as": "0.4.1"
   },
   "devDependencies": {
     "@types/jest": "22.2.3",
-    "polywrap": "0.0.1-prealpha.92",
-    "@polywrap/ethereum-plugin-js": "0.0.1-prealpha.92",
-    "@polywrap/ens-resolver-plugin-js": "0.0.1-prealpha.92",
-    "@polywrap/ipfs-resolver-plugin-js": "0.0.1-prealpha.92",
-    "@polywrap/ipfs-plugin-js": "0.0.1-prealpha.92",
-    "@polywrap/test-env-js": "0.0.1-prealpha.92",
+    "polywrap": "0.4.1",
+    "@polywrap/ethereum-plugin-js": "0.4.1",
+    "@polywrap/ens-resolver-plugin-js": "0.4.1",
+    "@polywrap/ipfs-resolver-plugin-js": "0.4.1",
+    "@polywrap/ipfs-plugin-js": "0.4.1",
+    "@polywrap/test-env-js": "0.4.1",
     "dotenv": "8.2.0",
     "ethers": "5.0.8",
     "jest": "27.0.6",
