@@ -11,7 +11,7 @@ import { providers } from "ethers";
 
 import { getPlugins } from "./utils";
 
-jest.setTimeout(300000);
+jest.setTimeout(900000);
 
 describe("ENS Wrapper", () => {
   // We will have two clients because we need two
