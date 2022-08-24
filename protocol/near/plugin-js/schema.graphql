@@ -36,6 +36,10 @@ type Module {
     transaction: Transaction!
   ): SignTransactionResult!
 
+  ##### TODO borsh-wrapper serialization
+  serializeTransaction(transaction: Transaction!): Bytes!
+  ######
+
   sendJsonRpc(
     method: String!
     params: JSON!

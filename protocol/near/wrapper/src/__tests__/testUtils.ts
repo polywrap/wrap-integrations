@@ -121,6 +121,7 @@ export const getPlugins = (
     plugins: [
       {
         uri: "wrap://ens/nearPlugin.polywrap.eth",
+        //@ts-ignore
         plugin: nearPlugin(nearConfig),
       },
       {

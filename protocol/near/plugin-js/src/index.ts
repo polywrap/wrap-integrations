@@ -22,6 +22,7 @@ import {
   Args_signMessage,
   Args_createTransactionWithWallet,
   Args_getPublicKey,
+  Args_serializeTransaction,
 } from "./wrap";
 import { fromAction, fromSignedTx, fromTx, toPublicKey } from "./typeMapping";
 import { parseJsonFinalExecutionOutcome } from "./jsonMapping";
@@ -277,6 +278,16 @@ export class NearPlugin extends Module<NearPluginConfig> {
     }
     return result;
   }
+  // ------------------------------ TODO borsh-wrapper serialization --------------------------
+  public serializeTransaction(
+    args: Args_serializeTransaction,
+  ): Uint8Array {
+    const { transaction } = args;
+    const tx: nearApi.transactions.Transaction = fromTx(transaction);
+    return nearApi.utils.serialize.serialize(nearApi.transactions.SCHEMA, tx);
+  }
+  //--------------------------------------------------------------------------------------------
+
 }
 
 export const nearPlugin: PluginFactory<NearPluginConfig> = (

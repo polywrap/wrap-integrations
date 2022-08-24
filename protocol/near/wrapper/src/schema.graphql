@@ -8,6 +8,23 @@ type Module {
         failureUrl: String
     ): Boolean!
 
+    ##### TODO borsh-wrapper serialization
+    serializeTransaction(
+        transaction: Near_Transaction!
+    ): Bytes!
+
+    deserializeTransaction(
+        transactionBytes: Bytes!
+    ): Near_Transaction!
+
+    testSign(
+        transaction: Near_Transaction!
+    ): SignTransactionResult!
+
+    asSerialize(transaction:Near_Transaction!): Bytes!
+    tsSerialize(transaction:Near_Transaction!): Bytes!
+    #####
+
     signOut: Boolean!
 
     isSignedIn: Boolean!
@@ -272,6 +289,13 @@ type Module {
     ): Near_FinalExecutionOutcome!
 
 }
+
+##### TODO borsh-wrapper serialization
+type SignTransactionResult {
+  hash: Bytes!
+  signedTx: Near_SignedTransaction!
+}
+##########
 
 # Based on these types from near-api-js:
 # export type Finality = 'optimistic' | 'near-final' | 'final'

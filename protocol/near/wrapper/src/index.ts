@@ -59,7 +59,14 @@ import {
   Args_functionCall,
   Args_addKey,
   Args_deleteAccount,
-  Args_status
+  Args_status,
+  SignTransactionResult,
+  Args_serializeTransaction,
+  Args_deserializeTransaction,
+  Args_asSerialize,
+  Args_tsSerialize,
+  Args_testSign,
+  Near_SignedTransaction
 } from "./wrap";
 import {
   Args_requestSignIn,
@@ -93,6 +100,8 @@ import {
   Args_sendTransaction,
   Args_sendTransactionAsync
 } from "./wrap/imported/Near_Module/serialization";
+import { Transaction } from "./classes/Transaction";
+import { BorshDeserializer, BorshSerializer } from "@serial-as/borsh";
 
 export function requestSignIn(args: Args_requestSignIn): boolean {
   return Near_Module.requestSignIn({
@@ -528,6 +537,8 @@ export function signAndSendTransaction(args: Args_signAndSendTransaction): Near_
     signerId: args.signerId,
   });
   const signedTxResult: Near_SignTransactionResult = signTransaction({ transaction: transaction });
+  //----------TODO borsh-wrapper serialization
+  //const signedTxResult: SignTransactionResult = testSign({ transaction: transaction });
   return sendTransaction({ signedTx: signedTxResult.signedTx });
 }
 
@@ -627,4 +638,71 @@ export function createAndDeployContract(args: Args_createAndDeployContract): Nea
   });
 }
 
+//----------------------------------------------TODO: borsh-wrapper-serialize ----------------------------------------------
+export function serializeTransaction(
+  args: Args_serializeTransaction
+): ArrayBuffer {
+  const transaction = new Transaction(args.transaction);
 
+  const serializer = new BorshSerializer();
+  serializer.encode_object(transaction);
+
+  return serializer.get_encoded_object();
+}
+
+export function deserializeTransaction(
+  args: Args_deserializeTransaction
+): Near_Transaction {
+  const deserializer = new BorshDeserializer(args.transactionBytes);
+
+  const decoded = deserializer.decode_object<Transaction>();
+
+  return {
+    signerId: decoded.signerId,
+    receiverId: decoded.receiverId,
+    blockHash: decoded.blockHash,
+    hash: null,
+    nonce: BigInt.from(decoded.nonce),
+    publicKey: {
+      keyType:decoded.publicKey.keyType,
+      data:decoded.publicKey.data
+    },
+    actions: decoded.actions.map<Near_Action>((action) =>
+      action.toNearAction()
+    ),
+  };
+}
+ 
+export function asSerialize(args: Args_asSerialize): ArrayBuffer {
+  return serializeTransaction({
+    transaction: args.transaction,
+  });
+}
+
+export function tsSerialize(args: Args_tsSerialize): ArrayBuffer {
+  return Near_Module.serializeTransaction({
+    transaction: args.transaction,
+  }).unwrap();
+} 
+
+
+export function testSign(args: Args_testSign): SignTransactionResult {
+  const transaction = args.transaction;
+  const message = serializeTransaction({
+    transaction: args.transaction,
+  });
+
+  //const hash = Uint8Array.from(message); =? const hash = new Uint8Array(sha256.sha256.array(message));
+
+  const signature = Near_Module.signMessage({
+    signerId: transaction.signerId,
+    message: Uint8Array.wrap(message).buffer,
+  }).unwrap();
+
+  const signedTx: Near_SignedTransaction = {
+    transaction,
+    signature,
+  };
+  return { hash: message, signedTx };
+}
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
