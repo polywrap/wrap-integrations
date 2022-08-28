@@ -10,9 +10,10 @@ import {
   Args_fetchTickList,
   Args_fetchPoolFromTokens,
   FeeAmount,
-  ERC20_Module,
   Ethereum_Module,
   Subgraph_Module,
+  Ethereum_Connection,
+  Currency,
 } from "../wrap";
 import { createPool, getPoolAddress } from "../pool";
 import { _wrapToken } from "../token";
@@ -28,36 +29,36 @@ import { BigInt, JSON } from "@polywrap/wasm-as";
 export function fetchToken(args: Args_fetchToken): Token {
   const chainId: ChainId = args.chainId;
   const address: string = args.address;
-  const symbol: string = ERC20_Module.symbol({
-    address: address,
-    connection: {
-      node: null,
-      networkNameOrChainId: getChainIdKey(chainId),
-    },
-  }).unwrap();
-  const name: string = ERC20_Module.name({
-    address: address,
-    connection: {
-      node: null,
-      networkNameOrChainId: getChainIdKey(chainId),
-    },
-  }).unwrap();
-  const decimals: i32 = ERC20_Module.decimals({
-    address: address,
-    connection: {
-      node: null,
-      networkNameOrChainId: getChainIdKey(chainId),
-    },
-  }).unwrap();
-  return {
-    chainId: chainId,
-    address: address,
-    currency: {
-      decimals: <u8>decimals,
-      symbol: symbol,
-      name: name,
-    },
+
+  const connection: Ethereum_Connection = {
+    node: null,
+    networkNameOrChainId: getChainIdKey(chainId),
   };
+
+  const name: string = Ethereum_Module.callContractView({
+    connection,
+    address,
+    method: "function name() public view returns (string memory)",
+    args: null,
+  }).unwrap();
+
+  const symbol: string = Ethereum_Module.callContractView({
+    connection,
+    address,
+    method: "function symbol() public view returns (string memory)",
+    args: null,
+  }).unwrap();
+
+  const decimalsString: string = Ethereum_Module.callContractView({
+    connection,
+    address,
+    method: "function decimals() public view returns (uint8)",
+    args: null,
+  }).unwrap();
+  const decimals: u8 = U8.parseInt(decimalsString);
+
+  const currency: Currency = { decimals, symbol, name };
+  return { chainId, address, currency };
 }
 
 /**

@@ -1,7 +1,6 @@
 #import { Module, TxResponse } into Ethereum from "wrap://ens/ethereum.polywrap.eth"
 #import { Module } into SHA3 from "wrap://ens/sha3.polywrap.eth"
-#import { Module } into ERC20 from "wrap://ipfs/Qma94j3q3tPYyLq6uiF1DN32F8AiLadM4SEy5h2K4DDB9a"
-#import { Module } into Subgraph from "wrap://ipfs/QmZMg5ojMeFunry5Rwb2XeSJbVaGohMNpLSraPDVgBDR2e"
+#import { Module } into Subgraph from "wrap://ipfs/QmUaKzKVPWdEbwWXsxaEDub1KGphVUVkjUX4UESxxN6m4M"
 
 type Module {
     """Call the approve(...) function of an ERC20 token contract on-chain, allowing the Uniswap router contract to transfer tokens"""
