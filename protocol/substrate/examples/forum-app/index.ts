@@ -3,7 +3,8 @@ import { ipfsPlugin } from "@polywrap/ipfs-plugin-js";
 import { ethereumPlugin } from "@polywrap/ethereum-plugin-js";
 import { ensResolverPlugin } from "@polywrap/ens-resolver-plugin-js";
 
-let module_uri = "wrap://ipfs/QmNdPLkAF4H36N99wfbdbvygG9gQXbp9xVDtjX81cfpAon";
+//let module_uri = "wrap://ipfs/QmNdPLkAF4H36N99wfbdbvygG9gQXbp9xVDtjX81cfpAon";
+let module_uri = "wrap://ipfs/QmQmFk4weVWuC1LFuHsZ9wpKLxLP28ydbPx4Q8FuC5mDVw";
 
 class PolywrapClientWrapper extends PolywrapClient{
     constructor() {

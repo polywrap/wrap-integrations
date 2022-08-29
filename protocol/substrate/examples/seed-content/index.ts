@@ -3,10 +3,8 @@ import { ipfsPlugin } from "@polywrap/ipfs-plugin-js";
 import { ethereumPlugin } from "@polywrap/ethereum-plugin-js";
 import { ensResolverPlugin } from "@polywrap/ens-resolver-plugin-js";
 
-
-//let module_uri = "wrap://ipfs/QmRcW1mpMD1vL9rRTFHtAng4jbMWz3ceo6JyhsoUSA2BMa";
-let module_uri = "wrap://ipfs/QmZAXrGF6exDL4rb8EKqkDd5Ds9B95Zf2fnizVccjVsaqM";
-let module_uri = "wrap://ipfs/QmNdPLkAF4H36N99wfbdbvygG9gQXbp9xVDtjX81cfpAon";
+//let module_uri = "wrap://ipfs/QmNdPLkAF4H36N99wfbdbvygG9gQXbp9xVDtjX81cfpAon";
+let module_uri = "wrap://ipfs/QmQmFk4weVWuC1LFuHsZ9wpKLxLP28ydbPx4Q8FuC5mDVw";
 
 class PolywrapClientWrapper extends PolywrapClient{
     constructor() {
@@ -33,11 +31,13 @@ class PolywrapClientWrapper extends PolywrapClient{
         });
 
         console.log("got result: ", result);
-
         return result.data;
     }
+
+
 }
 
 // attach the PolywrapClient to the window so we can access it later in the rust code
 // See `src/api.rs` this is linked into the rust code using `wasm-bindgen`.
 window.PolywrapClientWrapper = PolywrapClientWrapper;
+

@@ -1785,7 +1785,7 @@
     "@polkadot/util-crypto" "^10.1.5"
     rxjs "^7.5.6"
 
-"@polkadot/util-crypto@10.1.6", "@polkadot/util-crypto@^10.1.5":
+"@polkadot/util-crypto@10.1.6", "@polkadot/util-crypto@^10.1.5", "@polkadot/util-crypto@^10.1.6":
   version "10.1.6"
   resolved "https://registry.yarnpkg.com/@polkadot/util-crypto/-/util-crypto-10.1.6.tgz#f28bdcea6c5f732fef272928a4ba1cfc7c08e45e"
   integrity sha512-r3XWcCERomcGyB5PT7Qa1LYtCHfspVbehPGvraRlX5xhZBihpU4zMRWTSBNMPNaeIjUJmmSQHeG0ZnQVvnwzkg==

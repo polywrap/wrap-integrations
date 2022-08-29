@@ -32,3 +32,4 @@ sp-keyring = { version = "6.0.0", default-features = false, git = "https://githu
 sp-runtime = { version = "6.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.24" }
 sp-std = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.24" }
 hex = "0.4.3"
+prefix-hex = "0.4.0"
