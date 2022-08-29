@@ -32,7 +32,7 @@ export class SignerProvider {
             const { signature } = await signRaw({
                 address: account.address,
                 data: payload,
-                type: 'payload'
+                type: 'bytes'
             });
             
 
