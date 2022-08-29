@@ -3,24 +3,13 @@ use crate::{
     types::metadata::Metadata,
     utils::FromHexStr,
     wrap::{
-        imported::http_module,
-        HttpHeader,
-        HttpModule,
-        HttpRequest,
-        HttpResponse,
-        HttpResponseType,
+        imported::http_module, HttpHeader, HttpModule, HttpRequest,
+        HttpResponse, HttpResponseType,
     },
 };
 use frame_metadata::RuntimeMetadataPrefixed;
-use serde::{
-    de::DeserializeOwned,
-    Deserialize,
-    Serialize,
-};
-use sp_core::{
-    Decode,
-    H256,
-};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use sp_core::{Decode, H256};
 use sp_runtime::traits::Header;
 use sp_version::RuntimeVersion;
 
@@ -239,18 +228,18 @@ impl BaseApi {
                 }),
             });
 
+        crate::debug!("response: {:#?}", response);
+
         let response = match response {
             Ok(response) => response,
             Err(err) => return Err(Error::HttpRequestError(err)),
         };
 
         match response {
-            Some(response) => {
-                match response.body {
-                    Some(body) => Ok(serde_json::from_str(&body)?),
-                    None => Err(Error::NoResponse),
-                }
-            }
+            Some(response) => match response.body {
+                Some(body) => Ok(serde_json::from_str(&body)?),
+                None => Err(Error::NoResponse),
+            },
             None => Err(Error::NoResponse),
         }
     }
