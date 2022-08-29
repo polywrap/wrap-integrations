@@ -1,6 +1,6 @@
 #import { Module, TxResponse } into Ethereum from "wrap://ens/ethereum.polywrap.eth"
 #import { Module } into SHA3 from "wrap://ens/sha3.polywrap.eth"
-#import { Module } into Subgraph from "wrap://ipfs/QmUaKzKVPWdEbwWXsxaEDub1KGphVUVkjUX4UESxxN6m4M"
+#import { Module } into Subgraph from "wrap://ens/graph-node.polywrap.eth"
 
 type Module {
     """Call the approve(...) function of an ERC20 token contract on-chain, allowing the Uniswap router contract to transfer tokens"""

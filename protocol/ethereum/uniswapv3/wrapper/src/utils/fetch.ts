@@ -155,6 +155,12 @@ class SubgraphEndpoint {
   name: string;
 }
 
+class QueryArgs {
+  subgraphAuthor: string;
+  subgraphName: string;
+  query: string;
+}
+
 function poolAbi(methodName: string): string {
   if (methodName == "token0") {
     return "function token0() external view returns (address)";
@@ -230,7 +236,7 @@ function fetchPoolState(address: string, chainId: ChainId): PoolState {
 
 function fetchPoolTicksSubgraph(address: string, chainId: ChainId): Tick[] {
   const endpoint: SubgraphEndpoint = getSubgraphEndpoint(chainId);
-  const query: JSON.Value = Subgraph_Module.subgraphQuery({
+  const query: JSON.Obj = subgraphQuery({
     subgraphAuthor: endpoint.author,
     subgraphName: endpoint.name,
     query: `
@@ -241,8 +247,8 @@ function fetchPoolTicksSubgraph(address: string, chainId: ChainId): Tick[] {
           liquidityNet
         }
       }`,
-  }).unwrap();
-  return (<JSON.Obj>query)
+  });
+  return query
     .getArr("ticks")!
     .valueOf()
     .map<Tick>(
@@ -258,4 +264,27 @@ function fetchPoolTicksSubgraph(address: string, chainId: ChainId): Tick[] {
         };
       }
     );
+}
+
+function subgraphQuery(args: QueryArgs): JSON.Obj {
+  const response = Subgraph_Module.querySubgraph({
+    subgraphAuthor: args.subgraphAuthor,
+    subgraphName: args.subgraphName,
+    query: args.query,
+  }).unwrap();
+
+  const json = JSON.parse(response);
+
+  if (!json.isObj) {
+    throw new Error(
+      "Subgraph response is not an object.\n" +
+        `Author: ${args.subgraphAuthor}\n` +
+        `Subgraph: ${args.subgraphName}\n` +
+        `Query: ${args.query}\n` +
+        `Response: ${response}`
+    );
+  }
+
+  const obj = json as JSON.Obj;
+  return obj.valueOf().get("data") as JSON.Obj;
 }
