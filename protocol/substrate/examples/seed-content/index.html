@@ -10,8 +10,11 @@
     <body>
     <script type=module>
         import init,{entry_point} from "./pkg/seed_content.js"
+        import "./signer.js";
+
         await init().catch(console.err);
         await entry_point().catch(console.err);
+
     </script>
     </body>
 </html>

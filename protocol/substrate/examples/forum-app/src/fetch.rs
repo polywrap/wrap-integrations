@@ -37,7 +37,9 @@ use sp_runtime::{
     MultiSignature,
     MultiSigner,
 };
+use sp_core::sr25519::Signature;
 use std::fmt;
+use sp_runtime::traits::Verify;
 
 const FORUM_MODULE: &str = "ForumModule";
 const ALL_POSTS: &str = "AllPosts";
@@ -363,23 +365,84 @@ pub async fn send_reward(
     let balance_transfer_call_index: [u8; 2] =
         pallet_call_index(api, "Balances", "transfer").await?;
 
-    let dest: MultiAddress<AccountId32, ()> = MultiAddress::Id(to.clone());
-
     // we use alice for now, for simplicity
     let signer: sp_core::sr25519::Pair = AccountKeyring::Alice.pair();
     let signer_account = AccountId32::from(signer.public());
-    log::info!("getting nonce...");
     let nonce = get_nonce_for_account(api, &signer_account)
         .await?
         .expect("must have a nonce");
-    log::info!("nonce: {:?}", nonce);
 
     let (payload, extra) =
         compose_balance_transfer(api, nonce, &to, amount, tip).await?;
-    log::info!("got payload: {:?}", payload);
-    log::info!("got extra: {:?}", extra);
-    let signature = signer.sign(&payload);
-    log::info!("got signature: {:?}", signature);
+    let signature: Signature = signer.sign(&payload);
+
+    let multi_signature: MultiSignature = signature.into();
+    assert!(multi_signature.verify(payload.as_slice(), &signer_account));
+
+    let tx_hash = submit_signed_balance_call(
+        api,
+        &signer_account,
+        to.clone(),
+        amount,
+        extra,
+        multi_signature,
+    )
+    .await?;
+    log::info!("submitted with tx_hash: {:?}", tx_hash);
+    log::debug!("Sent some coins to with a tx_hash: {:?}", tx_hash);
+
+    // Note: This is a demonstration to show the polkadot js extension
+    // warning, but the hiccup is that the signature isn't valid
+    // on the rust side using the substrate library.
+    let _ = send_reward_via_ext(api, to, amount, tip).await?;
+    Ok(tx_hash)
+}
+
+
+/// send some certain amount to this user
+pub async fn send_reward_via_ext(
+    api: &Api,
+    to: AccountId32,
+    amount: u128,
+    tip: Option<u128>,
+) -> Result<Option<H256>, Error> {
+    let balance_transfer_call_index: [u8; 2] =
+        pallet_call_index(api, "Balances", "transfer").await?;
+
+    //  le_invoker",
+    let address0 = "5ECSKL7exvngJJNoFjvbZh6xREs9cT2nYw1J43aJFuwCTneD";
+    //  "Socialee",
+    let address1 = "5CdKJEHcseY2FhCp2CiLCSimBm1bvdSCFzK58CvJ8sxZ68CH";
+    // "le_stash",
+    let address3 = "5CcsDdTtRP2WRFwZJ9UBh2dnpzHczmFQh3fKpQAfYx7doBJq";
+
+    let signer_account = AccountId32::from_ss58check(address0).expect("must be address");
+
+    let nonce = get_nonce_for_account(api, &signer_account)
+        .await?
+        .expect("must have a nonce");
+
+    let (payload, extra) =
+        compose_balance_transfer(api, nonce, &to, amount, tip).await?;
+
+    let signature: Signature  = api.sign_payload(&payload).await?;
+
+    log::info!("rust verifying signature");
+    log::info!("rust payload: {:?}", payload.as_slice());
+    log::info!("rust signature: {:?}", signature);
+    log::info!("rust signature in bytes: {:?}", signature.0);
+    log::info!("rust signer account: {:?}", signer_account);
+    log::info!("rust signer account address: {:?}", signer_account.to_ss58check());
+
+    let public: sp_core::sr25519::Public = sp_core::sr25519::Public::try_from(signer_account.as_ref()).expect("must not error");
+    log::info!("rust public account: {:?}", public);
+
+    let is_valid1 = signature.verify(payload.as_slice(), &public);
+    log::info!("rust signature is valid1: {}", is_valid1);
+
+    let multi_signature: MultiSignature = signature.into();
+    let is_valid = multi_signature.verify(payload.as_slice(), &signer_account);
+    log::info!("rust payload signature is valid: {}", is_valid);
 
     let tx_hash = submit_signed_balance_call(
         api,
@@ -387,10 +450,9 @@ pub async fn send_reward(
         to,
         amount,
         extra,
-        signature.into(),
+        multi_signature,
     )
     .await?;
-    log::info!("submitted with tx_hash: {:?}", tx_hash);
     log::debug!("Sent some coins to with a tx_hash: {:?}", tx_hash);
     Ok(tx_hash)
 }
