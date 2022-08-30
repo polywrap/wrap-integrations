@@ -1,0 +1,9 @@
+format: 0.2.0
+project:
+  name: typescript-type-generation
+  type: app/typescript
+source:
+  schema: ./schema.graphql
+  import_abis:
+  - uri: "wrap://ens/uts46-lite.polywrap.eth"
+    abi: "../../../build/wrap.info"

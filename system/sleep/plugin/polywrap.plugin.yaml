@@ -1,0 +1,8 @@
+format: 0.1.0
+name: sleep-plugin
+language: plugin/typescript
+schema: ./src/schema.graphql
+module: ./src/index.ts
+import_redirects:
+  - uri: wrap://ens/goerli/interface.sleep.polywrap.eth
+    schema: ../interface/build/schema.graphql

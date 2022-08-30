@@ -1,5 +1,5 @@
 # Near JavaScript Plugin (Limited)
-A plugin to support the Near polywrapper. The Near wrapper depends on the Near JavaScript plugin. Both the plugin and wrapper are limited (i.e. not fully-featured) implementations. Check out the [full Near wrapper specification](./../Near%20Polywrapper%20Specification.md) for more information.
+A plugin to support the Near polywrapper. The Near wrapper depends on the Near JavaScript plugin. Both the plugin and wrapper are limited (i.e. not fully-featured) implementations.
 
 # Installation
 
@@ -42,4 +42,4 @@ client = new Web3ApiClient({
 
 ```
 
-Now you're ready to make queries to the [Near wrapper](./../wrapper).
+Now you're ready to make queries to the Near wrapper.

@@ -1,0 +1,4 @@
+type Module {
+    """ Pauses thread (i.e. awaits) for given number of milliseconds"""
+    sleep(ms: UInt!): Boolean
+}

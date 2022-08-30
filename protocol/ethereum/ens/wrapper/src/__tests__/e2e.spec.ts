@@ -3,7 +3,7 @@ import {
   initTestEnvironment,
   stopTestEnvironment,
   providers as testEnvProviders,
-  ensAddresses,
+  ensAddresses, buildWrapper
 } from "@polywrap/test-env-js";
 import { PolywrapClient } from "@polywrap/client-js";
 import path from "path";
@@ -11,7 +11,7 @@ import { providers } from "ethers";
 
 import { getPlugins } from "./utils";
 
-jest.setTimeout(300000);
+jest.setTimeout(900000);
 
 describe("ENS Wrapper", () => {
   // We will have two clients because we need two
@@ -60,9 +60,29 @@ describe("ENS Wrapper", () => {
     resolverAddress = ensAddresses.resolverAddress;
     reverseRegistryAddress = ensAddresses.reverseAddress;
 
+    // build sha3 wrapper
+    const sha3Path = path.resolve(path.join(__dirname, "../../../../../../system/sha3/wrapper"));
+    await buildWrapper(sha3Path);
+    const sha3Uri = `wrap://fs/${sha3Path}/build`;
+
+    // build uts46 wrapper
+    const uts46Path = path.resolve(path.join(__dirname, "../../../../../../system/uts46-lite/wrapper"));
+    await buildWrapper(uts46Path);
+    const uts46Uri = `wrap://fs/${uts46Path}/build`;
+
     // get client
     const plugins = getPlugins(testEnvProviders.ethereum, testEnvProviders.ipfs, ensAddresses.ensAddress);
-    ownerClient = new PolywrapClient({ plugins });
+    const redirects = [
+      {
+        from: "wrap://ens/uts46.polywrap.eth",
+        to: uts46Uri
+      },
+      {
+        from: "wrap://ens/sha3.polywrap.eth",
+        to: sha3Uri
+      }
+    ];
+    ownerClient = new PolywrapClient({ plugins, redirects });
 
     const anotherOwnerRedirects = getPlugins(
       testEnvProviders.ethereum, 
@@ -70,7 +90,7 @@ describe("ENS Wrapper", () => {
       ensAddresses.ensAddress, 
       anotherOwner
     );
-    anotherOwnerClient = new PolywrapClient({ plugins: anotherOwnerRedirects });
+    anotherOwnerClient = new PolywrapClient({ plugins: anotherOwnerRedirects, redirects });
   });
 
   afterAll(async () => {
@@ -95,8 +115,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(registerData).toBeDefined();
     expect(registerError).toBeUndefined();
+    expect(registerData).toBeDefined();
   });
 
   it("should set and get resolver", async () => {
@@ -117,8 +137,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(setResolverData).toBeDefined();
     expect(setResolverError).toBeUndefined();
+    expect(setResolverData).toBeDefined();
 
     const {
       data: getResolverData,
@@ -135,8 +155,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(getResolverData).toEqual(resolverAddress);
     expect(getResolverError).toBeUndefined();
+    expect(getResolverData).toEqual(resolverAddress);
   });
 
   it("should set owner of subdomain and fetch it", async () => {
@@ -158,8 +178,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(setSubdomainOwnerData).toBeDefined();
     expect(setSubdomainError).toBeUndefined();
+    expect(setSubdomainOwnerData).toBeDefined();
 
     const {
       data: getOwnerData,
@@ -176,8 +196,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(getOwnerData).toBeDefined();
     expect(getOwnerError).toBeUndefined();
+    expect(getOwnerData).toBeDefined();
   });
 
   it("should register domain with subdomains recursively and fetch it", async () => {
@@ -202,8 +222,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(registerDomainAndSubdomainsRecursivelyData).toBeDefined();
     expect(registerDomainAndSubdomainsRecursivelyError).toBeUndefined();
+    expect(registerDomainAndSubdomainsRecursivelyData).toBeDefined();
     
     const resultingRegistrations = registerDomainAndSubdomainsRecursivelyData as any[];
 
@@ -258,8 +278,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(domainWithNoSubdomainData).toBeDefined();
     expect(domainWithNoSubdomainError).toBeUndefined();
+    expect(domainWithNoSubdomainData).toBeDefined();
     
     const domainWithNoSubdomainRegistrations = domainWithNoSubdomainData as any[];
 
@@ -335,8 +355,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(registerDomainAndSubdomainsRecursivelyData).toBeDefined();
     expect(registerDomainAndSubdomainsRecursivelyError).toBeUndefined();
+    expect(registerDomainAndSubdomainsRecursivelyData).toBeDefined();
     
     const resultingRegistrations = registerDomainAndSubdomainsRecursivelyData as any[];
 
@@ -364,8 +384,8 @@ describe("ENS Wrapper", () => {
       },
     });
 
-    expect(getOwnerData).toBeDefined();
     expect(getOwnerError).toBeUndefined();
+    expect(getOwnerData).toBeDefined();
     expect(getOwnerData).toBe(owner);
   });
 
@@ -406,8 +426,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(registerSubdomainsRecursivelyData).toBeDefined();
     expect(registerSubdomainsRecursivelyError).toBeUndefined();
+    expect(registerSubdomainsRecursivelyData).toBeDefined();
     
     const resultingRegistrations = registerSubdomainsRecursivelyData as any[];
 
@@ -433,8 +453,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(getOwnerData).toBeDefined();
     expect(getOwnerError).toBeUndefined();
+    expect(getOwnerData).toBeDefined();
     expect(getOwnerData).toBe(owner);
   });
 
@@ -458,8 +478,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(setSubdomainRecordData).toBeDefined();
     expect(setSubdomainRecordError).toBeUndefined();
+    expect(setSubdomainRecordData).toBeDefined();
 
     const {
       data: getOwnerData,
@@ -475,8 +495,8 @@ describe("ENS Wrapper", () => {
         }
       }
     });
-    expect(getOwnerData).toEqual(anotherOwner);
     expect(getOwnerError).toBeUndefined();
+    expect(getOwnerData).toEqual(anotherOwner);
   });
 
   it("should update and fetch owner", async () => {
@@ -495,8 +515,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(getOldOwnerData).toEqual(anotherOwner);
     expect(getOldOwnerError).toBeUndefined();
+    expect(getOldOwnerData).toEqual(anotherOwner);
 
     const {
       data: setOwnerData,
@@ -514,8 +534,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(setOwnerData).toBeDefined();
     expect(setOwnerError).toBeUndefined();
+    expect(setOwnerData).toBeDefined();
 
     const {
       data: getNewOwnerData,
@@ -532,8 +552,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(getNewOwnerData).toEqual(owner);
     expect(getNewOwnerError).toBeUndefined();
+    expect(getNewOwnerData).toEqual(owner);
   });
 
   it("should set content hash and fetch it", async () => {
@@ -555,8 +575,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(setContentHashData).toBeDefined();
     expect(setContentHashError).toBeUndefined();
+    expect(setContentHashData).toBeDefined();
 
     const {
       data: getContentHashData,
@@ -573,8 +593,8 @@ describe("ENS Wrapper", () => {
       },
     });
 
-    expect(getContentHashData).toEqual(cid);
     expect(getContentHashError).toBeUndefined();
+    expect(getContentHashData).toEqual(cid);
 
     const {
       data: getContentHashFromDomainData,
@@ -591,8 +611,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(getContentHashFromDomainData).toEqual(cid);
     expect(getContentHashFromDomainError).toBeUndefined();
+    expect(getContentHashFromDomainData).toEqual(cid);
   });
 
   it("should set address and fetch it", async () => {
@@ -612,8 +632,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(setAddressData).toBeDefined();
     expect(setAddressError).toBeUndefined();
+    expect(setAddressData).toBeDefined();
 
     const {
       data: getAddressData,
@@ -630,8 +650,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(getAddressData).toEqual(anotherOwner);
     expect(getAddressError).toBeUndefined();
+    expect(getAddressData).toEqual(anotherOwner);
 
     const {
       data: getAddressFromDomainData,
@@ -648,10 +668,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(getAddressFromDomainData).toEqual(
-      anotherOwner
-    );
     expect(getAddressFromDomainError).toBeUndefined();
+    expect(getAddressFromDomainData).toEqual(anotherOwner);
   });
 
   it("should set reverse registry", async () => {
@@ -671,8 +689,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(reverseRegistryData).toBeDefined();
     expect(reverseRegistryError).toBeUndefined();
+    expect(reverseRegistryData).toBeDefined();
   });
 
   it("should fetch name based on address from registry and resolver", async () => {
@@ -691,8 +709,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(getNameFromAddressData).toEqual(customTld);
     expect(getNameFromAddressError).toBeUndefined();
+    expect(getNameFromAddressData).toEqual(customTld);
 
     const {
       data: getNameFromReverseResolverData,
@@ -709,10 +727,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(getNameFromReverseResolverData).toEqual(
-      customTld
-    );
     expect(getNameFromReverseResolverError).toBeUndefined();
+    expect(getNameFromReverseResolverData).toEqual(customTld);
   });
 
   it("should set and get text record from subdomain", async () => {
@@ -736,8 +752,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(setTextRecordData).toBeDefined();
     expect(setTextRecordError).toBeUndefined();
+    expect(setTextRecordData).toBeDefined();
 
     const {
       data: getTextRecordData,
@@ -755,8 +771,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(getTextRecordData).toEqual(value);
     expect(getTextRecordError).toBeUndefined();
+    expect(getTextRecordData).toEqual(value);
   });
 
   it("should configure open domain", async () => {
@@ -781,8 +797,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(configureOpenDomainData).toBeDefined();
     expect(configureOpenDomainError).toBeUndefined();
+    expect(configureOpenDomainData).toBeDefined();
 
     const { data: getOwnerData } = await ownerClient.invoke({
       uri: ensUri,
@@ -823,10 +839,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(
-      createSubdomainInOpenDomainData
-    ).toBeDefined();
     expect(createSubdomainInOpenDomainError).toBeUndefined();
+    expect(createSubdomainInOpenDomainData).toBeDefined();
   });
 
   it("should create subdomain in open domain and set content hash", async () => {
@@ -852,10 +866,8 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(
-      createSubdomainInOpenDomainAndSetContentHashData
-    ).toBeDefined();
     expect(createSubdomainInOpenDomainAndSetContentHashError).toBeUndefined();
+    expect(createSubdomainInOpenDomainAndSetContentHashData).toBeDefined();
 
     const {
       data: getContentHashFromDomainData,
@@ -872,7 +884,7 @@ describe("ENS Wrapper", () => {
       }
     });
 
-    expect(getContentHashFromDomainData).toEqual(cid);
     expect(getContentHashFromDomainError).toBeUndefined();
+    expect(getContentHashFromDomainData).toEqual(cid);
   });
 });

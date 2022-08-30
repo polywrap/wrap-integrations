@@ -25,7 +25,7 @@ export function getPlugins(
     },
     {
       uri: "ens/ipfs-resolver.polywrap.eth",
-      plugin: ipfsResolverPlugin({ provider: ipfs }),
+      plugin: ipfsResolverPlugin({}),
     },
     {
       uri: "ens/ipfs.polywrap.eth",
