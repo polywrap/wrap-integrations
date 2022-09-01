@@ -2,36 +2,27 @@
 import {
   manifest,
   Module,
-  Transaction,
-  SignedTransaction,
   Signature,
-  SignTransactionResult,
-  FinalExecutionOutcome,
   PublicKey,
-  Json,
   Args_requestSignIn,
-  Args_sendJsonRpc,
   Args_getAccountId,
-  Args_sendTransactionAsync,
   Args_createKey,
   Args_requestSignTransactions,
-  Args_signTransaction,
   Args_isSignedIn,
   Args_signOut,
-  Args_sendTransaction,
   Args_signMessage,
   Args_createTransactionWithWallet,
   Args_getPublicKey,
   Args_serializeTransaction,
+  Near_Transaction,
+  ConnectionConfig,
 } from "./wrap";
-import { fromAction, fromSignedTx, fromTx, toPublicKey } from "./typeMapping";
-import { parseJsonFinalExecutionOutcome } from "./jsonMapping";
-import { JsonFinalExecutionOutcome } from "./jsonTypes";
+import { fromAction, fromTx, toPublicKey } from "./typeMapping";
 
 import { ConnectConfig } from "near-api-js";
 import { PluginFactory, PluginPackageManifest } from "@polywrap/core-js";
 import * as nearApi from "near-api-js";
-import sha256 from "js-sha256";
+//import sha256 from "js-sha256";
 
 export { keyStores as KeyStores, KeyPair } from "near-api-js";
 
@@ -42,7 +33,7 @@ export interface NearPluginConfig
 export class NearPlugin extends Module<NearPluginConfig> {
   private near: nearApi.Near;
   private wallet?: nearApi.WalletConnection;
-  private _nextId = 123;
+  //private _nextId = 123;
 
   constructor(private _nearConfig: NearPluginConfig) {
     super(_nearConfig);
@@ -67,6 +58,10 @@ export class NearPlugin extends Module<NearPluginConfig> {
       failureUrl: failureUrl ?? undefined,
     });
     return true;
+  }
+
+  public getConfig(): ConnectionConfig {
+    return { nodeUrl: this.config.nodeUrl };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -102,7 +97,7 @@ export class NearPlugin extends Module<NearPluginConfig> {
 
   public async createTransactionWithWallet(
     args: Args_createTransactionWithWallet
-  ): Promise<Transaction> {
+  ): Promise<Near_Transaction> {
     const { receiverId, actions } = args;
     if (!this.wallet || !this.wallet.isSignedIn()) {
       throw Error(
@@ -149,31 +144,6 @@ export class NearPlugin extends Module<NearPluginConfig> {
     };
   }
 
-  public async signTransaction(
-    args: Args_signTransaction
-  ): Promise<SignTransactionResult> {
-    const { transaction } = args;
-    const tx: nearApi.transactions.Transaction = fromTx(transaction);
-    const message = nearApi.utils.serialize.serialize(
-      nearApi.transactions.SCHEMA,
-      tx
-    );
-    const hash = new Uint8Array(sha256.sha256.array(message));
-    const { signature: data } = await this.near.connection.signer.signMessage(
-      message,
-      transaction.signerId,
-      this.near.connection.networkId
-    );
-    const signedTx: SignedTransaction = {
-      transaction,
-      signature: {
-        keyType: transaction.publicKey.keyType,
-        data,
-      },
-    };
-    return { hash, signedTx };
-  }
-
   public async createKey(args: Args_createKey): Promise<PublicKey> {
     const { networkId, accountId } = args;
     const keyPair = await this._nearConfig.keyStore!.getKey(
@@ -182,13 +152,6 @@ export class NearPlugin extends Module<NearPluginConfig> {
     );
     await this._nearConfig.keyStore!.setKey(networkId, accountId, keyPair);
     return toPublicKey(keyPair.getPublicKey());
-  }
-
-  public async sendJsonRpc(args: Args_sendJsonRpc): Promise<Json> {
-    const method = args.method;
-    const params = JSON.parse(args.params);
-    const result = await this._sendJsonRpc({ method, params });
-    return JSON.stringify(result);
   }
 
   public async requestSignTransactions(
@@ -205,6 +168,7 @@ export class NearPlugin extends Module<NearPluginConfig> {
     });
     return true;
   }
+
   public async signMessage(args: Args_signMessage): Promise<Signature> {
     const { message, signerId } = args;
     const {
@@ -222,31 +186,6 @@ export class NearPlugin extends Module<NearPluginConfig> {
     };
   }
 
-  public async sendTransaction(
-    args: Args_sendTransaction
-  ): Promise<FinalExecutionOutcome> {
-    const { signedTx } = args;
-    const nearSignedTx = fromSignedTx(signedTx);
-    const bytes = nearSignedTx.encode();
-    const outcome = await this._sendJsonRpc<JsonFinalExecutionOutcome>({
-      method: "broadcast_tx_commit",
-      params: [Buffer.from(bytes).toString("base64")],
-    });
-    return parseJsonFinalExecutionOutcome(outcome);
-  }
-
-  public async sendTransactionAsync(
-    args: Args_sendTransactionAsync
-  ): Promise<string> {
-    const { signedTx } = args;
-    const nearSignedTx = fromSignedTx(signedTx);
-    const bytes = nearSignedTx.encode();
-    return this._sendJsonRpc<string>({
-      method: "broadcast_tx_async",
-      params: [Buffer.from(bytes).toString("base64")],
-    });
-  }
-
   private async connect(): Promise<boolean> {
     this.near = new nearApi.Near(this._nearConfig);
     if (typeof window !== "undefined") {
@@ -255,33 +194,8 @@ export class NearPlugin extends Module<NearPluginConfig> {
     return true;
   }
 
-  private async _sendJsonRpc<T>(args: {
-    method: string;
-    params: unknown;
-  }): Promise<T> {
-    const { method, params } = args;
-    const request = {
-      method,
-      params: params,
-      id: this._nextId++,
-      jsonrpc: "2.0",
-    };
-    const { result, error } = await nearApi.utils.web.fetchJson(
-      this._nearConfig.nodeUrl,
-      JSON.stringify(request)
-    );
-    if (error) {
-      throw Error(`[${error.code}] ${error.message}: ${error.data}`);
-    }
-    if (!result) {
-      throw Error(`Exceeded attempts for request to ${method}.`);
-    }
-    return result;
-  }
-  // ------------------------------ TODO borsh-wrapper serialization --------------------------
-  public serializeTransaction(
-    args: Args_serializeTransaction,
-  ): Uint8Array {
+  // ------------------------------ For testing purposes ---------------------------------------
+  public serializeTransaction(args: Args_serializeTransaction): Uint8Array {
     const { transaction } = args;
     const tx: nearApi.transactions.Transaction = fromTx(transaction);
     return nearApi.utils.serialize.serialize(nearApi.transactions.SCHEMA, tx);

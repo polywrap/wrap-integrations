@@ -1,9 +1,9 @@
-import {
-  FinalExecutionOutcome,
-  //SignTransactionResult,
-  //Transaction,
-  Action,
-} from "../tsTypes";
+//import {
+//FinalExecutionOutcome,
+//SignTransactionResult,
+//Transaction,
+//Action,
+//} from "../tsTypes";
 import * as testUtils from "../testUtils";
 import { NearPluginConfig } from "../../../../plugin-js/build";
 
@@ -15,6 +15,10 @@ import {
   providers,
   stopTestEnvironment,
 } from "@polywrap/test-env-js";
+import {
+  //AccessKeyInfo, Near_PublicKey,
+  Transaction,
+} from "../../wrap";
 
 jest.setTimeout(360000);
 
@@ -27,7 +31,7 @@ describe("Amount format", () => {
   let workingAccount: nearApi.Account;
   let contractId: string;
 
-  const prepActions = (): Action[] => {
+  /*   const prepActions = (): Action[] => {
     return [
       {
         methodName: "setValue",
@@ -47,7 +51,7 @@ describe("Amount format", () => {
       },
       //{},
     ];
-  };
+  }; */
 
   beforeAll(async () => {
     // set up test env and deploy api
@@ -71,8 +75,8 @@ describe("Amount format", () => {
     workingAccount = await testUtils.createAccount(near);
     await testUtils.deployContract(workingAccount, contractId);
   });
-
-  /*   async function getPkey(): Promise<Near_PublicKey> {
+  /* 
+  async function getPkey(): Promise<Near_PublicKey> {
     const { data } = await client.invoke<Near_PublicKey>({
       uri: apiUri,
       method: "getPublicKey",
@@ -81,8 +85,18 @@ describe("Amount format", () => {
       },
     });
     return data!;
-  } */
-
+  }
+  async function getAccessKey(): Promise<AccessKeyInfo> {
+    const { data } = await client.invoke<AccessKeyInfo>({
+      uri: apiUri,
+      method: "findAccessKey",
+      args: {
+        accountId: workingAccount.accountId,
+      },
+    });
+    return data!
+  }
+ */
   afterAll(async () => {
     await stopTestEnvironment();
   });
@@ -140,7 +154,7 @@ describe("Amount format", () => {
     expect(signedTx?.signature.data).toBeTruthy();
   });
  */
-  test("Should create, sign, send, and await mining of a transaction without wallet", async () => {
+  /* test("Should create, sign, send, and await mining of a transaction without wallet", async () => {
     const actions: Action[] = prepActions();
     const result = await client.invoke<FinalExecutionOutcome>({
       uri: apiUri,
@@ -151,12 +165,12 @@ describe("Amount format", () => {
         signerId: workingAccount.accountId,
       },
     });
+    console.log("RESULT", result.data);
     expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    console.log("RESULT", result.data);
     const status = result.data?.status;
-    expect(status?.SuccessValue).toBeTruthy();
+    //expect(status?.SuccessValue).toBeTruthy();
     expect(status?.failure).toBeFalsy();
     const txOutcome = result.data?.transaction_outcome;
     expect(txOutcome?.id).toBeTruthy();
@@ -164,46 +178,57 @@ describe("Amount format", () => {
     expect(txOutcome?.outcome.status.failure).toBeFalsy();
     const receiptsOutcome = result.data?.receipts_outcome;
     expect(receiptsOutcome?.length).toBeGreaterThan(0);
-  });
+  }); */
 
-  /* test("should serialize equally", async () => {
-    const publicKey = await getPkey();
+  test("should serialize equally", async () => {
+    //const publicKey = await getPkey();
+    //const { accessKey } = await getAccessKey();
+
+    //console.log("pkl", publicKey);
+    //console.log('accessKey', accessKey);
 
     const tx = await client.invoke<Transaction>({
       uri: apiUri,
       method: "createTransaction",
       args: {
+        signerId: workingAccount.accountId,
         receiverId: contractId,
         actions: [
-          {}, //createAccount
+          //{ publicKey: publicKey, accessKey: accessKey }, // addKey (fullAccess)
+          //{ publicKey: publicKey, accessKey: accessKey }, // addKey (functionCallAccessKey)
+          //{}, //createAccount
 
-          { code: Uint8Array.from([1, 4, 6, 8]) }, //deployContract
+          //{ code: Uint8Array.from([1, 4, 6, 8]) }, //deployContract
 
-          {
+          /* {
             methodName: "hello",
             args: Uint8Array.from([1, 4, 6, 8]),
             gas: "249",
             deposit: "256",
-          }, //functionCall
+          }, */ //functionCall
 
-          { deposit: "255" }, //TODO: u128 support; testValue = 340282366920938463463374607431768211454 //transfer
+          //{ deposit: "9891336751524540000000" }, //TODO: u128 support; testValue = 340282366920938463463374607431768211454 //transfer   // 9891336751524540000000
 
-          {
+          /* {
             stake: "254",
             publicKey: publicKey,
-          }, //stake
+          }, //stake */
 
-          { publicKey }, //deleteKey
+          //{ publicKey }, //deleteKey
 
-          { beneficiaryId: workingAccount.accountId }, // deleteAccount
+          //{ beneficiaryId: workingAccount.accountId }, // deleteAccount */
         ],
-        signerId: workingAccount.accountId,
       },
     });
 
     const transaction = tx.data;
 
-    const { data: tsSerialize } = await client.invoke<Uint8Array>({
+    console.log("createdTx", transaction);
+
+    const {
+      data: tsSerialize,
+      error: errorTs,
+    } = await client.invoke<Uint8Array>({
       uri: apiUri,
       method: "tsSerialize",
       args: {
@@ -221,7 +246,9 @@ describe("Amount format", () => {
 
     const toActions = 161;
 
+    //const toPk = toActions + 36;
     error && console.log(error);
+    errorTs && console.log("errorTs", errorTs);
 
     console.log("tsSerialize-arr", tsSerialize?.slice(toActions));
     console.log("asSerialize-arr", asSerialize?.slice(toActions));
@@ -231,5 +258,5 @@ describe("Amount format", () => {
     //console.log("tsSerialize-buffer", tsSerialize!.buffer);
     //@ts-ignore
     // console.log("asSerialize-buffer", asSerialize!.buffer);
-  }); */
+  });
 });

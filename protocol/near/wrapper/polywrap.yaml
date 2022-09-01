@@ -8,3 +8,5 @@ module: ./src/index.ts
 import_redirects:
   - uri: wrap://ens/nearPlugin.polywrap.eth
     schema: ../plugin-js/build/schema.graphql
+  - uri: wrap://ens/borsh.polywrap.eth
+    schema: ../borsh-wrapper/build/schema.graphql

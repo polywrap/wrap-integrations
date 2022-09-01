@@ -2,9 +2,11 @@ import {
   AccessKeyWithPublicKey,
   BlockReference,
   BlockResult,
+  HTTP_Module,
+  HTTP_ResponseType,
   LightClientProofRequest,
   NearProtocolConfig,
-  Near_Module
+  Near_Module,
 } from "../wrap";
 import { JSON, JSONEncoder } from "@polywrap/wasm-as";
 import {
@@ -22,12 +24,13 @@ import {
 export default class JsonRpcProvider {
   /** @hidden */
   readonly url: string | null;
-
+  private id: number;
   /**
    * @param url RPC API endpoint URL
    */
   constructor(url: string | null) {
     this.url = url;
+    this.id = 1;
   }
 
   /**
@@ -52,7 +55,11 @@ export default class JsonRpcProvider {
    */
 
   protocolConfig(
-    protocolQuery: BlockReference = { finality: "final", block_id: null, syncCheckpoint: null }
+    protocolQuery: BlockReference = {
+      finality: "final",
+      block_id: null,
+      syncCheckpoint: null,
+    }
   ): NearProtocolConfig {
     const params: JSON.Obj = fromBlockReference(protocolQuery);
     const json = this.sendJsonRpc("EXPERIMENTAL_protocol_config", params);
@@ -66,7 +73,46 @@ export default class JsonRpcProvider {
    * @param params Parameters to the method
    */
   sendJsonRpc(method: string, params: JSON.Value): JSON.Obj {
-    return Near_Module.sendJsonRpc({ method, params }).unwrap() as JSON.Obj;
+    let url: string = "";
+    if (this.url != null) {
+      url = this.url!;
+    } else {
+      url = Near_Module.getConfig({}).unwrap().nodeUrl;
+    }
+
+    const response = HTTP_Module.post({
+      url: url,
+      request: {
+        headers: [
+          {
+            key: "Content-Type",
+            value: "application/json",
+          },
+        ],
+        responseType: HTTP_ResponseType.TEXT,
+        urlParams: null,
+        body: `{"jsonrpc":"2.0", "id":${<u16>(
+          this.id
+        )}, "method": "${method}", "params": ${params.stringify()}}`,
+      },
+    }).unwrap();
+    this.id++;
+
+    if (!response || response.status !== 200 || !response.body) {
+      const errorMsg =
+        response && response.statusText
+          ? (response.statusText as string)
+          : "An error occurred while fetching data from Avalanche API";
+      throw new Error(errorMsg);
+    }
+
+    const data = <JSON.Obj>JSON.parse(response.body);
+    const result = data.getObj("result");
+    if (!result) {
+      throw new Error("Result field is empty");
+    }
+
+    return result;
   }
 
   /**
@@ -79,7 +125,11 @@ export default class JsonRpcProvider {
    * @returns {Promise<any>}
    */
 
-  viewFunction(contractId: string, methodName: string, args: JSON.Value): JSON.Obj {
+  viewFunction(
+    contractId: string,
+    methodName: string,
+    args: JSON.Value
+  ): JSON.Obj {
     const params: JSON.Obj = fromViewFunction(contractId, methodName, args);
     return this.sendJsonRpc("query", params);
   }
@@ -133,7 +183,10 @@ export default class JsonRpcProvider {
     return this.sendJsonRpc("gas_price", params);
   }
 
-  accessKeyChanges(account_ids: string[], blockQuery: BlockReference): JSON.Obj {
+  accessKeyChanges(
+    account_ids: string[],
+    blockQuery: BlockReference
+  ): JSON.Obj {
     const encoder = new JSONEncoder();
     encoder.pushObject(null);
     encoder.setString("changes_type", "all_access_key_changes");
@@ -175,7 +228,11 @@ export default class JsonRpcProvider {
     return this.sendJsonRpc("EXPERIMENTAL_changes", params);
   }
 
-  contractStateChanges(account_ids: string[], blockQuery: BlockReference, keyPrefix: string): JSON.Obj {
+  contractStateChanges(
+    account_ids: string[],
+    blockQuery: BlockReference,
+    keyPrefix: string
+  ): JSON.Obj {
     const encoder = new JSONEncoder();
     encoder.pushObject(null);
     encoder.setString("changes_type", "data_changes");
@@ -200,7 +257,10 @@ export default class JsonRpcProvider {
     return this.sendJsonRpc("EXPERIMENTAL_changes", params);
   }
 
-  contractCodeChanges(account_ids: string[], blockQuery: BlockReference): JSON.Obj {
+  contractCodeChanges(
+    account_ids: string[],
+    blockQuery: BlockReference
+  ): JSON.Obj {
     const encoder = new JSONEncoder();
     encoder.pushObject(null);
     encoder.setString("changes_type", "contract_code_changes");
@@ -231,7 +291,10 @@ export default class JsonRpcProvider {
     return this.sendJsonRpc("EXPERIMENTAL_light_client_proof", params);
   }
 
-  singleAccessKeyChanges(accessKeyArray: AccessKeyWithPublicKey[], blockQuery: BlockReference): JSON.Obj {
+  singleAccessKeyChanges(
+    accessKeyArray: AccessKeyWithPublicKey[],
+    blockQuery: BlockReference
+  ): JSON.Obj {
     const encoder = new JSONEncoder();
     encoder.pushObject(null);
     encoder.setString("changes_type", "single_access_key_changes");

@@ -1,46 +1,70 @@
-import { Near_KeyType, Near_PublicKey, Near_AccessKey, Near_AccessKeyPermission } from "../wrap";
+import {
+  AccessKey,
+  PublicKey,
+  AccessKeyPermission,
+} from "../wrap";
 import * as bs58 from "as-base58";
 import { BigInt } from "@polywrap/wasm-as";
 
-export function keyTypeToStr(keyType: Near_KeyType): string {
+export function keyTypeToStr(keyType: u8): string {
   switch (keyType) {
-    case Near_KeyType.ED25519:
+    case 0:
       return "ed25519";
     default:
       throw new Error(`Unknown key type ${keyType}`);
   }
 }
 
-export function keyTypeFromStr(keyType: string): Near_KeyType {
-  if (keyType == "ed25519") return Near_KeyType.ED25519;
+export function keyTypeFromStr(keyType: string): u8 {
+  if (keyType == "ed25519") return 0;
   throw new Error(`Unknown key type ${keyType}`);
 }
 
-export const publicKeyToStr = (key: Near_PublicKey): string => {
+export const publicKeyToStr = (key: PublicKey): string => {
   const keyTypeStr = keyTypeToStr(key.keyType);
   // @ts-ignore
   const encodedData = bs58.encode(Uint8Array.wrap(key.data));
   return `${keyTypeStr}:${encodedData}`;
 };
 
-export const publicKeyFromStr = (encodedKey: string): Near_PublicKey => {
+export const publicKeyFromStr = (encodedKey: string): PublicKey => {
   const parts = encodedKey.split(":");
   if (parts.length == 1) {
-    return { keyType: Near_KeyType.ED25519, data: bs58.decode(parts[0]).buffer };
+    return {
+      keyType: 0,
+      data: bs58.decode(parts[0]).buffer,
+    };
   } else if (parts.length == 2) {
-    return { keyType: keyTypeFromStr(parts[0]), data: bs58.decode(parts[1]).buffer };
+    return {
+      keyType: keyTypeFromStr(parts[0]),
+      data: bs58.decode(parts[1]).buffer,
+    };
   } else {
-    throw new Error("Invalid encoded key format, must be <curve>:<encoded key>");
+    throw new Error(
+      "Invalid encoded key format, must be <curve>:<encoded key>"
+    );
   }
 };
 
-export function fullAccessKey(): Near_AccessKey {
-  return { nonce: BigInt.fromString("0"), permission: { _: "FullAccess" } as Near_AccessKeyPermission };
-}
-
-export function functionCallAccessKey(receiverId: string, methodNames: string[], allowance: BigInt): Near_AccessKey {
+export function fullAccessKey(): AccessKey {
   return {
     nonce: BigInt.fromString("0"),
-    permission: { receiverId, methodNames, allowance } as Near_AccessKeyPermission,
+    permission: {
+      isFullAccess: true,
+      allowance: null,
+      methodNames: null,
+      receiverId: null,
+    } as AccessKeyPermission,
+  };
+}
+
+export function functionCallAccessKey(
+  receiverId: string,
+  methodNames: string[],
+  allowance: BigInt
+): AccessKey {
+  return {
+    nonce: BigInt.fromString("0"),
+    permission: { receiverId, methodNames, allowance } as AccessKeyPermission,
   };
 }

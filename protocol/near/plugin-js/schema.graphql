@@ -1,4 +1,8 @@
+#import { Signature, SignedTransaction, FinalExecutionOutcome, ExecutionStatus, ExecutionOutcome, ExecutionOutcomeWithId } into Near from "wrap://ens/near.polywrap.eth"
+
 type Module {
+  getConfig: ConnectionConfig!
+
   requestSignIn(
     contractId: String
     methodNames: [String!]
@@ -19,36 +23,17 @@ type Module {
   signMessage(
     message: Bytes!
     signerId: String!
-  ): Signature!
+  ): Near_Signature!
 
-  """
-  Creates a transaction.
-  If signerId is provided, the transaction will be signed using data from the KeyStore in the plugin config.
-  Otherwise, wallet authorization is expected.
-  """
   createTransactionWithWallet(
     receiverId: String!
-    actions: [Action!]!
-  ): Transaction!
-
-  # signs a transaction without wallet
-  signTransaction(
-    transaction: Transaction!
-  ): SignTransactionResult!
-
-  ##### TODO borsh-wrapper serialization
-  serializeTransaction(transaction: Transaction!): Bytes!
-  ######
-
-  sendJsonRpc(
-    method: String!
-    params: JSON!
-  ): JSON!
+    actions: [Near_Action!]!
+  ): Near_Transaction!
 
   # send one or more transactions to NEAR wallet to be signed and executed
   requestSignTransactions(
     # list of transactions to sign
-    transactions: [Transaction!]!
+    transactions: [Near_Transaction!]!
     # url NEAR Wallet will redirect to after transaction signing is complete
     callbackUrl: String
     # meta information NEAR Wallet will send back to the application. `meta` will be attached to the `callbackUrl` as a url search param
@@ -59,25 +44,29 @@ type Module {
     accountId: String!
     networkId: String!
   ): PublicKey!
-  # sends a signed transaction and awaits execution
-  sendTransaction(
-    signedTx: SignedTransaction!
-  ): FinalExecutionOutcome!
 
-  # sends a signed transaction and immediately returns transaction hash
-  sendTransactionAsync(
-    signedTx: SignedTransaction!
-  ): String!
+  ##### TODO borsh-wrapper serialization
+  serializeTransaction(transaction: Near_Transaction!): Bytes!
+  ######
+
+}
+
+type ConnectionConfig {
+  nodeUrl: String!
 }
 # Account public key data
 type PublicKey {
-  keyType: KeyType!
+  keyType: UInt8!
   data: Bytes!
 }
 
-# Supported public key types
-enum KeyType {
-  ED25519
+type Transaction {
+  signerId: String!
+  publicKey: PublicKey!
+  nonce: BigInt!
+  receiverId: String!
+  actions: [Action!]!
+  blockHash:  Bytes
 }
 
 # Access key permissions determine how an account is allow to interact with a contract
@@ -155,18 +144,8 @@ type Transfer {
   deposit: BigInt!
 }
 
-type Transaction {
-  signerId: String!
-  publicKey: PublicKey!
-  nonce: BigInt!
-  receiverId: String!
-  actions: [Action!]!
-  blockHash:  Bytes
-  hash: String
-}
-
 type Signature {
-  keyType: KeyType!
+  keyType: UInt8!
   data: Bytes!
 }
 
@@ -181,73 +160,3 @@ type SignTransactionResult {
   signedTx: SignedTransaction!
 }
 
-type ExecutionStatus {
-  SuccessValue: String
-  SuccessReceiptId: String
-  failure: JSON
-}
-
-type ExecutionOutcomeWithId {
-  block_hash: String
-  id: String!
-  outcome: ExecutionOutcome!
-  proof: [ExecutionProof!]
-}
-
-type ExecutionProof {
-  direction: String!
-  hash: String!
-}
-
-# Execution status of a sent transaction
-type ExecutionOutcome {
-  executor_id: String
-  gas_burnt: BigInt!
-  logs: [String!]
-  metadata: OutcomeMetaData
-  receipt_ids: [String!]!
-  status: ExecutionStatus!
-  tokens_burnt: String
-}
-
-type OutcomeMetaData {
-  gas_profile: [GasProfile]!
-  version: UInt!
-}
-
-type GasProfile {
-  cost: String!
-  cost_category: String!
-  gas_used: String!
-}
-
-# Final outcome of a sent transaction
-type FinalExecutionOutcome {
-  status: ExecutionStatus!
-  transaction: Transaction!
-  transaction_outcome: ExecutionOutcomeWithId!
-  receipts_outcome: [ExecutionOutcomeWithId!]!
-}
-
-type FinalExecutionOutcomeWithReceipts {
-  status: ExecutionStatus!
-  transaction: Transaction!
-  transaction_outcome: ExecutionOutcomeWithId!
-  receipts_outcome: [ExecutionOutcomeWithId!]!
-  receipts: [ReceiptWithId!]!
-}
-
-type ReceiptWithId {
-  predecessor_id: String!
-  receipt: Receipt!
-  receipt_id: String!
-  receiver_id: String!
-}
-
-type Receipt {
-  Action: ActionContainer!
-}
-
-type ActionContainer {
-  actions: [Action!]!
-}

@@ -3,3 +3,6 @@ name: Near
 language: plugin/typescript
 module: ./src/index.ts
 schema: ./schema.graphql
+import_redirects:
+  - uri: wrap://ens/near.polywrap.eth
+    schema: ../wrapper/build/schema.graphql
