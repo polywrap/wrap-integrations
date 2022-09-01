@@ -34,8 +34,6 @@ export class SignerProvider {
                 data: payload,
                 type: 'bytes'
             });
-            
-
 
             console.log("js argument payload:", payload);
             console.error("js argument signature: ", signature);

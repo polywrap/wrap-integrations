@@ -1,6 +1,12 @@
-format: 0.1.0
-name: substrate-core
-language: wasm/rust
-schema: ./module/schema.graphql
-module: ./module/Cargo.toml
-deploy: ./polywrap.deploy.yaml
+format: 0.2.0
+project:
+  name: substrate-rpc-wrapper
+  type: wasm/rust
+source:
+  schema: ./schema.graphql
+  module: ./Cargo.toml
+  import_abis:
+    - uri: "ens/substrate-signer-provider.chainsafe.eth"
+      abi: ../signer-provider-js/src/schema.graphql
+extensions:
+  deploy: ./polywrap.deploy.yaml

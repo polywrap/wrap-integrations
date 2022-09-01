@@ -1,9 +1,12 @@
-#import { Module, Request, Header, UrlParam, Response, } into Http from "wrap://ens/http.polywrap.eth"
+#import { Module, Request, Response, } into Http from "wrap://ens/http.polywrap.eth"
+#import { Module, Account } into SignerProvider from "ens/substrate-signer-provider.chainsafe.eth"
 
 type Module {
 
+  getSignerProviderAccounts: [SignerProvider_Account!]!
+
   chainGetMetadata(url: String!): ChainMetadata
-  
+
   blockHash(url: String!, number: UInt32!): String
 
   genesisHash(url: String!): String

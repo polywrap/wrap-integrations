@@ -3,10 +3,11 @@ use crate::{
     types::metadata::Metadata,
     utils::FromHexStr,
     wrap::{
-        imported::http_module, HttpHeader, HttpModule, HttpRequest,
+        imported::http_module, HttpModule, HttpRequest,
         HttpResponse, HttpResponseType,
     },
 };
+use polywrap_wasm_rs::{ Map };
 use frame_metadata::RuntimeMetadataPrefixed;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use sp_core::{Decode, H256};
@@ -214,15 +215,17 @@ impl BaseApi {
             method: method.to_string(),
             params: serde_json::to_value(params)?,
         };
+        let mut headers = Map::new();
+        headers.insert(
+            "Content-Type".to_string(),
+            "application/json".to_string()
+        );
         let response: Result<Option<HttpResponse>, String> =
             HttpModule::post(&http_module::ArgsPost {
                 url: self.url.clone(),
                 request: Some(HttpRequest {
                     response_type: HttpResponseType::TEXT,
-                    headers: Some(vec![HttpHeader {
-                        key: String::from("Content-Type"),
-                        value: String::from("application/json"),
-                    }]),
+                    headers: Some(headers),
                     url_params: None,
                     body: Some(serde_json::to_string(&param)?),
                 }),
