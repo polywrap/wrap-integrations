@@ -1,4 +1,4 @@
-import { BorshSerializer } from "@serial-as/borsh";
+import { BorshDeserializer, BorshSerializer } from "@serial-as/borsh";
 import { Interface_Signature as Near_Signature } from "../wrap";
 
 export class Signature {
@@ -17,5 +17,10 @@ export class Signature {
       changetype<usize>(this.data),
       this.data.byteLength
     );
+  }
+  decode(deserializer: BorshDeserializer): Signature {
+    this.keyType = deserializer.decode_number<u8>();
+    this.data = deserializer.decoBuffer.consume_slice(64);
+    return this;
   }
 }

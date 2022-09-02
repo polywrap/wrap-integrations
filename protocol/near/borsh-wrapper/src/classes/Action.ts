@@ -1,10 +1,10 @@
 import { u128 } from "as-bignum";
 import { BigInt } from "@polywrap/wasm-as";
 import { BorshSerializer, BorshDeserializer } from "@serial-as/borsh";
-import { Interface_Action as Near_Action } from "../wrap";
+import { Interface_Action } from "../wrap";
 import { PublicKey } from "./PublicKey";
 import { AccessKey } from "./AccessKey";
-import { serializeU128 } from "../utils";
+import { deserializeU128, serializeU128 } from "../utils";
 
 export class Action {
   accessKey: AccessKey | null;
@@ -18,7 +18,7 @@ export class Action {
   stake: u128 | null; //nullable
   type: string;
 
-  constructor(action: Near_Action) {
+  constructor(action: Interface_Action) {
     this.type = "";
     this.type = this.getActionType(action);
 
@@ -56,21 +56,7 @@ export class Action {
     }
   }
 
-  public getActionType(action: Near_Action): string {
-    /*     if (
-      (action.accessKey == null,
-      action.args == null,
-      action.beneficiaryId == null,
-      action.code == null,
-      action.deposit == null,
-      action.gas == null,
-      action.methodName == null,
-      action.publicKey == null,
-      action.stake == null)
-    ) {
-      this.type = " createAccount";
-    } */
-
+  public getActionType(action: Interface_Action): string {
     if (action.code != null) return "deployContract";
 
     if (
@@ -93,7 +79,6 @@ export class Action {
   encode(serializer: BorshSerializer): void {
     if (this.type == "createAccount") {
       serializer.encode_number<u8>(0); // 0 is index of 'createAccount' in schema
-      //serializer.buffer.store_bytes(changetype<usize>(1), 1);
       return;
     }
 
@@ -119,7 +104,7 @@ export class Action {
 
       serializer.encode_number<u64>(this.gas); // ['gas', 'u64'],
 
-      serializeU128(serializer, this.deposit!)
+      serializeU128(serializer, this.deposit!);
     }
 
     if (this.type == "transfer") {
@@ -158,32 +143,57 @@ export class Action {
   }
 
   decode(deserializer: BorshDeserializer): Action {
-    //const type = deserializer.decode_field<ActionType>("enum");
-    //@ts-ignore
-    this.type = "createAccount";
+    const index = deserializer.decode_number<u8>();
+    switch (index) {
+      case 0: {
+        this.type = "createAccount";
+        break;
+      }
+      case 1: {
+        this.type = "deployContract";
+        const codeByteLength = deserializer.decode_number<u32>();
+        this.code = deserializer.decoBuffer.consume_slice(codeByteLength);
+        break;
+      }
+      case 2: {
+        this.type = "functionCall";
+        this.methodName = deserializer.decode_string();
 
-    //const accessKey = deserializer.
-    /*     this.args = deserializer.decode_nullable<ArrayBuffer>();
-    this.beneficiaryId = deserializer.decode_nullable<string>();
-    this.code = deserializer.decode_nullable<ArrayBuffer>();
-    this.deposit = deserializer.decode_number<u64>();
-    this.gas = deserializer.decode_number<u64>();
-    this.methodName = deserializer.decode_nullable<string>();
-    this.publicKey = deserializer.decode_nullable<PublicKey>();
-    this.stake = deserializer.decode_number<u64>(); */
+        const argsByteLength = deserializer.decode_number<u32>();
+        this.args = deserializer.decoBuffer.consume_slice(argsByteLength);
+        this.gas = deserializer.decode_number<u64>();
+        this.deposit = deserializeU128(deserializer);
+        break;
+      }
+      case 3: {
+        this.type = "transfer";
+        this.deposit = deserializeU128(deserializer);
+        break;
+      }
+      case 4: {
+        this.type = "stake";
+        this.stake = deserializeU128(deserializer);
+        this.publicKey = deserializer.decode_object<PublicKey>();
+        break;
+      }
+      case 5: {
+        this.type = "addKey";
+        this.publicKey = deserializer.decode_object<PublicKey>();
+        this.accessKey = deserializer.decode_object<AccessKey>();
+        break;
+      }
+      case 6: {
+        this.type = "deleteKey";
+        this.publicKey = deserializer.decode_object<PublicKey>();
+        break;
+      }
+      case 7: {
+        this.type = "deleteAccount";
+        this.beneficiaryId = deserializer.decode_string();
+        break;
+      }
+    }
 
     return this;
-  }
-
-  // FOR deserialization
-  toNearAction(): Near_Action {
-    const action = <Near_Action>{};
-    if (this.methodName) {
-      action.methodName = this.methodName;
-    }
-    if (this.deposit) {
-      action.deposit = BigInt.from(this.deposit);
-    }
-    return action;
   }
 }

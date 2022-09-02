@@ -4,10 +4,10 @@ import AccessKeyPermission from "./AccessKeyPermission";
 
 export class AccessKey {
   nonce: u64;
-  permission: AccessKeyPermission | null;
+  permission: AccessKeyPermission;
 
   constructor(accessKey: Near_AccessKey) {
-    this.nonce = <u64>0; // accessKey.nonce.toUInt64(); // Nonce for new keys is always 0
+    this.nonce = accessKey.nonce.toUInt64();
     this.permission = new AccessKeyPermission(accessKey.permission);
   }
 
@@ -15,6 +15,9 @@ export class AccessKey {
     serializer.encode_number<u64>(this.nonce);
     serializer.encode_object<AccessKeyPermission>(this.permission!);
   }
-
-  //   decode(deserializer: BorshDeserializer): AccessKey {}
+  decode(deserializer: BorshDeserializer): AccessKey {
+    this.nonce = deserializer.decode_number<u64>();
+    this.permission = deserializer.decode_object<AccessKeyPermission>();
+    return this;
+  }
 }

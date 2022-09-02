@@ -1,5 +1,5 @@
 import { BorshSerializer, BorshDeserializer } from "@serial-as/borsh";
-import { Interface_Transaction as Near_Transaction } from "../wrap";
+import { Interface_Transaction } from "../wrap";
 import { Action } from "./Action";
 import { PublicKey } from "./PublicKey";
 
@@ -11,7 +11,7 @@ export class Transaction {
   actions: Action[];
   blockHash: ArrayBuffer;
 
-  constructor(transaction: Near_Transaction) {
+  constructor(transaction: Interface_Transaction) {
     this.signerId = transaction.signerId;
     this.publicKey = new PublicKey(transaction.publicKey);
     this.nonce = transaction.nonce.toUInt64();
@@ -31,30 +31,16 @@ export class Transaction {
       changetype<usize>(this.blockHash),
       this.blockHash.byteLength
     );
-    //serializer.encode_object<Buffer>(this.blockHash);
     serializer.encode_array(this.actions);
   }
 
   decode(deserializer: BorshDeserializer): Transaction {
-    const signerId = deserializer.decode_string();
-    const publicKey = deserializer.decode_object<PublicKey>();
-    const nonce = deserializer.decode_number<u64>();
-    const receiverId = deserializer.decode_string();
-    const blockHash = deserializer.decode_arraybuffer();
-    const actions = deserializer.decode_array<Action[]>();
-
-    this.signerId = signerId;
-    this.publicKey = new PublicKey({
-      keyType: publicKey.keyType,
-      data: publicKey.data,
-    });
-    this.nonce = nonce;
-    this.receiverId = receiverId;
-    this.actions = actions;
-    if (blockHash != null) {
-      this.blockHash = blockHash;
-    }
-
+    this.signerId = deserializer.decode_string();
+    this.publicKey = deserializer.decode_object<PublicKey>();
+    this.nonce = deserializer.decode_number<u64>();
+    this.receiverId = deserializer.decode_string();
+    this.blockHash = deserializer.decoBuffer.consume_slice(32);
+    this.actions = deserializer.decode_array<Action[]>();
     return this;
   }
 }

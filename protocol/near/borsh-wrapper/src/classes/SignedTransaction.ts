@@ -1,8 +1,6 @@
-import { BorshSerializer } from "@serial-as/borsh";
+import { BorshDeserializer, BorshSerializer } from "@serial-as/borsh";
 import { Transaction } from "./Transaction";
 import { Signature } from "./Signature";
-
-
 
 export class SignedTransaction {
   transaction: Transaction;
@@ -15,5 +13,10 @@ export class SignedTransaction {
   encode(serializer: BorshSerializer): void {
     serializer.encode_object<Transaction>(this.transaction);
     serializer.encode_object<Signature>(this.signature);
+  }
+  decode(deserializer: BorshDeserializer): SignedTransaction {
+    this.transaction = deserializer.decode_object<Transaction>();
+    this.signature = deserializer.decode_object<Signature>();
+    return this;
   }
 }

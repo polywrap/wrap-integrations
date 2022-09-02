@@ -7,16 +7,15 @@ type Module {
 
     deserializeTransaction(
         transactionBytes: Bytes!
-    ): Transaction!
+    ): Interface_Transaction!
 
     serializeSignedTransaction(
-        signedTransaction: SignedTransaction!
+        signedTransaction: Interface_SignedTransaction!
     ): Bytes!
+
+    deserializeSignedTransaction(
+        signedTxBytes: Bytes!
+    ): Interface_SignedTransaction
 }
 
-type Transaction implements Interface_Transaction {}
-type SignedTransaction implements Interface_SignedTransaction {}
-type Action implements Interface_Action {}
-type AccessKey implements Interface_AccessKey {}
-type PublicKey implements Interface_PublicKey {}
 

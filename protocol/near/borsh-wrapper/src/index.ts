@@ -1,16 +1,16 @@
 import {
   Args_serializeTransaction,
   Args_deserializeTransaction,
-  Transaction as Near_Transaction,
-  Interface_Action as Near_Action,
   Args_serializeSignedTransaction,
   Interface_Transaction,
+  Interface_SignedTransaction,
+  Args_deserializeSignedTransaction,
 } from "./wrap";
 import { BorshDeserializer, BorshSerializer } from "@serial-as/borsh";
 import { Transaction } from "./classes/Transaction";
-import { BigInt } from "@polywrap/wasm-as";
 import { SignedTransaction } from "./classes/SignedTransaction";
 import { Signature } from "./classes/Signature";
+import { toSignedTransaction, toTransaction } from "./utils/toInterface";
 
 export function serializeTransaction(
   args: Args_serializeTransaction
@@ -22,11 +22,12 @@ export function serializeTransaction(
 
   return serializer.get_encoded_object();
 }
+
 export function serializeSignedTransaction(
   args: Args_serializeSignedTransaction
 ): ArrayBuffer {
-
   const signedTx = args.signedTransaction;
+
   const nearSignedTx = new SignedTransaction(
     new Transaction(signedTx.transaction),
     new Signature(signedTx.signature)
@@ -40,45 +41,20 @@ export function serializeSignedTransaction(
 
 export function deserializeTransaction(
   args: Args_deserializeTransaction
-): Near_Transaction {
+): Interface_Transaction {
   const deserializer = new BorshDeserializer(args.transactionBytes);
 
   const decoded = deserializer.decode_object<Transaction>();
 
-  return {
-    signerId: decoded.signerId,
-    receiverId: decoded.receiverId,
-    blockHash: decoded.blockHash,
-    nonce: BigInt.from(decoded.nonce),
-    publicKey: {
-      keyType: decoded.publicKey.keyType,
-      data: decoded.publicKey.data,
-    },
-    actions: decoded.actions.map<Near_Action>((action) =>
-      action.toNearAction()
-    ),
-  };
-}
-/* 
-export function encodeBool(args: Args_encodeBool): ArrayBuffer {
-  const encoder = new BorshSerializer();
-  encoder.encode_bool(args.value);
-  return encoder.get_encoded_object();
+  return toTransaction(decoded);
 }
 
-export function encodeString(args: Args_encodeString): ArrayBuffer {
-  const encoder = new BorshSerializer();
-  encoder.encode_string(args.value);
-  return encoder.get_encoded_object();
-}
+export function deserializeSignedTransaction(
+  args: Args_deserializeSignedTransaction
+): Interface_SignedTransaction {
+  const deserializer = new BorshDeserializer(args.signedTxBytes);
 
-export function encodeBuffer(args: Args_encodeBuffer): ArrayBuffer {
-  const encoder = new BorshSerializer();
-  encoder.buffer.store_bytes(
-    changetype<usize>(args.value),
-    args.value.byteLength
-  );
-  //encoder.encode_array(Uint8Array.wrap(args.bytes));
-  return encoder.get_encoded_object();
+  const decoded = deserializer.decode_object<SignedTransaction>();
+
+  return toSignedTransaction(decoded);
 }
- */

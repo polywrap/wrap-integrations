@@ -11,8 +11,9 @@ export class PublicKey {
   }
 
   encode(serializer: BorshSerializer): void {
+    //['keyType', 'u8'],
+    //['data', [32]]
     serializer.encode_number<u8>(this.keyType);
-    //serializer.encode_arraybuffer(this.data);
     serializer.buffer.store_bytes(
       changetype<usize>(this.data),
       this.data.byteLength
@@ -20,17 +21,8 @@ export class PublicKey {
   }
 
   decode(deserializer: BorshDeserializer): PublicKey {
-    const keyType = deserializer.decode_number<u8>();
-    const data = deserializer.decode_arraybuffer();
-    this.keyType = keyType;
-    this.data = data;
+    this.keyType = deserializer.decode_number<u8>();
+    this.data = deserializer.decoBuffer.consume_slice(32);
     return this;
-  }
-
-  static decode(bytes: ArrayBuffer): PublicKey {
-    const deserializer = new BorshDeserializer(bytes);
-    const keyType = deserializer.decode_i32();
-    const data = deserializer.decode_arraybuffer();
-    return new PublicKey({ keyType, data });
   }
 }

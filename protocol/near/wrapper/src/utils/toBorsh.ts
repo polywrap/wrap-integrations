@@ -4,7 +4,7 @@ import {
   Borsh_Interface_PublicKey,
   Borsh_Interface_Signature,
   Borsh_Interface_Transaction,
-  Borsh_SignedTransaction,
+  Borsh_Interface_SignedTransaction as Borsh_SignedTransaction,
   Interface_AccessKey,
   Interface_Action,
   Interface_PublicKey,
