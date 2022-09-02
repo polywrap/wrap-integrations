@@ -17,7 +17,7 @@ import {
   Args_viewFunction,
   Args_viewContractCode,
   AccountAuthorizedApp,
-  PublicKey,
+  Interface_PublicKey,
 } from "../wrap";
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import { BigInt, JSON, JSONEncoder } from "@polywrap/wasm-as";
@@ -44,7 +44,7 @@ export function getAccountState(args: Args_getAccountState): AccountView {
   const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
   // send rpc
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  const result: JSON.Obj = provider.sendJsonRpc("query", params);
+  const result: JSON.Obj = <JSON.Obj>provider.sendJsonRpc("query", params);
   // parse and return result
   return {
     amount: result.getString("amount")!.valueOf(),
@@ -82,7 +82,7 @@ export function viewContractState(
   const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
   // send rpc
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  const result: JSON.Obj = provider.sendJsonRpc("query", params);
+  const result: JSON.Obj = <JSON.Obj>provider.sendJsonRpc("query", params);
   return toContractStateResult(result);
 }
 
@@ -97,7 +97,7 @@ export function viewContractCode(
   encoder.popObject();
   const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  const result: JSON.Obj = provider.sendJsonRpc("query", params);
+  const result: JSON.Obj = <JSON.Obj>provider.sendJsonRpc("query", params);
   return {
     code_base64: result.getString("code_base64")!.valueOf(),
     hash: result.getString("hash")!.valueOf(),
@@ -110,7 +110,7 @@ export function viewContractCode(
 
 export function findAccessKey(args: Args_findAccessKey): AccessKeyInfo | null {
   // get public key
-  const publicKey: PublicKey | null = getPublicKey({
+  const publicKey: Interface_PublicKey | null = getPublicKey({
     accountId: args.accountId,
   });
   if (publicKey == null) {
@@ -127,14 +127,14 @@ export function findAccessKey(args: Args_findAccessKey): AccessKeyInfo | null {
   const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
   // send rpc
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  const result: JSON.Obj = provider.sendJsonRpc("query", params);
+  const result: JSON.Obj = <JSON.Obj>provider.sendJsonRpc("query", params);
   return {
     accessKey: toAccessKey(result),
     publicKey: publicKeyToStr(publicKey),
   };
 }
 
-export function getPublicKey(args: Args_getPublicKey): PublicKey | null {
+export function getPublicKey(args: Args_getPublicKey): Interface_PublicKey | null {
   const publicKey = Near_Module.getPublicKey({
     accountId: args.accountId,
   }).unwrap();
@@ -157,7 +157,6 @@ export function getAccountBalance(
   const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
   // send rpc
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  const result: JSON.Obj = provider.sendJsonRpc("query", params);
   // parse and return result
   const state = getAccountState({ accountId: args.accountId });
 
@@ -217,7 +216,7 @@ export function getAccessKeys(args: Args_getAccessKeys): AccessKeyInfo[] {
   const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
   // send rpc
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  const result: JSON.Obj = provider.sendJsonRpc("query", params);
+  const result: JSON.Obj = <JSON.Obj>provider.sendJsonRpc("query", params);
 
   const keys = result.getArr("keys")!.valueOf();
   const accessKeysInfo: AccessKeyInfo[] = [];

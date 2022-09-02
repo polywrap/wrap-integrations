@@ -1,5 +1,7 @@
-#import { Module, Transaction, Action, PublicKey } into Near from "wrap://ens/nearPlugin.polywrap.eth"
+#import { Module } into Near from "wrap://ens/nearPlugin.polywrap.eth"
 #import { Module, Request, Response } into HTTP from "wrap://ens/http.polywrap.eth"
+#import { Module } into Borsh from "wrap://ens/near.borsh.polywrap.eth"
+#import { Transaction, TransactionWithHash, Action, AccessKey, AccessKeyPermission, Signature, SignedTransaction, FinalExecutionOutcome, ExecutionStatus, ExecutionOutcome, ExecutionOutcomeWithId, ExecutionProof, OutcomeMetaData, GasProfile } into Interface from "wrap://ens/near.interface.polywrap.eth"
 
 type Module {
     requestSignIn(
@@ -11,8 +13,8 @@ type Module {
 
     ##### TODO borsh-wrapper serialization
 
-    asSerialize(transaction: Transaction!): Bytes!
-    tsSerialize(transaction: Transaction!): Bytes!
+    asSerialize(transaction: Interface_Transaction!): Bytes!
+    tsSerialize(transaction: Interface_Transaction!): Bytes!
     #####
 
     signOut: Boolean!
@@ -38,7 +40,7 @@ type Module {
 
     getPublicKey(
         accountId: String!
-    ): PublicKey
+    ): Interface_PublicKey
 
     """
     RPC Query Functions not part of JsonRpcProvider (Implemented, Tested)
@@ -73,25 +75,15 @@ type Module {
     """
 
     # creates a transaction. If signerId is not provided, creates transaction with wallet.
-    #createTransaction(
-    #    receiverId: String!
-    #    actions: [Near_Action!]!
-    #    signerId: String
-    #): Near_Transaction!
-
     createTransaction(
         receiverId: String!
-        actions: [Action!]!
+        actions: [Interface_Action!]!
         signerId: String
-    ): Transaction!
+    ): Interface_Transaction!
 
     # signs a transaction without wallet
-    #signTransaction(
-    #    transaction: Near_Transaction!
-    #): Near_SignTransactionResult!
-
     signTransaction(
-        transaction: Transaction!
+        transaction: Interface_Transaction!
     ): SignTransactionResult!
 
     """
@@ -121,7 +113,7 @@ type Module {
     txStatus(
         txHash: String! #(Bytes | String)!
         accountId: String!
-    ): FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     txStatusReceipts(
         txHash: String! #Bytes!
@@ -193,7 +185,7 @@ type Module {
     # send one or more transactions to NEAR wallet to be signed and executed
     requestSignTransactions(
         # list of transactions to sign
-        transactions: [Transaction!]!
+        transactions: [Interface_Transaction!]!
         # url NEAR Wallet will redirect to after transaction signing is complete
         callbackUrl: String
         # meta information NEAR Wallet will send back to the application. `meta` will be attached to the `callbackUrl` as a url search param
@@ -201,66 +193,56 @@ type Module {
     ): Boolean!
 
     # sends a signed transaction and awaits execution
-    # sendTransaction(
-    #    signedTx: Near_SignedTransaction!
-    #): Near_FinalExecutionOutcome!
-    
     sendTransaction(
-        signedTx: SignedTransaction!
-    ): FinalExecutionOutcome!
+        signedTx: Interface_SignedTransaction!
+    ): Interface_FinalExecutionOutcome!
     
     # sends a signed transaction and immediately returns transaction hash
     sendTransactionAsync(
-        signedTx: SignedTransaction!
+        signedTx: Interface_SignedTransaction!
     ): String!
 
     # creates, signs, and sends a transaction without wallet and awaits execution
-    # signAndSendTransaction(
-    #    receiverId: String!
-    #    actions: [Near_Action!]!
-    #    signerId: String!
-    #): Near_FinalExecutionOutcome!
-
     signAndSendTransaction(
         receiverId: String!
-        actions: [Action!]!
+        actions: [Interface_Action!]!
         signerId: String!
-    ): FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     # creates, signs, and sends a transaction without wallet and immediately returns transaction hash
     signAndSendTransactionAsync(
         receiverId: String!
-        actions: [Action!]!
+        actions: [Interface_Action!]!
         signerId: String!
     ): String!
 
     # create a new Near account
     createAccount(
         newAccountId: String!
-        publicKey: PublicKey! # | String
+        publicKey: Interface_PublicKey! # | String
         amount: BigInt!
         signerId: String!
-    ): FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     deleteAccount(
         accountId: String!
         beneficiaryId: String!
         signerId: String!
-    ): FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     # deploy a contract
     deployContract(
         data: Bytes!
         contractId: String!
         signerId: String!
-    ): FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     # transfer Near from signer to receiver
     sendMoney(
         amount: BigInt!
         receiverId: String!,
         signerId: String!
-    ): FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     # call a contract function
     functionCall(
@@ -272,52 +254,47 @@ type Module {
         walletMeta: String
         walletCallbackUrl: String
         signerId: String
-    ): FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     # add access key to account
     addKey(
-        publicKey: PublicKey! # | String
+        publicKey: Interface_PublicKey! # | String
         contractId: String
         methodNames: [String!],
         amount: BigInt
         signerId: String!
-    ): FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     # delete access key associated with public key
     deleteKey(
-        publicKey: PublicKey! # | String
+        publicKey: Interface_PublicKey! # | String
         signerId: String!
-    ): FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     # Create a new account and deploy a contract to it
     createAndDeployContract(
         contractId: String!
-        publicKey: PublicKey! # | String
+        publicKey: Interface_PublicKey! # | String
         data: Bytes!
         amount: BigInt!
         signerId: String !
-    ): FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     # TODO Borsh module
-    serializeTransaction(
-        transaction: Transaction!
-    ): Bytes!
+    #serializeTransaction(
+    #    transaction: Transaction!
+    #): Bytes!
 
-    deserializeTransaction(
-        transactionBytes: Bytes!
-    ): Transaction!
+    #deserializeTransaction(
+    #    transactionBytes: Bytes!
+    #): Transaction!
 }
 
 ##### TODO borsh-wrapper serialization
 type SignTransactionResult {
   hash: Bytes!
-  signedTx: SignedTransaction!
+  signedTx: Interface_SignedTransaction!
 }
-type PublicKey {
-  keyType: UInt8!
-  data: Bytes!
-}
-
 # Access key permissions determine how an account is allow to interact with a contract
 #type AccessKeyPermission {
 #  _: String
@@ -338,41 +315,6 @@ type FunctionCallPermission {
   allowance: BigInt
 }
 
-# Action types define the data necessary to complete a type of action in a transaction
-type Action {
-  code: Bytes
-  methodName: String
-  args: Bytes
-  gas: BigInt
-  deposit: BigInt
-  stake: BigInt
-  publicKey: PublicKey
-  accessKey: AccessKey
-  beneficiaryId: String
-}
-
-type Transaction {
-  signerId: String!
-  publicKey: PublicKey!
-  nonce: BigInt!
-  receiverId: String!
-  actions: [Action!]!
-  blockHash:  Bytes
-}
-
-type TransactionWithHash implements Transaction {
-    hash: String
-}
-
-type Signature {
-  keyType: UInt8!
-  data: Bytes!
-}
-
-type SignedTransaction {
-  transaction: Transaction!
-  signature: Signature!
-}
 ##########
 
 # Based on these types from near-api-js:
@@ -472,7 +414,7 @@ type KeyValuePair {
 type ChunkResult {
     header: ChunkHeader!
     receipts: [JSON!]!
-    transactions: [TransactionWithHash!]!
+    transactions: [Interface_TransactionWithHash!]!
 }
 
 type BlockChange {
@@ -566,10 +508,10 @@ type LightClientBlockLiteView {
 }
 
 type LightClientProof {
-    outcome_proof: ExecutionOutcomeWithId!
-    outcome_root_proof: [ExecutionProof!]!
+    outcome_proof: Interface_ExecutionOutcomeWithId!
+    outcome_root_proof: [Interface_ExecutionProof!]!
     block_header_lite: LightClientBlockLiteView!
-    block_proof: [ExecutionProof!]!
+    block_proof: [Interface_ExecutionProof!]!
 }
 
 # All query responses implement QueryResponseKind
@@ -607,17 +549,9 @@ type AccountAuthorizedApp {
 }
 
 # Access key permissions determine how an account is allow to interact with a contract
-type AccessKeyPermission {
-    isFullAccess: Boolean!
-    receiverId: String
-    methodNames: [String!]
-    allowance: BigInt
-}
+type AccessKeyPermission implements Interface_AccessKeyPermission {}
 
-type AccessKey {
-    nonce: BigInt!
-    permission: AccessKeyPermission!
-}
+type AccessKey implements Interface_AccessKey {}
 
 type KeyValueCode {
     code_base64: String!
@@ -628,7 +562,7 @@ type KeyValueCode {
 # Access keys contain access key permissions, which determine how an account is allowed to interact with a contract
 type AccessKeyInfo {
     publicKey: String!
-    accessKey: AccessKey!
+    accessKey: Interface_AccessKey!
 }
 
 enum IdType {
@@ -660,18 +594,13 @@ type ContractStateResult {
 }
 
 # Final outcome of a sent transaction
-type FinalExecutionOutcome {
-  status: ExecutionStatus!
-  transaction: TransactionWithHash!
-  transaction_outcome: ExecutionOutcomeWithId!
-  receipts_outcome: [ExecutionOutcomeWithId!]!
-}
+
 
 type FinalExecutionOutcomeWithReceipts {
-  status: ExecutionStatus!
-  transaction: TransactionWithHash!
-  transaction_outcome: ExecutionOutcomeWithId!
-  receipts_outcome: [ExecutionOutcomeWithId!]!
+  status: Interface_ExecutionStatus!
+  transaction: Interface_TransactionWithHash!
+  transaction_outcome: Interface_ExecutionOutcomeWithId!
+  receipts_outcome: [Interface_ExecutionOutcomeWithId!]!
   receipts: [ReceiptWithId!]!
 }
 
@@ -687,45 +616,5 @@ type Receipt {
 }
 
 type ActionContainer {
-  actions: [Action!]!
-}
-
-type ExecutionStatus {
-  SuccessValue: String
-  SuccessReceiptId: String
-  failure: JSON
-}
-
-type ExecutionOutcomeWithId {
-  block_hash: String
-  id: String!
-  outcome: ExecutionOutcome!
-  proof: [ExecutionProof!]
-}
-
-type ExecutionProof {
-  direction: String!
-  hash: String!
-}
-
-# Execution status of a sent transaction
-type ExecutionOutcome {
-  executor_id: String
-  gas_burnt: BigInt!
-  logs: [String!]
-  metadata: OutcomeMetaData
-  receipt_ids: [String!]!
-  status: ExecutionStatus!
-  tokens_burnt: String
-}
-
-type OutcomeMetaData {
-  gas_profile: [GasProfile]!
-  version: UInt!
-}
-
-type GasProfile {
-  cost: String!
-  cost_category: String!
-  gas_used: String!
+  actions: [Interface_Action!]!
 }

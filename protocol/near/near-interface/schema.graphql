@@ -1,0 +1,111 @@
+scalar BigInt
+scalar UInt
+scalar UInt8
+scalar Bytes
+
+type Transaction {
+  signerId: String!
+  publicKey: PublicKey!
+  nonce: BigInt!
+  receiverId: String!
+  actions: [Action!]!
+  blockHash:  Bytes
+}
+
+type TransactionWithHash {
+  signerId: String!
+  publicKey: PublicKey!
+  nonce: BigInt!
+  receiverId: String!
+  actions: [Action!]!
+  blockHash:  Bytes
+  hash: String
+}
+
+type SignedTransaction {
+  transaction: Transaction!
+  signature: Signature!
+}
+
+type Action {
+  code: Bytes
+  methodName: String
+  args: Bytes
+  gas: BigInt
+  deposit: BigInt
+  stake: BigInt
+  publicKey: PublicKey
+  accessKey: AccessKey
+  beneficiaryId: String
+}
+
+type Signature  {
+  keyType: UInt8!
+  data: Bytes!
+}
+
+type PublicKey {
+  keyType: UInt8!
+  data: Bytes!
+}
+
+type AccessKey {
+    nonce: BigInt!
+    permission: AccessKeyPermission!
+}
+
+type AccessKeyPermission {
+    isFullAccess: Boolean!
+    receiverId: String
+    methodNames: [String!]
+    allowance: BigInt
+}
+
+###############################################################
+
+type FinalExecutionOutcome {
+  status: ExecutionStatus!
+  transaction: TransactionWithHash!
+  transaction_outcome: ExecutionOutcomeWithId!
+  receipts_outcome: [ExecutionOutcomeWithId!]!
+}
+
+type ExecutionStatus {
+  SuccessValue: String
+  SuccessReceiptId: String
+  failure: JSON
+}
+
+# Execution status of a sent transaction
+type ExecutionOutcome {
+  executor_id: String
+  gas_burnt: BigInt!
+  logs: [String!]
+  metadata: OutcomeMetaData
+  receipt_ids: [String!]!
+  status: ExecutionStatus!
+  tokens_burnt: String
+}
+
+type ExecutionOutcomeWithId {
+  block_hash: String
+  id: String!
+  outcome: ExecutionOutcome!
+  proof: [ExecutionProof!]
+}
+
+type ExecutionProof {
+  direction: String!
+  hash: String!
+}
+
+type OutcomeMetaData {
+  gas_profile: [GasProfile]!
+  version: UInt!
+}
+
+type GasProfile {
+  cost: String!
+  cost_category: String!
+  gas_used: String!
+}

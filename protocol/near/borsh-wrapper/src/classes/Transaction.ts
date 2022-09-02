@@ -1,5 +1,5 @@
 import { BorshSerializer, BorshDeserializer } from "@serial-as/borsh";
-import { Transaction as Near_Transaction } from "../wrap";
+import { Interface_Transaction as Near_Transaction } from "../wrap";
 import { Action } from "./Action";
 import { PublicKey } from "./PublicKey";
 

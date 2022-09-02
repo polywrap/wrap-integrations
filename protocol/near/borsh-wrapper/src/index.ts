@@ -3,10 +3,14 @@ import {
   Args_deserializeTransaction,
   Transaction as Near_Transaction,
   Interface_Action as Near_Action,
+  Args_serializeSignedTransaction,
+  Interface_Transaction,
 } from "./wrap";
 import { BorshDeserializer, BorshSerializer } from "@serial-as/borsh";
 import { Transaction } from "./classes/Transaction";
 import { BigInt } from "@polywrap/wasm-as";
+import { SignedTransaction } from "./classes/SignedTransaction";
+import { Signature } from "./classes/Signature";
 
 export function serializeTransaction(
   args: Args_serializeTransaction
@@ -15,6 +19,21 @@ export function serializeTransaction(
 
   const serializer = new BorshSerializer();
   serializer.encode_object(transaction);
+
+  return serializer.get_encoded_object();
+}
+export function serializeSignedTransaction(
+  args: Args_serializeSignedTransaction
+): ArrayBuffer {
+
+  const signedTx = args.signedTransaction;
+  const nearSignedTx = new SignedTransaction(
+    new Transaction(signedTx.transaction),
+    new Signature(signedTx.signature)
+  );
+
+  const serializer = new BorshSerializer();
+  serializer.encode_object(nearSignedTx);
 
   return serializer.get_encoded_object();
 }

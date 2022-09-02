@@ -1,11 +1,10 @@
 import {
-  AccessKey,
+  Interface_AccessKey as AccessKey,
   AccessKeyInfo,
-  AccessKeyPermission,
   BlockReference,
   BlockResult,
   Chunk,
-  GasProfile,
+  Interface_GasProfile,
   NearProtocolConfig,
   NodeStatusResult,
   ChunkResult,
@@ -22,18 +21,18 @@ import {
   ContractStateResult,
   getIdTypeKey,
   KeyValuePair,
-  Transaction,
-  Action,
-  FinalExecutionOutcome,
-  ExecutionStatus,
-  ExecutionOutcomeWithId,
-  ExecutionProof,
+  Interface_Action,
+  Interface_ExecutionStatus,
+  Interface_ExecutionOutcomeWithId,
+  Interface_ExecutionProof,
   FinalExecutionOutcomeWithReceipts,
   ReceiptWithId,
   Receipt,
-  ExecutionOutcome,
-  OutcomeMetaData,
-  TransactionWithHash,
+  Interface_ExecutionOutcome,
+  Interface_OutcomeMetaData,
+  Interface_TransactionWithHash,
+  Interface_FinalExecutionOutcome,
+  Interface_AccessKeyPermission,
 } from "../wrap";
 import { BigInt, JSON, JSONEncoder } from "@polywrap/wasm-as";
 import { publicKeyFromStr } from "./typeUtils";
@@ -256,7 +255,7 @@ export function toChunkResult(json: JSON.Obj): ChunkResult {
     transactions: json
       .getArr("transactions")!
       .valueOf()
-      .map<TransactionWithHash>((v) => toTransaction(<JSON.Obj>v)),
+      .map<Interface_TransactionWithHash>((v) => toTransaction(<JSON.Obj>v)),
   };
 }
 
@@ -271,7 +270,7 @@ export function toAccessKeyInfo(json: JSON.Obj): AccessKeyInfo {
 
 export function toAccessKey(json: JSON.Obj): AccessKey {
   let nonce: BigInt = BigInt.fromString("0");
-  let permission: AccessKeyPermission;
+  let permission: Interface_AccessKeyPermission;
   const jsonPermVal: JSON.Value | null = json.getValue("permission");
   if (jsonPermVal == null || jsonPermVal.isString) {
     permission = {
@@ -345,9 +344,9 @@ export function toNodeStatus(json: JSON.Obj): NodeStatusResult {
   };
 }
 
-export function toAction(json: JSON.Value): Action {
-  const action = {} as Action;
-  
+export function toAction(json: JSON.Value): Interface_Action {
+  const action = {} as Interface_Action;
+
   if (json.isObj) {
     const jsonAction = <JSON.Obj>json;
 
@@ -373,7 +372,9 @@ export function toAction(json: JSON.Value): Action {
 }
 export function toReceipt(json: JSON.Obj): Receipt {
   const actions = json.getObj("Action")!.getArr("actions")!.valueOf();
-  return { Action: { actions: actions.map<Action>((v) => toAction(v)) } };
+  return {
+    Action: { actions: actions.map<Interface_Action>((v) => toAction(v)) },
+  };
 }
 
 export function toReceiptWithId(json: JSON.Obj): ReceiptWithId {
@@ -386,8 +387,8 @@ export function toReceiptWithId(json: JSON.Obj): ReceiptWithId {
   };
 }
 
-export function toExecutionOutcome(json: JSON.Obj): ExecutionOutcome {
-  const result: ExecutionOutcome = {
+export function toExecutionOutcome(json: JSON.Obj): Interface_ExecutionOutcome {
+  const result: Interface_ExecutionOutcome = {
     logs: json
       .getArr("logs")!
       .valueOf()
@@ -417,7 +418,7 @@ export function toExecutionOutcome(json: JSON.Obj): ExecutionOutcome {
 
 export function toExecutionOutcomeWithId(
   json: JSON.Obj
-): ExecutionOutcomeWithId {
+): Interface_ExecutionOutcomeWithId {
   const outcome = json.getObj("outcome")!;
   const proof = json.getArr("proof")!.valueOf();
 
@@ -425,12 +426,17 @@ export function toExecutionOutcomeWithId(
     id: json.getString("id")!.valueOf(),
     block_hash: json.getString("block_hash")!.valueOf(),
     outcome: toExecutionOutcome(outcome),
-    proof: proof.map<ExecutionProof>((v) => toExecutionProof(<JSON.Obj>v)),
+    proof: proof.map<Interface_ExecutionProof>((v) =>
+      toExecutionProof(<JSON.Obj>v)
+    ),
   };
 }
 
-export function toTransaction(transaction: JSON.Obj): TransactionWithHash {
-  const result: TransactionWithHash = {
+export function toTransaction(
+  transaction: JSON.Obj
+): Interface_TransactionWithHash {
+  const result: Interface_TransactionWithHash = {
+    hash: "",
     signerId: transaction.getString("signer_id")!.valueOf(),
     publicKey: publicKeyFromStr(transaction.getString("public_key")!.valueOf()),
     nonce: BigInt.fromString(transaction.getValue("nonce")!.stringify()), //TODO change to BigNumber
@@ -438,8 +444,8 @@ export function toTransaction(transaction: JSON.Obj): TransactionWithHash {
     actions: transaction
       .getArr("actions")!
       .valueOf()
-      .map<Action>((v) => toAction(v)),
-  } as TransactionWithHash;
+      .map<Interface_Action>((v) => toAction(v)),
+  } as Interface_TransactionWithHash;
 
   const blockHashValue = transaction.getString("block_hash");
   const hashValue = transaction.getString("hash");
@@ -453,13 +459,15 @@ export function toTransaction(transaction: JSON.Obj): TransactionWithHash {
   return result;
 }
 
-export function toFinalExecutionOutcome(json: JSON.Obj): FinalExecutionOutcome {
+export function toFinalExecutionOutcome(
+  json: JSON.Obj
+): Interface_FinalExecutionOutcome {
   const statusObj = json.getObj("status")!;
   const transaction = json.getObj("transaction")!;
   const transaction_outcome = json.getObj("transaction_outcome")!;
   const receipts_outcome = json.getArr("receipts_outcome")!;
 
-  const status = {} as ExecutionStatus;
+  const status = {} as Interface_ExecutionStatus;
   const successValue = statusObj.getString("SuccessValue");
   const failure = statusObj.getString("failure");
   const successReceiptId = statusObj.getString("SuccessReceiptId");
@@ -482,10 +490,10 @@ export function toFinalExecutionOutcome(json: JSON.Obj): FinalExecutionOutcome {
     transaction_outcome: toExecutionOutcomeWithId(transaction_outcome),
     receipts_outcome: receipts_outcome
       .valueOf()
-      .map<ExecutionOutcomeWithId>((v: JSON.Value) =>
+      .map<Interface_ExecutionOutcomeWithId>((v: JSON.Value) =>
         toExecutionOutcomeWithId(<JSON.Obj>v)
       ),
-  } as FinalExecutionOutcome;
+  } as Interface_FinalExecutionOutcome;
 }
 
 export function toFinalExecutionOutcomeWithReceipts(
@@ -509,12 +517,12 @@ export function toFinalExecutionOutcomeWithReceipts(
     receipts: receipts,
     status: {
       SuccessValue: status.getString("SuccessValue")!.valueOf(),
-    } as ExecutionStatus,
+    } as Interface_ExecutionStatus,
     transaction: toTransaction(transaction),
     transaction_outcome: toExecutionOutcomeWithId(transaction_outcome),
     receipts_outcome: receipts_outcome
       .valueOf()
-      .map<ExecutionOutcomeWithId>((v: JSON.Value) =>
+      .map<Interface_ExecutionOutcomeWithId>((v: JSON.Value) =>
         toExecutionOutcomeWithId(<JSON.Obj>v)
       ),
   };
@@ -605,11 +613,11 @@ export function toLightClientProof(json: JSON.Obj): LightClientProof {
 
   return {
     block_header_lite: toBlockHeaderLite(block_header_lite),
-    block_proof: block_proof.map<ExecutionProof>((v) =>
+    block_proof: block_proof.map<Interface_ExecutionProof>((v) =>
       toExecutionProof(<JSON.Obj>v)
     ),
     outcome_proof: toExecutionOutcomeWithId(outcome_proof),
-    outcome_root_proof: outcome_root_proof.map<ExecutionProof>((v) =>
+    outcome_root_proof: outcome_root_proof.map<Interface_ExecutionProof>((v) =>
       toExecutionProof(<JSON.Obj>v)
     ),
   };
@@ -635,15 +643,15 @@ function toBlockHeaderLite(json: JSON.Obj): LightClientBlockLiteView {
   } as LightClientBlockLiteView;
 }
 
-function toExecutionProof(json: JSON.Obj): ExecutionProof {
+function toExecutionProof(json: JSON.Obj): Interface_ExecutionProof {
   return {
     hash: json.getString("hash")!.valueOf(),
     direction: json.getString("direction")!.valueOf(),
   };
 }
 
-function toOutcomeMetadata(json: JSON.Obj): OutcomeMetaData {
-  const metadata: OutcomeMetaData = {
+function toOutcomeMetadata(json: JSON.Obj): Interface_OutcomeMetaData {
+  const metadata: Interface_OutcomeMetaData = {
     gas_profile: [],
     version: BigInt.fromString(
       json.getValue("version")!.stringify()
@@ -653,7 +661,7 @@ function toOutcomeMetadata(json: JSON.Obj): OutcomeMetaData {
   if (gas_profileValue != null) {
     metadata.gas_profile = gas_profileValue
       .valueOf()
-      .map<GasProfile | null>((v: JSON.Value) => {
+      .map<Interface_GasProfile | null>((v: JSON.Value) => {
         const profile = <JSON.Obj>v;
         return {
           cost: profile.getString("cost")!.valueOf(),
@@ -665,8 +673,8 @@ function toOutcomeMetadata(json: JSON.Obj): OutcomeMetaData {
   return metadata;
 }
 
-function toExecutionStatus(json: JSON.Obj): ExecutionStatus {
-  const result = {} as ExecutionStatus;
+function toExecutionStatus(json: JSON.Obj): Interface_ExecutionStatus {
+  const result = {} as Interface_ExecutionStatus;
 
   const successValue = json.getString("SuccessValue");
   if (successValue != null) {

@@ -19,7 +19,7 @@ import {
   Args_chunk,
   Args_gasPrice,
   Args_status,
-  FinalExecutionOutcome,
+  Interface_FinalExecutionOutcome,
   Args_validators,
   EpochValidatorInfo,
   Args_sendJsonRpc,
@@ -53,7 +53,7 @@ export function status(args: Args_status): NodeStatusResult {
   return toNodeStatus(statusJson);
 }
 
-export function txStatus(args: Args_txStatus): FinalExecutionOutcome {
+export function txStatus(args: Args_txStatus): Interface_FinalExecutionOutcome {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const txStatus = provider.txStatus(args.txHash, args.accountId);
   return toFinalExecutionOutcome(txStatus);
@@ -163,5 +163,5 @@ export function validators(args: Args_validators): EpochValidatorInfo {
 
 export function sendJsonRpc(args: Args_sendJsonRpc): JSON.Obj {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  return provider.sendJsonRpc(args.method, args.params as JSON.Obj);
+  return <JSON.Obj>provider.sendJsonRpc(args.method, args.params as JSON.Obj);
 }

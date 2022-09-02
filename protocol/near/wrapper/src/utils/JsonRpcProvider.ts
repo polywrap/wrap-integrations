@@ -42,7 +42,7 @@ export default class JsonRpcProvider {
    */
   block(blockQuery: BlockReference): BlockResult {
     const params: JSON.Obj = fromBlockReference(blockQuery);
-    const json = this.sendJsonRpc("block", params);
+    const json = <JSON.Obj>this.sendJsonRpc("block", params);
     return toBlockResult(json);
   }
 
@@ -62,7 +62,7 @@ export default class JsonRpcProvider {
     }
   ): NearProtocolConfig {
     const params: JSON.Obj = fromBlockReference(protocolQuery);
-    const json = this.sendJsonRpc("EXPERIMENTAL_protocol_config", params);
+    const json = <JSON.Obj>this.sendJsonRpc("EXPERIMENTAL_protocol_config", params);
     return toProtocolResult(json);
   }
 
@@ -72,7 +72,7 @@ export default class JsonRpcProvider {
    * @param method RPC method
    * @param params Parameters to the method
    */
-  sendJsonRpc(method: string, params: JSON.Value): JSON.Obj {
+  sendJsonRpc(method: string, params: JSON.Value): JSON.Value {
     let url: string = "";
     if (this.url != null) {
       url = this.url!;
@@ -109,6 +109,10 @@ export default class JsonRpcProvider {
     const data = <JSON.Obj>JSON.parse(response.body);
     const result = data.getObj("result");
     if (!result) {
+      const stringRes = data.getString("result");
+      if (stringRes != null) {
+        return stringRes;
+      }
       throw new Error("Result field is empty");
     }
 
@@ -131,7 +135,7 @@ export default class JsonRpcProvider {
     args: JSON.Value
   ): JSON.Obj {
     const params: JSON.Obj = fromViewFunction(contractId, methodName, args);
-    return this.sendJsonRpc("query", params);
+    return <JSON.Obj>this.sendJsonRpc("query", params);
   }
 
   status(): JSON.Obj {
@@ -139,7 +143,7 @@ export default class JsonRpcProvider {
     encoder.pushArray(null);
     encoder.popArray();
     const params: JSON.Arr = <JSON.Arr>JSON.parse(encoder.serialize());
-    return this.sendJsonRpc("status", params);
+    return <JSON.Obj>this.sendJsonRpc("status", params);
   }
 
   txStatus(txHash: string, accountId: string): JSON.Obj {
@@ -150,7 +154,7 @@ export default class JsonRpcProvider {
     encoder.popArray();
     const params: JSON.Arr = <JSON.Arr>JSON.parse(encoder.serialize());
 
-    return this.sendJsonRpc("tx", params);
+    return <JSON.Obj>this.sendJsonRpc("tx", params);
   }
 
   txStatusReceipts(txHash: string, accountId: string): JSON.Obj {
@@ -161,7 +165,7 @@ export default class JsonRpcProvider {
     encoder.popArray();
     const params: JSON.Arr = <JSON.Arr>JSON.parse(encoder.serialize());
 
-    return this.sendJsonRpc("EXPERIMENTAL_tx_status", params);
+    return <JSON.Obj>this.sendJsonRpc("EXPERIMENTAL_tx_status", params);
   }
   getChunk(chunkId: string): JSON.Obj {
     const encoder = new JSONEncoder();
@@ -169,7 +173,7 @@ export default class JsonRpcProvider {
     encoder.setString("chunk_id", chunkId);
     encoder.popObject();
     const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
-    return this.sendJsonRpc("chunk", params);
+    return <JSON.Obj>this.sendJsonRpc("chunk", params);
   }
 
   gasPrice(blockId: string | null): JSON.Obj {
@@ -180,7 +184,7 @@ export default class JsonRpcProvider {
     }
     encoder.popArray();
     const params: JSON.Arr = <JSON.Arr>JSON.parse(encoder.serialize());
-    return this.sendJsonRpc("gas_price", params);
+    return <JSON.Obj>this.sendJsonRpc("gas_price", params);
   }
 
   accessKeyChanges(
@@ -204,7 +208,7 @@ export default class JsonRpcProvider {
     }
     encoder.popObject();
     const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
-    return this.sendJsonRpc("EXPERIMENTAL_changes", params);
+    return <JSON.Obj>this.sendJsonRpc("EXPERIMENTAL_changes", params);
   }
 
   accountChanges(account_ids: string[], blockQuery: BlockReference): JSON.Obj {
@@ -225,7 +229,7 @@ export default class JsonRpcProvider {
     }
     encoder.popObject();
     const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
-    return this.sendJsonRpc("EXPERIMENTAL_changes", params);
+    return <JSON.Obj>this.sendJsonRpc("EXPERIMENTAL_changes", params);
   }
 
   contractStateChanges(
@@ -254,7 +258,7 @@ export default class JsonRpcProvider {
     }
     encoder.popObject();
     const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
-    return this.sendJsonRpc("EXPERIMENTAL_changes", params);
+    return <JSON.Obj>this.sendJsonRpc("EXPERIMENTAL_changes", params);
   }
 
   contractCodeChanges(
@@ -278,17 +282,17 @@ export default class JsonRpcProvider {
     }
     encoder.popObject();
     const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
-    return this.sendJsonRpc("EXPERIMENTAL_changes", params);
+    return <JSON.Obj>this.sendJsonRpc("EXPERIMENTAL_changes", params);
   }
 
   blockChanges(blockQuery: BlockReference): JSON.Obj {
     const params: JSON.Obj = fromBlockReference(blockQuery);
-    return this.sendJsonRpc("EXPERIMENTAL_changes_in_block", params);
+    return <JSON.Obj>this.sendJsonRpc("EXPERIMENTAL_changes_in_block", params);
   }
 
   lightClientProof(request: LightClientProofRequest): JSON.Obj {
     const params: JSON.Obj = fromLightClientProofRequest(request);
-    return this.sendJsonRpc("EXPERIMENTAL_light_client_proof", params);
+    return <JSON.Obj>this.sendJsonRpc("EXPERIMENTAL_light_client_proof", params);
   }
 
   singleAccessKeyChanges(
@@ -315,7 +319,7 @@ export default class JsonRpcProvider {
     }
     encoder.popObject();
     const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
-    return this.sendJsonRpc("EXPERIMENTAL_changes", params);
+    return <JSON.Obj>this.sendJsonRpc("EXPERIMENTAL_changes", params);
   }
 
   validators(blockId: string | null): JSON.Obj {
@@ -329,6 +333,6 @@ export default class JsonRpcProvider {
     encoder.popArray();
 
     const params: JSON.Arr = <JSON.Arr>JSON.parse(encoder.serialize());
-    return this.sendJsonRpc("validators", params);
+    return <JSON.Obj>this.sendJsonRpc("validators", params);
   }
 }

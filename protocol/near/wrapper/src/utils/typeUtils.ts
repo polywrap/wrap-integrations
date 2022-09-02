@@ -1,7 +1,8 @@
 import {
-  AccessKey,
-  PublicKey,
-  AccessKeyPermission,
+  Interface_AccessKey as AccessKey,
+  Interface_PublicKey as PublicKey,
+  Interface_AccessKeyPermission as AccessKeyPermission,
+  Interface_PublicKey,
 } from "../wrap";
 import * as bs58 from "as-base58";
 import { BigInt } from "@polywrap/wasm-as";
@@ -20,14 +21,14 @@ export function keyTypeFromStr(keyType: string): u8 {
   throw new Error(`Unknown key type ${keyType}`);
 }
 
-export const publicKeyToStr = (key: PublicKey): string => {
+export const publicKeyToStr = (key: Interface_PublicKey): string => {
   const keyTypeStr = keyTypeToStr(key.keyType);
   // @ts-ignore
   const encodedData = bs58.encode(Uint8Array.wrap(key.data));
   return `${keyTypeStr}:${encodedData}`;
 };
 
-export const publicKeyFromStr = (encodedKey: string): PublicKey => {
+export const publicKeyFromStr = (encodedKey: string): Interface_PublicKey => {
   const parts = encodedKey.split(":");
   if (parts.length == 1) {
     return {

@@ -1,6 +1,6 @@
 import { BorshSerializer } from "@serial-as/borsh";
 import { u128 } from "as-bignum";
-import { AccessKeyPermission as Near_AccessKeyPermission } from "../../wrap";
+import { Interface_AccessKeyPermission as Near_AccessKeyPermission } from "../wrap";
 import { serializeU128 } from "../utils";
 
 export default class AccessKeyPermission {

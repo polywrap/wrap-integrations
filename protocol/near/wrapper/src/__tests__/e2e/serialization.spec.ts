@@ -17,14 +17,16 @@ import {
 } from "@polywrap/test-env-js";
 import {
   //AccessKeyInfo, Near_PublicKey,
-  Transaction,
+  Interface_Transaction as Transaction,
 } from "../../wrap";
 
 jest.setTimeout(360000);
 
 describe("Amount format", () => {
   let client: PolywrapClient;
-  let apiUri: string;
+
+  let nearWrapperUri: string;
+  let borshWrapperUri: string;
 
   let nearConfig: NearPluginConfig;
   let near: nearApi.Near;
@@ -56,8 +58,10 @@ describe("Amount format", () => {
   beforeAll(async () => {
     // set up test env and deploy api
     await initTestEnvironment();
-    const absPath = __dirname + "/../../../build";
-    apiUri = `fs/${absPath}`;
+    const nearPath = __dirname + "/../../../build";
+    const borshPath = __dirname + "/../../../../borsh-wrapper/build";
+    nearWrapperUri = `fs/${nearPath}`;
+    borshWrapperUri = `fs/${borshPath}`;
     // set up client
     nearConfig = await testUtils.setUpTestConfig();
     near = await nearApi.connect(nearConfig);
@@ -188,7 +192,7 @@ describe("Amount format", () => {
     //console.log('accessKey', accessKey);
 
     const tx = await client.invoke<Transaction>({
-      uri: apiUri,
+      uri: nearWrapperUri,
       method: "createTransaction",
       args: {
         signerId: workingAccount.accountId,
@@ -197,25 +201,20 @@ describe("Amount format", () => {
           //{ publicKey: publicKey, accessKey: accessKey }, // addKey (fullAccess)
           //{ publicKey: publicKey, accessKey: accessKey }, // addKey (functionCallAccessKey)
           //{}, //createAccount
-
           //{ code: Uint8Array.from([1, 4, 6, 8]) }, //deployContract
-
           /* {
             methodName: "hello",
             args: Uint8Array.from([1, 4, 6, 8]),
             gas: "249",
             deposit: "256",
-          }, */ //functionCall
-
+          }, */
+          //functionCall
           //{ deposit: "9891336751524540000000" }, //TODO: u128 support; testValue = 340282366920938463463374607431768211454 //transfer   // 9891336751524540000000
-
           /* {
             stake: "254",
             publicKey: publicKey,
           }, //stake */
-
           //{ publicKey }, //deleteKey
-
           //{ beneficiaryId: workingAccount.accountId }, // deleteAccount */
         ],
       },
@@ -229,7 +228,7 @@ describe("Amount format", () => {
       data: tsSerialize,
       error: errorTs,
     } = await client.invoke<Uint8Array>({
-      uri: apiUri,
+      uri: nearWrapperUri,
       method: "tsSerialize",
       args: {
         transaction: transaction,
@@ -237,8 +236,8 @@ describe("Amount format", () => {
     });
 
     const { data: asSerialize, error } = await client.invoke<Uint8Array>({
-      uri: apiUri,
-      method: "asSerialize",
+      uri: borshWrapperUri,
+      method: "serializeTransaction",
       args: {
         transaction: transaction,
       },

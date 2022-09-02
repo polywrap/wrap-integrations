@@ -1,38 +1,22 @@
-#import { Module, InterfaceType, Transaction, PublicKey, Action, AccessKey } into Interface from "wrap://ens/near.interface.polywrap.eth"
+#import { Transaction, Action, AccessKey, AccessKeyPermission, Signature, SignedTransaction } into Interface from "wrap://ens/near.interface.polywrap.eth"
 
-type Module {
-    #serialize(schema: [Entity!]!, object:JSON!): Bytes!
-
-    #encodeBool(value: Boolean!): Bytes!
-    #encodeString(value: String!): Bytes!
-    #encodeNullable()
-    #encodeArray()
-    #encodeBuffer(value:Bytes!): Bytes!
-    
+type Module { 
     serializeTransaction(
-        transaction: Transaction!
+        transaction: Interface_Transaction!
     ): Bytes!
 
     deserializeTransaction(
         transactionBytes: Bytes!
     ): Transaction!
+
+    serializeSignedTransaction(
+        signedTransaction: SignedTransaction!
+    ): Bytes!
 }
 
 type Transaction implements Interface_Transaction {}
+type SignedTransaction implements Interface_SignedTransaction {}
 type Action implements Interface_Action {}
 type AccessKey implements Interface_AccessKey {}
 type PublicKey implements Interface_PublicKey {}
-
-#type Entity {
-#  name: String!
-#  kind: String!
-#  field: String
-#  values: [EntityField]
-#  fields: [EntityField]
-#}
-
-#type EntityField {
-#    name: String!
-#    type: String!
-#}
 

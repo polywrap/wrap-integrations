@@ -1,8 +1,5 @@
 import { BorshDeserializer, BorshSerializer } from "@serial-as/borsh";
-import {
-  AccessKey as Near_AccessKey,
-  PublicKey as Near_PublicKey,
-} from "../../wrap";
+import { Interface_AccessKey as Near_AccessKey } from "../wrap";
 import AccessKeyPermission from "./AccessKeyPermission";
 
 export class AccessKey {
@@ -10,7 +7,7 @@ export class AccessKey {
   permission: AccessKeyPermission | null;
 
   constructor(accessKey: Near_AccessKey) {
-    this.nonce = <u64>0; // accessKey.nonce.toUInt64(); // TODO: Nonce for new keys is always 0 
+    this.nonce = <u64>0; // accessKey.nonce.toUInt64(); // Nonce for new keys is always 0
     this.permission = new AccessKeyPermission(accessKey.permission);
   }
 

@@ -1,11 +1,13 @@
 import { u128 } from "as-bignum";
 import { BigInt } from "@polywrap/wasm-as";
 import { BorshSerializer, BorshDeserializer } from "@serial-as/borsh";
-import { Interface_AccessKey as Near_AccessKey, Interface_Action as Near_Action } from "../wrap";
+import { Interface_Action as Near_Action } from "../wrap";
 import { PublicKey } from "./PublicKey";
+import { AccessKey } from "./AccessKey";
+import { serializeU128 } from "../utils";
 
 export class Action {
-  accessKey: Near_AccessKey | null;
+  accessKey: AccessKey | null;
   args: ArrayBuffer | null;
   beneficiaryId: string | null;
   code: ArrayBuffer | null;
@@ -21,7 +23,7 @@ export class Action {
     this.type = this.getActionType(action);
 
     if (action.accessKey != null) {
-      this.accessKey = action.accessKey!;
+      this.accessKey = new AccessKey(action.accessKey!);
     }
     if (action.args != null) {
       this.args = action.args!;
@@ -34,7 +36,7 @@ export class Action {
     }
 
     if (action.deposit) {
-      this.deposit = u128.from(action.deposit!.toUInt64());
+      this.deposit = u128.from(action.deposit!.toString());
     }
 
     if (action.gas) {
@@ -50,7 +52,7 @@ export class Action {
     }
 
     if (action.stake) {
-      this.stake = u128.from(action.stake!.toUInt64());
+      this.stake = u128.from(action.stake!.toString());
     }
   }
 
@@ -117,28 +119,20 @@ export class Action {
 
       serializer.encode_number<u64>(this.gas); // ['gas', 'u64'],
 
-      const depositBuff = this.deposit!.toUint8Array().buffer; // TODO: implement u128 serialization ['deposit', 'u128']
-      serializer.buffer.store_bytes(
-        changetype<usize>(depositBuff),
-        depositBuff.byteLength
-      );
+      serializeU128(serializer, this.deposit!)
     }
 
     if (this.type == "transfer") {
       serializer.encode_number<u8>(3); // 3 is index of 'transfer' in schema
 
-      const buff = this.deposit!.toUint8Array().buffer; // ['deposit', 'u128']
-      serializer.buffer.store_bytes(changetype<usize>(buff), buff.byteLength);
-      //serializer.encode_number<u128>(<u128>this.deposit);
+      serializeU128(serializer, this.deposit!); // ['deposit', 'u128']
       return;
     }
 
     if (this.type == "stake") {
       serializer.encode_number<u8>(4); // 4 is index of 'stake' in schema
 
-      const buff = this.stake!.toUint8Array().buffer; // ['stake', 'u128']
-      serializer.buffer.store_bytes(changetype<usize>(buff), buff.byteLength);
-      //serializer.encode_number<u128>(<u128>this.stake);
+      serializeU128(serializer, this.stake!); // ['stake', 'u128']
 
       serializer.encode_object(this.publicKey!);
       return;
@@ -148,8 +142,7 @@ export class Action {
       serializer.encode_number<u8>(5); // 5 is index of 'addKey' in schema
 
       serializer.encode_object(this.publicKey!);
-
-      //serializer.encode_object(this.accessKey!);
+      serializer.encode_object(this.accessKey!);
     }
 
     if (this.type == "deleteKey") {

@@ -1,16 +1,17 @@
 import {
-  AccessKey,
-  Action,
+  Interface_AccessKey as AccessKey,
+  Interface_Action as Action,
   Near_Near_AccessKey,
   Near_Near_Action,
   Near_Near_PublicKey,
   Near_Near_Transaction,
-  PublicKey,
-  Transaction,
+  Interface_PublicKey as PublicKey,
+  Interface_Transaction as Transaction,
+  Interface_Transaction,
 } from "../wrap";
 
 export function toPluginTransaction(
-  transaction: Transaction
+  transaction: Interface_Transaction
 ): Near_Near_Transaction {
   return {
     signerId: transaction.signerId,

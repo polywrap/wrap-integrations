@@ -1,5 +1,5 @@
 import { BorshSerializer } from "@serial-as/borsh";
-import { Signature as Near_Signature } from "../../wrap";
+import { Interface_Signature as Near_Signature } from "../wrap";
 
 export class Signature {
   data: ArrayBuffer;

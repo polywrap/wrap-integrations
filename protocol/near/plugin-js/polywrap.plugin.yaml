@@ -6,3 +6,5 @@ schema: ./schema.graphql
 import_redirects:
   - uri: wrap://ens/near.polywrap.eth
     schema: ../wrapper/build/schema.graphql
+  - uri: wrap://ens/near.interface.polywrap.eth
+    schema: ../near-interface/schema.graphql

@@ -1,4 +1,4 @@
-import { AccessKey, Action, PublicKey } from "../wrap";
+import { Interface_AccessKey as AccessKey, Interface_Action as Action, Interface_PublicKey as PublicKey } from "../wrap";
 
 import { BigInt, JSON } from "@polywrap/wasm-as";
 
@@ -6,7 +6,7 @@ export function createAccount(): Action {
   return {} as Action;
 }
 
-export function deployContract(code: ArrayBuffer): Action {
+export function deployContract(code: ArrayBuffer):  Action {
   return { code } as Action;
 }
 

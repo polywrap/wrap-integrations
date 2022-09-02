@@ -3,7 +3,6 @@ import {
   Args_createTransaction,
   Near_Module,
   AccessKeyInfo,
-  AccessKey,
   Args_sendMoney,
   Args_signAndSendTransactionAsync,
   Args_deleteKey,
@@ -19,12 +18,14 @@ import {
   Args_tsSerialize,
   Args_sendTransaction,
   Args_sendTransactionAsync,
-  SignedTransaction,
-  Transaction,
-  Action,
+  Interface_SignedTransaction,
+  Interface_AccessKey,
+  Interface_Transaction,
+  Interface_Action,
   Args_signTransaction,
-  FinalExecutionOutcome,
+  Interface_FinalExecutionOutcome,
   Near_Near_Action,
+  Borsh_Module,
 } from "../wrap";
 import * as bs58 from "as-base58";
 import * as bs64 from "as-base64";
@@ -37,23 +38,19 @@ import {
 import { toFinalExecutionOutcome } from "../utils/jsonMap";
 
 import * as action from "../utils/actionCreators";
-import { SignedTransaction as Borsh_SignedTransaction } from "../borsh/classes/SignedTransaction";
-import { Transaction as Borsh_Transaction } from "../borsh/classes/Transaction";
-import { Signature } from "../borsh/classes/Signature";
-import { BorshSerializer } from "@serial-as/borsh";
 import * as NEAR_READ from "../modules/read";
-import * as Borsh from "../borsh";
+
 import {
   fromPluginTransaction,
   toPluginAction,
   toPluginTransaction,
 } from "../utils/typeMapping";
 import JsonRpcProvider from "../utils/JsonRpcProvider";
+import { toBorshSignedTransaction, toBorshTransaction } from "../utils/toBorsh";
 
-export const serializeTransaction = Borsh.serializeTransaction;
-export const deserializeTransaction = Borsh.deserializeTransaction;
-
-export function createTransaction(args: Args_createTransaction): Transaction {
+export function createTransaction(
+  args: Args_createTransaction
+): Interface_Transaction {
   if (args.signerId == null) {
     const result = Near_Module.createTransactionWithWallet({
       receiverId: args.receiverId,
@@ -73,7 +70,7 @@ export function createTransaction(args: Args_createTransaction): Transaction {
       `Can not sign transactions for account ${signerId} on requested network, no matching key pair found in signer.`
     );
   }
-  const accessKey: AccessKey = accessKeyInfo.accessKey;
+  const accessKey: Interface_AccessKey = accessKeyInfo.accessKey;
   const publicKey = accessKeyInfo.publicKey;
   const block: BlockResult = NEAR_READ.getBlock({
     blockQuery: {
@@ -102,9 +99,9 @@ export function signTransaction(
 ): SignTransactionResult {
   const transaction = args.transaction;
 
-  const message = serializeTransaction({
-    transaction: transaction,
-  });
+  const message = Borsh_Module.serializeTransaction({
+    transaction: toBorshTransaction(transaction),
+  }).unwrap();
 
   const signature = Near_Module.signMessage({
     signerId: transaction.signerId,
@@ -117,36 +114,23 @@ export function signTransaction(
       keyType: signature.keyType,
       data: signature.data,
     },
-  } as SignedTransaction;
+  } as Interface_SignedTransaction;
 
   //const hash = Uint8Array.from(message); =? const hash = new Uint8Array(sha256.sha256.array(message));
-  
+
   return { hash: message, signedTx } as SignTransactionResult;
 }
 
-/* export function sendTransaction(
-  args: Args_sendTransaction
-): Near_FinalExecutionOutcome {
-  return Near_Module.sendTransaction({ signedTx: args.signedTx }).unwrap();
-} */
-
 export function sendTransaction(
   args: Args_sendTransaction
-): FinalExecutionOutcome {
-  const signedTx = args.signedTx;
-  const nearSignedTx = new Borsh_SignedTransaction(
-    new Borsh_Transaction(signedTx.transaction),
-    new Signature(signedTx.signature)
-  );
-
-  const serializer = new BorshSerializer();
-  serializer.encode_object(nearSignedTx);
-
-  const bytes = serializer.get_encoded_object();
+): Interface_FinalExecutionOutcome {
+  const signedTxBytes = Borsh_Module.serializeSignedTransaction({
+    signedTransaction: toBorshSignedTransaction(args.signedTx),
+  }).unwrap();
 
   const encoder = new JSONEncoder();
 
-  const bytesEncoded = bs64.encode(Uint8Array.wrap(bytes));
+  const bytesEncoded = bs64.encode(Uint8Array.wrap(signedTxBytes));
 
   encoder.pushArray(null);
   encoder.setString(null, bytesEncoded);
@@ -155,26 +139,21 @@ export function sendTransaction(
   const params = JSON.parse(encoder.serialize());
 
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  const result: JSON.Obj = provider.sendJsonRpc("broadcast_tx_commit", params);
+  const result: JSON.Obj = <JSON.Obj>(
+    provider.sendJsonRpc("broadcast_tx_commit", params)
+  );
 
   return toFinalExecutionOutcome(<JSON.Obj>result);
 }
 
 export function sendTransactionAsync(args: Args_sendTransactionAsync): string {
-  const signedTx = args.signedTx;
-  const nearSignedTx = new Borsh_SignedTransaction(
-    new Borsh_Transaction(signedTx.transaction),
-    new Signature(signedTx.signature)
-  );
-
-  const serializer = new BorshSerializer();
-  serializer.encode_object(nearSignedTx);
-
-  const bytes = serializer.get_encoded_object();
+  const signedTxBytes = Borsh_Module.serializeSignedTransaction({
+    signedTransaction: toBorshSignedTransaction(args.signedTx),
+  }).unwrap();
 
   const encoder = new JSONEncoder();
 
-  const bytesEncoded = bs64.encode(Uint8Array.wrap(bytes));
+  const bytesEncoded = bs64.encode(Uint8Array.wrap(signedTxBytes));
 
   encoder.pushArray(null);
   encoder.setString(null, bytesEncoded);
@@ -184,33 +163,17 @@ export function sendTransactionAsync(args: Args_sendTransactionAsync): string {
 
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
 
-  const result: JSON.Obj = provider.sendJsonRpc("broadcast_tx_async", params);
+  const result = provider.sendJsonRpc("broadcast_tx_async", params);
 
   return result.toString();
 }
 
-/* export function signAndSendTransaction(
-  args: Args_signAndSendTransaction
-): Near_FinalExecutionOutcome {
-  const transaction: Near_Transaction = createTransaction({
-    receiverId: args.receiverId,
-    actions: args.actions,
-    signerId: args.signerId,
-  });
-  const signedTxResult: Near_SignTransactionResult = signTransaction({
-    transaction: transaction,
-  });
-  //----------TODO borsh-wrapper serialization
-  //const signedTxResult: SignTransactionResult = testSign({ transaction: transaction });
-  return sendTransaction({ signedTx: signedTxResult.signedTx });
-} */
-
 export function signAndSendTransaction(
   args: Args_signAndSendTransaction
-): FinalExecutionOutcome {
-  const transaction: Transaction = createTransaction({
+): Interface_FinalExecutionOutcome {
+  const transaction: Interface_Transaction = createTransaction({
     receiverId: args.receiverId,
-    actions: <Action[]>args.actions,
+    actions: args.actions,
     signerId: args.signerId,
   });
 
@@ -224,9 +187,9 @@ export function signAndSendTransaction(
 export function signAndSendTransactionAsync(
   args: Args_signAndSendTransactionAsync
 ): string {
-  const transaction: Transaction = createTransaction({
+  const transaction: Interface_Transaction = createTransaction({
     receiverId: args.receiverId,
-    actions: <Action[]>args.actions,
+    actions: <Interface_Action[]>args.actions,
     signerId: args.signerId,
   });
 
@@ -236,12 +199,12 @@ export function signAndSendTransactionAsync(
   return sendTransactionAsync({ signedTx: signedTxResult.signedTx });
 }
 
-//----------------------------------------------TODO: borsh-wrapper-serialize ----------------------------------------------
+//----------------------------------------------borsh-wrapper-serialize test-only ----------------------------------------------
 
 export function asSerialize(args: Args_asSerialize): ArrayBuffer {
-  return serializeTransaction({
-    transaction: args.transaction,
-  });
+  return Borsh_Module.serializeTransaction({
+    transaction: toBorshTransaction(args.transaction),
+  }).unwrap();
 }
 
 export function tsSerialize(args: Args_tsSerialize): ArrayBuffer {
@@ -254,13 +217,13 @@ export function tsSerialize(args: Args_tsSerialize): ArrayBuffer {
 
 //------ Action specific Transactions
 
-export function addKey(args: Args_addKey): FinalExecutionOutcome {
+export function addKey(args: Args_addKey): Interface_FinalExecutionOutcome {
   // https://github.com/near/near-api-js/blob/e29a41812ac79579cc12b051f8ef04d2f3606a75/src/account.ts#L445
   let methodNames: string[] = [];
   if (args.methodNames !== null) {
     methodNames = <string[]>args.methodNames;
   }
-  let accessKey: AccessKey;
+  let accessKey: Interface_AccessKey;
   if (args.contractId !== null && args.amount !== null) {
     accessKey = functionCallAccessKey(
       <string>args.contractId,
@@ -273,11 +236,13 @@ export function addKey(args: Args_addKey): FinalExecutionOutcome {
   return signAndSendTransaction({
     receiverId: args.signerId,
     signerId: args.signerId,
-    actions: [{ publicKey: args.publicKey, accessKey: accessKey } as Action],
+    actions: [
+      { publicKey: args.publicKey, accessKey: accessKey } as Interface_Action,
+    ],
   });
 }
 
-export function createAccount(args: Args_createAccount): FinalExecutionOutcome {
+export function createAccount(args: Args_createAccount): Interface_FinalExecutionOutcome {
   return signAndSendTransaction({
     receiverId: args.newAccountId,
     signerId: args.signerId,
@@ -289,7 +254,7 @@ export function createAccount(args: Args_createAccount): FinalExecutionOutcome {
   });
 }
 
-export function deleteAccount(args: Args_deleteAccount): FinalExecutionOutcome {
+export function deleteAccount(args: Args_deleteAccount): Interface_FinalExecutionOutcome {
   return signAndSendTransaction({
     receiverId: args.accountId,
     signerId: args.signerId,
@@ -299,7 +264,7 @@ export function deleteAccount(args: Args_deleteAccount): FinalExecutionOutcome {
 
 export function deployContract(
   args: Args_deployContract
-): FinalExecutionOutcome {
+): Interface_FinalExecutionOutcome {
   return signAndSendTransaction({
     receiverId: args.contractId,
     signerId: args.signerId,
@@ -307,7 +272,7 @@ export function deployContract(
   });
 }
 
-export function sendMoney(args: Args_sendMoney): FinalExecutionOutcome {
+export function sendMoney(args: Args_sendMoney): Interface_FinalExecutionOutcome {
   return signAndSendTransaction({
     receiverId: args.receiverId,
     signerId: args.signerId,
@@ -315,7 +280,7 @@ export function sendMoney(args: Args_sendMoney): FinalExecutionOutcome {
   });
 }
 
-export function functionCall(args: Args_functionCall): FinalExecutionOutcome {
+export function functionCall(args: Args_functionCall): Interface_FinalExecutionOutcome {
   const actions = [
     action.functionCall(args.methodName, args.args, args.gas, args.deposit),
   ];
@@ -337,7 +302,7 @@ export function functionCall(args: Args_functionCall): FinalExecutionOutcome {
   return sendTransaction({ signedTx: signedTxResult.signedTx });
 }
 
-export function deleteKey(args: Args_deleteKey): FinalExecutionOutcome {
+export function deleteKey(args: Args_deleteKey): Interface_FinalExecutionOutcome {
   return signAndSendTransaction({
     receiverId: args.signerId,
     signerId: args.signerId,
@@ -347,7 +312,7 @@ export function deleteKey(args: Args_deleteKey): FinalExecutionOutcome {
 
 export function createAndDeployContract(
   args: Args_createAndDeployContract
-): FinalExecutionOutcome {
+): Interface_FinalExecutionOutcome {
   return signAndSendTransaction({
     receiverId: args.contractId,
     signerId: args.signerId,

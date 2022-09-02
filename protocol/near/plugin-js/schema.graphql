@@ -1,4 +1,4 @@
-#import { Signature, SignedTransaction, FinalExecutionOutcome, ExecutionStatus, ExecutionOutcome, ExecutionOutcomeWithId } into Near from "wrap://ens/near.polywrap.eth"
+#import { Signature, SignedTransaction, FinalExecutionOutcome, ExecutionStatus, ExecutionOutcome, ExecutionOutcomeWithId } into Near from "wrap://ens/near.interface.polywrap.eth"
 
 type Module {
   getConfig: ConnectionConfig!
