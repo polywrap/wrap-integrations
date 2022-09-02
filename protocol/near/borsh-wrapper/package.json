@@ -10,7 +10,8 @@
     "test:env:down": "npx polywrap infra down --modules=eth-ens-ipfs",
     "deploy": "npx polywrap deploy",
     "test": "yarn test:e2e && yarn test:workflow",
-    "test:e2e": "jest --passWithNoTests --runInBand --verbose"
+    "test:e2e": "jest --passWithNoTests --runInBand --verbose",
+    "fuzz:borsh": "npx jsfuzz src/__tests__/fuzz/borsh.ts src/__tests__/fuzz/corpus/"
   },
   "devDependencies": {
     "@polywrap/client-js": "0.2.0",
@@ -25,6 +26,7 @@
   },
   "dependencies": {
     "@serial-as/borsh": "^1.0.4",
-    "as-variant": "^0.4.0"
+    "as-variant": "^0.4.0",
+    "jsfuzz": "^1.0.15"
   }
 }
