@@ -14,8 +14,6 @@ import {
   Args_addKey,
   Args_deleteAccount,
   SignTransactionResult,
-  Args_asSerialize,
-  Args_tsSerialize,
   Args_sendTransaction,
   Args_sendTransactionAsync,
   Interface_SignedTransaction,
@@ -198,22 +196,6 @@ export function signAndSendTransactionAsync(
   });
   return sendTransactionAsync({ signedTx: signedTxResult.signedTx });
 }
-
-//----------------------------------------------borsh-wrapper-serialize test-only ----------------------------------------------
-
-export function asSerialize(args: Args_asSerialize): ArrayBuffer {
-  return Borsh_Module.serializeTransaction({
-    transaction: toBorshTransaction(args.transaction),
-  }).unwrap();
-}
-
-export function tsSerialize(args: Args_tsSerialize): ArrayBuffer {
-  return Near_Module.serializeTransaction({
-    transaction: toPluginTransaction(args.transaction),
-  }).unwrap();
-}
-
-//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 //------ Action specific Transactions
 

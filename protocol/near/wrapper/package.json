@@ -20,7 +20,7 @@
     "test:transactions": "jest ./e2e/transactions.spec.ts --passWithNoTests --runInBand --verbose --silent=false",
     "test:wallet": "jest ./e2e/wallet.spec.ts --passWithNoTests --runInBand --verbose --silent=false",
     "test:format": "jest ./e2e/format.spec.ts --passWithNoTests --runInBand --verbose --silent=false",
-    "test:serialization": "jest ./e2e/serialization.spec.ts --passWithNoTests --runInBand --verbose --silent=false"
+    "test:borsh": "jest ./e2e/borsh.spec.ts --passWithNoTests --runInBand --verbose --silent=false"
   },
   "dependencies": {
     "as-base58": "0.1.1",

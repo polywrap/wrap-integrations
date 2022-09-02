@@ -44,11 +44,6 @@ type Module {
     accountId: String!
     networkId: String!
   ): PublicKey!
-
-  ##### TODO borsh-wrapper serialization
-  serializeTransaction(transaction: Near_Transaction!): Bytes!
-  ######
-
 }
 
 type ConnectionConfig {
