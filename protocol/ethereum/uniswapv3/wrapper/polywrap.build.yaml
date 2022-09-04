@@ -7,8 +7,12 @@ config:
     - ./package.json
     - src/pool
     - src/position
+    - src/route
     - src/router
     - src/swap
     - src/tickList
     - src/token
+    - src/trade
     - src/utils
+    - src/index.ts
+    - src/schema.graphql

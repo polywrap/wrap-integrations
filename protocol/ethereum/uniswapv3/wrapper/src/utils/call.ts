@@ -23,14 +23,14 @@ export function execCall(args: Args_execCall): Ethereum_TxResponse {
   return Ethereum_Module.sendTransaction({
     tx: {
       to: address,
-      m_from: null,
+      _from: null,
       nonce: new Option(),
       gasLimit: gasOptions === null ? null : gasOptions.gasLimit,
       gasPrice: gasOptions === null ? null : gasOptions.gasPrice,
       data: methodParameters.calldata,
       value: BigInt.fromString(methodParameters.value, 16),
       chainId: null,
-      m_type: new Option(),
+      _type: new Option(),
     },
     connection: {
       node: null,

@@ -52,11 +52,11 @@ async function getPoolState(poolContract: ethers.Contract): Promise<State> {
   };
 }
 
-async function getPoolTicks(address: string): Promise<Tick[]> {
+async function getPoolTicks(address: string, skip: number = 0): Promise<Tick[]> {
   const APIURL = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3';
   const tokensQuery = `
     query {
-      ticks(first: 1000, skip: 0, where: { poolAddress: "${address}" }, orderBy: tickIdx) {
+      ticks(first: 1000, skip: ${skip}, where: { poolAddress: "${address}" }, orderBy: tickIdx) {
         tickIdx
         liquidityGross
         liquidityNet
@@ -69,6 +69,17 @@ async function getPoolTicks(address: string): Promise<Tick[]> {
     liquidityGross: v.liquidityGross,
     liquidityNet: v.liquidityNet,
   }));
+}
+
+async function getAllPoolTicks(address: string): Promise<Tick[]> {
+  let skip: number = 0;
+  let ticks: Tick[] = await getPoolTicks(address, skip);
+  while (ticks.length % 1000 === 0) {
+    skip += 1000;
+    const query = await getPoolTicks(address, skip);
+    ticks = ticks.concat(query);
+  }
+  return ticks;
 }
 
 async function getToken(tokenContract: ethers.Contract): Promise<Token> {
@@ -101,7 +112,7 @@ export async function getUniswapPool(provider: ethers.providers.Provider, poolAd
 
   let ticks: Tick[] | undefined;
   if (fetchTicks && !useTicks) {
-    ticks = await getPoolTicks(poolAddress);
+    ticks = await getAllPoolTicks(poolAddress);
   } else {
     ticks = useTicks;
   }

@@ -4,14 +4,12 @@ import { ClientConfig } from "@polywrap/client-js";
 import { ethereumPlugin, Connections, Connection } from "@polywrap/ethereum-plugin-js";
 
 export function getPlugins(): Partial<ClientConfig> {
-
-  const connections = new Connections({
+  const connections: Connections = new Connections({
     networks: {
-      MAINNET: new Connection({ provider: "http://localhost:8546" }),
+      mainnet: new Connection({ provider: "http://localhost:8546" }),
     },
-    defaultNetwork: "MAINNET"
+    defaultNetwork: "mainnet",
   });
-
   return {
     plugins: [
       {
