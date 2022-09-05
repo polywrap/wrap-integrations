@@ -1,4 +1,4 @@
-import { BorshDeserializer, BorshSerializer } from "@serial-as/borsh";
+import { BorshDeserializer, BorshSerializer } from "@cidt/as-borsh";
 import { Interface_Signature as Near_Signature } from "../wrap";
 
 export class Signature {

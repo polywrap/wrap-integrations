@@ -1,4 +1,4 @@
-import { BorshDeserializer, BorshSerializer } from "@serial-as/borsh";
+import { BorshDeserializer, BorshSerializer } from "@cidt/as-borsh";
 import { Transaction } from "./Transaction";
 import { Signature } from "./Signature";
 

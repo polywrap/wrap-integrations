@@ -1,4 +1,4 @@
-import { BorshDeserializer, BorshSerializer } from "@serial-as/borsh";
+import { BorshDeserializer, BorshSerializer } from "@cidt/as-borsh";
 import { Interface_PublicKey as Near_PublicKey } from "../wrap";
 
 export class PublicKey {

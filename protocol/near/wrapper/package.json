@@ -34,7 +34,6 @@
     "@polywrap/client-js": "0.2.0",
     "@polywrap/test-env-js": "0.2.0",
     "@polywrap/wasm-as": "^0.3.0",
-    "@serial-as/borsh": "^1.0.4",
     "@types/bn.js": "5.1.0",
     "@types/jest": "27.0.2",
     "@typescript-eslint/eslint-plugin": "4.11.1",

@@ -1,4 +1,4 @@
-import { BorshSerializer, BorshDeserializer } from "@serial-as/borsh";
+import { BorshSerializer, BorshDeserializer } from "@cidt/as-borsh";
 import { Interface_Transaction } from "../wrap";
 import { Action } from "./Action";
 import { PublicKey } from "./PublicKey";

@@ -1,4 +1,4 @@
-import { BorshDeserializer, BorshSerializer } from "@serial-as/borsh";
+import { BorshDeserializer, BorshSerializer } from "@cidt/as-borsh";
 import { u128 } from "as-bignum";
 
 export function serializeU128(serializer: BorshSerializer, value: u128): void {

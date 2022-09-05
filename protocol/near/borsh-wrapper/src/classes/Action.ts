@@ -1,6 +1,5 @@
 import { u128 } from "as-bignum";
-import { BigInt } from "@polywrap/wasm-as";
-import { BorshSerializer, BorshDeserializer } from "@serial-as/borsh";
+import { BorshSerializer, BorshDeserializer } from "@cidt/as-borsh";
 import { Interface_Action } from "../wrap";
 import { PublicKey } from "./PublicKey";
 import { AccessKey } from "./AccessKey";

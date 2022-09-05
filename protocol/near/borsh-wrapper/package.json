@@ -17,16 +17,17 @@
     "@polywrap/client-js": "0.2.0",
     "@polywrap/wasm-as": "0.2.0",
     "@types/jest": "27.0.3",
-    "assemblyscript": "0.19.1",
+    "assemblyscript": "0.19.2",
     "borsh": "^0.7.0",
     "jest": "26.6.3",
+    "jsfuzz": "^1.0.15",
     "polywrap": "0.2.0",
     "ts-jest": "26.5.4",
     "typescript": "4.0.7"
   },
   "dependencies": {
-    "@serial-as/borsh": "^1.0.4",
-    "as-variant": "^0.4.0",
-    "jsfuzz": "^1.0.15"
+    "@cidt/as-borsh": "^1.0.1",
+    "as-bignum": "^0.2.23",
+    "as-variant": "^0.4.0"
   }
 }

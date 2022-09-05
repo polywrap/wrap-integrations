@@ -1,4 +1,4 @@
-import { BorshDeserializer, BorshSerializer } from "@serial-as/borsh";
+import { BorshDeserializer, BorshSerializer } from "@cidt/as-borsh";
 import { Interface_AccessKey as Near_AccessKey } from "../wrap";
 import AccessKeyPermission from "./AccessKeyPermission";
 

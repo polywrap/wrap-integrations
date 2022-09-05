@@ -1,4 +1,4 @@
-import { BorshDeserializer, BorshSerializer } from "@serial-as/borsh";
+import { BorshDeserializer, BorshSerializer } from "@cidt/as-borsh";
 import { u128 } from "as-bignum";
 import { Interface_AccessKeyPermission as Near_AccessKeyPermission } from "../wrap";
 import { deserializeU128, serializeU128 } from "../utils";
