@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v2
 
       # NEAR interface
-      - name (NEAR Interface) Read .nvmrc
+      - name: (NEAR Interface) Read .nvmrc
         run: echo ::set-output name=NVMRC::$(cat .nvmrc)
         id: near-interface-nvm
         working-directory: ./protocol/near/near-interface
