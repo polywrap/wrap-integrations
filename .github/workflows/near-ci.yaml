@@ -14,6 +14,40 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # NEAR interface
+      - name (NEAR Interface) Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: near-interface-nvm
+        working-directory: ./protocol/near/near-interface
+
+      - name: (NEAR Interface) Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: '${{ steps.near-interface-nvm.outputs.NVMRC }}'
+
+      - name: (NEAR Interface) Install dependencies
+        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+        working-directory: ./protocol/near/near-interface
+
+      # NEAR borsh-wrapper
+      - name: (NEAR Borsh wrapper) Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: near-borsh-wrapper-nvm
+        working-directory: ./protocol/near/borsh-wrapper
+
+      - name: (NEAR Borsh wrapper) Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: '${{ steps.near-borsh-wrapper-nvm.outputs.NVMRC }}'
+
+      - name: (NEAR Borsh wrapper) Install dependencies
+        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+        working-directory: ./protocol/near/borsh-wrapper
+
+      - name: (NEAR Borsh wrapper) Build
+        run: yarn build
+        working-directory: ./protocol/near/borsh-wrapper
+
       # NEAR plugin
       - name: (NEAR Plugin) Read .nvmrc
         run: echo ::set-output name=NVMRC::$(cat .nvmrc)
