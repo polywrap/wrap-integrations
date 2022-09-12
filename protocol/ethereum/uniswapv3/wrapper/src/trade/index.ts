@@ -42,7 +42,7 @@ import {
 import { Price, Fraction, PriorityQueue } from "../utils";
 import { createRoute } from "../route";
 
-import { BigInt, Option } from "@polywrap/wasm-as";
+import { BigInt, Box } from "@polywrap/wasm-as";
 
 /**
  * private constructor; constructs and validates trade
@@ -446,13 +446,13 @@ export function bestTradeExactIn(args: Args_bestTradeExactIn): Trade[] {
   if (pools.length == 0) {
     throw new Error("POOLS: pools array is empty");
   }
-  if (options.maxHops.unwrap() == 0) {
+  if (options.maxHops!.unwrap() == 0) {
     throw new Error("MAX_HOPS: maxHops must be greater than zero");
   }
 
   return _bestTradeExactIn(pools, amountIn, tokenOut, options)
     .toArray()
-    .slice(0, options.maxNumResults.unwrap());
+    .slice(0, options.maxNumResults!.unwrap());
 }
 
 function _bestTradeExactIn(
@@ -503,7 +503,7 @@ function _bestTradeExactIn(
         tradeType: TradeType.EXACT_INPUT,
       });
       bestTrades.insert(newTrade);
-    } else if (options.maxHops.unwrap() > 1 && pools.length > 1) {
+    } else if (options.maxHops!.unwrap() > 1 && pools.length > 1) {
       const poolsExcludingThisPool: Pool[] = pools
         .slice(0, i)
         .concat(pools.slice(i + 1));
@@ -515,7 +515,7 @@ function _bestTradeExactIn(
         currencyOut,
         {
           maxNumResults: options.maxNumResults,
-          maxHops: new Option(options.maxHops.unwrap() - 1, false),
+          maxHops: options.maxHops!.postDec(),
         },
         currentPools.concat([pool]),
         amountOut,
@@ -547,13 +547,13 @@ export function bestTradeExactOut(args: Args_bestTradeExactOut): Trade[] {
   if (pools.length == 0) {
     throw new Error("POOLS: pools array is empty");
   }
-  if (options.maxHops.unwrap() == 0) {
+  if (options.maxHops!.unwrap() == 0) {
     throw new Error("MAX_HOPS: maxHops must be greater than zero");
   }
 
   return _bestTradeExactOut(pools, tokenIn, amountOut, options)
     .toArray()
-    .slice(0, options.maxNumResults.unwrap());
+    .slice(0, options.maxNumResults!.unwrap());
 }
 
 function _bestTradeExactOut(
@@ -611,7 +611,7 @@ function _bestTradeExactOut(
         tradeType: TradeType.EXACT_OUTPUT,
       });
       bestTrades.insert(newTrade);
-    } else if (options.maxHops.unwrap() > 1 && pools.length > 1) {
+    } else if (options.maxHops!.unwrap() > 1 && pools.length > 1) {
       const poolsExcludingThisPool: Pool[] = pools
         .slice(0, i)
         .concat(pools.slice(i + 1));
@@ -623,7 +623,7 @@ function _bestTradeExactOut(
         currencyAmountOut,
         {
           maxNumResults: options.maxNumResults,
-          maxHops: new Option(options.maxHops.unwrap() - 1, false),
+          maxHops: options.maxHops!.postDec(),
         },
         [pool].concat(currentPools),
         amountIn,
@@ -685,15 +685,12 @@ function fillBestTradeOptions(
 ): BestTradeOptions {
   return options === null
     ? {
-        maxNumResults: new Option(3, false),
-        maxHops: new Option(3, false),
+        maxNumResults: new Box(3),
+        maxHops: new Box(3),
       }
     : {
-        maxNumResults: options.maxNumResults.isNone
-          ? new Option(3, false)
-          : options.maxNumResults,
-        maxHops: options.maxHops.isNone
-          ? new Option(3, false)
-          : options.maxHops,
+        maxNumResults:
+          options.maxNumResults === null ? new Box(3) : options.maxNumResults,
+        maxHops: options.maxHops === null ? new Box(3) : options.maxHops,
       };
 }
