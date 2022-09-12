@@ -1,5 +1,4 @@
 import {
-  buildAndDeployWrapper,
   initTestEnvironment,
   stopTestEnvironment,
   providers as testEnvProviders,
@@ -19,7 +18,7 @@ describe("ENS Wrapper", () => {
   let ownerClient: PolywrapClient;
   let anotherOwnerClient: PolywrapClient;
 
-  let ensUri: string;
+  let fsUri: string;
   let ethersProvider: providers.JsonRpcProvider;
   let registryAddress: string;
   let registrarAddress: string;
@@ -41,13 +40,8 @@ describe("ENS Wrapper", () => {
 
     // deploy api
     const apiPath: string = path.resolve(__dirname + "/../../");
-    const api = await buildAndDeployWrapper({
-      wrapperAbsPath: apiPath,
-      ethereumProvider: testEnvProviders.ethereum,
-      ipfsProvider: testEnvProviders.ipfs,
-      ensName: "test-domain.eth"
-    });
-    ensUri = `ens/testnet/${api.ensDomain}`;
+    await buildWrapper(apiPath);
+    fsUri = `fs/${apiPath}/build`;
 
     // set up ethers provider
     ethersProvider = providers.getDefaultProvider(
@@ -102,7 +96,7 @@ describe("ENS Wrapper", () => {
       data: registerData,
       error: registerError,
     } = await ownerClient.invoke<string>({
-      uri: ensUri,
+      uri: fsUri,
       method: "registerDomain",
       args: {
         domain: customTld,
@@ -124,7 +118,7 @@ describe("ENS Wrapper", () => {
       data: setResolverData,
       error: setResolverError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "setResolver", 
       args: {
         domain: customTld,
@@ -144,7 +138,7 @@ describe("ENS Wrapper", () => {
       data: getResolverData,
       error: getResolverError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "getResolver",
       args: {
         domain: customTld,
@@ -166,7 +160,7 @@ describe("ENS Wrapper", () => {
       data: setSubdomainOwnerData,
       error: setSubdomainError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "setSubdomainOwner",
       args: {
         subdomain,
@@ -185,7 +179,7 @@ describe("ENS Wrapper", () => {
       data: getOwnerData,
       error: getOwnerError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "getOwner",
       args: {
         domain: subdomain,
@@ -207,7 +201,7 @@ describe("ENS Wrapper", () => {
       data: registerDomainAndSubdomainsRecursivelyData,
       error: registerDomainAndSubdomainsRecursivelyError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "registerDomainAndSubdomainsRecursively",
       args: {
         domain,
@@ -240,7 +234,7 @@ describe("ENS Wrapper", () => {
       data: getOwnerData,
       error: getOwnerError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "getOwner",
       args: {
         domain,
@@ -263,7 +257,7 @@ describe("ENS Wrapper", () => {
       data: domainWithNoSubdomainData,
       error: domainWithNoSubdomainError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "registerDomainAndSubdomainsRecursively",
       args: {
         domain: domainWithNoSubdomain,
@@ -293,7 +287,7 @@ describe("ENS Wrapper", () => {
     const subdomain = `already.registered.${tld}`;
 
     await ownerClient.invoke<string>({
-      uri: ensUri,
+      uri: fsUri,
       method: "",
       args: {
         domain: tld,
@@ -307,7 +301,7 @@ describe("ENS Wrapper", () => {
     });
 
     await ownerClient.invoke<string>({
-      uri: ensUri,
+      uri: fsUri,
       method: "registerDomain",
       args: {
         domain: rootDomain,
@@ -321,7 +315,7 @@ describe("ENS Wrapper", () => {
     });
 
     await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "setSubdomainRecord",
       args: {
         domain: rootDomain,
@@ -340,7 +334,7 @@ describe("ENS Wrapper", () => {
       data: registerDomainAndSubdomainsRecursivelyData,
       error: registerDomainAndSubdomainsRecursivelyError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "registerDomainAndSubdomainsRecursively",
       args: {
         domain: subdomain,
@@ -373,7 +367,7 @@ describe("ENS Wrapper", () => {
       data: getOwnerData,
       error: getOwnerError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "getOwner",
       args: {
         domain: subdomain,
@@ -394,7 +388,7 @@ describe("ENS Wrapper", () => {
     const subdomain = `aaa.bbb.ccc.${tld}`;
 
     await ownerClient.invoke<string>({
-      uri: ensUri,
+      uri: fsUri,
       method: "registerDomain",
       args: {
         domain: tld,
@@ -411,7 +405,7 @@ describe("ENS Wrapper", () => {
       data: registerSubdomainsRecursivelyData,
       error: registerSubdomainsRecursivelyError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "registerSubdomainsRecursively",
       args: {
         domain: subdomain,
@@ -442,7 +436,7 @@ describe("ENS Wrapper", () => {
       data: getOwnerData,
       error: getOwnerError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "getOwner",
       args: {
         domain: subdomain,
@@ -463,7 +457,7 @@ describe("ENS Wrapper", () => {
       data: setSubdomainRecordData,
       error: setSubdomainRecordError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "setSubdomainRecord",
       args: {
         domain: customTld,
@@ -485,7 +479,7 @@ describe("ENS Wrapper", () => {
       data: getOwnerData,
       error: getOwnerError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "getOwner",
       args: {
         domain: customSubdomain,
@@ -504,7 +498,7 @@ describe("ENS Wrapper", () => {
       data: getOldOwnerData,
       error: getOldOwnerError,
     } = await anotherOwnerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "getOwner",
       args: {
         domain: customSubdomain,
@@ -522,7 +516,7 @@ describe("ENS Wrapper", () => {
       data: setOwnerData,
       error: setOwnerError,
     } = await anotherOwnerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "setOwner",
       args: {
         domain: customSubdomain,
@@ -541,7 +535,7 @@ describe("ENS Wrapper", () => {
       data: getNewOwnerData,
       error: getNewOwnerError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "getOwner",
       args: {
         domain: customSubdomain,
@@ -563,7 +557,7 @@ describe("ENS Wrapper", () => {
       data: setContentHashData,
       error: setContentHashError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "setContentHash",
       args: {
         domain: customSubdomain,
@@ -582,7 +576,7 @@ describe("ENS Wrapper", () => {
       data: getContentHashData,
       error: getContentHashError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "getContentHash",
       args: {
         domain: customSubdomain,
@@ -600,7 +594,7 @@ describe("ENS Wrapper", () => {
       data: getContentHashFromDomainData,
       error: getContentHashFromDomainError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "getContentHashFromDomain",
       args: {
         domain: customSubdomain,
@@ -620,7 +614,7 @@ describe("ENS Wrapper", () => {
       data: setAddressData,
       error: setAddressError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "setAddress",
       args: {
         domain: customTld,
@@ -639,7 +633,7 @@ describe("ENS Wrapper", () => {
       data: getAddressData,
       error: getAddressError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "getAddress",
       args: {
         domain: customTld,
@@ -657,7 +651,7 @@ describe("ENS Wrapper", () => {
       data: getAddressFromDomainData,
       error: getAddressFromDomainError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "getAddressFromDomain",
       args: {
         domain: customTld,
@@ -677,7 +671,7 @@ describe("ENS Wrapper", () => {
       data: reverseRegistryData,
       error: reverseRegistryError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "reverseRegisterDomain",
       args: {
         domain: customTld,
@@ -698,7 +692,7 @@ describe("ENS Wrapper", () => {
       data: getNameFromAddressData,
       error: getNameFromAddressError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "getNameFromAddress",
       args: {
         address: owner,
@@ -716,7 +710,7 @@ describe("ENS Wrapper", () => {
       data: getNameFromReverseResolverData,
       error: getNameFromReverseResolverError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "getNameFromReverseResolver",
       args: {
         address: owner,
@@ -739,7 +733,7 @@ describe("ENS Wrapper", () => {
       data: setTextRecordData,
       error: setTextRecordError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "setTextRecord",
       args: {
         domain: customTld,
@@ -759,7 +753,7 @@ describe("ENS Wrapper", () => {
       data: getTextRecordData,
       error: getTextRecordError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "getTextRecord",
       args: {
         domain: customTld,
@@ -783,7 +777,7 @@ describe("ENS Wrapper", () => {
         fifsRegistrarAddress: string;
         setOwnerTxReceipt: any;
       }>({
-      uri: ensUri,
+      uri: fsUri,
       method: "configureOpenDomain",
       args: {
         tld: openSubdomain,
@@ -801,7 +795,7 @@ describe("ENS Wrapper", () => {
     expect(configureOpenDomainData).toBeDefined();
 
     const { data: getOwnerData } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "getOwner",
       args: {
         domain: openSubdomain,
@@ -824,7 +818,7 @@ describe("ENS Wrapper", () => {
       data: createSubdomainInOpenDomainData,
       error: createSubdomainInOpenDomainError,
     } = await anotherOwnerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "createSubdomainInOpenDomain",
       args: {
         label: "label",
@@ -850,7 +844,7 @@ describe("ENS Wrapper", () => {
       data: createSubdomainInOpenDomainAndSetContentHashData,
       error: createSubdomainInOpenDomainAndSetContentHashError,
     } = await anotherOwnerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "createSubdomainInOpenDomainAndSetContentHash",
       args: {
         cid,
@@ -873,7 +867,7 @@ describe("ENS Wrapper", () => {
       data: getContentHashFromDomainData,
       error: getContentHashFromDomainError,
     } = await ownerClient.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "getContentHashFromDomain",
       args: {
         domain: "label2." + openSubdomain,
