@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "rimraf ./build && yarn codegen && tsc --project tsconfig.build.json",
-    "codegen": "node ./node_modules/polywrap/bin/polywrap plugin codegen",
+    "codegen": "node ./node_modules/polywrap/bin/polywrap codegen",
     "codegen:app": "npx polywrap app codegen -m src/__tests__/types/polywrap.app.yaml -g src/__tests__/types/wrap",
     "lint": "eslint --color --ext .ts src/",
     "test": "yarn codegen:app && jest --passWithNoTests --runInBand --verbose",
@@ -18,16 +18,16 @@
     "test:watch": "jest --watch --passWithNoTests --verbose"
   },
   "dependencies": {
-    "@ethersproject/address": "5.0.7",
-    "@ethersproject/providers": "5.0.7",
-    "polywrap": "0.2.0",
-    "@polywrap/core-js": "0.2.0",
-    "ethers": "5.0.7"
+    "@ethersproject/address": "5.7.0",
+    "@ethersproject/providers": "5.7.0",
+    "polywrap": "0.7.0",
+    "@polywrap/core-js": "0.7.0",
+    "ethers": "5.7.0"
   },
   "devDependencies": {
     "@types/jest": "26.0.8",
-    "@polywrap/client-js": "0.2.0",
-    "@polywrap/test-env-js": "0.2.0",
+    "@polywrap/client-js": "0.7.0",
+    "@polywrap/test-env-js": "0.7.0",
     "eth-ens-namehash": "2.0.8",
     "jest": "26.6.3",
     "js-sha3": "0.8.0",

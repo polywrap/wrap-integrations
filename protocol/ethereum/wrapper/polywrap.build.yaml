@@ -4,7 +4,6 @@ docker:
 config:
   rust_version: "1.58.0"
   include:
-    - ./Cargo.toml
     - ./src/lib.rs
     - ./src/resolvers.rs
     - ./src/mapping.rs

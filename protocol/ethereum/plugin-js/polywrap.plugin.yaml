@@ -1,5 +1,7 @@
-format: 0.1.0
-name: Ethereum-Signer
-language: plugin/typescript
-schema: ./schema.graphql
-module: ./src/index.ts
+format: 0.2.0
+project:
+  name: Ethereum-Signer
+  type: plugin/typescript
+source:
+  module: ./src/index.ts
+  schema: ./schema.graphql

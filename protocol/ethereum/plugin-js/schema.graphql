@@ -1,3 +1,14 @@
+type StaticTxResult {
+    result: String!
+    error: Boolean!
+}
+
+type EventNotification {
+    data: String!
+    address: String!
+    log: Log!
+}
+
 type TxReceipt {
   to: String!
   from: String!
