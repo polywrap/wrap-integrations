@@ -8,14 +8,20 @@ import {
 import { PolywrapClient, Uri } from "@polywrap/client-js";
 import { runCLI } from "@polywrap/test-env-js";
 import path from "path";
+import { up, down } from "substrate-polywrap-test-env";
 
 jest.setTimeout(360000);
+let url: string;
 
 describe("e2e", () => {
   let client: PolywrapClient;
   const uri = new Uri("file/" + path.join(__dirname, "../build")).uri;
 
   beforeAll(async () => {
+
+    // start up a test chain environment
+    const response = await up();
+    url = response.node.url;
 
     const wrapperDir = path.resolve(__dirname, "../");
 
@@ -34,9 +40,13 @@ describe("e2e", () => {
     client = new PolywrapClient();
   });
 
+  afterAll(async () => {
+    await down();
+  })
+
   it("blockHash", async () => {
     const result = await Substrate_Module.blockHash({
-        url: "http://localhost:9933",
+        url,
         number: 0
       },
       client,
@@ -50,7 +60,7 @@ describe("e2e", () => {
 
   it("retrieves genesis block parent hash is 00000", async () => {
     const result = await Substrate_Module.chainGetBlock({
-        url: "http://localhost:9933",
+        url,
         number: 0
       },
       client,
@@ -69,7 +79,7 @@ describe("e2e", () => {
 
   it("retrieves the chain metadata", async () => {
     const result = await Substrate_Module.chainGetMetadata({
-        url: "http://localhost:9933"
+        url
       },
       client,
       uri
@@ -87,7 +97,7 @@ describe("e2e", () => {
 
   it("state get runtime version", async () => {
     const result = await Substrate_Module.getRuntimeVersion({
-        url: "http://localhost:9933"
+        url
       },
       client,
       uri
@@ -107,7 +117,7 @@ describe("e2e", () => {
 
   it("storage value", async () => {
     const result = await Substrate_Module.getStorageValue({
-       url: "http://localhost:9933",
+       url,
         pallet: "TemplateModule",
         storage: "Something"
       },
@@ -122,7 +132,7 @@ describe("e2e", () => {
 
   it("return constant values", async () => {
     const result = await Substrate_Module.constant({
-       url: "http://localhost:9933",
+       url,
         pallet: "Balances",
         name: "ExistentialDeposit"
       },
@@ -142,7 +152,7 @@ describe("e2e", () => {
 
   it("rpc_methods", async () => {
     const result = await Substrate_Module.rpcMethods({
-        url: "http://localhost:9933",
+        url,
       },
       client,
       uri
@@ -157,7 +167,7 @@ describe("e2e", () => {
 
   it("get storage maps", async () => {
     const result = await Substrate_Module.getStorageMap({
-        url: "http://localhost:9933",
+        url,
         pallet: "ForumModule",
         storage: "AllPosts",
         key: "0",
@@ -173,7 +183,7 @@ describe("e2e", () => {
 
   it("get storage maps paged", async () => {
     const result = await Substrate_Module.getStorageMapPaged({
-        url: "http://localhost:9933",
+        url,
         pallet: "ForumModule",
         storage: "AllPosts",
         count: 10,
@@ -189,7 +199,7 @@ describe("e2e", () => {
 
   it("get account info of Alice", async () => {
     const result = await Substrate_Module.accountInfo({
-        url: "http://localhost:9933",
+        url,
         //Alice account
         account: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
       },
