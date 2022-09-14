@@ -9,3 +9,4 @@ wrap
 Cargo.lock
 coverage
 dist/
+yarn-error.log
