@@ -28,7 +28,6 @@ async function runCommand(command, quiet) {
 }
 
 async function up(quiet = true) {
-  console.log("Starting Substrate test chain. On first run this may take a long time (~10 mins)")
   await runCommand(cmds.up, quiet)
   
   // wait for some seconds for containers to properly setup before resolving

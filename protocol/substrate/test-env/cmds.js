@@ -1,5 +1,5 @@
 const CMDS = {
-    up: `mkdir -p ./.local && docker-compose down --remove-orphans ; docker-compose run --rm --service-ports dev`,
+    up: `mkdir -p ./.local && docker-compose up --detach`,
     down: `docker-compose down`
 }
 
