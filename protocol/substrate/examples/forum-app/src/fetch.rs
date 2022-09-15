@@ -60,6 +60,10 @@ pub async fn get_post_list(api: &Api) -> Result<Vec<PostDetail>, Error> {
         "nextTo": None::<u32>,
     });
 
+    // TODO: test this
+    let accounts = api.invoke_method("getSignerProviderAccounts", {}).await?;
+    log::info!(accounts)
+
     let storage_values: Option<Vec<Vec<u8>>> =
         api.invoke_method("getStorageMapPaged", args).await?;
 

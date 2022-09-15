@@ -38,6 +38,14 @@ pub fn custom_random_number(buf: &mut [u8]) -> Result<(), getrandom::Error> {
     Ok(())
 }
 
+pub fn get_signer_provider_accounts(
+    _args: ArgsGetSignerProviderAccounts
+) -> Vec<SignerProviderAccount> {
+    SignerProviderModule::get_accounts(
+        &signer_provider_module::ArgsGetAccounts {}
+    ).unwrap()
+}
+
 /// return the chain metadata
 pub fn chain_get_metadata(
     ArgsChainGetMetadata { url }: ArgsChainGetMetadata,

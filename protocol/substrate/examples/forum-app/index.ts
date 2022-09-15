@@ -1,23 +1,21 @@
 import { PolywrapClient } from "@polywrap/client-js";
-import { ipfsPlugin } from "@polywrap/ipfs-plugin-js";
-import { ethereumPlugin } from "@polywrap/ethereum-plugin-js";
-import { ensResolverPlugin } from "@polywrap/ens-resolver-plugin-js";
+import { ClientConfigBuilder } from "@polywrap/client-config-builder-js";
+import { substrateSignerProviderPlugin } from "substrate-signer-provider-plugin-js";
 
 //let module_uri = "wrap://ipfs/QmNdPLkAF4H36N99wfbdbvygG9gQXbp9xVDtjX81cfpAon";
-let module_uri = "wrap://ipfs/QmQmFk4weVWuC1LFuHsZ9wpKLxLP28ydbPx4Q8FuC5mDVw";
+let module_uri = "wrap://ipfs/Qmf6jbRELZJutekPC8hGC7V3eeMxaAh5CKgV2nf9NfyTHa";
 
 class PolywrapClientWrapper extends PolywrapClient{
     constructor() {
-        super({
-            plugins: [
-                {
-                  uri: "wrap://ens/ipfs.polywrap.eth",
-                  plugin: ipfsPlugin({
-                      provider: "https://ipfs.wrappers.io"
-                  }),
-                }
-            ]
-        })
+        const config = new ClientConfigBuilder()
+            .addDefaults()
+            .addPlugin(
+                "ens/substrate-signer-provider.chainsafe.eth",
+                substrateSignerProviderPlugin({})
+            )
+            .build();
+
+        super(config);
     }
 
     async invoke_method(method, args){
@@ -33,8 +31,6 @@ class PolywrapClientWrapper extends PolywrapClient{
         console.log("got result: ", result);
         return result.data;
     }
-
-
 }
 
 // attach the PolywrapClient to the window so we can access it later in the rust code

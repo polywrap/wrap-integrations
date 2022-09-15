@@ -1,0 +1,26 @@
+type Module {
+  getAccounts: [Account!]!
+
+  signAndSubmitExtrinsic(
+    address: String!
+    data: Bytes!
+  ): SignerResult!
+}
+
+type Account {
+  address: String!
+  meta: AccountMetadata!
+  # TODO: replace w/ union = 'ed25519' | 'sr25519' | 'ecdsa' | 'ethereum'
+  type: String
+}
+
+type AccountMetadata {
+  genesisHash: String
+  name: String
+  source: String!
+}
+
+type SignerResult {
+  id: UInt32!
+  signature: String!
+}
