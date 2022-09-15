@@ -1,8 +1,8 @@
 Arguments: 
-  /home/willem/.nvm/versions/node/v16.17.0/bin/node /home/willem/.yarn/bin/yarn.js
+  /home/willem/.nvm/versions/node/v16.17.0/bin/node /home/willem/.yarn/bin/yarn.js add substrate-polywrap-test-env
 
 PATH: 
-  /home/willem/.yarn/bin:/home/willem/.config/yarn/global/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/willem/miniconda3/condabin:/home/willem/.cargo/bin:/home/willem/.local/share/solana/install/active_release/bin:/home/willem/.nix-profile/bin:/home/willem/.nvm/versions/node/v16.17.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/usr/lib/go/bin:/home/willem/.platformio/penv/bin:/home/willem/.foundry/bin
+  /home/willem/.yarn/bin:/home/willem/.config/yarn/global/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/willem/miniconda3/condabin:/home/willem/.cargo/bin:/home/willem/.local/share/solana/install/active_release/bin:/home/willem/.nix-profile/bin:/home/willem/.nvm/versions/node/v16.17.0/bin:/home/willem/.local/share/solana/install/active_release/bin:/home/willem/elrondsdk:/home/willem/.cargo/bin:/home/willem/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/willem/.dotnet/tools:/usr/local/go/bin:/usr/lib/go/bin:/home/willem/.platformio/penv/bin:/home/willem/.foundry/bin
 
 Yarn version: 
   1.22.19
@@ -14,7 +14,17 @@ Platform:
   linux x64
 
 Trace: 
-  Error: EACCES: permission denied, copyfile '/home/willem/repos/chainsafe/integrations/protocol/substrate/test-env/.cargo/registry/src/github.com-1ecc6299db9ec823/base64-0.13.0/.gitignore' -> '/home/willem/.cache/yarn/v6/npm-substrate-polywrap-test-env-0.0.1-f5e30fa9-6632-4d52-a194-933fc210d2fa-1663185722319/node_modules/substrate-polywrap-test-env/.cargo/registry/src/github.com-1ecc6299db9ec823/base64-0.13.0/.gitignore'
+  Error: https://registry.yarnpkg.com/substrate-polywrap-test-env: Not found
+      at Request.params.callback [as _callback] (/home/willem/.yarn/lib/cli.js:66145:18)
+      at Request.self.callback (/home/willem/.yarn/lib/cli.js:140890:22)
+      at Request.emit (node:events:513:28)
+      at Request.<anonymous> (/home/willem/.yarn/lib/cli.js:141862:10)
+      at Request.emit (node:events:513:28)
+      at IncomingMessage.<anonymous> (/home/willem/.yarn/lib/cli.js:141784:12)
+      at Object.onceWrapper (node:events:627:28)
+      at IncomingMessage.emit (node:events:525:35)
+      at endReadableNT (node:internal/streams/readable:1358:12)
+      at processTicksAndRejections (node:internal/process/task_queues:83:21)
 
 npm manifest: 
   {
@@ -2508,6 +2518,11 @@ Lockfile:
     integrity sha512-yxJ2mFy/sibVQlu5qHjOkf9J3K6zgmCxgJ94u2EdvDOV09H+32LtRswEcUsmUWN72pVLOEnTSRaIVVzVQgS0dg==
     dependencies:
       webidl-conversions "^5.0.0"
+  
+  dotenv@10.0.0:
+    version "10.0.0"
+    resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-10.0.0.tgz#3d4227b8fb95f81096cdd2b66653fb2c7085ba81"
+    integrity sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==
   
   ejs@^2.6.1:
     version "2.7.4"
@@ -5461,6 +5476,11 @@ Lockfile:
     version "3.1.1"
     resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-3.1.1.tgz#31f1281b3832630434831c310c01cccda8cbe006"
     integrity sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==
+  
+  "substrate-polywrap-test-env@file:../test-env":
+    version "0.0.1"
+    dependencies:
+      dotenv "10.0.0"
   
   supports-color@^5.3.0:
     version "5.5.0"

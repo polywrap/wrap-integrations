@@ -20,8 +20,10 @@ describe("e2e", () => {
   beforeAll(async () => {
 
     // start up a test chain environment
-    const response = await up();
+    console.log("Starting up test chain. This can take around 1 minute..");
+    const response = await up(false);
     url = response.node.url;
+    console.log("Test chain running at ", url);
 
     const wrapperDir = path.resolve(__dirname, "../");
 
