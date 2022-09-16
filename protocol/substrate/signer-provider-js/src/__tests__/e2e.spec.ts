@@ -1,6 +1,6 @@
 import { PolywrapClient } from "@polywrap/client-js";
 import { substrateSignerProviderPlugin } from "../";
-import { enableFn } from "./mock-signer-extension";
+import { enableFn } from "./mockExtensionInjector";
 import { injectExtension } from '@polkadot/extension-inject';
 
 describe("e2e", () => {
