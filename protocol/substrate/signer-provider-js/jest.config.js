@@ -7,10 +7,11 @@ module.exports = {
     "**/?(*.)+(spec|test).+(ts|tsx|js)"
   ],
   "transform": {
-    "^.+\\.(ts|tsx)$": "ts-jest"
+    "\\.[j]sx?$": "babel-jest",
+    "^.+\\.(ts|tsx)$": "ts-jest",
   },
   "transformIgnorePatterns": [
-    "node_modules/(?!@polkadot)"
+    "node_modules/(?!@polkadot|@babel/runtime/helpers/esm/)"
   ],
   testEnvironment: 'jsdom'
 }
