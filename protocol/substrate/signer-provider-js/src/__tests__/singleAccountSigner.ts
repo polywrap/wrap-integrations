@@ -1,6 +1,9 @@
 // Copyright 2017-2022 @polkadot/api authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+// This was pulled from https://github.com/polkadot-js/api/blob/79bed8eda39e91e4112f5490b37106ee5353e78b/packages/api/src/test/SingleAccountSigner.ts
+// but unfortunately they do not export it. Replicated here for internal test usage
+
 import type { Signer, SignerResult } from '@polkadot/api/types';
 import type { KeyringPair } from '@polkadot/keyring/types';
 import type { Registry, SignerPayloadJSON, SignerPayloadRaw } from '@polkadot/types/types';

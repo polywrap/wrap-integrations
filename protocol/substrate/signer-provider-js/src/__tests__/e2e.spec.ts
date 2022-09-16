@@ -3,6 +3,8 @@ import { substrateSignerProviderPlugin } from "../";
 import { enableFn } from "./mockExtensionInjector";
 import { injectExtension } from '@polkadot/extension-inject';
 
+import { Account } from '../wrap';
+
 describe("e2e", () => {
 
   let client: PolywrapClient;
@@ -24,7 +26,7 @@ describe("e2e", () => {
 
   });
 
-  it("sampleMethod", async () => {
+  it("getAccounts returns Alice", async () => {
     const result = await client.invoke({
       uri,
       method: "getAccounts",
@@ -33,6 +35,10 @@ describe("e2e", () => {
 
     expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
-    expect(result.data).toBe("fuz baz foo bar");
+    const accounts: Account[] = result.data as Account[];
+    expect(accounts.length).toBe(1);
+    expect(accounts[0].meta.name).toBe("alice");
   });
+
+  
 });

@@ -8,7 +8,6 @@ import { TypeRegistry } from '@polkadot/types';
 // create a mock polkadot-js extension and inject into the environment
 export async function enableFn (originName: string): Promise<Injected> {
 
-  // generate a test keypair
   await cryptoWaitReady();
 
   // create a keyring
@@ -18,7 +17,7 @@ export async function enableFn (originName: string): Promise<Injected> {
   const signer = new SingleAccountSigner(registry, alice);
 
   // These accounts must be valid sr25519 addresses or they will get filtered out by the web3Accounts function
-  const accounts: InjectedAccount[] = [{ address: alice.address, name: "x", type: 'sr25519' }];
+  const accounts: InjectedAccount[] = [{ address: alice.address, name: "alice", type: 'sr25519' }];
 
   return {
     accounts: {
