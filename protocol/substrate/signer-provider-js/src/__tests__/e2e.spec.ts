@@ -1,12 +1,17 @@
 import { PolywrapClient } from "@polywrap/client-js";
 import { substrateSignerProviderPlugin } from "../";
+import { enableFn } from "./mock-signer-extension";
+import { injectExtension } from '@polkadot/extension-inject';
 
 describe("e2e", () => {
 
   let client: PolywrapClient;
   const uri = "ens/substrate-signer-provider.chainsafe.eth";
 
-  beforeAll(() => {
+  beforeAll(async () => {
+    // injects the mock extension into the page
+    await injectExtension(enableFn, { name: 'mockExtension', version: '1.0.0' });
+    
     // Add the samplePlugin to the PolywrapClient
     client = new PolywrapClient({
       plugins: [
@@ -16,6 +21,7 @@ describe("e2e", () => {
         }
       ]
     });
+
   });
 
   it("sampleMethod", async () => {
