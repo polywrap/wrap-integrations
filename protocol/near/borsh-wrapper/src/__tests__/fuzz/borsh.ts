@@ -4,7 +4,7 @@ const {
   providers,
 } = require("@polywrap/test-env-js");
 const { PolywrapClient } = require("@polywrap/client-js");
-const testUtils = require("../testUtils");
+const testUtils = require("../utils");
 
 //@ts-ignore
 exports.fuzz = async (input) => {
