@@ -1,11 +1,12 @@
+import { substrateSignerProviderPlugin } from "../";
+
 import { PolywrapClient } from "@polywrap/client-js";
 import { injectExtension } from '@polkadot/extension-inject';
 import { u8aToHex } from "@polkadot/util";
 import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-crypto';
 import { TypeRegistry } from '@polkadot/types';
+import { enableFn } from "mock-polkadot-js-extension";
 
-import { substrateSignerProviderPlugin } from "../";
-import { enableFn } from "./mockExtensionInjector";
 import { Account, SignerResult } from '../wrap';
 import { testPayload } from './testPayload';
 

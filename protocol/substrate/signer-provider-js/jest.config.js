@@ -11,7 +11,7 @@ module.exports = {
     "^.+\\.(ts|tsx)$": "ts-jest",
   },
   "transformIgnorePatterns": [
-    "node_modules/(?!@polkadot|@babel/runtime/helpers/esm/)"
+    "node_modules/(?!@polkadot|@babel/runtime/helpers/esm/|mock-polkadot-js-extension)"
   ],
   testEnvironment: 'jsdom'
 }

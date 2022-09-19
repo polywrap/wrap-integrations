@@ -17,6 +17,7 @@
     "@polywrap/core-js": "0.5.0"
   },
   "devDependencies": {
+    "mock-polkadot-js-extension": "file:../mock-polkadot-js-extension",
     "@polkadot/dev": "^0.67.129",
     "@polkadot/extension-inject": "^0.44.6",
     "@polkadot/keyring": "^10.1.7",

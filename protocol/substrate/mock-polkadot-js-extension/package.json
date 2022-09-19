@@ -1,0 +1,21 @@
+{
+  "name": "mock-polkadot-js-extension",
+  "description": "Substrate signer provider javascript plugin",
+  "private": true,
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@polkadot/api": "^9.3.3",
+    "@polkadot/extension-dapp": "^0.44.6",
+    "@polywrap/core-js": "0.5.0",
+    "@polkadot/dev": "^0.67.129",
+    "@polkadot/extension-inject": "^0.44.6",
+    "@polkadot/keyring": "^10.1.7",
+    "@polkadot/types": "^9.3.3",
+    "@polkadot/util-crypto": "^10.1.7",
+    "@polywrap/client-js": "0.5.0",
+    "@types/jest": "26.0.8",
+    "@types/prettier": "2.6.0",
+    "typescript": "4.8.2"
+  }
+}
