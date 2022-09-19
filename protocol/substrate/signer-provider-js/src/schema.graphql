@@ -1,9 +1,12 @@
 type Module {
   getAccounts: [Account!]!
 
-  signAndSubmitExtrinsic(
-    address: String!
-    data: Bytes!
+  signPayload(
+    payload: SignerPayloadJSON!
+  ): SignerResult!
+
+  signRaw(
+    payload: SignerPayloadRaw!
   ): SignerResult!
 }
 
@@ -20,7 +23,93 @@ type AccountMetadata {
   source: String!
 }
 
+type SignerPayloadJSON {
+  """
+  The ss-58 encoded address
+  """
+  address: String!
+
+  """
+  The checkpoint hash of the block, in hex
+  """
+  blockHash: String!
+
+  """
+  The checkpoint block number, in hex
+  """
+  blockNumber: String!
+
+  """
+  The era for this transaction, in hex
+  """
+  era: String!
+
+  """
+  The genesis hash of the chain, in hex
+  """
+  genesisHash: String!
+
+  """
+  The encoded method (with arguments) in hex
+  """
+  method: String!
+
+  """
+  The nonce for this transaction, in hex
+  """
+  nonce: String!
+
+  """
+  The current spec version for the runtime
+  """
+  specVersion: String!
+
+  """
+  The tip for this transaction, in hex
+  """
+  tip: String!
+
+  """
+  The current transaction version for the runtime
+  """
+  transactionVersion: String!
+
+  """
+  The applicable signed extensions for this runtime
+  """
+  signedExtensions: [String!]!
+
+  """
+  The version of the extrinsic we are dealing with
+  """
+  version: UInt32!
+}
+
+type SignerPayloadRaw {
+  """
+  The hex-encoded data for this request
+  """
+  data: String!
+
+  """
+  The ss-58 encoded address
+  """
+  address: String!
+
+  """
+  The type of the contained data ('bytes' | 'payload')
+  """
+  type: String!
+}
+
 type SignerResult {
+  """
+  The id for this request
+  """
   id: UInt32!
+
+  """
+  The resulting signature in hex
+  """
   signature: String!
 }
