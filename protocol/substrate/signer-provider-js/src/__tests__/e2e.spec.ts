@@ -1,11 +1,13 @@
 import { PolywrapClient } from "@polywrap/client-js";
-import { substrateSignerProviderPlugin } from "../";
-import { enableFn } from "./mockExtensionInjector";
 import { injectExtension } from '@polkadot/extension-inject';
 import { u8aToHex } from "@polkadot/util";
 import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-crypto';
+import { TypeRegistry } from '@polkadot/types';
 
+import { substrateSignerProviderPlugin } from "../";
+import { enableFn } from "./mockExtensionInjector";
 import { Account, SignerResult } from '../wrap';
+import { testPayload } from './testPayload';
 
 describe("e2e", () => {
 
@@ -64,7 +66,42 @@ describe("e2e", () => {
     const result = await client.invoke({
       uri,
       method: "signRaw",
-      args: { payload: { address: unmanagedAddress, data: "aaa" } }
+      args: { payload: { address: unmanagedAddress } }
+    });
+
+    expect(result.error?.message).toContain("Provider does not contain account: "+ unmanagedAddress);
+  });
+
+  it("signPayload produces a valid signature from test account", async () => {
+    const account = await getAccount();
+    const payload = testPayload(account.address)
+    const result = await client.invoke({
+      uri,
+      method: "signPayload",
+      args: { payload }
+    });
+
+    expect(result.error).toBeFalsy();
+    expect(result.data).toBeTruthy();
+    const signerResult = result.data as SignerResult;
+
+    // To verify the signature encode the extrinsic payload as hex
+    // then veify as with signRaw
+    const registry = new TypeRegistry();
+    const encodedPayload = registry
+      .createType('ExtrinsicPayload', payload, { version: payload.version })
+      .toHex();
+
+    expect(isValidSignature(encodedPayload, signerResult.signature, account.address));
+  });  
+
+  it("signPayload throws if an unmanaged account address is requested", async () => {
+    const unmanagedAddress = "000000000000000000000000000000000000000000000000"; 
+
+    const result = await client.invoke({
+      uri,
+      method: "signPayload",
+      args: { payload: { address: unmanagedAddress } }
     });
 
     expect(result.error?.message).toContain("Provider does not contain account: "+ unmanagedAddress);
