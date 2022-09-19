@@ -2,11 +2,12 @@ version: "3.2"
 
 services:
   dev:
-    container_name: node-template
-    image: paritytech/ci-linux:974ba3ac-20201006
+    container_name: substrate-polywrap-test-env
+    image: willemolding/substrate-polywrap-test-env:latest
     working_dir: /var/www/node-template
     ports:
       - "9944:9944"
+      - "9933:9933"
     environment:
       - CARGO_HOME=/var/www/node-template/.cargo
     volumes:
@@ -14,4 +15,4 @@ services:
       - type: bind
         source: ./.local
         target: /root/.local
-    command: bash -c "cargo build --release && ./target/release/node-template --dev --ws-external"
+    command: bash -c "/node/node-template --dev --ws-external --rpc-external"
