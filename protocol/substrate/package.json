@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "workspaces": [
+    "test-env",
+    "rpc-wrapper",
+    "substrate-signer-provider-plugin-js"
+  ]
+}

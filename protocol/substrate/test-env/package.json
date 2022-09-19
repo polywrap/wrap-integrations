@@ -1,5 +1,5 @@
 {
-  "name": "substrate-polywrap-test-env",
+  "name": "test-env",
   "version": "0.0.1",
   "description": "Substrate Polywrapper Test Environment",
   "main": "index.js",
