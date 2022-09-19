@@ -18,7 +18,7 @@
     "polywrap": "0.5.0"
   },
   "devDependencies": {
-    "test-env": "0.0.1",
+    "substrate-polywrap-test-env": "0.0.1",
     "@types/jest": "27.0.2",
     "@polywrap/client-js": "0.5.0",
     "@polywrap/test-env-js": "0.5.0",
