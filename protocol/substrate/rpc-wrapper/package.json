@@ -1,4 +1,6 @@
 {
+  "name": "rpc-wrapper",
+  "version": "0.0.1",
   "scripts": {
     "codegen": "npx polywrap codegen",
     "build": "npx polywrap build -v",
@@ -10,13 +12,13 @@
     "clean": "rm -rf module/src/wrap && rm -rf test/wrap",
     "rebuild": "yarn clean && yarn codegen && yarn build",
     "deploy": "npx polywrap deploy",
-    "infra":"npx polywrap infra up --modules=eth-ens-ipfs -v"
+    "infra": "npx polywrap infra up --modules=eth-ens-ipfs -v"
   },
   "dependencies": {
     "polywrap": "0.5.0"
   },
   "devDependencies": {
-    "substrate-polywrap-test-env": "file:../test-env",
+    "substrate-polywrap-test-env": "0.0.1",
     "@types/jest": "27.0.2",
     "@polywrap/client-js": "0.5.0",
     "@polywrap/test-env-js": "0.5.0",
