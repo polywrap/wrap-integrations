@@ -9,7 +9,6 @@ use sp_core::H256;
 use sp_runtime::traits::Header;
 use sp_version::RuntimeVersion;
 
-mod balance_api;
 mod base_api;
 mod constant_api;
 mod extrinsic_api;
@@ -49,6 +48,8 @@ impl Api {
 
     /// Try to create an instance of this api
     /// where it fetch metadata, the genesis_hash and runtime_version
+    /// This is kind of problematic as the metadata can be pretty large and this adds overhead and
+    /// slows everything down...
     pub fn new(url: &str) -> Result<Self, Error> {
         let base_api = BaseApi::new(url);
         let metadata = match base_api.fetch_metadata()? {

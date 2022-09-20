@@ -1,5 +1,5 @@
 #import { Module, Request, Response, } into Http from "wrap://ens/http.polywrap.eth"
-#import { Module, Account } into SignerProvider from "ens/substrate-signer-provider.chainsafe.eth"
+#import { Module, Account, SignerPayloadJSON } into SignerProvider from "ens/substrate-signer-provider.chainsafe.eth"
 
 type Module {
 
@@ -31,12 +31,16 @@ type Module {
 
   palletCallIndex(url: String!, pallet: String!, call: String!): [UInt8!]
 
-  authorSubmitExtrinsic(url: String!, extrinsic: String!): String
+  sign(extrinsic: SignerProvider_SignerPayloadJSON!): SignedExtrinsicPayload
 
-  composeBalanceTransfer(url: String!, nonce: UInt32!, to: String!, amount: BigNumber!, tip: BigNumber): [[UInt8!]!]
+  send(url: String!, signedExtrinsic: SignedExtrinsicPayload!): String
 
-  submitSignedBalanceCall(url: String!, signer_account: String!, to: String!, amount: BigNumber!, extra: [UInt8!]!, multi_signature: [UInt8!]!): String
+  signAndSend(url: String!, extrinsic: SignerProvider_SignerPayloadJSON!): String
+}
 
+type SignedExtrinsicPayload {
+  extrinsic: SignerProvider_SignerPayloadJSON!
+  signature: String!
 }
 
 type ChainMetadata {

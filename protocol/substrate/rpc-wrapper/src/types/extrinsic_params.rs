@@ -28,6 +28,12 @@ impl GenericExtra {
     }
 }
 
+impl Default for GenericExtra {
+    fn default() -> Self {
+        Self::new(Era::Immortal, 0, 0_u128)
+    }
+}
+
 /// additionalSigned fields of the respective SignedExtra fields.
 /// Order is the same as declared in the extra.
 pub type AdditionalSigned = (u32, u32, H256, H256, (), (), ());
