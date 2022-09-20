@@ -9,13 +9,13 @@ import {
   Trade,
   getPoolFromAddress, getPools, getTokens,
   bestTradeExactOut, getNative, swapCallParameters,
-  getPlugins, initInfra, stopInfra
+  getConfig, initInfra, stopInfra, buildDependencies
 } from "./helpers";
 import path from "path";
 import * as ethers from "ethers";
 import erc20ABI from "./testData/erc20ABI.json";
 
-jest.setTimeout(180000);
+jest.setTimeout(240000);
 
 describe("Call (mainnet fork)", () => {
 
@@ -30,7 +30,8 @@ describe("Call (mainnet fork)", () => {
   beforeAll(async () => {
     await initInfra();
     // get client
-    const config = getPlugins();
+    const { sha3Uri, graphUri } = await buildDependencies();
+    const config = getConfig(sha3Uri, graphUri);
     client = new PolywrapClient(config);
     // get uri
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");

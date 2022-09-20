@@ -4,12 +4,12 @@ import * as uni from "@uniswap/v3-sdk";
 import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
 import {
-  initInfra, stopInfra, getPlugins,
+  initInfra, stopInfra, getConfig,
   getUniswapPool, getPoolFromAddress, getTokens, isDefined, toUniToken,
-  Pool, Route, Token, Price
+  Pool, Route, Token, Price, buildDependencies
 } from "./helpers";
 
-jest.setTimeout(120000);
+jest.setTimeout(240000);
 
 describe("Route (mainnet fork)", () => {
 
@@ -27,7 +27,8 @@ describe("Route (mainnet fork)", () => {
   beforeAll(async () => {
     await initInfra();
     // get client
-    const config = getPlugins();
+    const { sha3Uri, graphUri } = await buildDependencies();
+    const config = getConfig(sha3Uri, graphUri);
     client = new PolywrapClient(config);
     // get uri
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");

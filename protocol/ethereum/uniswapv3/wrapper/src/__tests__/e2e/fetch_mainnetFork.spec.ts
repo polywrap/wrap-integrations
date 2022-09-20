@@ -1,9 +1,9 @@
 import {  PolywrapClient } from "@polywrap/client-js";
 import {
   ChainIdEnum, Pool, Token,
-  getPlugins, initInfra, stopInfra,
+  getConfig, initInfra, stopInfra,
   getFeeAmount, getPools, getTokens, getUniPools,
-  getUniswapPool
+  getUniswapPool, buildDependencies
 } from "./helpers";
 import path from "path";
 import * as uni from "@uniswap/v3-sdk";
@@ -11,7 +11,7 @@ import poolList from "./testData/poolList.json";
 import * as ethers from "ethers";
 import { Tick } from "../../wrap";
 
-jest.setTimeout(180000);
+jest.setTimeout(240000);
 
 describe("Fetch (mainnet fork)", () => {
 
@@ -24,7 +24,8 @@ describe("Fetch (mainnet fork)", () => {
   beforeAll(async () => {
     await initInfra();
     // get client
-    const config = getPlugins();
+    const { sha3Uri, graphUri } = await buildDependencies();
+    const config = getConfig(sha3Uri, graphUri);
     client = new PolywrapClient(config);
     // get uri
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");

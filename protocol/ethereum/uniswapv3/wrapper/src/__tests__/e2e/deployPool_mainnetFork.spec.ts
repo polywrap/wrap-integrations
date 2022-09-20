@@ -4,13 +4,13 @@ import {
   getPoolFromAddress,
   getWrappedNative,
   initInfra,
-  getPlugins,
-  stopInfra
+  getConfig,
+  stopInfra, buildDependencies
 } from "./helpers";
 import path from "path";
 import * as ethers from "ethers";
 
-jest.setTimeout(360000);
+jest.setTimeout(240000);
 
 describe("Deploy pool (mainnet fork)", () => {
 
@@ -21,7 +21,8 @@ describe("Deploy pool (mainnet fork)", () => {
   beforeAll(async () => {
     await initInfra();
     // get client
-    const config = getPlugins();
+    const { sha3Uri, graphUri } = await buildDependencies();
+    const config = getConfig(sha3Uri, graphUri);
     client = new PolywrapClient(config);
     // get uri
     const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
