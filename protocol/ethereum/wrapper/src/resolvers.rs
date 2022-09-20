@@ -10,7 +10,7 @@ use super::wrap::{
     ArgsAwaitTransaction, ArgsCallContractMethod, ArgsCallContractMethodAndWait,
     ArgsCallContractStatic, ArgsCallContractView, ArgsCheckAddress, ArgsDeployContract,
     ArgsEncodeFunction, ArgsEncodeParams, ArgsEstimateContractCallGas, ArgsEstimateTransactionGas,
-    ArgsGetGasPrice, ArgsGetNetwork, ArgsGetSignerAddress, ArgsGetSignerBalance,
+    ArgsGetGasPrice, ArgsGetNetwork, ArgsGetSignerAddress, ArgsGetSignerBalance, ArgsGetBalance,
     ArgsGetSignerTransactionCount, ArgsSendRpc, ArgsSendTransaction,
     ArgsSendTransactionAndWait, ArgsSignMessage, ArgsToEth, ArgsToWei,
     ArgsWaitForEvent, SignerModule,
@@ -25,12 +25,10 @@ use polywrap_wasm_rs::BigInt;
 use std::str::FromStr;
 
 pub fn call_contract_view(input: ArgsCallContractView) -> String {
-    let tx_request = contract_call_to_tx(&input.address, &input.method, input.args);
-
     let contract_call_args = signer_module::ArgsCallContractView {
-        address: tx_request.to.unwrap(),
-        method: tx_request.data.unwrap(),
-        args: None,
+        address: input.address,
+        method: input.method,
+        args: input.args,
         connection: input.connection,
     };
 
@@ -41,17 +39,13 @@ pub fn call_contract_view(input: ArgsCallContractView) -> String {
 }
 
 pub fn call_contract_static(input: ArgsCallContractStatic) -> SignerStaticTxResult {
-    let to = match Address::from_str(&input.address) {
-        Ok(a) => a,
-        Err(e) => panic!("Invalid contract address: {}. Error: {}", &input.address, e),
-    };
-
     let contract_call_args = signer_module::ArgsCallContractStatic {
-        address: to.to_string(),
+        address: input.address,
         method: input.method,
         args: input.args,
         connection: input.connection,
-        tx_overrides: input.tx_overrides,
+        tx_overrides: None,
+        // TODO: tx_overrides
     };
 
     match SignerModule::call_contract_static(&contract_call_args) {
@@ -76,7 +70,12 @@ pub fn encode_params(input: ArgsEncodeParams) -> String {
             .collect(),
         input.values.clone(),
     ) {
-        Ok(data) => String::from_utf8(encode(&data)).unwrap(),
+        Ok(data) => {
+            let vec_u8 = encode(&data);
+            let str_hex = ethers_core::utils::hex::encode(vec_u8);
+            let str_encoded = format!("0x{}", str_hex);
+            str_encoded
+        },
         Err(e) => panic!(
             "Error tokenizing args: {}. Error: {}",
             input.values.join(", "),
@@ -92,8 +91,23 @@ pub fn encode_function(input: ArgsEncodeFunction) -> String {
     };
 
     match encode_function_args(&input.method, args) {
-        Ok(data) => String::from_utf8(data.to_vec()).unwrap(),
+        Ok(data) => {
+            let str_hex = ethers_core::utils::hex::encode(data);
+            let str_encoded = format!("0x{}", str_hex);
+            str_encoded
+        },
         Err(e) => panic!("Error encoding function '{}'. Error: {}", &input.method, e),
+    }
+}
+
+pub fn get_balance(input: ArgsGetBalance) -> BigInt {
+    match SignerModule::get_balance(&signer_module::ArgsGetBalance {
+        address: input.address,
+        block_tag: input.block_tag,
+        connection: input.connection,
+    }) {
+        Ok(result) => result,
+        Err(e) => panic!("{}", e),
     }
 }
 
@@ -146,12 +160,15 @@ pub fn estimate_transaction_gas(input: ArgsEstimateTransactionGas) -> BigInt {
 }
 
 pub fn estimate_contract_call_gas(input: ArgsEstimateContractCallGas) -> BigInt {
-    let contract_call_estimate_args = signer_module::ArgsEstimateTransactionGas {
-        tx: contract_call_to_tx(&input.address, &input.method, input.args),
+    let estimate_contract_call_gas_args = signer_module::ArgsEstimateContractCallGas {
+        address: input.address,
+        method: input.method,
+        args: input.args,
         connection: input.connection,
+        tx_overrides: None,
     };
 
-    match SignerModule::estimate_transaction_gas(&contract_call_estimate_args) {
+    match SignerModule::estimate_contract_call_gas(&estimate_contract_call_gas_args) {
         Ok(result) => result,
         Err(e) => panic!("{}", e),
     }

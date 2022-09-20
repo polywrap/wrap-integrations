@@ -14,7 +14,7 @@ thiserror = "1.0.30"
 getrandom = { version = "*", features = ["custom"] }
 polywrap-wasm-rs = "0.7.0"
 serde = { version = "1.0", features = ["derive"] }
-ethers-core = { git = "https://github.com/gakonst/ethers-rs", features = [] }
+ethers-core = { version = "0.16.0", features = [] }
 regex = "1.6.0"
 
 [lib]

@@ -24,6 +24,8 @@ type Module {
 
   getSignerBalance(blockTag: BigInt, connection: Signer_Connection): BigInt!
 
+  getBalance(address: String!, blockTag: BigInt, connection: Signer_Connection): BigInt!
+
   getSignerTransactionCount(
     blockTag: BigInt
     connection: Signer_Connection
