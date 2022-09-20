@@ -10,7 +10,7 @@ import {
 import path from "path";
 import * as ethers from "ethers";
 
-jest.setTimeout(240000);
+jest.setTimeout(360000);
 
 describe("Deploy pool (mainnet fork)", () => {
 

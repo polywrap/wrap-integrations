@@ -9,7 +9,7 @@ import {
   Pool, Route, Token, Price, buildDependencies
 } from "./helpers";
 
-jest.setTimeout(240000);
+jest.setTimeout(360000);
 
 describe("Route (mainnet fork)", () => {
 

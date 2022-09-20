@@ -9,7 +9,7 @@ import * as uni from "@uniswap/v3-sdk";
 import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
 
-jest.setTimeout(240000);
+jest.setTimeout(360000);
 
 describe("Trade (mainnet fork)", () => {
 

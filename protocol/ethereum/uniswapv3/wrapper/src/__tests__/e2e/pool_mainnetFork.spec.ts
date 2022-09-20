@@ -11,7 +11,7 @@ import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
 import poolList from "./testData/poolList.json";
 
-jest.setTimeout(240000);
+jest.setTimeout(360000);
 
 describe("Pool (mainnet fork)", () => {
 

@@ -11,7 +11,7 @@ import poolList from "./testData/poolList.json";
 import * as ethers from "ethers";
 import { Tick } from "../../wrap";
 
-jest.setTimeout(240000);
+jest.setTimeout(360000);
 
 describe("Fetch (mainnet fork)", () => {
 

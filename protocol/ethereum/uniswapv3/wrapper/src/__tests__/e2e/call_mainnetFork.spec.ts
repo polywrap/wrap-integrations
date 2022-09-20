@@ -15,7 +15,7 @@ import path from "path";
 import * as ethers from "ethers";
 import erc20ABI from "./testData/erc20ABI.json";
 
-jest.setTimeout(240000);
+jest.setTimeout(360000);
 
 describe("Call (mainnet fork)", () => {
 
