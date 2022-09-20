@@ -1,11 +1,13 @@
 import { PolywrapClient } from "@polywrap/client-js";
+import { injectExtension } from '@polkadot/extension-inject';
+import { u8aToHex } from "@polkadot/util";
+import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-crypto';
+import { TypeRegistry } from '@polkadot/types';
+
 import { substrateSignerProviderPlugin } from "../";
 import { enableFn } from "./mockExtensionInjector";
-import { injectExtension } from '@polkadot/extension-inject';
-import { web3Accounts, web3Enable, web3FromSource } from '@polkadot/extension-dapp';
-import { stringToHex } from "@polkadot/util";
-
-import { Account } from '../wrap';
+import { Account, SignerResult } from '../wrap';
+import { testPayload } from './testPayload';
 
 describe("e2e", () => {
 
@@ -42,24 +44,88 @@ describe("e2e", () => {
     expect(accounts[0].meta.name).toBe("alice");
   });
 
-  it("Can use injected provider to sign data (smoke test)", async () => {
-    await web3Enable('e2e testing dApp');
-    const allAccounts = await web3Accounts();
-    const account = allAccounts[0];
-    const injector = await web3FromSource(account.meta.source);
-    const signRaw = injector?.signer?.signRaw;
+  it("signRaw produces a valid signature from test account", async () => {
+    const account = await getAccount();
+    const data = "123"; // to be signed
 
-    if (!!signRaw) {
-        // WHY DO I NEED TO BIND HERE??
-        const { signature } = await signRaw.bind(injector.signer)({
-            address: account.address,
-            data: stringToHex('message to sign'),
-            type: 'bytes'
-        });
-        console.log(signature);
-    }
+    const result = await client.invoke({
+      uri,
+      method: "signRaw",
+      args: { payload: { address: account.address, data } }
+    });
 
+    expect(result.error).toBeFalsy();
+    expect(result.data).toBeTruthy();
+    const signerResult = result.data as SignerResult;
+    expect(isValidSignature(data, signerResult.signature, account.address));
   });
 
+  it("signRaw throws if an unmanaged account address is requested", async () => {
+    const unmanagedAddress = "000000000000000000000000000000000000000000000000"; 
+
+    const result = await client.invoke({
+      uri,
+      method: "signRaw",
+      args: { payload: { address: unmanagedAddress } }
+    });
+
+    expect(result.error?.message).toContain("Provider does not contain account: "+ unmanagedAddress);
+  });
+
+  it("signPayload produces a valid signature from test account", async () => {
+    const account = await getAccount();
+    const payload = testPayload(account.address)
+    const result = await client.invoke({
+      uri,
+      method: "signPayload",
+      args: { payload }
+    });
+
+    expect(result.error).toBeFalsy();
+    expect(result.data).toBeTruthy();
+    const signerResult = result.data as SignerResult;
+
+    // To verify the signature encode the extrinsic payload as hex
+    // then veify as with signRaw
+    const registry = new TypeRegistry();
+    const encodedPayload = registry
+      .createType('ExtrinsicPayload', payload, { version: payload.version })
+      .toHex();
+
+    expect(isValidSignature(encodedPayload, signerResult.signature, account.address));
+  });  
+
+  it("signPayload throws if an unmanaged account address is requested", async () => {
+    const unmanagedAddress = "000000000000000000000000000000000000000000000000"; 
+
+    const result = await client.invoke({
+      uri,
+      method: "signPayload",
+      args: { payload: { address: unmanagedAddress } }
+    });
+
+    expect(result.error?.message).toContain("Provider does not contain account: "+ unmanagedAddress);
+  });
+
+  // -- helpers -- //
+
+  async function getAccount(): Promise<Account> {
+    const accountsResult = await client.invoke({
+        uri,
+        method: "getAccounts",
+        args: {},
+      });
+      const accounts: Account[] = accountsResult.data as Account[];
+      return accounts[0]
+  }
+
+  async function isValidSignature(signedMessage: string, signature: string, address: string): Promise<boolean> {
+    await cryptoWaitReady();
+    const publicKey = decodeAddress(address);
+    const hexPublicKey = u8aToHex(publicKey);
+    return signatureVerify(signedMessage, signature, hexPublicKey).isValid;
+  }
 
 });
+
+
