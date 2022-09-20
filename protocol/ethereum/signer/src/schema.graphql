@@ -1,0 +1,5 @@
+type Module {
+  signMessage(
+    message: String!
+  ): String!
+}

@@ -7,6 +7,8 @@ source:
   schema: ./schema.graphql
   import_abis:
   - uri: wrap://ens/ethereum-signer.polywrap.eth
-    abi: ../plugin-js/build/schema.graphql
+    abi: ../signer/build/wrap.info
+  - uri: wrap://ens/ethereum-transport.polywrap.eth
+    abi: ../transport/build/wrap.info
 extensions:
   build: ./polywrap.build.yaml

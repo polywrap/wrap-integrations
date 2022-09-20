@@ -1,5 +1,5 @@
 [package]
-name = "ethereum-wrapper"
+name = "module"
 version = "0.1.0"
 description = "Module of Ethereum polywrapper"
 authors = [
@@ -14,8 +14,13 @@ thiserror = "1.0.30"
 getrandom = { version = "*", features = ["custom"] }
 polywrap-wasm-rs = "0.7.0"
 serde = { version = "1.0", features = ["derive"] }
-ethers-core = { version = "0.16.0", features = [] }
+serde_json = { version = "1.0.64", default-features = false, features = ["raw_value"] }
+ethers-core = { git = "https://source.fetsorn.website/fetsorn/ethers-rs", features = [] }
+ethers-contract = { git = "https://source.fetsorn.website/fetsorn/ethers-rs", features = [] }
+ethers-providers = { git = "https://source.fetsorn.website/fetsorn/ethers-rs", features = [] }
+ethers-signers = { git = "https://source.fetsorn.website/fetsorn/ethers-rs", features = [] }
 regex = "1.6.0"
+hex = { version = "0.4.3", default-features = false, features = ["std"] }
 
 [lib]
 crate-type = ["cdylib", "rlib"]

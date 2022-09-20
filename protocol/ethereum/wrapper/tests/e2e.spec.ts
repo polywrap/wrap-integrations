@@ -1,5 +1,7 @@
 import { PolywrapClient } from "@polywrap/client-js";
+import { WrapManifest } from "@polywrap/wrap-manifest-types-js";
 import { defaultIpfsProviders } from "@polywrap/client-config-builder-js";
+import { Client, PluginModule } from "@polywrap/core-js";
 import { ensResolverPlugin } from "@polywrap/ens-resolver-plugin-js";
 import { ipfsPlugin } from "@polywrap/ipfs-plugin-js";
 import {
@@ -61,6 +63,30 @@ describe("Ethereum Plugin", () => {
       defaultNetwork: "testnet",
     });
 
+    class TransportPlugin extends PluginModule<{}> {
+      request(args: { method: string, param: string }, _client: Client): string {
+        return "0x0000000000000000000000000000000000000000"
+      }
+    }
+    let transportPlugin = {
+      factory: () => {
+        return new TransportPlugin({})
+      },
+      manifest: {  } as WrapManifest,
+    }
+    class SignerPlugin extends PluginModule<{}> {
+      signMessage(args: { message: string }, _client: Client): string {
+        return "0xa4708243bf782c6769ed04d83e7192dbcf4fc131aa54fde9d889d8633ae39dab03d7babd2392982dff6bc20177f7d887e27e50848c851320ee89c6c63d18ca761c"
+      }
+    }
+
+    let signerPlugin = {
+      factory: () => {
+        return new SignerPlugin({})
+      },
+      manifest: {  } as WrapManifest,
+    }
+
     client = new PolywrapClient({
       plugins: [
         {
@@ -82,6 +108,14 @@ describe("Ethereum Plugin", () => {
             },
           }),
         },
+        {
+          uri: "wrap://ens/ethereum-transport.polywrap.eth",
+          plugin: transportPlugin,
+        },
+        {
+          uri: "wrap://ens/ethereum-signer.polywrap.eth",
+          plugin: signerPlugin,
+        },
       ],
     });
 
@@ -92,7 +126,7 @@ describe("Ethereum Plugin", () => {
   });
 
   describe("Query", () => {
-    it("callContractView", async () => {
+    it.only("callContractView", async () => {
       const node = namehash("whatever.eth");
       const response = await client.invoke<string>({
         uri,
@@ -781,7 +815,7 @@ describe("Ethereum Plugin", () => {
     //  expect(response.data).toContain("0x");
     //});
 
-    it("signMessage", async () => {
+    it.only("signMessage", async () => {
       const response = await client.invoke<string>({
         uri,
         method: "signMessage",
