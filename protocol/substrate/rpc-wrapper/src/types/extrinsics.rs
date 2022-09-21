@@ -17,7 +17,11 @@
 
 //! Primitives for substrate extrinsics.
 
+use sp_runtime::generic::Era;
+use sp_core::crypto::Ss58Codec;
+use sp_core::sr25519::Signature;
 use crate::types::extrinsic_params::GenericExtra;
+use crate::wrap::SignedExtrinsicPayload;
 use codec::{
     Decode,
     Encode,
@@ -58,6 +62,29 @@ where
             signature: Some((signed, signature, extra)),
             function,
         }
+    }
+}
+
+impl From<SignedExtrinsicPayload> for UncheckedExtrinsicV4<Vec<u8>> {
+    fn from(payload: SignedExtrinsicPayload) -> Self {
+        let call = hex::decode(&payload.extrinsic.method).unwrap();
+        let signer = GenericAddress::from(AccountId32::from_ss58check(&payload.extrinsic.address).unwrap());
+        let signature = MultiSignature::from(
+            Signature::from_slice(&hex::decode(&payload.signature).unwrap()).unwrap()
+        );
+
+        let era_bytes = hex::decode(&payload.extrinsic.era).unwrap();
+        let era = Era::decode(&mut era_bytes.as_slice()).unwrap();
+        let nonce = 0;
+        let tip = 0;
+        let extra = GenericExtra::new(era, nonce, tip);
+
+        Self::new_signed(
+            call,
+            signer,
+            signature,
+            extra,
+        )
     }
 }
 
@@ -156,6 +183,7 @@ fn encode_with_vec_prefix<T: Encode, F: Fn(&mut Vec<u8>)>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ExtrinsicPayload;
     use sp_core::Pair;
     use sp_runtime::{
         generic::Era,
@@ -179,5 +207,45 @@ mod tests {
         );
         let xt_enc = xt.encode();
         assert_eq!(xt, Decode::decode(&mut xt_enc.as_slice()).unwrap())
+    }
+
+    #[test]
+    fn convert_from_json_form() {
+        let msg = &b"test-message"[..];
+        let (pair, _) = sr25519::Pair::generate();
+        let signature = pair.sign(&msg);
+        let multi_sig = MultiSignature::from(signature.clone());
+        let account: AccountId32 = pair.public().into();
+        let call = vec![1, 1, 1];
+
+        let xt = UncheckedExtrinsicV4::new_signed(
+            call.clone(),
+            account.clone().into(),
+            multi_sig.clone(),
+            GenericExtra::new(Era::mortal(8, 0), 0, 0),
+        );
+
+
+        // create the same extrinsic using the JSONPayload style
+        let extrinsic = ExtrinsicPayload {
+            address: account.to_string(),
+            block_hash: String::new(), // not encoded
+            block_number: "0".to_string(), // not encoded
+            era: hex::encode(xt.signature.clone().unwrap().2.0.encode()),
+            genesis_hash: String::new(), // not encoded
+            method: hex::encode(call),
+            nonce: "0".to_string(),
+            spec_version: String::new(),
+            tip: String::new(),
+            transaction_version: String::new(),
+            signed_extensions: Vec::new(),
+            version: 4
+        };
+        let xt_json = SignedExtrinsicPayload {
+            extrinsic,
+            signature: hex::encode(signature.encode()),
+        };
+
+        assert_eq!(xt, xt_json.into());
     }
 }

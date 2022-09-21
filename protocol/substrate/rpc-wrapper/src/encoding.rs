@@ -1,10 +1,12 @@
 //! Encoding strategy for a SignedExtrinsicPayload
 
+use sp_runtime::MultiSignature;
+use sp_core::crypto::Ss58Codec;
 use crate::types::extrinsic_params::GenericExtra;
 use codec::{
     Encode,
 };
-
+use sp_runtime::testing::sr25519::Signature;
 pub use sp_runtime::{
     AccountId32,
     MultiAddress,
@@ -15,6 +17,7 @@ use sp_std::{
 use crate::wrap::SignedExtrinsicPayload;
 
 const V4: u8 = 4;
+pub type GenericAddress = sp_runtime::MultiAddress<AccountId32, ()>;
 
 impl SignedExtrinsicPayload {
     pub fn hex_encode(&self) -> String {
@@ -32,15 +35,22 @@ impl Encode for SignedExtrinsicPayload {
             // v.push(V4 & 0b0111_1111);
 
             // address
-            self.extrinsic.address.encode_to(v);
+            let account = GenericAddress::from(AccountId32::from_ss58check(&self.extrinsic.address).unwrap());
+            account.encode_to(v);
 
             // signature
-            self.signature.encode_to(v);
+            let signature = MultiSignature::from(
+                Signature::from_slice(&hex::decode(&self.signature).unwrap()).unwrap()
+            );
+            signature.encode_to(v);
 
             // extras (era, nonce, tip)
+            // TODO actually use the data in the struct..
             GenericExtra::default().encode_to(v);
             
-            self.extrinsic.method.encode_to(v);
+            // write the call hex directlys
+            let call = hex::decode(&self.extrinsic.method).unwrap();
+            call.encode_to(v);
         })
     }
 }
@@ -74,6 +84,7 @@ fn encode_with_vec_prefix<T: Encode, F: Fn(&mut Vec<u8>)>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use hex;
     use codec::{Decode};
     use crate::ExtrinsicPayload;
     use crate::types::extrinsics::UncheckedExtrinsicV4;
@@ -86,14 +97,17 @@ mod tests {
 
     #[test]
     fn encoding_same_as_extrinsicv4() {
+        // signature is not actually of payload, just a random string
         let msg = &b"test-message"[..];
         let pair = sr25519::Pair::from_seed(&[0; 32]);
         let signature = pair.sign(&msg);
         let multi_sig = MultiSignature::from(signature.clone());
+
         let account: AccountId32 = pair.public().into();
 
+        let call: Vec<u8> = vec![1, 1, 1];
         let xt = UncheckedExtrinsicV4::new_signed(
-            vec![1, 1, 1],
+            call.clone(),
             account.clone().into(),
             multi_sig,
             GenericExtra::new(Era::Immortal, 0, 0),
@@ -107,7 +121,7 @@ mod tests {
             block_number: "0".to_string(),
             era: String::new(),
             genesis_hash: String::new(), // not encoded
-            method: String::new(),
+            method: hex::encode(call),
             nonce: "0".to_string(),
             spec_version: String::new(),
             tip: String::new(),
