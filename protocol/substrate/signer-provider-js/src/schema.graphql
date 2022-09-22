@@ -30,7 +30,7 @@ type SignerPayloadJSON {
   address: String!
 
   """
-  The checkpoint hash of the block, in hex with '0x' prefix with '0x' prefix
+  The checkpoint hash of the block, in hex with '0x' prefix
   """
   blockHash: String!
 
