@@ -40,7 +40,6 @@ use sp_std::{
     prelude::*,
 };
 use crate::utils::FromHexStr;
-use polywrap_wasm_rs::BigInt;
 use num_traits::ToPrimitive;
 
 pub type GenericAddress = sp_runtime::MultiAddress<AccountId32, ()>;
@@ -220,6 +219,7 @@ fn encode_with_vec_prefix<T: Encode, F: Fn(&mut Vec<u8>)>(
 mod tests {
     use super::*;
     use crate::ExtrinsicPayload;
+    use polywrap_wasm_rs::BigInt;
     use sp_core::Pair;
     use sp_runtime::{
         generic::Era,
