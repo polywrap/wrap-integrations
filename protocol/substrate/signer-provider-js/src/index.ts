@@ -5,20 +5,26 @@ import {
   Module,
   manifest,
   SignerResult,
-  Account
+  Account,
+  SignerPayloadJSON
 } from "./wrap";
+import type { SignerPayloadJSON as StringifiedSignerPayloadJSON } from '@polkadot/types/types';
 
 import { Client, PluginFactory } from "@polywrap/core-js";
 import { web3Accounts, web3Enable, web3FromSource } from '@polkadot/extension-dapp';
 import type { Signer } from '@polkadot/api/types';
+import { TypeRegistry } from '@polkadot/types';
+import { UInt } from '@polkadot/types-codec';
 
 export interface SubstrateSignerProviderPluginConfig {}
 
 export class SubstrateSignerProviderPlugin extends Module<SubstrateSignerProviderPluginConfig> {
   private _isProviderEnabled: boolean = false;
+  private _registry: TypeRegistry;
 
   constructor(config: SubstrateSignerProviderPluginConfig) {
     super(config);
+    this._registry = new TypeRegistry();
   }
 
   async getAccounts(
@@ -39,7 +45,9 @@ export class SubstrateSignerProviderPlugin extends Module<SubstrateSignerProvide
     if (!signer || !signer?.signPayload) {
       throw new Error("Provider for account: " + address + " does not have payload signing capabilities");
     }
-    return signer.signPayload(payload);
+    return signer.signPayload(
+      this._stringifyPayloadFields(payload)
+    );
   }
 
   async signRaw(
@@ -81,6 +89,22 @@ export class SubstrateSignerProviderPlugin extends Module<SubstrateSignerProvide
     const injector = await web3FromSource(signingAccount.meta.source);
     return injector?.signer
   }
+
+  /**
+   * The extension is expecting all numeric to be hex encoded strings
+   * This performs that conversion from the numeric types provided by the GraphQL generated type of the payload
+   */
+  private _stringifyPayloadFields(payload: SignerPayloadJSON): StringifiedSignerPayloadJSON {
+    return {
+      ...payload,
+      nonce: new UInt(this._registry, payload.nonce, 32).toHex(),
+      specVersion: new UInt(this._registry, payload.specVersion, 32).toHex(),
+      tip: new UInt(this._registry, payload.tip, 128).toHex(),
+      transactionVersion: new UInt(this._registry, payload.transactionVersion, 32).toHex(),
+      blockNumber: new UInt(this._registry, payload.blockNumber, 32).toHex(),
+    };
+  }
+
 }
 
 export const substrateSignerProviderPlugin: PluginFactory<SubstrateSignerProviderPluginConfig> = (
