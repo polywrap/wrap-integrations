@@ -106,7 +106,7 @@ impl TryFrom<SignedExtrinsicPayload> for UncheckedExtrinsicV4<Vec<u8>> {
         );
 
         // era is hex string (2 bytes exactly)
-        let era_bytes = <Vec<u8>>::from_hex(&payload.extrinsic.era)?;
+        let era_bytes = <[u8; 2]>::from_hex(&payload.extrinsic.era)?;
         let era = Era::decode(&mut era_bytes.as_slice())?;
 
         // These are hex encoded numbers
