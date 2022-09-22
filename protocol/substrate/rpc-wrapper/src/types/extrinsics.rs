@@ -40,6 +40,8 @@ use sp_std::{
     prelude::*,
 };
 use crate::utils::FromHexStr;
+use polywrap_wasm_rs::BigInt;
+use num_traits::ToPrimitive;
 
 pub type GenericAddress = sp_runtime::MultiAddress<AccountId32, ()>;
 
@@ -109,9 +111,8 @@ impl TryFrom<SignedExtrinsicPayload> for UncheckedExtrinsicV4<Vec<u8>> {
         let era_bytes = <[u8; 2]>::from_hex(&payload.extrinsic.era)?;
         let era = Era::decode(&mut era_bytes.as_slice())?;
 
-        // These are hex encoded numbers
-        let nonce = u32::from_be_bytes(<[u8; 4]>::from_hex(payload.extrinsic.nonce)?); // hex encoded u32 (big endian)
-        let tip = u128::from_be_bytes(<[u8; 16]>::from_hex(payload.extrinsic.tip)?); // hex encoded u128 (big endian)
+        let nonce = payload.extrinsic.nonce;
+        let tip = payload.extrinsic.tip.to_u128().ok_or(Error::OversizedBigInt)?;
         let extra = GenericExtra::new(era, nonce, tip);
 
         Ok(Self::new_signed(
@@ -249,11 +250,11 @@ mod tests {
         let extrinsic = ExtrinsicPayload {
             address: "5D4bqjQRPgdMBK8bNvhX4tSuCtSGZS7rZjD5XH5SoKcFeKn5".to_string(),
             block_hash: "0x661f57d206d4fecda0408943427d4d25436518acbff543735e7569da9db6bdd7".to_string(),
-            block_number: "0x0033fa6b".to_string(),
+            block_number: 99,
             era: "0xb502".to_string(),
             genesis_hash: "0xe143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e".to_string(),
             method: "0x0403c6111b239376e5e8b983dc2d2459cbb6caed64cc1d21723973d061ae0861ef690b00b04e2bde6f".to_string(),
-            nonce: "0x00000003".to_string(),
+            nonce: 3,
             signed_extensions: vec![
               "CheckSpecVersion".to_string(),
               "CheckTxVersion".to_string(),
@@ -263,9 +264,9 @@ mod tests {
               "CheckWeight".to_string(),
               "ChargeTransactionPayment".to_string(),
             ],
-            spec_version: "0x0000002d".to_string(),
-            tip: "0x00000000000000000000000000000000".to_string(),
-            transaction_version: "0x00000003".to_string(),
+            spec_version: 2,
+            tip: BigInt::from(4294967295u32),
+            transaction_version: 4,
             version: 4
         };
 
