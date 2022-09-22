@@ -11,6 +11,7 @@ use polywrap_wasm_rs::BigNumber;
 use scale_info::{TypeDef, TypeDefPrimitive};
 use sp_core::crypto::{AccountId32, Ss58Codec};
 
+use crate::types::extrinsics::UncheckedExtrinsicV4;
 pub use types::metadata::Metadata;
 pub use wrap::imported::SignerProviderSignerPayloadJSON as ExtrinsicPayload;
 use wrap::imported::*;
@@ -20,7 +21,6 @@ mod api;
 mod error;
 mod types;
 mod utils;
-mod encoding;
 
 #[macro_export]
 macro_rules! debug {
@@ -349,7 +349,6 @@ pub fn sign(
     .ok()
 }
 
-
 /// Send a signed extrinsic payload to the give RPC URL
 pub fn send(
     ArgsSend {
@@ -358,12 +357,15 @@ pub fn send(
     }: ArgsSend,
 ) -> Option<String> {
     BaseApi::new(&url)
-        .author_submit_extrinsic(signed_extrinsic.hex_encode())
+        .author_submit_extrinsic(
+            UncheckedExtrinsicV4::try_from(signed_extrinsic)
+                .unwrap()
+                .hex_encode(),
+        )
         .ok()
         .flatten()
         .map(|hash| format!("{:#x}", hash))
 }
-
 
 /// Sign an unsigned extrinsic payload and then immedietly send it
 /// to the RPC. This is a common operation and saves a roundtrip
@@ -382,7 +384,11 @@ pub fn sign_and_send(
     .expect("Signed process failed");
 
     BaseApi::new(&url)
-        .author_submit_extrinsic(signed_extrinsic.hex_encode())
+        .author_submit_extrinsic(
+            UncheckedExtrinsicV4::try_from(signed_extrinsic)
+                .unwrap()
+                .hex_encode(),
+        )
         .ok()
         .flatten()
         .map(|hash| format!("{:#x}", hash))
