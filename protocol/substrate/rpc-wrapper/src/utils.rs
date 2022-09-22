@@ -51,15 +51,9 @@ impl<S: AsRef<str>> FromHexStr<S> for H256 {
 impl<S: AsRef<str>, const N: usize> FromHexStr<S> for [u8; N] {
     fn from_hex(hex: S) -> Result<Self, hex::FromHexError> {
         let vec = Vec::from_hex(hex)?;
-        if vec.len() == N {
-            let mut result = [0; N];
-            for (i, b) in vec.into_iter().enumerate() {
-                result[i] = b;
-            }
-            Ok(result)
-        } else {
-            Err(hex::FromHexError::InvalidStringLength)
-        }
+        vec.try_into().map_err(|_e| {
+            hex::FromHexError::InvalidStringLength
+        })
     }
 }
 
