@@ -1,4 +1,4 @@
 {
   "private": true,
-  "workspaces": ["test-env", "rpc-wrapper", "signer-provider-js"]
+  "workspaces": ["test-env", "rpc-wrapper", "signer-provider-js", "mock-polkadot-js-extension"]
 }
