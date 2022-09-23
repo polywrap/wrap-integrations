@@ -5,7 +5,7 @@ import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-
 import { TypeRegistry } from '@polkadot/types';
 
 import { substrateSignerProviderPlugin } from "../";
-import { enableFn } from "mock-polkadot-js-extension";
+import { enableFn } from "./mockExtensionInjector";
 import { Account, SignerResult } from '../wrap';
 import { testPayload } from './testPayload';
 
