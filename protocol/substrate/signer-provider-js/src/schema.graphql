@@ -30,49 +30,49 @@ type SignerPayloadJSON {
   address: String!
 
   """
-  The checkpoint hash of the block, in hex
+  The checkpoint hash of the block, in hex with '0x' prefix
   """
   blockHash: String!
 
   """
-  The checkpoint block number, in hex
+  The checkpoint block number
   """
-  blockNumber: String!
+  blockNumber: UInt32!
 
   """
-  The era for this transaction, in hex
+  The era for this transaction, in hex with '0x' prefix (2 bytes)
   """
   era: String!
 
   """
-  The genesis hash of the chain, in hex
+  The genesis hash of the chain, in hex with '0x' prefix
   """
   genesisHash: String!
 
   """
-  The encoded method (with arguments) in hex
+  The encoded method (with arguments) in hex with '0x' prefix
   """
   method: String!
 
   """
-  The nonce for this transaction, in hex
+  The nonce for this transaction
   """
-  nonce: String!
+  nonce: UInt32!
 
   """
   The current spec version for the runtime
   """
-  specVersion: String!
+  specVersion: UInt32!
 
   """
-  The tip for this transaction, in hex
+  The tip for this transaction UInt128
   """
-  tip: String!
+  tip: BigInt!
 
   """
   The current transaction version for the runtime
   """
-  transactionVersion: String!
+  transactionVersion: UInt32!
 
   """
   The applicable signed extensions for this runtime
@@ -109,7 +109,7 @@ type SignerResult {
   id: UInt32!
 
   """
-  The resulting signature in hex
+  The resulting signature in hex with 0x prefix
   """
   signature: String!
 }

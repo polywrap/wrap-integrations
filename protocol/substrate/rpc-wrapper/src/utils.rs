@@ -23,22 +23,22 @@ use alloc::vec::Vec;
 use hex::FromHexError;
 use sp_core::H256;
 
-pub trait FromHexStr {
-    fn from_hex(hex: &str) -> Result<Self, hex::FromHexError>
+pub trait FromHexStr<S> {
+    fn from_hex(hex: S) -> Result<Self, hex::FromHexError>
     where
         Self: Sized;
 }
 
-impl FromHexStr for Vec<u8> {
-    fn from_hex(hex: &str) -> Result<Self, hex::FromHexError> {
-        let hexstr = hex.trim_matches('\"').trim_start_matches("0x");
+impl<S: AsRef<str>> FromHexStr<S> for Vec<u8> where  {
+    fn from_hex(hex: S) -> Result<Self, hex::FromHexError> {
+        let hexstr = hex.as_ref().trim_matches('\"').trim_start_matches("0x");
 
         hex::decode(&hexstr)
     }
 }
 
-impl FromHexStr for H256 {
-    fn from_hex(hex: &str) -> Result<Self, FromHexError> {
+impl<S: AsRef<str>> FromHexStr<S> for H256 {
+    fn from_hex(hex: S) -> Result<Self, FromHexError> {
         let vec = Vec::from_hex(hex)?;
 
         match vec.len() {
@@ -47,6 +47,16 @@ impl FromHexStr for H256 {
         }
     }
 }
+
+impl<S: AsRef<str>, const N: usize> FromHexStr<S> for [u8; N] {
+    fn from_hex(hex: S) -> Result<Self, hex::FromHexError> {
+        let vec = Vec::from_hex(hex)?;
+        vec.try_into().map_err(|_e| {
+            hex::FromHexError::InvalidStringLength
+        })
+    }
+}
+
 
 #[cfg(test)]
 mod tests {

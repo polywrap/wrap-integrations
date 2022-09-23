@@ -4,14 +4,16 @@
 pub mod wrap;
 pub use api::Api;
 use api::BaseApi;
-use codec::Decode;
+
 pub use error::Error;
-use num_traits::{cast::FromPrimitive, ToPrimitive};
+use num_traits::cast::FromPrimitive;
 use polywrap_wasm_rs::BigNumber;
 use scale_info::{TypeDef, TypeDefPrimitive};
 use sp_core::crypto::{AccountId32, Ss58Codec};
-use sp_runtime::{MultiAddress, MultiSignature};
+
+use crate::types::extrinsics::UncheckedExtrinsicV4;
 pub use types::metadata::Metadata;
+pub use wrap::imported::SignerProviderSignerPayloadJSON as ExtrinsicPayload;
 use wrap::imported::*;
 pub use wrap::*;
 
@@ -27,23 +29,13 @@ macro_rules! debug {
     }
 }
 
-getrandom::register_custom_getrandom!(custom_random_number);
-
-/// TODO: use polywraps random plugin for this
-/// [#901](https://github.com/polywrap/monorepo/issues/901)
-pub fn custom_random_number(buf: &mut [u8]) -> Result<(), getrandom::Error> {
-    for b in buf.iter_mut() {
-        *b = 4;
-    }
-    Ok(())
-}
-
 pub fn get_signer_provider_accounts(
-    _args: ArgsGetSignerProviderAccounts
+    _args: ArgsGetSignerProviderAccounts,
 ) -> Vec<SignerProviderAccount> {
     SignerProviderModule::get_accounts(
-        &signer_provider_module::ArgsGetAccounts {}
-    ).unwrap()
+        &signer_provider_module::ArgsGetAccounts {},
+    )
+    .unwrap()
 }
 
 /// return the chain metadata
@@ -340,91 +332,64 @@ pub fn pallet_call_index(
         .flatten()
 }
 
-/// Submit an extrinsic to the blockchain
-pub fn author_submit_extrinsic(
-    ArgsAuthorSubmitExtrinsic { url, extrinsic }: ArgsAuthorSubmitExtrinsic,
+/// Sign an extrinsic payload
+/// Really just a wrapper around the signer-provider wrapper
+pub fn sign(
+    ArgsSign { extrinsic }: ArgsSign,
+) -> Option<SignedExtrinsicPayload> {
+    SignerProviderModule::sign_payload(
+        &signer_provider_module::ArgsSignPayload {
+            payload: extrinsic.clone(),
+        },
+    )
+    .map(|result| SignedExtrinsicPayload {
+        extrinsic,
+        signature: result.signature,
+    })
+    .ok()
+}
+
+/// Send a signed extrinsic payload to the give RPC URL
+pub fn send(
+    ArgsSend {
+        url,
+        signed_extrinsic,
+    }: ArgsSend,
 ) -> Option<String> {
     BaseApi::new(&url)
-        .author_submit_extrinsic(extrinsic)
+        .author_submit_extrinsic(
+            UncheckedExtrinsicV4::try_from(signed_extrinsic)
+                .unwrap()
+                .hex_encode(),
+        )
         .ok()
         .flatten()
         .map(|hash| format!("{:#x}", hash))
 }
 
-/// Create a balance api call and return the encoded payload and extra
-/// `nonce` - the current nonce of the `signer_account`.
-/// `to` - the address of the balance transfer
-/// `amount` - the amount that will be transfer from the signer_account to the `to` address.
-/// `tip` - add an optional tip as a reward to the validator.
-pub fn compose_balance_transfer(
-    ArgsComposeBalanceTransfer {
-        url,
-        nonce,
-        to,
-        amount,
-        tip,
-    }: ArgsComposeBalanceTransfer,
-) -> Option<Vec<Vec<u8>>> {
-    let amount: u128 = amount.to_u128().expect("must convert amount");
-    let tip: Option<u128> = tip.map(|tip| tip.to_u128()).flatten();
-
-    let to_account = AccountId32::from_ss58check(&to)
-        .expect("must be a valid ss58check format");
-
-    let to: MultiAddress<AccountId32, ()> = MultiAddress::Id(to_account);
-    Api::new(&url)
-        .ok()
-        .map(|api| {
-            api.compose_balance_transfer(nonce, to, amount, None, None, tip)
-                .ok()
-        })
-        .flatten()
-        .map(|(payload, extra)| [payload, extra].to_vec())
-}
-
-/// submit a balance call derived from the `to`, `amount`.
-/// The `multisignature` is created from signing the `payload` created in
-/// `compose_balance_transfer` and signed using the signer-provider of `signer_account`.
-/// The `extra` parameter is also from the `compose_balance_transfer` passed as is.
-/// The `multi_signature` is the result of signing the `payload` by the `signer_account`.
-///
-/// Important: The `to` and `amount` parameter must match what is passed when composing the payload
-/// in `compose_balance_transfer`, otherwise the `multi_signature` passed here will match, thus the
-/// transaction will fail.
-pub fn submit_signed_balance_call(
-    ArgsSubmitSignedBalanceCall {
-        url,
-        signer_account,
-        to,
-        amount,
-        extra,
-        multi_signature,
-    }: ArgsSubmitSignedBalanceCall,
+/// Sign an unsigned extrinsic payload and then immedietly send it
+/// to the RPC. This is a common operation and saves a roundtrip
+pub fn sign_and_send(
+    ArgsSignAndSend { url, extrinsic }: ArgsSignAndSend,
 ) -> Option<String> {
-    let signer_account = AccountId32::from_ss58check(&signer_account)
-        .expect("must be a valid account");
+    let signed_extrinsic = SignerProviderModule::sign_payload(
+        &signer_provider_module::ArgsSignPayload {
+            payload: extrinsic.clone(),
+        },
+    )
+    .map(|result| SignedExtrinsicPayload {
+        extrinsic,
+        signature: result.signature,
+    })
+    .expect("Signed process failed");
 
-    let to_account =
-        AccountId32::from_ss58check(&to).expect("must be a valid account");
-    let to: MultiAddress<AccountId32, ()> = MultiAddress::Id(to_account);
-    let multi_signature =
-        MultiSignature::decode(&mut multi_signature.as_slice())
-            .expect("must decode");
-    let amount = amount.to_u128().expect("must convert to u128");
-
-    Api::new(&url)
+    BaseApi::new(&url)
+        .author_submit_extrinsic(
+            UncheckedExtrinsicV4::try_from(signed_extrinsic)
+                .unwrap()
+                .hex_encode(),
+        )
         .ok()
-        .map(|api| {
-            api.submit_signed_balance_call(
-                signer_account,
-                to,
-                amount,
-                extra,
-                multi_signature,
-            )
-            .ok()
-        })
         .flatten()
-        .flatten()
-        .map(|h| format!("{:#x}", h))
+        .map(|hash| format!("{:#x}", hash))
 }

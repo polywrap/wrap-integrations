@@ -24,4 +24,8 @@ pub enum Error {
     ResponseJsonError(serde_json::Value),
     #[error("No response")]
     NoResponse,
+    #[error("Error decoding address: {0}")]
+    SS58DecodingError(#[from] sp_core::crypto::PublicError),
+    #[error("Could not decode BigInt into u128")]
+    OversizedBigInt,
 }

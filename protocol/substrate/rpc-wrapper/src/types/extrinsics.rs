@@ -17,12 +17,18 @@
 
 //! Primitives for substrate extrinsics.
 
+use sp_runtime::generic::Era;
+use sp_core::crypto::Ss58Codec;
+use sp_core::sr25519::Signature;
 use crate::types::extrinsic_params::GenericExtra;
+use crate::wrap::SignedExtrinsicPayload;
+use crate::error::Error;
+use crate::ExtrinsicPayload;
 use codec::{
     Decode,
     Encode,
-    Error,
     Input,
+    Error as CodecError,
 };
 use sp_runtime::MultiSignature;
 pub use sp_runtime::{
@@ -33,6 +39,8 @@ use sp_std::{
     fmt,
     prelude::*,
 };
+use crate::utils::FromHexStr;
+use num_traits::ToPrimitive;
 
 pub type GenericAddress = sp_runtime::MultiAddress<AccountId32, ()>;
 
@@ -61,7 +69,7 @@ where
     }
 
     pub fn new_unsigned(function: Call) -> Self {
-        Self {
+        UncheckedExtrinsicV4 {
             signature: None,
             function,
         }
@@ -71,6 +79,47 @@ where
         let mut hex_str = hex::encode(self.encode());
         hex_str.insert_str(0, "0x");
         hex_str
+    }
+}
+
+impl TryFrom<ExtrinsicPayload> for UncheckedExtrinsicV4<Vec<u8>> {
+    type Error = Error;
+
+    fn try_from(payload: ExtrinsicPayload) -> Result<Self, Error> {
+        let call = hex::decode(&payload.method)?;
+        Ok(Self::new_unsigned(call))
+    }
+}
+
+impl TryFrom<SignedExtrinsicPayload> for UncheckedExtrinsicV4<Vec<u8>> {
+    type Error = Error;
+
+    fn try_from(payload: SignedExtrinsicPayload) -> Result<Self, Error> {
+        // call is a hex string we can pass right through
+        let call = <Vec<u8>>::from_hex(payload.extrinsic.method)?;
+
+        // signer is ss58 encoding string
+        let signer = GenericAddress::from(AccountId32::from_ss58check(&payload.extrinsic.address)?);
+
+        // signature is a hex string of a multisignature
+        let signature = MultiSignature::from(
+            Signature::from_raw(<[u8; 64]>::from_hex(&payload.signature)?)
+        );
+
+        // era is hex string (2 bytes exactly)
+        let era_bytes = <[u8; 2]>::from_hex(&payload.extrinsic.era)?;
+        let era = Era::decode(&mut era_bytes.as_slice())?;
+
+        let nonce = payload.extrinsic.nonce;
+        let tip = payload.extrinsic.tip.to_u128().ok_or(Error::OversizedBigInt)?;
+        let extra = GenericExtra::new(era, nonce, tip);
+
+        Ok(Self::new_signed(
+            call,
+            signer,
+            signature,
+            extra,
+        ))
     }
 }
 
@@ -114,7 +163,7 @@ impl<Call> Decode for UncheckedExtrinsicV4<Call>
 where
     Call: Decode + Encode,
 {
-    fn decode<I: Input>(input: &mut I) -> Result<Self, Error> {
+    fn decode<I: Input>(input: &mut I) -> Result<Self, CodecError> {
         // This is a little more complicated than usual since the binary format must be compatible
         // with substrate's generic `Vec<u8>` type. Basically this just means accepting that there
         // will be a prefix of vector length (we don't need
@@ -169,6 +218,8 @@ fn encode_with_vec_prefix<T: Encode, F: Fn(&mut Vec<u8>)>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ExtrinsicPayload;
+    use polywrap_wasm_rs::BigInt;
     use sp_core::Pair;
     use sp_runtime::{
         generic::Era,
@@ -178,9 +229,7 @@ mod tests {
 
     #[test]
     fn encode_decode_roundtrip_works() {
-        let msg = &b"test-message"[..];
-        let (pair, _) = sr25519::Pair::generate();
-        let signature = pair.sign(&msg);
+        let (pair, signature) = gen_valid_signature();
         let multi_sig = MultiSignature::from(signature);
         let account: AccountId32 = pair.public().into();
 
@@ -192,5 +241,50 @@ mod tests {
         );
         let xt_enc = xt.encode();
         assert_eq!(xt, Decode::decode(&mut xt_enc.as_slice()).unwrap())
+    }
+
+    #[test]
+    fn convert_from_known_good_payload() {
+        // This payload is known to be good and comes from the polkadot-js extensions
+        // test lib https://github.com/polkadot-js/extension/blob/607f4b3e3b045020659587771fd3eba7b3214862/packages/extension-ui/src/Popup/Signing/Signing.spec.tsx#L86
+        let extrinsic = ExtrinsicPayload {
+            address: "5D4bqjQRPgdMBK8bNvhX4tSuCtSGZS7rZjD5XH5SoKcFeKn5".to_string(),
+            block_hash: "0x661f57d206d4fecda0408943427d4d25436518acbff543735e7569da9db6bdd7".to_string(),
+            block_number: 99,
+            era: "0xb502".to_string(),
+            genesis_hash: "0xe143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e".to_string(),
+            method: "0x0403c6111b239376e5e8b983dc2d2459cbb6caed64cc1d21723973d061ae0861ef690b00b04e2bde6f".to_string(),
+            nonce: 3,
+            signed_extensions: vec![
+              "CheckSpecVersion".to_string(),
+              "CheckTxVersion".to_string(),
+              "CheckGenesis".to_string(),
+              "CheckMortality".to_string(),
+              "CheckNonce".to_string(),
+              "CheckWeight".to_string(),
+              "ChargeTransactionPayment".to_string(),
+            ],
+            spec_version: 2,
+            tip: BigInt::from(4294967295u32),
+            transaction_version: 4,
+            version: 4
+        };
+
+        // create a random valid signature
+        let (_, signature) = gen_valid_signature();
+
+        let signed_payload = SignedExtrinsicPayload {
+            extrinsic,
+            signature: hex::encode(signature.encode()),
+        };
+
+        let _xt = UncheckedExtrinsicV4::try_from(signed_payload).unwrap();
+    }
+
+    fn gen_valid_signature() -> (sr25519::Pair, Signature) {
+        let msg = &b"test-message"[..];
+        let (pair, _) = sr25519::Pair::generate();
+        let signature = pair.sign(&msg);
+        (pair, signature)
     }
 }

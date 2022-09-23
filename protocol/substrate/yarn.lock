@@ -2763,7 +2763,7 @@
     "@polkadot/types-codec" "9.4.1"
     "@polkadot/util" "^10.1.8"
 
-"@polkadot/types-codec@9.4.1":
+"@polkadot/types-codec@9.4.1", "@polkadot/types-codec@^9.4.1":
   version "9.4.1"
   resolved "https://registry.yarnpkg.com/@polkadot/types-codec/-/types-codec-9.4.1.tgz#451d0d4207b3fef2141a51a1e9a8d0245236017a"
   integrity sha512-S1aFDDK4GL/9SEFYZ6ZAzCvh2QFO/mf3dbTYZLFD7JHQLcbAgTi5E6oz+hWYzsJYW5SzTDW4VdIPoAjY+28UEA==

@@ -6,14 +6,14 @@ import { SignerPayloadJSON } from '../wrap';
 export const testPayload = (address: string): SignerPayloadJSON => ({
   address,
   blockHash: "0x91820de8e05dc861baa91d75c34b23ac778f5fb4a88bd9e8480dbe3850d19a26",
-  blockNumber: "0",
+  blockNumber: 0,
   era: "0x0703",
   genesisHash: "0x91820de8e05dc861baa91d75c34b23ac778f5fb4a88bd9e8480dbe3850d19a26",
   method: "0x0900142248692122",
-  nonce: "0",
-  specVersion: "1",
-  tip: "0",
-  transactionVersion: "",
+  nonce: 0,
+  specVersion: 1,
+  tip: "9999999", // BigInt is just a string in polywrap
+  transactionVersion: 1,
   signedExtensions: [],
   version: 4,
 });
