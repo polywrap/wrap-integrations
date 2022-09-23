@@ -8,7 +8,7 @@
     "fmt": "cd module && cargo +nightly fmt",
     "test": "yarn test:e2e",
     "test:e2e": "yarn test:e2e:codegen && jest --passWithNoTests --runInBand --verbose",
-    "test:e2e:codegen": "cd tests && npx polywrap app codegen -g wrap",
+    "test:e2e:codegen": "cd tests && polywrap app codegen -g wrap",
     "clean": "rm -rf module/src/wrap && rm -rf test/wrap",
     "rebuild": "yarn clean && yarn codegen && yarn build",
     "deploy": "npx polywrap deploy",
