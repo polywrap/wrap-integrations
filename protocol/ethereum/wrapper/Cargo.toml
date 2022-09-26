@@ -1,5 +1,5 @@
 [package]
-name = "ethereum-wrapper"
+name = "module"
 version = "0.1.0"
 description = "Module of Ethereum polywrapper"
 authors = [
@@ -11,11 +11,13 @@ edition = "2021"
 
 [dependencies]
 thiserror = "1.0.30"
-getrandom = { version = "*", features = ["custom"] }
+async-trait = "0.1.57"
 polywrap-wasm-rs = "0.7.0"
 serde = { version = "1.0", features = ["derive"] }
-ethers-core = { version = "0.16.0", features = [] }
-regex = "1.6.0"
+serde_json = { version = "1.0.64", default-features = false, features = ["raw_value"] }
+ethers-providers = { version = "0.17.0", features = [] }
+ethers-core = { version = "0.17.0", features = [] }
+futures = "0.3.24"
 
 [lib]
 crate-type = ["cdylib", "rlib"]

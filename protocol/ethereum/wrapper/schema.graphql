@@ -1,112 +1,113 @@
-#import { Module, Connection, TxResponse, TxReceipt, StaticTxResult, EventNotification, TxOverrides } into Signer from "wrap://ens/ethereum.polywrap.eth"
+#import { Module } into Provider from "wrap://ens/ethereum-provider.polywrap.eth"
 
 type Module {
-  callContractView(
-    address: String!
-    method: String!
-    args: [String!]
-    connection: Signer_Connection
-  ): String!
+  chainId: String!
 
-  callContractStatic(
-    address: String!
-    method: String!
-    args: [String!]
-    connection: Signer_Connection
-    txOverrides: Signer_TxOverrides
-  ): Signer_StaticTxResult!
+  # callContractView(
+  #   address: String!
+  #   method: String!
+  #   args: [String!]
+  # ): String!
 
-  encodeParams(types: [String!]!, values: [String!]!): String!
+  # callContractStatic(
+  #   address: String!
+  #   method: String!
+  #   args: [String!]
+  #   connection: Signer_Connection
+  #   txOverrides: Signer_TxOverrides
+  # ): Signer_StaticTxResult!
 
-  encodeFunction(method: String!, args: [String!]): String!
+  # encodeParams(types: [String!]!, values: [String!]!): String!
 
-  getSignerAddress(connection: Signer_Connection): String!
+  # encodeFunction(method: String!, args: [String!]): String!
 
-  getSignerBalance(blockTag: BigInt, connection: Signer_Connection): BigInt!
+  # getSignerAddress(connection: Signer_Connection): String!
 
-  getBalance(address: String!, blockTag: BigInt, connection: Signer_Connection): BigInt!
+  # getSignerBalance(blockTag: BigInt, connection: Signer_Connection): BigInt!
 
-  getSignerTransactionCount(
-    blockTag: BigInt
-    connection: Signer_Connection
-  ): BigInt!
+  # getBalance(address: String!, blockTag: BigInt, connection: Signer_Connection): BigInt!
 
-  getGasPrice(connection: Signer_Connection): BigInt!
+  # getSignerTransactionCount(
+  #   blockTag: BigInt
+  #   connection: Signer_Connection
+  # ): BigInt!
 
-  estimateTransactionGas(
-    tx: Signer_TxRequest!
-    connection: Signer_Connection
-  ): BigInt!
+  # getGasPrice(connection: Signer_Connection): BigInt!
 
-  estimateContractCallGas(
-    address: String!
-    method: String!
-    args: [String!]
-    connection: Signer_Connection
-    txOverrides: Signer_TxOverrides
-  ): BigInt!
+  # estimateTransactionGas(
+  #   tx: Signer_TxRequest!
+  #   connection: Signer_Connection
+  # ): BigInt!
 
-  checkAddress(address: String!): Boolean!
+  # estimateContractCallGas(
+  #   address: String!
+  #   method: String!
+  #   args: [String!]
+  #   connection: Signer_Connection
+  #   txOverrides: Signer_TxOverrides
+  # ): BigInt!
 
-  toWei(eth: String!): String!
+  # checkAddress(address: String!): Boolean!
 
-  toEth(wei: String!): String!
+  # toWei(eth: String!): String!
 
-  awaitTransaction(
-    txHash: String!
-    confirmations: UInt32!
-    timeout: UInt32!
-    connection: Signer_Connection
-  ): Signer_TxReceipt!
+  # toEth(wei: String!): String!
 
-  waitForEvent(
-    address: String!
-    event: String!
-    args: [String!]
-    timeout: UInt32
-    connection: Signer_Connection
-  ): Signer_EventNotification!
+  # awaitTransaction(
+  #   txHash: String!
+  #   confirmations: UInt32!
+  #   timeout: UInt32!
+  #   connection: Signer_Connection
+  # ): Signer_TxReceipt!
 
-  getNetwork(connection: Signer_Connection): Signer_Network!
+  # waitForEvent(
+  #   address: String!
+  #   event: String!
+  #   args: [String!]
+  #   timeout: UInt32
+  #   connection: Signer_Connection
+  # ): Signer_EventNotification!
 
-  deployContract(
-    abi: String!
-    bytecode: String!
-    args: [String!]
-    connection: Signer_Connection
-  ): Signer_TxReceipt!
+  # getNetwork(connection: Signer_Connection): Signer_Network!
 
-  sendTransaction(
-    tx: Signer_TxRequest!
-    connection: Signer_Connection
-  ): Signer_TxResponse!
+  # deployContract(
+  #   abi: String!
+  #   bytecode: String!
+  #   args: [String!]
+  #   connection: Signer_Connection
+  # ): Signer_TxReceipt!
 
-  sendTransactionAndWait(
-    tx: Signer_TxRequest!
-    connection: Signer_Connection
-  ): Signer_TxReceipt!
+  # sendTransaction(
+  #   tx: Signer_TxRequest!
+  #   connection: Signer_Connection
+  # ): Signer_TxResponse!
 
-  callContractMethod(
-    address: String!
-    method: String!
-    args: [String!]
-    connection: Signer_Connection
-    txOverrides: Signer_TxOverrides
-  ): Signer_TxResponse!
+  # sendTransactionAndWait(
+  #   tx: Signer_TxRequest!
+  #   connection: Signer_Connection
+  # ): Signer_TxReceipt!
 
-  callContractMethodAndWait(
-    address: String!
-    method: String!
-    args: [String!]
-    connection: Signer_Connection
-    txOverrides: Signer_TxOverrides
-  ): Signer_TxReceipt!
+  # callContractMethod(
+  #   address: String!
+  #   method: String!
+  #   args: [String!]
+  #   connection: Signer_Connection
+  #   txOverrides: Signer_TxOverrides
+  # ): Signer_TxResponse!
 
-  signMessage(message: String!, connection: Signer_Connection): String!
+  # callContractMethodAndWait(
+  #   address: String!
+  #   method: String!
+  #   args: [String!]
+  #   connection: Signer_Connection
+  #   txOverrides: Signer_TxOverrides
+  # ): Signer_TxReceipt!
 
-  sendRpc(
-    method: String!
-    params: [String!]!
-    connection: Signer_Connection
-  ): String
+  # signMessage(message: String!): String!
+
+  # sendRpc(
+  #   method: String!
+  #   params: [String!]!
+  #   connection: Signer_Connection
+  # ): String
 }

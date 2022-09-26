@@ -1,6 +1,6 @@
 format: 0.2.0
 project:
-  name: Ethereum-Signer
+  name: Ethereum-Provider
   type: plugin/typescript
 source:
   module: ./src/index.ts

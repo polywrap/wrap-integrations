@@ -1,7 +1,7 @@
 {
-  "name": "@blockwatch-cc/ethereum-signer-plugin-js",
-  "description": "Ethereum Signer Polywrap JS Plugin",
-  "version": "0.2.0",
+  "name": "ethereum-provider-plugin",
+  "description": "Ethereum Provider Polywrap JS Plugin",
+  "version": "0.1.0",
   "license": "MIT",
   "main": "build/index.js",
   "files": [
@@ -10,12 +10,9 @@
   ],
   "scripts": {
     "build": "rimraf ./build && yarn codegen && tsc --project tsconfig.build.json",
-    "codegen": "node ./node_modules/polywrap/bin/polywrap codegen",
-    "codegen:app": "npx polywrap app codegen -m src/__tests__/types/polywrap.app.yaml -g src/__tests__/types/wrap",
+    "codegen": "yarn polywrap codegen",
     "lint": "eslint --color --ext .ts src/",
-    "test": "yarn codegen:app && jest --passWithNoTests --runInBand --verbose",
-    "test:ci": "jest --passWithNoTests --runInBand --verbose",
-    "test:watch": "jest --watch --passWithNoTests --verbose"
+    "test": "jest --passWithNoTests --runInBand --verbose"
   },
   "dependencies": {
     "@ethersproject/address": "5.7.0",
@@ -40,3 +37,4 @@
     "access": "public"
   }
 }
+
