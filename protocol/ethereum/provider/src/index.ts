@@ -7,7 +7,7 @@ import { ethers } from "ethers";
 import { PluginFactory } from "@polywrap/core-js";
 
 export interface ProviderConfig {
-	url: string
+  url: string
 }
 
 export class EthereumProviderPlugin extends Module<ProviderConfig> {
@@ -19,7 +19,7 @@ export class EthereumProviderPlugin extends Module<ProviderConfig> {
     args: Args_request
   ): Promise<string> {
     const p = new ethers.providers.JsonRpcProvider(this.config.url);
-    const req = await p.send(args.method, args?.params ?? []);
+    const req = await p.send(args.method, JSON.parse(args?.params ?? "[]"));
     return JSON.stringify(req);
   }
 }

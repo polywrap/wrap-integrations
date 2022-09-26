@@ -86,7 +86,7 @@ describe("Ethereum Plugin", () => {
         },
         {
           uri: "wrap://ens/ethereum-provider.polywrap.eth",
-          plugin: ethereumProviderPlugin({url: "https://bsc-dataseed1.binance.org/"}),
+          plugin: ethereumProviderPlugin({url: providers.ethereum}),
         },
       ],
     });
@@ -98,7 +98,7 @@ describe("Ethereum Plugin", () => {
   });
 
   describe("EthereumWrapper", () => {
-    it.only("chainId", async () => {
+    it("chainId", async () => {
       const response = await client.invoke<string>({
         uri,
         method: "chainId",
@@ -107,8 +107,51 @@ describe("Ethereum Plugin", () => {
 
       expect(response.error).toBeUndefined();
       expect(response.data).toBeDefined();
-      expect(response.data).toBe("56");
+      expect(response.data).toBe("1337");
+    });
+
+    it("getBalance", async () => {
+      const response = await client.invoke<string>({
+        uri,
+        method: "getBalance",
+        args: {
+          address: signer,
+        },
+      });
+
+      expect(response.error).toBeUndefined();
+      expect(response.data).toBeDefined();
+    });
+
+    it("callContractView", async () => {
+      const node = namehash("whatever.eth");
+      const response = await client.invoke<string>({
+        uri,
+        method: "callContractView",
+        args: {
+          address: ensAddress,
+          method: "function resolver(bytes32 node) external view returns (address)",
+          args: [node]
+        }
+      });
+
+      expect(response.error).toBeUndefined();
+      expect(response.data).toBeDefined();
+      expect(response.data).toBe("0x0000000000000000000000000000000000000000");
+    });
+    
+    it("checkAddress", async () => {
+      const response = await client.invoke<string>({
+        uri,
+        method: "checkAddress",
+        args: {
+          address: signer,
+        },
+      });
+
+      expect(response.error).toBeUndefined();
+      expect(response.data).toBeDefined();
+      expect(response.data).toEqual(true);
     });
   });
 });
-

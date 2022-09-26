@@ -3,11 +3,11 @@
 type Module {
   chainId: String!
 
-  # callContractView(
-  #   address: String!
-  #   method: String!
-  #   args: [String!]
-  # ): String!
+  callContractView(
+    address: String!
+    method: String!
+    args: [String!]
+  ): String!
 
   # callContractStatic(
   #   address: String!
@@ -25,7 +25,7 @@ type Module {
 
   # getSignerBalance(blockTag: BigInt, connection: Signer_Connection): BigInt!
 
-  # getBalance(address: String!, blockTag: BigInt, connection: Signer_Connection): BigInt!
+  getBalance(address: String!, blockTag: BigInt): BigInt!
 
   # getSignerTransactionCount(
   #   blockTag: BigInt
@@ -47,7 +47,7 @@ type Module {
   #   txOverrides: Signer_TxOverrides
   # ): BigInt!
 
-  # checkAddress(address: String!): Boolean!
+  checkAddress(address: String!): Boolean!
 
   # toWei(eth: String!): String!
 

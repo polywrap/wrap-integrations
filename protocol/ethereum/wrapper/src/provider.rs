@@ -11,7 +11,7 @@ use super::wrap::ProviderModule;
 use super::wrap::imported::ArgsRequest;
 
 #[derive(Debug)]
-pub struct Provider {
+pub struct PolywrapProvider {
 }
 
 #[derive(Error, Debug)]
@@ -31,7 +31,7 @@ impl From<ClientError> for ProviderError {
 }
 
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
-impl JsonRpcClient for Provider {
+impl JsonRpcClient for PolywrapProvider {
     type Error = ClientError;
 
     /// Sends a POST request with the provided method and the params serialized as JSON
@@ -41,20 +41,21 @@ impl JsonRpcClient for Provider {
         method: &str,
         params: T,
     ) -> Result<R, ClientError> {
-        let res = ProviderModule::request(&ArgsRequest {method: method.to_string(), params: None}).expect("provider request failed");
+        let params_s = serde_json::to_string(&params).unwrap();
+        let res = ProviderModule::request(&ArgsRequest {method: method.to_string(), params: params_s }).expect("provider request failed");
         let res = serde_json::from_str(&res)
             .map_err(|err| ClientError::SerdeJson { err, text: "from str failed".to_string() })?;
         Ok(res)
     }
 }
 
-impl Provider {
+impl PolywrapProvider {
     pub fn new() -> Self {
         Self {}
     }
 }
 
-impl Clone for Provider {
+impl Clone for PolywrapProvider {
     fn clone(&self) -> Self {
         Self {  }
     }
