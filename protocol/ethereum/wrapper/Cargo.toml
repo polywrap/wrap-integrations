@@ -18,7 +18,11 @@ serde_json = { version = "1.0.64", default-features = false, features = ["raw_va
 ethers-providers = { version = "0.17.0", features = [] }
 ethers-core = { version = "0.17.0", features = [] }
 ethers-contract = { version = "0.17.0", features = [] }
+ethers-middleware = { version = "0.17.0", features = [] }
+ethers-signers = { version = "0.17.0", features = [] }
 futures = "0.3.24"
+ethabi = "17.2.0"
+hex = { version = "0.4", default-features = false, features = ["alloc"] }
 
 [lib]
 crate-type = ["cdylib", "rlib"]

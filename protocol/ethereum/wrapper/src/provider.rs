@@ -1,25 +1,23 @@
-use ethers_providers::{ProviderError, JsonRpcClient};
+use ethers_providers::{JsonRpcClient, ProviderError};
 
+use super::wrap::imported::ArgsRequest;
+use super::wrap::ProviderModule;
 use async_trait::async_trait;
 use serde::{de::DeserializeOwned, Serialize};
-use std::{
-    str::FromStr,
-    sync::atomic::{AtomicU64, Ordering},
-};
 use thiserror::Error;
-use super::wrap::ProviderModule;
-use super::wrap::imported::ArgsRequest;
 
 #[derive(Debug)]
-pub struct PolywrapProvider {
-}
+pub struct PolywrapProvider {}
 
 #[derive(Error, Debug)]
 /// Error thrown when sending an HTTP request
 pub enum ClientError {
     #[error("Deserialization Error: {err}. Response: {text}")]
     /// Serde JSON Error
-    SerdeJson { err: serde_json::Error, text: String },
+    SerdeJson {
+        err: serde_json::Error,
+        text: String,
+    },
 }
 
 impl From<ClientError> for ProviderError {
@@ -42,9 +40,15 @@ impl JsonRpcClient for PolywrapProvider {
         params: T,
     ) -> Result<R, ClientError> {
         let params_s = serde_json::to_string(&params).unwrap();
-        let res = ProviderModule::request(&ArgsRequest {method: method.to_string(), params: params_s }).expect("provider request failed");
-        let res = serde_json::from_str(&res)
-            .map_err(|err| ClientError::SerdeJson { err, text: "from str failed".to_string() })?;
+        let res = ProviderModule::request(&ArgsRequest {
+            method: method.to_string(),
+            params: Some(params_s),
+        })
+        .expect("provider request failed");
+        let res = serde_json::from_str(&res).map_err(|err| ClientError::SerdeJson {
+            err,
+            text: "from str failed".to_string(),
+        })?;
         Ok(res)
     }
 }
@@ -57,6 +61,6 @@ impl PolywrapProvider {
 
 impl Clone for PolywrapProvider {
     fn clone(&self) -> Self {
-        Self {  }
+        Self {}
     }
 }
