@@ -220,11 +220,13 @@ describe("e2e", () => {
     expect(result).toBeTruthy();
   });
 
-  it("get account info of Alice", async () => {
+  const aliceAddr = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY";
+
+  it("get account info of Alice from chain", async () => {
     const result = await Substrate_Module.accountInfo({
         url,
         //Alice account
-        account: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+        account: aliceAddr,
       },
       client,
       uri
@@ -238,7 +240,7 @@ describe("e2e", () => {
     console.log("account info: ", account_info);
   });
 
-it("get signer-provider managed accounts", async () => {
+it("can get signer-provider managed accounts. Returns Alice", async () => {
     const result = await Substrate_Module.getSignerProviderAccounts(
       {},
       client,
@@ -248,5 +250,13 @@ it("get signer-provider managed accounts", async () => {
     expect(result).toBeTruthy();
     expect(result.error).toBeFalsy();
     expect(result.data).toBeTruthy();
+    expect(result.data).toStrictEqual([
+      {
+        address: aliceAddr,
+        meta: { genesisHash: null, name: 'alice', source: 'mockExtension' },
+        type: 'sr25519'
+      }
+    ]);
+    
   });  
 });
