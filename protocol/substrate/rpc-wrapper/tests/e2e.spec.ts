@@ -7,9 +7,9 @@ import {
   Substrate_SignerProvider_SignerPayloadJSON as SignerPayload,
 } from "./wrap";
 import { PolywrapClient, Uri } from "@polywrap/client-js";
-// import { runCLI } from "@polywrap/test-env-js";
+import { runCLI } from "@polywrap/test-env-js";
 import path from "path";
-// import { up, down } from "substrate-polywrap-test-env";
+import { up, down } from "substrate-polywrap-test-env";
 import { TextEncoder, TextDecoder } from "util";
 import { substrateSignerProviderPlugin } from "substrate-signer-provider-plugin-js";
 import { enableFn } from "mock-polkadot-js-extension";
@@ -33,29 +33,28 @@ describe("e2e", () => {
     // @ts-ignore
     global.TextDecoder = TextDecoder;
 
-// injects the mock extension into the page
+    // injects the mock extension into the page for the signer-provider to use
     await injectExtension(enableFn, { name: 'mockExtension', version: '1.0.0' });    
 
-    // // start up a test chain environment
-    // console.log("Starting up test chain. This can take around 1 minute..");
-    // const response = await up(false);
-    // url = response.node.url;
-    // console.log("Test chain running at ", url);
+    // start up a test chain environment
+    console.log("Starting up test chain. This can take around 1 minute..");
+    const response = await up(false);
+    url = response.node.url;
+    console.log("Test chain running at ", url);
 
-    // const wrapperDir = path.resolve(__dirname, "../");
+    const wrapperDir = path.resolve(__dirname, "../");
 
-    // const buildOutput = await runCLI({
-    //   args: ["build"],
-    //   cwd: wrapperDir
-    // });
+    const buildOutput = await runCLI({
+      args: ["build"],
+      cwd: wrapperDir
+    });
 
-    // if (buildOutput.exitCode !== 0) {
-    //   throw Error(
-    //     `Failed to build wrapper:\n` +
-    //     JSON.stringify(buildOutput, null, 2)
-    //   );
-    // }
-    url = "http://localhost:9933"
+    if (buildOutput.exitCode !== 0) {
+      throw Error(
+        `Failed to build wrapper:\n` +
+        JSON.stringify(buildOutput, null, 2)
+      );
+    }
 
     client = new PolywrapClient({
       plugins: [
@@ -68,7 +67,7 @@ describe("e2e", () => {
   });
 
   afterAll(async () => {
-    // await down();
+    await down();
   })
 
   it("blockHash", async () => {
