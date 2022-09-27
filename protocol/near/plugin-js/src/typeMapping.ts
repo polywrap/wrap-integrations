@@ -5,12 +5,12 @@ import {
   AccessKey,
   AccessKeyPermission as IAccessKeyPermission,
   Action,
-  KeyTypeEnum,
   PublicKey,
   Signature,
-  SignedTransaction,
   Transaction,
   FunctionCallPermission,
+  Near_Action,
+  Near_AccessKey,
 } from "./wrap";
 import {
   AccessKeyPermission,
@@ -72,7 +72,7 @@ export const toAction = (action: nearApi.transactions.Action): Action => {
   return result as Action;
 };
 
-export const fromAction = (action: Action): nearApi.transactions.Action => {
+export const fromAction = (action: Near_Action): nearApi.transactions.Action => {
   if (isCreateAccount(action)) {
     return nearApi.transactions.createAccount();
   } else if (isDeployContract(action)) {
@@ -114,14 +114,14 @@ export const fromTx = (tx: Transaction): nearApi.transactions.Transaction => {
   });
 };
 
-export const fromSignedTx = (
+/* export const fromSignedTx = (
   signedTx: SignedTransaction
 ): nearApi.transactions.SignedTransaction => {
   return new nearApi.transactions.SignedTransaction({
     transaction: fromTx(signedTx.transaction),
     signature: fromSignature(signedTx.signature),
   });
-};
+}; */
 
 export const fromSignature = (
   signature: Signature
@@ -129,7 +129,7 @@ export const fromSignature = (
   const keyType =
     typeof signature.keyType === "number"
       ? (signature.keyType as number)
-      : KeyTypeEnum[signature.keyType];
+      : 'ed25519';
   return new nearApi.transactions.Signature({
     keyType: keyType,
     data: signature.data,
@@ -153,10 +153,10 @@ export const fromPublicKey = (key: PublicKey): nearApi.utils.PublicKey => {
 };
 
 export const fromAccessKey = (
-  key: AccessKey
+  key: Near_AccessKey
 ): nearApi.transactions.AccessKey => {
   //https://github.com/near/near-api-js/blob/26b3dd2f55ef97107c429fdfa704de566617c9b3/lib/transaction.js#L23
-  if (key.permission._ !== null && key.permission._ == "FullAccess") {
+  if (key.permission.isFullAccess) {
     return nearApi.transactions.fullAccessKey();
   } else {
     const functionCallPermission = <FunctionCallPermission>key.permission;

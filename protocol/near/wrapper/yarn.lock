@@ -1379,14 +1379,14 @@
     "@polywrap/core-js" "0.2.0"
     idna-uts46-hx "3.4.0"
 
-"@polywrap/wasm-as@0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@polywrap/wasm-as/-/wasm-as-0.2.0.tgz#06ae74d3fa4f9a6a10b65cc4e96b96f8ef4b0130"
-  integrity sha512-VpQewoK9/T83WZgZBhEcZWRCJDLVHR69Ee6tc5t42kRnx92fQ75/Wrq2tflCz3FJZt57yN7eD3KxEJ/RDOyvYw==
+"@polywrap/wasm-as@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@polywrap/wasm-as/-/wasm-as-0.3.0.tgz#dbb949e6e76df6971cca1a1ab8d1c52e9fcb295c"
+  integrity sha512-rxQaVKPu67AqgzozUdB3EQ2UKhp8bqq6ZExS8aApfgAcGhN8uH9wuk64qTbvgS725Wsw+eUWBaA471vNf1EfXw==
   dependencies:
     "@web3api/assemblyscript-json" "1.2.0"
     as-bigint "0.5.3"
-    as-bignumber "0.2.0"
+    as-bignumber "0.2.1"
     as-container "0.6.1"
 
 "@polywrap/wrap-manifest-schemas@0.2.0":
@@ -1403,6 +1403,28 @@
     "@polywrap/wrap-manifest-schemas" "0.2.0"
     jsonschema "1.4.0"
     semver "7.3.5"
+
+"@serial-as/borsh@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@serial-as/borsh/-/borsh-1.0.4.tgz#940b21acc8f721f47228408169ad281d90c5d1a9"
+  integrity sha512-NoMtMOfy4wK+TRRTjSIvsQj9I18oUh/TBuD5UKnXR69WGZNKm2/soIQ6eZAQGPZbmqyyznQokbyGPiReGQiyOQ==
+  dependencies:
+    "@serial-as/core" "1.0.2"
+
+"@serial-as/core@1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@serial-as/core/-/core-1.0.2.tgz#a3b21d6962fed7aaae978d63bc0551be65b36ea6"
+  integrity sha512-aJFMzEn5eztHI5ZcxCGYiRXuj8xVQt+JGTzCVHq/NMBHubAi4MC48/e3VVjqGoHo+FdPlnGropx08YPrc3ENCw==
+  dependencies:
+    "@serial-as/transform" "1.0.2"
+    as-bignum "^0.2.17"
+
+"@serial-as/transform@1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@serial-as/transform/-/transform-1.0.2.tgz#95ed7aa2879f13825ea4b404718ee1eca9ad71c7"
+  integrity sha512-1Uti3bxGYrkN1yhV0aVuAQ46dsEvWXUDVQ+2btC5nFo0N2UJ8860K3HVc6y3Xm2pEDMW/6IrmfZoapNV1E3jMw==
+  dependencies:
+    visitor-as "^0.7.0-1"
 
 "@sinonjs/commons@^1.7.0":
   version "1.8.3"
@@ -1905,10 +1927,15 @@ as-bigint@0.5.3, as-bigint@^0.5.1:
   resolved "https://registry.yarnpkg.com/as-bigint/-/as-bigint-0.5.3.tgz#a0647d0b7ce835077aca33115e71eb26a83df8be"
   integrity sha512-tg9iTO/vPeovOM5CSk1WxYcsfBd/cd3twhBW5PrpcGUfiSEXlPB69eOxFKvSbZnpuDxBAyQ4YBgEkfnYL89Czw==
 
-as-bignumber@0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/as-bignumber/-/as-bignumber-0.2.0.tgz#13feb2e5054c8a2d557618de2e507af39cfb7532"
-  integrity sha512-Y12DyJoO1fqzc/KdosQIw/ri7NgHPZNIKoIaQ775sh/vZ/dlg50tu0GQP5npu0LJdSXzpuzqKkOfAPhdhh07QA==
+as-bignum@^0.2.17, as-bignum@^0.2.23:
+  version "0.2.23"
+  resolved "https://registry.yarnpkg.com/as-bignum/-/as-bignum-0.2.23.tgz#626e358721504291d35db4ce5c80693630048ad3"
+  integrity sha512-0+GiwHNwyw0lXI+6uzOI6ReNOEsqKihdLJuOYJeqEOfXcIqwtSixLcQ7h9UQaMrroktW/Idmqj2TinpcWTxxJA==
+
+as-bignumber@0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/as-bignumber/-/as-bignumber-0.2.1.tgz#6479caca7f24f784b10b3d2633cde457ef9cbc22"
+  integrity sha512-udKOlFYKSZyuHK7upTczRR8lcXkyPS0DR6NOtP+c3bhM4B2B0VqMBTzqa0hdYG4Zss94zA6UmqpjreEbzNUo4g==
   dependencies:
     as-bigint "^0.5.1"
 
@@ -1945,6 +1972,14 @@ assemblyscript@0.19.1:
   integrity sha512-unWcmJsw5H0H2GrTf25GlDJCaNzAveeFYPH5XhP54m540+26KJIurTEHN+xf/EI3MdK7IhThpGCE+pNqiNuLmA==
   dependencies:
     binaryen "101.0.0-nightly.20210527"
+    long "^4.0.0"
+
+assemblyscript@0.19.5:
+  version "0.19.5"
+  resolved "https://registry.yarnpkg.com/assemblyscript/-/assemblyscript-0.19.5.tgz#12f5976c41f6b866dd0d1aad5275dcd358a5d82f"
+  integrity sha512-mAx7gcwjJI5OSu2RcOlugHFNxKt/rtWn3vyp46cN1+uXb7YSS//rgO044+KKwfxnGvoWj0ClsU0dNt5eWoXF7A==
+  dependencies:
+    binaryen "101.0.0-nightly.20210604"
     long "^4.0.0"
 
 assert-plus@1.0.0, assert-plus@^1.0.0:
@@ -2108,6 +2143,11 @@ binaryen@101.0.0-nightly.20210527:
   version "101.0.0-nightly.20210527"
   resolved "https://registry.yarnpkg.com/binaryen/-/binaryen-101.0.0-nightly.20210527.tgz#7677155efc965e0276dd206ed30f2d9e216ed6e2"
   integrity sha512-dbKentJwA6H0LfI+pRuzNNzAooJwYFNrg1L8rRw8j6rlfkU815ytNLO+uDzGNcltYehUa5ERZFJHPIdqX12n0w==
+
+binaryen@101.0.0-nightly.20210604:
+  version "101.0.0-nightly.20210604"
+  resolved "https://registry.yarnpkg.com/binaryen/-/binaryen-101.0.0-nightly.20210604.tgz#3498a0a0c1108f3386b15ca79f1608425057db9e"
+  integrity sha512-aTgX1JDN8m3tTFK8g9hazJcEOdQl7mK4yVfElkKAh7q+TRUCaea4a2SMLr1z2xZL7s9N4lkrvrBblxRuEPvxWQ==
 
 bl@^4.0.0:
   version "4.1.0"
@@ -5114,6 +5154,11 @@ lodash.camelcase@^4.3.0:
   resolved "https://registry.yarnpkg.com/lodash.camelcase/-/lodash.camelcase-4.3.0.tgz#b28aa6288a2b9fc651035c7711f65ab6190331a6"
   integrity sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==
 
+lodash.clonedeep@^4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
+  integrity sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==
+
 lodash.kebabcase@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/lodash.kebabcase/-/lodash.kebabcase-4.1.1.tgz#8489b1cb0d29ff88195cceca448ff6d6cc295c36"
@@ -6923,6 +6968,11 @@ ts-jest@27.0.4:
     semver "7.x"
     yargs-parser "20.x"
 
+ts-mixer@^5.4.1:
+  version "5.4.1"
+  resolved "https://registry.yarnpkg.com/ts-mixer/-/ts-mixer-5.4.1.tgz#b90db9ced48531aa17ce9184a2890d1e3c99b1e5"
+  integrity sha512-Zo9HgPCtNouDgJ+LGtrzVOjSg8+7WGQktIKLwAfaNrlOK1mWGlz1ejsAF/YqUEqAGjUTeB5fEg8gH9Aui6w9xA==
+
 ts-node@8.10.2:
   version "8.10.2"
   resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-8.10.2.tgz#eee03764633b1234ddd37f8db9ec10b75ec7fb8d"
@@ -7158,6 +7208,14 @@ verror@1.10.0:
     assert-plus "^1.0.0"
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
+
+visitor-as@^0.7.0-1:
+  version "0.7.0-2"
+  resolved "https://registry.yarnpkg.com/visitor-as/-/visitor-as-0.7.0-2.tgz#28f1c51801a677f14c4487c78a85ad541cfe382d"
+  integrity sha512-JDviqVnGn8i5qafLYuZUGlNeyc/8STIBnmNiXizvHO29xxJDaHNHxbr4Gh+9ksIJvMh9TNQKBeSyT2tldNbpJw==
+  dependencies:
+    lodash.clonedeep "^4.5.0"
+    ts-mixer "^5.4.1"
 
 w3c-hr-time@^1.0.2:
   version "1.0.2"

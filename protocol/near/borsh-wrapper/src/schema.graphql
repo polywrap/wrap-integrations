@@ -1,0 +1,21 @@
+#import { Transaction, Action, AccessKey, AccessKeyPermission, Signature, SignedTransaction } into Interface from "wrap://ens/near.interface.polywrap.eth"
+
+type Module { 
+    serializeTransaction(
+        transaction: Interface_Transaction!
+    ): Bytes!
+
+    deserializeTransaction(
+        transactionBytes: Bytes!
+    ): Interface_Transaction!
+
+    serializeSignedTransaction(
+        signedTransaction: Interface_SignedTransaction!
+    ): Bytes!
+
+    deserializeSignedTransaction(
+        signedTxBytes: Bytes!
+    ): Interface_SignedTransaction
+}
+
+

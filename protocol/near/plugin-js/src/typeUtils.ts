@@ -1,10 +1,8 @@
 import {
   FullAccessPermission,
   FunctionCallPermission,
-  KeyType,
-  KeyTypeEnum,
   PublicKey,
-  Action,
+  Near_Action as Action,
 } from "./wrap";
 
 import * as nearApi from "near-api-js";
@@ -128,21 +126,19 @@ export function isNearFunctionCallPermission(
   );
 }
 
-export function keyTypeToStr(keyType: KeyType): string {
+export function keyTypeToStr(keyType: number): string {
   switch (keyType) {
-    case KeyTypeEnum.ED25519:
-      return "ed25519";
-    case KeyTypeEnum[KeyTypeEnum.ED25519]:
+    case 0:
       return "ed25519";
     default:
       throw new Error(`Unknown key type ${keyType}`);
   }
 }
 
-export function keyTypeFromStr(keyType: string): KeyTypeEnum {
+export function keyTypeFromStr(keyType: string): number {
   switch (keyType) {
     case "ed25519":
-      return KeyTypeEnum.ED25519;
+      return 0;
     default:
       throw new Error(`Unknown key type ${keyType}`);
   }
@@ -150,6 +146,8 @@ export function keyTypeFromStr(keyType: string): KeyTypeEnum {
 
 export const publicKeyToStr = (key: PublicKey): string => {
   const keyTypeStr = keyTypeToStr(key.keyType);
-  const encodedData = nearApi.utils.serialize.base_encode(key.data as Uint8Array);
+  const encodedData = nearApi.utils.serialize.base_encode(
+    key.data as Uint8Array
+  );
   return `${keyTypeStr}:${encodedData}`;
 };

@@ -1,0 +1,109 @@
+import { PolywrapClient } from "@polywrap/client-js";
+import { BinaryWriter } from "borsh";
+import path from "path";
+
+jest.setTimeout(60000);
+
+/* function logValues(...args: any[]) {
+  console.log(args);
+}
+ */
+describe("Template Wrapper End to End Tests", () => {
+  const client: PolywrapClient = new PolywrapClient();
+  let wrapperUri: string;
+
+  beforeAll(() => {
+    const dirname: string = path.resolve(__dirname);
+    const wrapperPath: string = path.join(dirname, "..", "..", "..");
+    wrapperUri = `fs/${wrapperPath}/build`;
+  });
+
+  /* it("calls serialize", async () => {
+    const obj = "244ZQ9cgj3CQ6bWBdytfrJMuMQ1jdXLFGnr4HhvtCTnM";
+    const { data: decode } = await client.invoke<any>({
+      uri: wrapperUri,
+      method: "decode",
+      args: { string: obj },
+    });
+
+    const { data: encode } = await client.invoke<any>({
+      uri: wrapperUri,
+      method: "encode",
+      args: { bytes: decode as Uint8Array },
+    });
+
+    //----  DECODE  -----//
+    const borshDecode = baseDecode(obj);
+
+    logValues("wrapper DECODE", decode, decode.buffer, decode.toString());
+
+    logValues(
+      "borsh Decode",
+      Uint8Array.from(borshDecode),
+      borshDecode.buffer,
+      borshDecode.toString()
+    );
+
+    //----  ENCODE  -----//
+    const borshEncode = baseEncode(borshDecode);
+
+    console.log("encode result", encode);
+    console.log("borshEncode", borshEncode);
+
+    expect(decode).toBeTruthy();
+  }); */
+
+  it("serializes equally", async () => {
+    /*     const str = "test-1661266637084-660825000000000000000";
+
+    const writer = new BinaryWriter();
+    writer.writeString(str);
+    const tsRes = writer.toArray();
+
+    const { data: asRes } = await client.invoke<Uint8Array>({
+      uri: wrapperUri,
+      method: "serializeString",
+      args: { string: str },
+    });
+
+    //------- Uint8Arrays ------------//
+    console.log("Uint8Array-tsRes", Uint8Array.from(tsRes));
+    console.log("Uint8Array-asRes", asRes);
+    //---------------------------------//
+
+    //------- Buffers ------------//
+    console.log("Buffer-tsRes", tsRes);
+    console.log("Buffer-asRes", Uint8Array.from(asRes!).buffer);
+    //---------------------------------// */
+
+    // PK.data
+    const arr = [
+      50, 216, 230, 100, 117, 83, 133, 111, 165, 231, 204, 87, 13, 12, 45, 86,
+      152, 106, 165, 247, 131, 55, 19, 65, 37, 28, 47, 224, 173, 242, 151, 94,
+    ];
+
+    const buffer = Buffer.from(arr);
+
+    console.log(buffer);
+    
+    console.log('BYTELENGHT', buffer.byteLength)
+    const writer = new BinaryWriter();
+    writer.writeFixedArray(buffer);
+    const tsRes = writer.toArray();
+
+    const { data: asRes } = await client.invoke<Uint8Array>({
+      uri: wrapperUri,
+      method: "serializeBuffer",
+      args: { bytes: buffer },
+    });
+    //------- Uint8Arrays ------------//
+    console.log("Uint8Array-tsRes", Uint8Array.from(tsRes));
+    console.log("Uint8Array-asRes", asRes);
+    //---------------------------------//
+
+    //------- Buffers ------------//
+    console.log("Buffer-tsRes", tsRes);
+    console.log("Buffer-asRes", Uint8Array.from(asRes!).buffer);
+    //---------------------------------// */
+  });
+});
