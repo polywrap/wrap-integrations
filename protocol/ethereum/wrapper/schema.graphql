@@ -32,7 +32,7 @@ type Module {
   #   connection: Signer_Connection
   # ): BigInt!
 
-  # getGasPrice(connection: Signer_Connection): BigInt!
+  getGasPrice: BigInt!
 
   # estimateTransactionGas(
   #   tx: Signer_TxRequest!

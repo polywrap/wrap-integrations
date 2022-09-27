@@ -39,8 +39,6 @@ pub fn call_contract_view(input: wrap::ArgsCallContractView) -> String {
             None => vec![],
         };
 
-        let abi = ethers_core::abi::parse_abi(&[&input.method]).unwrap();
-
         let client = Provider::new(PolywrapProvider {});
 
         let arg: &[u8] = args[0].as_bytes();
@@ -85,13 +83,19 @@ pub fn get_balance(input: wrap::ArgsGetBalance) -> BigInt {
 
 // pub fn get_gas_price(input: ArgsGetGasPrice) -> String {}
 
-pub fn check_address(input: ArgsCheckAddress) -> bool {
+pub fn check_address(input: wrap::ArgsCheckAddress) -> bool {
         match Address::from_str(&input.address) {
             Ok(addr) => true,
             Err(e) => false,
         }
 }
 
-// pub fn get_network(input: ArgsGetNetwork) -> String {}
+pub fn get_gas_price(_input: wrap::argsGetGasPrice) -> BigInt {
+    block_on(async {
+        let client = Provider::new(PolywrapProvider {});
+        let price = client.get_gas_price().await.unwrap().to_string();
+        BigInt::from_str(&price).unwrap()
+    })
+}
 
 // pub fn call_contract_view(input: ArgsCallContractView) -> String {}

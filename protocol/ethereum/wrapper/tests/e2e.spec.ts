@@ -153,5 +153,15 @@ describe("Ethereum Plugin", () => {
       expect(response.data).toBeDefined();
       expect(response.data).toEqual(true);
     });
+
+    it("getGasPrice", async () => {
+      const response = await client.invoke<string>({
+        uri,
+        method: "getGasPrice"
+      });
+
+      expect(response.error).toBeUndefined();
+      expect(response.data).toBeDefined();
+    });
   });
 });
