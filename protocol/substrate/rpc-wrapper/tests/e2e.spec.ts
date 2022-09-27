@@ -11,6 +11,8 @@ import path from "path";
 // import { up, down } from "substrate-polywrap-test-env";
 import { TextEncoder, TextDecoder } from "util";
 import { substrateSignerProviderPlugin } from "substrate-signer-provider-plugin-js";
+import { enableFn } from "mock-polkadot-js-extension";
+import { injectExtension } from '@polkadot/extension-inject';
 
 
 jest.setTimeout(360000);
@@ -26,6 +28,9 @@ describe("e2e", () => {
     global.TextEncoder = TextEncoder;
     // @ts-ignore
     global.TextDecoder = TextDecoder;
+
+// injects the mock extension into the page
+    await injectExtension(enableFn, { name: 'mockExtension', version: '1.0.0' });    
 
     // // start up a test chain environment
     // console.log("Starting up test chain. This can take around 1 minute..");
