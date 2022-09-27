@@ -4,6 +4,7 @@ import {
   Substrate_ChainMetadata,
   Substrate_RuntimeVersion,
   Substrate_AccountInfo,
+  Substrate_SignerProvider_SignerPayloadJSON as SignerPayload,
 } from "./wrap";
 import { PolywrapClient, Uri } from "@polywrap/client-js";
 // import { runCLI } from "@polywrap/test-env-js";
@@ -13,6 +14,9 @@ import { TextEncoder, TextDecoder } from "util";
 import { substrateSignerProviderPlugin } from "substrate-signer-provider-plugin-js";
 import { enableFn } from "mock-polkadot-js-extension";
 import { injectExtension } from '@polkadot/extension-inject';
+import { TypeRegistry } from '@polkadot/types';
+import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-crypto';
+import { u8aToHex } from "@polkadot/util";
 
 
 jest.setTimeout(360000);
@@ -257,6 +261,49 @@ it("can get signer-provider managed accounts. Returns Alice", async () => {
         type: 'sr25519'
       }
     ]);
-    
   });  
+
+  // This is a known good payload taken from polkadot-js tests
+  const testExtrinsic: SignerPayload = {
+    address: aliceAddr,
+    blockHash: "0x91820de8e05dc861baa91d75c34b23ac778f5fb4a88bd9e8480dbe3850d19a26",
+    blockNumber: 0,
+    era: "0x0703",
+    genesisHash: "0x91820de8e05dc861baa91d75c34b23ac778f5fb4a88bd9e8480dbe3850d19a26",
+    method: "0x0900142248692122",
+    nonce: 0,
+    specVersion: 1,
+    tip: "9999999", // BigInt is just a string in polywrap
+    transactionVersion: 1,
+    signedExtensions: [],
+    version: 4,
+  }
+
+  it("can sign using extension provider and get same signature as using polkadot-js directly", async () => {
+    const result = await Substrate_Module.sign(
+      {
+        extrinsic: testExtrinsic
+      },
+      client,
+      uri
+    );
+
+    expect(result).toBeTruthy();
+    expect(result.error).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    // check signature is the same as if just signing in javascript
+    const registry = new TypeRegistry();
+    const encodedPayload = registry
+      .createType('ExtrinsicPayload', testExtrinsic, { version: testExtrinsic.version })
+      .toHex();
+    expect(isValidSignature(encodedPayload, result.data?.signature!, aliceAddr))
+  });
+
+  async function isValidSignature(signedMessage: string, signature: string, address: string): Promise<boolean> {
+    await cryptoWaitReady();
+    const publicKey = decodeAddress(address);
+    const hexPublicKey = u8aToHex(publicKey);
+    return signatureVerify(signedMessage, signature, hexPublicKey).isValid;
+  }
 });

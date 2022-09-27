@@ -19,6 +19,9 @@
   },
   "devDependencies": {
     "@polkadot/extension-inject": "^0.44.6",
+    "@polkadot/types": "^9.4.2",
+    "@polkadot/util": "^10.1.8",
+    "@polkadot/util-crypto": "^10.1.8",
     "@polywrap/client-js": "0.5.0",
     "@polywrap/test-env-js": "0.5.0",
     "@types/jest": "29",
