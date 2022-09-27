@@ -298,21 +298,35 @@ it("can get signer-provider managed accounts. Returns Alice", async () => {
       .createType('ExtrinsicPayload', testExtrinsic, { version: testExtrinsic.version })
       .toHex();
     expect(isValidSignature(encodedPayload, result.data?.signature!, aliceAddr))
+
+    console.log("signatrue!!", result.data?.signature)
+  // 14be43eac146553939056897fc14cb7fa8c5d949323d864d63870429d4c934238374f7a5cd917307cf62a1ae28de09ae8afd1e592c283dc74ab51d89238c9c8f
+  // 0x01fc96482a604c4bfc2650d397f75d28c72dccf81e618abb3e0d32e05e4da24f57224b83b3f154bb2ac247521c4bd3d4d0d25aa20bedc05055376f37fd42ed3389
+
   });
 
-  it("Can sign and submit an extrinsic to the chain", async () => {
-     const result = await Substrate_Module.signAndSend(
+  it("Can send a signed extrinsic to the chain", async () => {
+     const signerResult = await Substrate_Module.sign(
       {
-        url,
         extrinsic: testExtrinsic
       },
       client,
       uri
     );
+    const signedPayload = signerResult.data!;
 
-    expect(result).toBeTruthy();
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
+    const sendResult = await Substrate_Module.send(
+      {
+        url,
+        signedExtrinsic: signedPayload
+      },
+      client,
+      uri
+    );
+
+    expect(sendResult).toBeTruthy();
+    expect(sendResult.error).toBeFalsy();
+    expect(sendResult.data).toBeTruthy();
 
   });
 
