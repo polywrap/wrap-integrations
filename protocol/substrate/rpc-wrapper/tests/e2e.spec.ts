@@ -268,13 +268,13 @@ it("can get signer-provider managed accounts. Returns Alice", async () => {
     address: aliceAddr,
     blockHash: "0x661f57d206d4fecda0408943427d4d25436518acbff543735e7569da9db6bdd7",
     blockNumber: 99,
-    era: "0xb502",
-    genesisHash: "0xe143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e",
-    method: "0x0403c6111b239376e5e8b983dc2d2459cbb6caed64cc1d21723973d061ae0861ef690b00b04e2bde6f",
+    era: "0x0000",
+    genesisHash: "0x91820de8e05dc861baa91d75c34b23ac778f5fb4a88bd9e8480dbe3850d19a26",
+    method: "0x09003022737570206e657264732122",
     nonce: 0,
-    specVersion: 2,
+    specVersion: 100,
     tip: "0", // BigInt is just a string in polywrap
-    transactionVersion: 4,
+    transactionVersion: 1,
     signedExtensions: [],
     version: 4,
   }
@@ -298,11 +298,6 @@ it("can get signer-provider managed accounts. Returns Alice", async () => {
       .createType('ExtrinsicPayload', testExtrinsic, { version: testExtrinsic.version })
       .toHex();
     expect(isValidSignature(encodedPayload, result.data?.signature!, aliceAddr))
-
-    console.log("signatrue!!", result.data?.signature)
-  // 14be43eac146553939056897fc14cb7fa8c5d949323d864d63870429d4c934238374f7a5cd917307cf62a1ae28de09ae8afd1e592c283dc74ab51d89238c9c8f
-  // 0x01fc96482a604c4bfc2650d397f75d28c72dccf81e618abb3e0d32e05e4da24f57224b83b3f154bb2ac247521c4bd3d4d0d25aa20bedc05055376f37fd42ed3389
-
   });
 
   it("Can send a signed extrinsic to the chain", async () => {
