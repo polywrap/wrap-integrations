@@ -266,15 +266,15 @@ it("can get signer-provider managed accounts. Returns Alice", async () => {
   // This is a known good payload taken from polkadot-js tests
   const testExtrinsic: SignerPayload = {
     address: aliceAddr,
-    blockHash: "0x91820de8e05dc861baa91d75c34b23ac778f5fb4a88bd9e8480dbe3850d19a26",
-    blockNumber: 0,
-    era: "0x0703",
-    genesisHash: "0x91820de8e05dc861baa91d75c34b23ac778f5fb4a88bd9e8480dbe3850d19a26",
-    method: "0x0900142248692122",
+    blockHash: "0x661f57d206d4fecda0408943427d4d25436518acbff543735e7569da9db6bdd7",
+    blockNumber: 99,
+    era: "0xb502",
+    genesisHash: "0xe143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e",
+    method: "0x0403c6111b239376e5e8b983dc2d2459cbb6caed64cc1d21723973d061ae0861ef690b00b04e2bde6f",
     nonce: 0,
-    specVersion: 1,
-    tip: "9999999", // BigInt is just a string in polywrap
-    transactionVersion: 1,
+    specVersion: 2,
+    tip: "0", // BigInt is just a string in polywrap
+    transactionVersion: 4,
     signedExtensions: [],
     version: 4,
   }
@@ -298,6 +298,22 @@ it("can get signer-provider managed accounts. Returns Alice", async () => {
       .createType('ExtrinsicPayload', testExtrinsic, { version: testExtrinsic.version })
       .toHex();
     expect(isValidSignature(encodedPayload, result.data?.signature!, aliceAddr))
+  });
+
+  it("Can sign and submit an extrinsic to the chain", async () => {
+     const result = await Substrate_Module.signAndSend(
+      {
+        url,
+        extrinsic: testExtrinsic
+      },
+      client,
+      uri
+    );
+
+    expect(result).toBeTruthy();
+    expect(result.error).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
   });
 
   async function isValidSignature(signedMessage: string, signature: string, address: string): Promise<boolean> {
