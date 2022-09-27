@@ -10,6 +10,7 @@ import { PolywrapClient, Uri } from "@polywrap/client-js";
 import path from "path";
 // import { up, down } from "substrate-polywrap-test-env";
 import { TextEncoder, TextDecoder } from "util";
+import { substrateSignerProviderPlugin } from "substrate-signer-provider-plugin-js";
 
 
 jest.setTimeout(360000);
@@ -21,7 +22,7 @@ describe("e2e", () => {
 
   beforeAll(async () => {
 
-    // polyfill text encoder
+    // polyfill text encoder. This is required to test in the jsdom environment
     global.TextEncoder = TextEncoder;
     // @ts-ignore
     global.TextDecoder = TextDecoder;
@@ -47,7 +48,14 @@ describe("e2e", () => {
     // }
     url = "http://localhost:9933"
 
-    client = new PolywrapClient();
+    client = new PolywrapClient({
+      plugins: [
+        {
+          uri: "ens/substrate-signer-provider.chainsafe.eth",
+          plugin: substrateSignerProviderPlugin({})
+        }
+      ]
+    });
   });
 
   afterAll(async () => {
