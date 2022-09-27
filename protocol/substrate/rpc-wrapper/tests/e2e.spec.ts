@@ -6,9 +6,9 @@ import {
   Substrate_AccountInfo,
 } from "./wrap";
 import { PolywrapClient, Uri } from "@polywrap/client-js";
-import { runCLI } from "@polywrap/test-env-js";
+// import { runCLI } from "@polywrap/test-env-js";
 import path from "path";
-import { up, down } from "substrate-polywrap-test-env";
+// import { up, down } from "substrate-polywrap-test-env";
 
 jest.setTimeout(360000);
 let url: string;
@@ -19,31 +19,32 @@ describe("e2e", () => {
 
   beforeAll(async () => {
 
-    // start up a test chain environment
-    console.log("Starting up test chain. This can take around 1 minute..");
-    const response = await up(false);
-    url = response.node.url;
-    console.log("Test chain running at ", url);
+    // // start up a test chain environment
+    // console.log("Starting up test chain. This can take around 1 minute..");
+    // const response = await up(false);
+    // url = response.node.url;
+    // console.log("Test chain running at ", url);
 
-    const wrapperDir = path.resolve(__dirname, "../");
+    // const wrapperDir = path.resolve(__dirname, "../");
 
-    const buildOutput = await runCLI({
-      args: ["build"],
-      cwd: wrapperDir
-    });
+    // const buildOutput = await runCLI({
+    //   args: ["build"],
+    //   cwd: wrapperDir
+    // });
 
-    if (buildOutput.exitCode !== 0) {
-      throw Error(
-        `Failed to build wrapper:\n` +
-        JSON.stringify(buildOutput, null, 2)
-      );
-    }
+    // if (buildOutput.exitCode !== 0) {
+    //   throw Error(
+    //     `Failed to build wrapper:\n` +
+    //     JSON.stringify(buildOutput, null, 2)
+    //   );
+    // }
+    url = "http://localhost:9933"
 
     client = new PolywrapClient();
   });
 
   afterAll(async () => {
-    await down();
+    // await down();
   })
 
   it("blockHash", async () => {

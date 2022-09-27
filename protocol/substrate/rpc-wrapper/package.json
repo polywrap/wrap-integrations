@@ -8,7 +8,7 @@
     "fmt": "cd module && cargo +nightly fmt",
     "test": "yarn test:e2e",
     "test:e2e": "yarn test:e2e:codegen && jest --passWithNoTests --runInBand --verbose",
-    "test:e2e:codegen": "cd tests && npx polywrap app codegen -g wrap",
+    "test:e2e:codegen": "cd tests && polywrap app codegen -g wrap",
     "clean": "rm -rf module/src/wrap && rm -rf test/wrap",
     "rebuild": "yarn clean && yarn codegen && yarn build",
     "deploy": "npx polywrap deploy",
@@ -18,12 +18,13 @@
     "polywrap": "0.5.0"
   },
   "devDependencies": {
-    "substrate-polywrap-test-env": "0.0.1",
-    "@types/jest": "27.0.2",
     "@polywrap/client-js": "0.5.0",
     "@polywrap/test-env-js": "0.5.0",
-    "jest": "27.0.6",
-    "ts-jest": "27.0.4",
+    "@types/jest": "29",
+    "jest": "29",
+    "jest-environment-jsdom": "^29.0.3",
+    "substrate-polywrap-test-env": "0.0.1",
+    "ts-jest": "29",
     "ts-node": "8.10.2",
     "typescript": "4.0.7"
   }
