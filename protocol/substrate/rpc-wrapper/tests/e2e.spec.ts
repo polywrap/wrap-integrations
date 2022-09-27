@@ -9,6 +9,8 @@ import { PolywrapClient, Uri } from "@polywrap/client-js";
 // import { runCLI } from "@polywrap/test-env-js";
 import path from "path";
 // import { up, down } from "substrate-polywrap-test-env";
+import { TextEncoder, TextDecoder } from "util";
+
 
 jest.setTimeout(360000);
 let url: string;
@@ -18,6 +20,11 @@ describe("e2e", () => {
   const uri = new Uri("file/" + path.join(__dirname, "../build")).uri;
 
   beforeAll(async () => {
+
+    // polyfill text encoder
+    global.TextEncoder = TextEncoder;
+    // @ts-ignore
+    global.TextDecoder = TextDecoder;
 
     // // start up a test chain environment
     // console.log("Starting up test chain. This can take around 1 minute..");
