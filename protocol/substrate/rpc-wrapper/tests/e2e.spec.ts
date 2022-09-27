@@ -232,4 +232,16 @@ describe("e2e", () => {
     const account_info: Substrate_AccountInfo = result.data!;
     console.log("account info: ", account_info);
   });
+
+it("get signer-provider managed accounts", async () => {
+    const result = await Substrate_Module.getSignerProviderAccounts(
+      {},
+      client,
+      uri
+    );
+
+    expect(result).toBeTruthy();
+    expect(result.error).toBeFalsy();
+    expect(result.data).toBeTruthy();
+  });  
 });
