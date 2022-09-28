@@ -1,0 +1,35 @@
+name: CI
+
+on: [pull_request]
+    paths:
+      - 'protocol/substrate/**'
+jobs:
+  CI:
+    name: Substrate CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: substrate-nvm
+        working-directory: ./protocol/substrate/rpc-wrapper
+
+      - name: Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: '${{ steps.substrate-nvm.outputs.NVMRC }}'
+
+      - name: (Substrate) Install dependencies
+        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+        working-directory: ./protocol/substrate # this uses yarn workspace so can install from the root
+    
+      - name: Test signer-provider-js
+        run: yarn test
+        working-directory: ./protocol/substrate/signer-provider-js
+
+      - name: Test rpc-wrapper
+        run: yarn test
+        working-directory: ./protocol/substrate/rpc-wrapper

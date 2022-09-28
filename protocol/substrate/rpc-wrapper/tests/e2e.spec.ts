@@ -299,30 +299,30 @@ it("can get signer-provider managed accounts. Returns Alice", async () => {
     expect(isValidSignature(encodedPayload, result.data?.signature!, aliceAddr))
   });
 
-  it("Can send a signed extrinsic to the chain", async () => {
-     const signerResult = await Substrate_Module.sign(
-      {
-        extrinsic: testExtrinsic
-      },
-      client,
-      uri
-    );
-    const signedPayload = signerResult.data!;
+  // it("Can send a signed extrinsic to the chain", async () => {
+  //    const signerResult = await Substrate_Module.sign(
+  //     {
+  //       extrinsic: testExtrinsic
+  //     },
+  //     client,
+  //     uri
+  //   );
+  //   const signedPayload = signerResult.data!;
 
-    const sendResult = await Substrate_Module.send(
-      {
-        url,
-        signedExtrinsic: signedPayload
-      },
-      client,
-      uri
-    );
+  //   const sendResult = await Substrate_Module.send(
+  //     {
+  //       url,
+  //       signedExtrinsic: signedPayload
+  //     },
+  //     client,
+  //     uri
+  //   );
 
-    expect(sendResult).toBeTruthy();
-    expect(sendResult.error).toBeFalsy();
-    expect(sendResult.data).toBeTruthy();
+  //   expect(sendResult).toBeTruthy();
+  //   expect(sendResult.error).toBeFalsy();
+  //   expect(sendResult.data).toBeTruthy();
 
-  });
+  // });
 
   async function isValidSignature(signedMessage: string, signature: string, address: string): Promise<boolean> {
     await cryptoWaitReady();
