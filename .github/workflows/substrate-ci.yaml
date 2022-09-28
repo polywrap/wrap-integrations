@@ -33,5 +33,5 @@ jobs:
         working-directory: ./protocol/substrate/signer-provider-js
 
       - name: Test rpc-wrapper
-        run: yarn test
+        run: yarn test:ci
         working-directory: ./protocol/substrate/rpc-wrapper

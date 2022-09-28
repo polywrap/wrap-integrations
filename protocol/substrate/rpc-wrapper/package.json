@@ -7,6 +7,7 @@
     "build:check": "yarn codegen && cd module && cargo check && cargo build --release --target wasm32-unknown-unknown",
     "fmt": "cd module && cargo +nightly fmt",
     "test": "yarn test:e2e",
+    "test:ci": "yarn build && yarn test",
     "test:e2e": "yarn test:e2e:codegen && jest --passWithNoTests --runInBand --verbose",
     "test:e2e:codegen": "cd tests && polywrap app codegen -g wrap",
     "clean": "rm -rf module/src/wrap && rm -rf test/wrap",

@@ -7,7 +7,6 @@ import {
   Substrate_SignerProvider_SignerPayloadJSON as SignerPayload,
 } from "./wrap";
 import { PolywrapClient, Uri } from "@polywrap/client-js";
-import { runCLI } from "@polywrap/test-env-js";
 import path from "path";
 import { up, down } from "substrate-polywrap-test-env";
 import { TextEncoder, TextDecoder } from "util";
@@ -41,20 +40,6 @@ describe("e2e", () => {
     const response = await up(false);
     url = response.node.url;
     console.log("Test chain running at ", url);
-
-    const wrapperDir = path.resolve(__dirname, "../");
-
-    const buildOutput = await runCLI({
-      args: ["build"],
-      cwd: wrapperDir
-    });
-
-    if (buildOutput.exitCode !== 0) {
-      throw Error(
-        `Failed to build wrapper:\n` +
-        JSON.stringify(buildOutput, null, 2)
-      );
-    }
 
     client = new PolywrapClient({
       plugins: [
