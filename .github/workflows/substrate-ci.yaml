@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'protocol/substrate/**'
-      
+
 jobs:
   CI:
     name: Substrate CI
@@ -29,7 +29,7 @@ jobs:
         working-directory: ./protocol/substrate # this uses yarn workspace so can install from the root
     
       - name: Test signer-provider-js
-        run: yarn test
+        run: yarn test:ci
         working-directory: ./protocol/substrate/signer-provider-js
 
       - name: Test rpc-wrapper
