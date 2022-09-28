@@ -7,7 +7,6 @@ import {
   Substrate_SignerProvider_SignerPayloadJSON as SignerPayload,
 } from "./wrap";
 import { PolywrapClient, Uri } from "@polywrap/client-js";
-import { runCLI } from "@polywrap/test-env-js";
 import path from "path";
 import { up, down } from "substrate-polywrap-test-env";
 import { TextEncoder, TextDecoder } from "util";
@@ -41,20 +40,6 @@ describe("e2e", () => {
     const response = await up(false);
     url = response.node.url;
     console.log("Test chain running at ", url);
-
-    const wrapperDir = path.resolve(__dirname, "../");
-
-    const buildOutput = await runCLI({
-      args: ["build"],
-      cwd: wrapperDir
-    });
-
-    if (buildOutput.exitCode !== 0) {
-      throw Error(
-        `Failed to build wrapper:\n` +
-        JSON.stringify(buildOutput, null, 2)
-      );
-    }
 
     client = new PolywrapClient({
       plugins: [
@@ -299,30 +284,30 @@ it("can get signer-provider managed accounts. Returns Alice", async () => {
     expect(isValidSignature(encodedPayload, result.data?.signature!, aliceAddr))
   });
 
-  it("Can send a signed extrinsic to the chain", async () => {
-     const signerResult = await Substrate_Module.sign(
-      {
-        extrinsic: testExtrinsic
-      },
-      client,
-      uri
-    );
-    const signedPayload = signerResult.data!;
+  // it("Can send a signed extrinsic to the chain", async () => {
+  //    const signerResult = await Substrate_Module.sign(
+  //     {
+  //       extrinsic: testExtrinsic
+  //     },
+  //     client,
+  //     uri
+  //   );
+  //   const signedPayload = signerResult.data!;
 
-    const sendResult = await Substrate_Module.send(
-      {
-        url,
-        signedExtrinsic: signedPayload
-      },
-      client,
-      uri
-    );
+  //   const sendResult = await Substrate_Module.send(
+  //     {
+  //       url,
+  //       signedExtrinsic: signedPayload
+  //     },
+  //     client,
+  //     uri
+  //   );
 
-    expect(sendResult).toBeTruthy();
-    expect(sendResult.error).toBeFalsy();
-    expect(sendResult.data).toBeTruthy();
+  //   expect(sendResult).toBeTruthy();
+  //   expect(sendResult.error).toBeFalsy();
+  //   expect(sendResult.data).toBeTruthy();
 
-  });
+  // });
 
   async function isValidSignature(signedMessage: string, signature: string, address: string): Promise<boolean> {
     await cryptoWaitReady();
