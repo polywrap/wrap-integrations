@@ -102,8 +102,12 @@ impl TryFrom<SignedExtrinsicPayload> for UncheckedExtrinsicV4<Vec<u8>> {
         let signer = GenericAddress::from(AccountId32::from_ss58check(&payload.extrinsic.address)?);
 
         // signature is a hex string of a multisignature
+        // The first byte indicates the signature type
+        // TODO: In future match on this to create different types. 
+        // For now just skip it and assume sr2559
+        let multisig_bytes = <[u8; 65]>::from_hex(&payload.signature)?;
         let signature = MultiSignature::from(
-            Signature::from_raw(<[u8; 64]>::from_hex(&payload.signature)?)
+            Signature::from_raw(multisig_bytes[1..].try_into().unwrap()) // this cannot fail
         );
 
         // era is hex string (2 bytes exactly)
@@ -281,10 +285,19 @@ mod tests {
         let _xt = UncheckedExtrinsicV4::try_from(signed_payload).unwrap();
     }
 
-    fn gen_valid_signature() -> (sr25519::Pair, Signature) {
+
+    #[test]
+    fn decode_encoded_payload() {
+        let payload_hex = "0xb9018400d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d01aa976fea2fb2e941b3d74590375a578196a9c793100e7731539409b889d5321b27c183e484be0dcadf67366d384577692b66fb671823ec668dff946afd72958ea816000009001022686922";
+        let payload_bytes = <Vec<u8>>::from_hex(payload_hex).unwrap();
+        let extrinsic = UncheckedExtrinsicV4::<Vec<u8>>::decode(&mut payload_bytes.as_slice());
+        println!("{:?}", extrinsic);
+    }
+
+    fn gen_valid_signature() -> (sr25519::Pair, MultiSignature) {
         let msg = &b"test-message"[..];
         let (pair, _) = sr25519::Pair::generate();
-        let signature = pair.sign(&msg);
+        let signature = MultiSignature::from(pair.sign(&msg));
         (pair, signature)
     }
 }
