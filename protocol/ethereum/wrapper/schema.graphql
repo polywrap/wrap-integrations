@@ -71,6 +71,11 @@ type TxReceipt {
     status: UInt32
 }
 
+type StaticTxResult {
+    result: String!
+    error: Boolean!
+}
+
 type Module {
   getChainId: String!
 
@@ -80,13 +85,11 @@ type Module {
     args: [String!]
   ): String!
 
-  # callContractStatic(
-  #   address: String!
-  #   method: String!
-  #   args: [String!]
-  #   connection: Signer_Connection
-  #   txOverrides: Signer_TxOverrides
-  # ): Signer_StaticTxResult!
+  callContractStatic(
+    address: String!
+    method: String!
+    args: [String!]
+  ): StaticTxResult!
 
   encodeParams(types: [String!]!, values: [String!]!): String!
 
@@ -104,18 +107,15 @@ type Module {
 
   getGasPrice: BigInt!
 
-  # estimateTransactionGas(
-  #   tx: Signer_TxRequest!
-  #   connection: Signer_Connection
-  # ): BigInt!
+  estimateTransactionGas(
+    tx: Signer_TxRequest!
+  ): BigInt!
 
-  # estimateContractCallGas(
-  #   address: String!
-  #   method: String!
-  #   args: [String!]
-  #   connection: Signer_Connection
-  #   txOverrides: Signer_TxOverrides
-  # ): BigInt!
+  estimateContractCallGas(
+    address: String!
+    method: String!
+    args: [String!]
+  ): BigInt!
 
   checkAddress(address: String!): Boolean!
 
@@ -123,11 +123,11 @@ type Module {
 
   # toEth(wei: String!): String!
 
-  #awaitTransaction(
-  #  txHash: String!
-  #  confirmations: UInt32!
-  #  timeout: UInt32!
-  #): TxReceipt!
+  awaitTransaction(
+    txHash: String!
+    confirmations: UInt32!
+    timeout: UInt32!
+  ): TxReceipt!
 
   # waitForEvent(
   #   address: String!
@@ -146,15 +146,15 @@ type Module {
   #   connection: Signer_Connection
   # ): Signer_TxReceipt!
 
-  # sendTransaction(
-  #   tx: Signer_TxRequest!
-  #   connection: Signer_Connection
-  # ): Signer_TxResponse!
+  sendTransaction(
+    tx: Signer_TxRequest!
+    connection: Signer_Connection
+  ): Signer_TxResponse!
 
-  # sendTransactionAndWait(
-  #   tx: Signer_TxRequest!
-  #   connection: Signer_Connection
-  # ): Signer_TxReceipt!
+  sendTransactionAndWait(
+    tx: Signer_TxRequest!
+    connection: Signer_Connection
+  ): Signer_TxReceipt!
 
   callContractMethod(
     address: String!
@@ -162,17 +162,16 @@ type Module {
     args: [String!]
   ): TxResponse!
 
-  #callContractMethodAndWait(
-  #  address: String!
-  #  method: String!
-  #  args: [String!]
-  #): TxReceipt!
+  callContractMethodAndWait(
+    address: String!
+    method: String!
+    args: [String!]
+  ): TxReceipt!
 
   signMessage(message: String!): String!
 
-  # sendRpc(
-  #   method: String!
-  #   params: [String!]!
-  #   connection: Signer_Connection
-  # ): String
+  sendRpc(
+    method: String!
+    params: [String!]!
+  ): String
 }

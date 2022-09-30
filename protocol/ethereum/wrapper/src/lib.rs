@@ -22,9 +22,7 @@ pub fn get_balance(input: wrap::ArgsGetBalance) -> BigInt {
             Ok(addr) => addr,
             Err(e) => panic!("Invalid address: {}. Error: {}", &input.address, e),
         };
-
         let balance = api::get_balance(address).await;
-
         BigInt::from_str(&balance.to_string()).unwrap()
     })
 }
@@ -74,10 +72,71 @@ pub fn encode_params(input: wrap::ArgsEncodeParams) -> String {
     serde_json::to_string(&bytes).unwrap()
 }
 
+pub fn send_rpc(input: wrap::ArgsSendRpc) -> String {
+    block_on(api::send_rpc(&input.message, input.params))
+}
+
 pub fn encode_function(input: wrap::ArgsEncodeFunction) -> String {
     let args: Vec<String> = input.args.unwrap_or(vec![]);
     let bytes: Bytes = api::encode_function(&input.method, args).into();
     serde_json::to_string(&bytes).unwrap()
+}
+
+pub fn estimate_transaction_gas(input: wrap::ArgsEstimateTransactionGas) -> BigInt {
+    block_on(async {
+        let tx = mapping::from_wrap_request(input.tx);
+        let gas = api::estimate_transaction_gas(tx).await;
+        BigInt::from_str(&gas.to_string()).unwrap()
+    })
+}
+
+pub fn await_transaction(input: wrap::ArgsAwaitTransaction) -> wrap::TxResponse {
+    block_on(async {
+        let response = api::await_transaction(input.tx_hash).await;
+        let tx_response = mapping::to_wrap_response(response, None, None).await;
+        tx_response
+    })
+}
+
+pub fn send_transaction(input: wrap::ArgsSendTransaction) -> wrap::TxResponse {
+    block_on(async {
+        let tx = mapping::from_wrap_request(input.tx);
+        let response = api::send_transaction(tx).await;
+        let tx_response = mapping::to_wrap_response(response, None, None).await;
+        tx_response
+    })
+}
+
+pub fn send_transaction(input: wrap::ArgsSendTransaction) -> wrap::TxResponse {
+    block_on(async {
+        let tx = mapping::from_wrap_request(input.tx);
+        let (data, raw, tx_hash) = api::send_transaction(mut tx).await;
+        let response = api::get_transaction_receipt(tx_hash).await;
+        let tx_response = mapping::to_wrap_response(response, Some(data), Some(raw)).await;
+        tx_response
+    })
+}
+
+pub fn send_transaction_and_wait(input: wrap::ArgsSendTransaction) -> wrap::TxReceipt {
+    block_on(async {
+        let tx = mapping::from_wrap_request(input.tx);
+        let (data, raw, tx_hash) = api::send_transaction(mut tx).await;
+        let receipt = api::get_transaction_receipt(tx_hash).await;
+        let tx_receipt = mapping::to_wrap_receipt(receipt).await;
+        tx_receipt
+    })
+}
+
+pub fn estimate_contract_call_gas(input: wrap::ArgsEstimateContractCallGas) -> BigInt {
+    block_on(async {
+        let address = match Address::from_str(&input.address) {
+            Ok(addr) => addr,
+            Err(e) => panic!("Invalid contract address: {}. Error: {}", &input.address, e),
+        };
+        let args: Vec<String> = input.args.unwrap_or(vec![]);
+        let gas = api::estimate_contract_call_gas(address, &input.method, args).await;
+        BigInt::from_str(&gas.to_string()).unwrap()
+    })
 }
 
 pub fn call_contract_view(input: wrap::ArgsCallContractView) -> String {
@@ -86,16 +145,23 @@ pub fn call_contract_view(input: wrap::ArgsCallContractView) -> String {
             Ok(addr) => addr,
             Err(e) => panic!("Invalid contract address: {}. Error: {}", &input.address, e),
         };
-
         let args: Vec<String> = input.args.unwrap_or(vec![]);
-
         let tokens = api::call_contract_view(address, &input.method, args).await;
-
         format::format_tokens(tokens)
     })
 }
 
-// pub fn call_contract_static(input: ArgsCallContractStatic) -> String {}
+pub fn call_contract_static(input: ArgsCallContractStatic) -> String {
+    block_on(async {
+        let address = match Address::from_str(&input.address) {
+            Ok(addr) => addr,
+            Err(e) => panic!("Invalid contract address: {}. Error: {}", &input.address, e),
+        };
+        let args: Vec<String> = input.args.unwrap_or(vec![]);
+        let tokens = api::call_contract_static(address, &input.method, args).await;
+        format::format_tokens(tokens)
+    })
+}
 
 pub fn call_contract_method(input: wrap::ArgsCallContractMethod) -> wrap::TxResponse {
     block_on(async {
@@ -103,24 +169,24 @@ pub fn call_contract_method(input: wrap::ArgsCallContractMethod) -> wrap::TxResp
             Ok(addr) => addr,
             Err(e) => panic!("Invalid contract address: {}. Error: {}", &input.address, e),
         };
-
         let args: Vec<String> = input.args.unwrap_or(vec![]);
-
         let (data, raw, tx_hash) = api::call_contract_method(address, &input.method, args).await;
-
         let response = api::await_transaction(tx_hash).await;
-
-        let tx_response = mapping::to_tx_response(data, raw, response).await;
-
+        let tx_response = mapping::to_wrap_response(response, Some(data), Some(raw)).await;
         tx_response
     })
 }
 
-//pub fn await_transaction(input: wrap::ArgsAwaitTransaction) -> wrap::TxResponse {
-//        let tx_receipt = client.inner().get_transaction_receipt(input.tx_hash).await.unwrap();
-//        wrap::TxResponse {}
-//}
-//
-//pub fn call_contract_method_and_wait(input: wrap::ArgsAwaitTransaction) -> wrap::TxReceipt {
-//        wrap::TxReceipt {}
-//}
+pub fn call_contract_method_and_wait(input: wrap::ArgsCallContractMethodAndWait) -> wrap::TxReceipt {
+    block_on(async {
+        let address = match Address::from_str(&input.address) {
+            Ok(addr) => addr,
+            Err(e) => panic!("Invalid contract address: {}. Error: {}", &input.address, e),
+        };
+        let args: Vec<String> = input.args.unwrap_or(vec![]);
+        let (data, raw, tx_hash) = api::call_contract_method(address, &input.method, args).await;
+        let receipt = api::get_transaction_receipt(tx_hash).await;
+        let tx_receipt = mapping::to_wrap_receipt(receipt).await;
+        tx_receipt
+    })
+}

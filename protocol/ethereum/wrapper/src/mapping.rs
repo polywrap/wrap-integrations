@@ -1,11 +1,63 @@
 use crate::provider::PolywrapProvider;
-use crate::wrap::{Access, TxResponse};
-use ethers_core::types::{Bytes, Transaction};
+use crate::wrap::{Access, TxResponse, TxRequest, TxReceipt};
+use ethers_core::types::{Bytes, Transaction, TransactionRequest, Log};
 use ethers_providers::{Middleware, Provider};
 use polywrap_wasm_rs::BigInt;
 use std::str::FromStr;
 
-pub async fn to_tx_response(data: Bytes, raw: Bytes, response: Transaction) -> TxResponse {
+pub fn from_wrap_request(request: TxRequest) -> TypedTransaction {
+    TransactionRequest {
+        from: request.from.map(|v| H160::from_str(v).unwrap()),
+        to: request.to.(|v| NameOrAddress::from_str(v).unwrap()),
+        gas: request.gas_limit.map(Into::into),
+        gas_price: request.gas_price.map(Into::into),
+        value: request.value.map(|v| U256::from_str(v.to_string()).unwrap()),
+        data: request.data(|v| Bytes::from_str(v).unwrap()),
+        nonce: request.nonce.map(Into::into),
+        chain_id: request.chain_id.map(|v| U64::from_str(v.to_string())),
+        fee_currency: None,
+        gateway_fee_recipient: None,
+        gateway_fee: None
+    }.into()
+}
+
+fn to_wrap_log(log: Log) -> wrap::Log {
+    wrap::Log {
+        block_number: log.block_number.unwrap().into(),
+        block_hash: log.block_hash.unwrap().into(),
+        transaction_index: log.transaction_index.unwrap().into(),
+        removed: log.transaction_index.unwrap(),
+        address: format!("{:?}", log.address),
+        data: format!("{:?}", log.data),
+        topics: log.topics.map(|v| v.to_string()),
+        transaction_hash: log.transaction_hash.unwrap().to_string(),
+        log_index: log.log_index.unwrap().as_u32(),
+    }
+}
+
+pub fn to_wrap_receipt(receipt: TransactionReceipt) -> TxReceipt {
+    TxReceipt {
+        to: receipt.to.map(Into::into),
+        from: receipt.from.into(),
+        contract_address: receipt.contract_address.unwrap().into(),
+        transaction_index: receipt.transaction_index.into(),
+        root: receipt.root.map(Into::into),
+        gas_used: receipt.gas_used.map(Into::into),
+        logs_bloom: format!("{}", receipt.logs_bloom),
+        transaction_hash: receipt.transaction_hash.to_string(),
+        logs: receipt.logs.map(|v| to_log(v)),
+        block_number: receipt.block_number.unwrap().to_string().into(),
+        block_hash: receipt.block_hash.unwrap().to_string(),
+        confirmations: 1,
+        cumulative_gas_used: receipt.cumulative_gas_used.to_string().into(),
+        effective_gas_price: receipt.effective_gas_price.to_string().into(),
+        byzantium: true,
+        _type: match receipt.transaction_type { Some(1) => 1, _ => 0 },
+        status: receipt.status.map(Into::into)
+    }
+}
+
+pub async fn to_wrap_response(data: Bytes, raw: Bytes, response: Transaction) -> TxResponse {
     let provider = Provider::new(PolywrapProvider {});
     let block = match response.block_hash {
         Some(h) => provider.get_block(h).await.ok(),
