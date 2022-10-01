@@ -1,5 +1,5 @@
 {
-  "name": "@polywrap/concurrent-promise-plugin",
+  "name": "@wraplib/concurrent-promise-plugin",
   "description": "Run wrapper concurrently using promise",
   "version": "0.1.0",
   "license": "MIT",

@@ -14,7 +14,6 @@ describe("e2e", () => {
     await buildWrapper(`${__dirname}/integration`);
     const clientConfig = getClientConfig();
     client = new PolywrapClient(clientConfig);
-    console.log(client.getEnvs())
     ensUri = `fs/${__dirname}/integration/build`;
   });
 
