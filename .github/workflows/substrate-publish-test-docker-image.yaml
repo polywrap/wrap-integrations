@@ -18,9 +18,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build image and push GitHub Container Registry
         uses: docker/build-push-action@v2
         with:
           context: ./protocol/substrate/test-env
+          push: true
           tags: |
             ghcr.io/chainsafe/integrations/substrate-polywrap-test-env:latest
