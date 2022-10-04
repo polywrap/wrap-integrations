@@ -3,14 +3,24 @@ use crate::{
     types::metadata::Metadata,
     utils::FromHexStr,
     wrap::{
-        imported::http_module, HttpModule, HttpRequest,
-        HttpResponse, HttpResponseType,
+        imported::http_module,
+        HttpModule,
+        HttpRequest,
+        HttpResponse,
+        HttpResponseType,
     },
 };
-use polywrap_wasm_rs::{ Map };
 use frame_metadata::RuntimeMetadataPrefixed;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use sp_core::{Decode, H256};
+use polywrap_wasm_rs::Map;
+use serde::{
+    de::DeserializeOwned,
+    Deserialize,
+    Serialize,
+};
+use sp_core::{
+    Decode,
+    H256,
+};
 use sp_runtime::traits::Header;
 use sp_version::RuntimeVersion;
 
@@ -216,10 +226,8 @@ impl BaseApi {
             params: serde_json::to_value(params)?,
         };
         let mut headers = Map::new();
-        headers.insert(
-            "Content-Type".to_string(),
-            "application/json".to_string()
-        );
+        headers
+            .insert("Content-Type".to_string(), "application/json".to_string());
         let response: Result<Option<HttpResponse>, String> =
             HttpModule::post(&http_module::ArgsPost {
                 url: self.url.clone(),
@@ -239,10 +247,12 @@ impl BaseApi {
         };
 
         match response {
-            Some(response) => match response.body {
-                Some(body) => Ok(serde_json::from_str(&body)?),
-                None => Err(Error::NoResponse),
-            },
+            Some(response) => {
+                match response.body {
+                    Some(body) => Ok(serde_json::from_str(&body)?),
+                    None => Err(Error::NoResponse),
+                }
+            }
             None => Err(Error::NoResponse),
         }
     }

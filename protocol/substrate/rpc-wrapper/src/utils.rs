@@ -29,7 +29,7 @@ pub trait FromHexStr<S> {
         Self: Sized;
 }
 
-impl<S: AsRef<str>> FromHexStr<S> for Vec<u8> where  {
+impl<S: AsRef<str>> FromHexStr<S> for Vec<u8> {
     fn from_hex(hex: S) -> Result<Self, hex::FromHexError> {
         let hexstr = hex.as_ref().trim_matches('\"').trim_start_matches("0x");
 
@@ -51,12 +51,10 @@ impl<S: AsRef<str>> FromHexStr<S> for H256 {
 impl<S: AsRef<str>, const N: usize> FromHexStr<S> for [u8; N] {
     fn from_hex(hex: S) -> Result<Self, hex::FromHexError> {
         let vec = Vec::from_hex(hex)?;
-        vec.try_into().map_err(|_e| {
-            hex::FromHexError::InvalidStringLength
-        })
+        vec.try_into()
+            .map_err(|_e| hex::FromHexError::InvalidStringLength)
     }
 }
-
 
 #[cfg(test)]
 mod tests {

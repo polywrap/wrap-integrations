@@ -3,7 +3,8 @@ name = "substrate-rpc-wrapper"
 version = "0.0.1"
 description = "The core wrapper implementation for polywrap for substrate base chain"
 authors = [
-  "Jovansonlee Cesar <ivanceras@gmail.com>"
+  "Jovansonlee Cesar (ChainSafe) <ivanceras@gmail.com>",
+  "Willem Olding (ChainSafe) <willem@chainsafe.io>"
 ]
 repository = "https://github.com/polywrap/integrations"
 edition = "2021"
@@ -29,7 +30,6 @@ sp-core = { version = "6.0.0", default-features = false, features = ["full_crypt
 sp-runtime = { version = "6.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 sp-version = { version = "5.0.0-dev", default-features = false, features = ["serde", "impl-serde", "std"], git = "https://github.com/paritytech/substrate.git", branch = "master" }
 sp-std = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
-sp-keyring = { version = "6.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 num-traits = "0.2.15"
 
 [features]
