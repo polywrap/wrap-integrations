@@ -1,9 +1,33 @@
-### Sample Plugin
+# Subscript Browser Signer Provider
 
-This is a sample plugin with sample query/mutation.
-You can add new functionalities to it by following steps.
+This is a Polywrap plugin for accessing the accounts and signing services provided by a browser with the [polkadot-js browser extension installed](https://github.com/polkadot-js/extension). 
 
-1. Add types & module methods to the `schema.graphql` file
-2. Run `yarn codegen`
-3. Implement the module's methods within the Plugin class in the `index.ts` file.
-4. Run `yarn build`
+It exposes a minimal interface
+
+- `getAccounts` - List the accounts managed by the plugin 
+- `signPayload` - Sign a structured extrinsic payload
+- `signRaw` - Sign a string of raw bytes
+
+It is preferable to use `signPayload` when possible as it allows the extension to display much more useful information to the user about what they are signing.
+
+## Developer Setup
+
+After setting up the yarn workspace from the `/substrate` root:
+
+```shell
+yarn
+```
+
+## Building
+
+Build uses the polywrap CLI tool.
+
+```shell
+yarn build
+```
+
+## Testing
+
+```shell
+yarn test
+```
