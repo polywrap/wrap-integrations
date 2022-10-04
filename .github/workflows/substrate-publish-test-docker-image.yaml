@@ -1,22 +1,30 @@
-name: Publish-Docker
+name: Publish-Substrate-Docker
 
 on:
   push:
     branches:
-      - main   
-     paths:
-      - 'protocol/substrate/test-env/**'
+    - main
+    paths:
+    - 'protocol/substrate/test-env/**'
 
 jobs:
   Publish:
     name: Substrate Publish Docker
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2 # Checking out the repo
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Build and Publish head Docker image
-        uses: VaultVulp/gp-docker-action@1.2.0
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }} # Provide GITHUB_TOKEN to login into the GitHub Packages
-          image-name: substrate-polywrap-test-env # Provide Docker image name
-          build-context: ./protocol/substrate/test-env # Provide path to the folder with the Dockerfile
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build image and push GitHub Container Registry
+        uses: docker/build-push-action@v2
+        with:
+          context: ./protocol/substrate/test-env
+          tags: |
+            ghcr.io/chainsafe/integrations/substrate-polywrap-test-env:latest
