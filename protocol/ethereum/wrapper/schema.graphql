@@ -101,21 +101,18 @@ type Module {
 
   getBalance(address: String!, blockTag: BigInt): BigInt!
 
+  sendRpc(
+    method: String!
+    params: [String!]!
+  ): String!
+
   getSignerTransactionCount(
     blockTag: BigInt
   ): BigInt!
 
   getGasPrice: BigInt!
 
-  estimateTransactionGas(
-    tx: Signer_TxRequest!
-  ): BigInt!
-
-  estimateContractCallGas(
-    address: String!
-    method: String!
-    args: [String!]
-  ): BigInt!
+  # getNetwork(): Network!
 
   checkAddress(address: String!): Boolean!
 
@@ -123,38 +120,42 @@ type Module {
 
   # toEth(wei: String!): String!
 
+  # waitForEvent(
+  #   address: String!
+  #   event: String!
+  #   args: [String!]
+  #   timeout: UInt32
+  # ): EventNotification!
+
+  estimateTransactionGas(
+    tx: TxRequest!
+  ): BigInt!
+
   awaitTransaction(
     txHash: String!
     confirmations: UInt32!
     timeout: UInt32!
   ): TxReceipt!
 
-  # waitForEvent(
-  #   address: String!
-  #   event: String!
-  #   args: [String!]
-  #   timeout: UInt32
-  #   connection: Signer_Connection
-  # ): Signer_EventNotification!
-
-  # getNetwork(connection: Signer_Connection): Signer_Network!
-
-  # deployContract(
-  #   abi: String!
-  #   bytecode: String!
-  #   args: [String!]
-  #   connection: Signer_Connection
-  # ): Signer_TxReceipt!
-
   sendTransaction(
-    tx: Signer_TxRequest!
-    connection: Signer_Connection
-  ): Signer_TxResponse!
+    tx: TxRequest!
+  ): TxResponse!
 
   sendTransactionAndWait(
-    tx: Signer_TxRequest!
-    connection: Signer_Connection
-  ): Signer_TxReceipt!
+    tx: TxRequest!
+  ): TxReceipt!
+
+  deployContract(
+    abi: String!
+    bytecode: String!
+    args: [String!]
+  ): String!
+
+  estimateContractCallGas(
+    address: String!
+    method: String!
+    args: [String!]
+  ): BigInt!
 
   callContractMethod(
     address: String!
@@ -167,11 +168,7 @@ type Module {
     method: String!
     args: [String!]
   ): TxReceipt!
+  #): String!
 
   signMessage(message: String!): String!
-
-  sendRpc(
-    method: String!
-    params: [String!]!
-  ): String
 }

@@ -12,12 +12,15 @@ pub struct PolywrapProvider {}
 #[derive(Error, Debug)]
 /// Error thrown when sending an HTTP request
 pub enum ClientError {
-    #[error("Deserialization Error: {err}. Response: {text}")]
     /// Serde JSON Error
+    #[error("Deserialization Error: {err}. Response: {text}")]
     SerdeJson {
         err: serde_json::Error,
         text: String,
     },
+    /// Serde JSON Error
+    #[error("Client error: {0}")]
+    Error(String),
 }
 
 impl From<ClientError> for ProviderError {
@@ -44,7 +47,7 @@ impl JsonRpcClient for PolywrapProvider {
             method: method.to_string(),
             params: Some(params_s),
         })
-        .expect("provider request failed");
+        .map_err(|err| ClientError::Error(err))?;
         let res = serde_json::from_str(&res).map_err(|err| ClientError::SerdeJson {
             err,
             text: "from str failed".to_string(),

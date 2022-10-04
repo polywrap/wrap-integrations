@@ -11,12 +11,6 @@ import {
   ensAddresses,
   providers,
 } from "@polywrap/test-env-js";
-import {
-  deployStorage,
-  addPrimitiveToArrayStorage,
-  addStructToStorage,
-  setPrimitiveToStorage
-} from './utils/storage';
 import { Wallet } from "ethers";
 import * as path from 'path'
 
@@ -155,6 +149,49 @@ describe("Ethereum Plugin", () => {
       );
     });
 
+    it("getSignerAddress", async () => {
+      const response = await client.invoke<string>({
+        uri,
+        method: "getSignerAddress",
+      });
+
+      expect(response.error).toBeUndefined();
+      expect(response.data).toBeDefined();
+      expect(response.data?.startsWith("0x")).toBe(true);
+    });
+
+    it("getSignerBalance", async () => {
+      const response = await client.invoke<string>({
+        uri,
+        method: "getSignerBalance",
+      });
+
+      expect(response.error).toBeUndefined();
+      expect(response.data).toBeDefined();
+    });
+
+    it("getSignerTransactionCount", async () => {
+      const response = await client.invoke<string>({
+        uri,
+        method: "getSignerTransactionCount",
+      });
+
+      expect(response.error).toBeUndefined();
+      expect(response.data).toBeDefined();
+      expect(Number(response.data)).toBeTruthy();
+    });
+
+    it("getGasPrice", async () => {
+      const response = await client.invoke<string>({
+        uri,
+        method: "getGasPrice",
+      });
+
+      expect(response.error).toBeUndefined();
+      expect(response.data).toBeDefined();
+      expect(Number(response.data)).toBeTruthy();
+    });
+
     it("encodeParams", async () => {
       const response = await client.invoke<string>({
         uri,
@@ -199,240 +236,36 @@ describe("Ethereum Plugin", () => {
       expect(acceptsArrayArg.error).toBeUndefined();
     });
 
-    it("callContractView", async () => {
-      const node = namehash("whatever.eth");
-      const response = await client.invoke<string>({
+    it("sendRpc", async () => {
+      const res = await client.invoke<string | undefined>({
         uri,
-        method: "callContractView",
+        method: "sendRpc",
         args: {
-          address: ensAddress,
-          method: "function resolver(bytes32 node) external view returns (address)",
-          args: [node]
+          method: "eth_blockNumber", params: []
         }
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-      expect(response.data).toBe("0x0000000000000000000000000000000000000000");
+      expect(res.error).toBeUndefined();
+      expect(res.data).toBeDefined();
     });
 
-    it("callContractView (primitive value - string ABI)", async () => {
-      const storageAddress = await deployStorage(contracts.SimpleStorage.abi, contracts.SimpleStorage.bytecode)
-      await setPrimitiveToStorage(contracts.SimpleStorage.abi, storageAddress, "100");
+    it("estimateTransactionGas", async () => {
+      const data = contracts.SimpleStorage.bytecode;
 
       const response = await client.invoke<string>({
         uri,
-        method: "callContractView",
+        method: "estimateTransactionGas",
         args: {
-          address: storageAddress,
-          method: 'function get() public view returns (uint256)',
-          args: [],
-        },
-      });
-
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-      const num = ethers.BigNumber.from(response.data);
-      expect(num.eq("100")).toBeTruthy();
-    });
-
-    it("callContractView (primitive value - JSON ABI)", async () => {
-      const storageAddress = await deployStorage(contracts.SimpleStorage.abi, contracts.SimpleStorage.bytecode)
-      await setPrimitiveToStorage(contracts.SimpleStorage.abi, storageAddress, "100");
-
-      const response = await client.invoke<string>({
-        uri,
-        method: "callContractView",
-        args: {
-          address: storageAddress,
-          method: contracts.SimpleStorage.abiSinglePrimitiveMethod,
-          args: [],
+          tx: {
+            data: data,
+          },
         },
       });
 
       expect(response.error).toBeUndefined();
       expect(response.data).toBeDefined();
       const num = ethers.BigNumber.from(response.data);
-      expect(num.eq("100")).toBeTruthy();
-    });
-
-    it("callContractView (primitives array - string ABI)", async () => {
-      const storageAddress = await deployStorage(contracts.SimpleStorage.abi, contracts.SimpleStorage.bytecode)
-      await addPrimitiveToArrayStorage(contracts.SimpleStorage.abi, storageAddress, "100");
-      await addPrimitiveToArrayStorage(contracts.SimpleStorage.abi, storageAddress, "90");
-
-      const response = await client.invoke<string>({
-        uri,
-        method: "callContractView",
-        args: {
-          address: storageAddress,
-          method: 'function getSimple() public view returns (uint256[] memory)',
-          args: [],
-        },
-      });
-
-      if (!response.data) {
-        throw new Error('Empty data on view call, expecting JSON');
-      }
-      const result = JSON.parse(response.data);
-
-      expect(result.length).toEqual(2);
-      expect(result[0]).toEqual("100");
-      expect(result[1]).toEqual("90");
-    });
-
-    it("callContractView (primitives array - JSON ABI)", async () => {
-      const storageAddress = await deployStorage(contracts.SimpleStorage.abi, contracts.SimpleStorage.bytecode)
-      await addPrimitiveToArrayStorage(contracts.SimpleStorage.abi, storageAddress, "100");
-      await addPrimitiveToArrayStorage(contracts.SimpleStorage.abi, storageAddress, "90");
-
-      const response = await client.invoke<string>({
-        uri,
-        method: "callContractView",
-        args: {
-          address: storageAddress,
-          method: contracts.SimpleStorage.abiArrayPrimitivesMethod,
-          args: [],
-        },
-      });
-
-      if (!response.data) {
-        throw new Error('Empty data on view call, expecting JSON');
-      }
-      const result = JSON.parse(response.data);
-
-      expect(result.length).toEqual(2);
-      expect(result[0]).toEqual("100");
-      expect(result[1]).toEqual("90");
-    });
-
-    it("callContractView (primitives array - non-array JSON ABI)", async () => {
-      const storageAddress = await deployStorage(contracts.SimpleStorage.abi, contracts.SimpleStorage.bytecode)
-      await addPrimitiveToArrayStorage(contracts.SimpleStorage.abi, storageAddress, "100");
-      await addPrimitiveToArrayStorage(contracts.SimpleStorage.abi, storageAddress, "90");
-
-      const response = await client.invoke<string>({
-        uri,
-        method: "callContractView",
-        args: {
-          address: storageAddress,
-          method: '{"inputs":[],"name":"getSimple","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"}',
-          args: [],
-        },
-      });
-
-      if (!response.data) {
-        throw new Error('Empty data on view call, expecting JSON');
-      }
-      const result = JSON.parse(response.data);
-
-      expect(result.length).toEqual(2);
-      expect(result[0]).toEqual("100");
-      expect(result[1]).toEqual("90");
-    });
-
-    it("callContractView (struct array empty)", async () => {
-      const queueAddress = await deployStorage(contracts.SimpleStorage.abi, contracts.SimpleStorage.bytecode)
-
-      const response = await client.invoke<string>({
-        uri,
-        method: "callContractView",
-        args: {
-          address: queueAddress,
-          method: contracts.SimpleStorage.abiArrayStructsMethod,
-          args: [],
-        },
-      });
-
-      expect(response.data).toEqual('[]');
-    });
-
-    it("callContractView (struct array single element)", async () => {
-      const queueAddress = await deployStorage(contracts.SimpleStorage.abi, contracts.SimpleStorage.bytecode)
-      await addStructToStorage(contracts.SimpleStorage.abi, queueAddress, [queueAddress, "100"]);
-
-      const response = await client.invoke<string>({
-        uri,
-        method: "callContractView",
-        args: {
-          address: queueAddress,
-          method: contracts.SimpleStorage.abiArrayStructsMethod,
-          args: [],
-        },
-      });
-
-      if (!response.data) {
-        throw new Error('Empty data on view call, expecting JSON');
-      }
-      const result = JSON.parse(response.data);
-
-      expect(result.length).toEqual(1);
-      expect(result[0].to).toEqual(queueAddress);
-      expect(result[0].amount).toEqual("100");
-    });
-
-    it("callContractView (struct array multiple elements)", async () => {
-      const queueAddress = await deployStorage(contracts.SimpleStorage.abi, contracts.SimpleStorage.bytecode)
-      await addStructToStorage(contracts.SimpleStorage.abi, queueAddress, [queueAddress, "100"]);
-      await addStructToStorage(contracts.SimpleStorage.abi, queueAddress, [ensAddress, "99"]);
-
-      const response = await client.invoke<string>({
-        uri,
-        method: "callContractView",
-        args: {
-          address: queueAddress,
-          method: contracts.SimpleStorage.abiArrayStructsMethod,
-          args: [],
-        },
-      });
-
-      if (!response.data) {
-        throw new Error('Empty data on view call, expecting JSON');
-      }
-      const result = JSON.parse(response.data);
-
-      expect(result.length).toEqual(2);
-      expect(result[0].to).toEqual(queueAddress);
-      expect(result[0].amount).toEqual("100");
-      expect(result[1].to).toEqual(ensAddress);
-      expect(result[1].amount).toEqual("99");
-    });
-
-    it("callContractStatic (no error)", async () => {
-      const label = "0x" + keccak256("testwhatever");
-      const response = await client.invoke<Schema.StaticTxResult>({
-        uri,
-        method: "callContractStatic",
-        args: {
-          address: registrarAddress,
-          method: "function register(bytes32 label, address owner)",
-          args: [label, signer],
-        },
-      });
-
-      expect(response.error).toBeUndefined();
-      expect(response.data?.error).toBeFalsy();
-      expect(response.data?.result).toBe("");
-    });
-
-    it("callContractStatic (expecting error)", async () => {
-      const label = "0x" + keccak256("testwhatever");
-      const response = await client.invoke<Schema.StaticTxResult>({
-        uri,
-        method: "callContractStatic",
-        args: {
-          address: registrarAddress,
-          method: "function registerr(bytes32 label, address owner)",
-          args: [label, signer],
-        },
-      });
-
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-      expect(response.data?.error).toBeTruthy();
-      expect(response.data?.result).toContain(
-        "missing revert data in call exception"
-      );
+      expect(num.gt(0)).toBeTruthy();
     });
 
     it("awaitTransaction", async () => {
@@ -465,40 +298,6 @@ describe("Ethereum Plugin", () => {
       expect(awaitResponse.error).toBeUndefined();
       expect(awaitResponse.data).toBeDefined();
       expect(awaitResponse.data?.transactionHash).toBeDefined();
-    });
-
-    it("callContractMethod", async () => {
-      const label = "0x" + keccak256("testwhatever");
-      const response = await client.invoke({
-        uri,
-        method: "callContractMethod",
-        args: {
-          address: registrarAddress,
-          method: "function register(bytes32 label, address owner)",
-          args: [label, signer],
-        }
-      });
-
-      // TODO: add txOverrides
-
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-    });
-
-    it("callContractMethodAndWait", async () => {
-      const label = "0x" + keccak256("testwhatever");
-      const response = await client.invoke<Schema.TxReceipt>({
-        uri,
-        method: "callContractMethodAndWait",
-        args: {
-          address: registrarAddress,
-          method: "function register(bytes32 label, address owner)",
-          args: [label, signer],
-        }
-      });
-
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
     });
 
     it("sendTransaction", async () => {
@@ -550,6 +349,21 @@ describe("Ethereum Plugin", () => {
       expect(num.gt(0)).toBeTruthy();
     });
 
+    it("deployContract", async () => {
+      const response = await client.invoke<string>({
+        uri,
+        method: "deployContract",
+        args: {
+          abi: JSON.stringify(contracts.SimpleStorage.abi),
+          bytecode: contracts.SimpleStorage.bytecode
+        }
+      });
+
+      expect(response.error).toBeUndefined();
+      expect(response.data).toBeDefined();
+      expect(response.data).toContain("0x");
+    });
+
     it("estimateContractCallGas", async () => {
       const label = "0x" + keccak256("testwhatever2");
       const response = await client.invoke<string>({
@@ -568,19 +382,91 @@ describe("Ethereum Plugin", () => {
       expect(num.gt(0)).toBeTruthy();
     });
 
-    it("sendRPC", async () => {
-      const res = await client.invoke<string | undefined>({
+    it("callContractView", async () => {
+      const node = namehash("whatever.eth");
+      const response = await client.invoke<string>({
         uri,
-        method: "sendRPC",
+        method: "callContractView",
         args: {
-          method: "eth_blockNumber", params: []
+          address: ensAddress,
+          method: "function resolver(bytes32 node) external view returns (address)",
+          args: [node]
         }
       });
 
-      expect(res.error).toBeUndefined();
-      expect(res.data).toBeDefined();
+      expect(response.error).toBeUndefined();
+      expect(response.data).toBeDefined();
+      expect(response.data).toBe("0x0000000000000000000000000000000000000000");
     });
-  });
 
+    it("callContractStatic (no error)", async () => {
+      const label = "0x" + keccak256("testwhatever");
+      const response = await client.invoke<Schema.StaticTxResult>({
+        uri,
+        method: "callContractStatic",
+        args: {
+          address: registrarAddress,
+          method: "function register(bytes32 label, address owner)",
+          args: [label, signer],
+        },
+      });
+
+      expect(response.error).toBeUndefined();
+      expect(response.data?.error).toBeFalsy();
+      expect(response.data?.result).toBe("");
+    });
+
+    it("callContractStatic (expecting error)", async () => {
+      const label = "0x" + keccak256("testwhatever");
+      const response = await client.invoke<Schema.StaticTxResult>({
+        uri,
+        method: "callContractStatic",
+        args: {
+          address: registrarAddress,
+          method: "function registerr(bytes32 label, address owner)",
+          args: [label, signer],
+        },
+      });
+
+      expect(response.error).toBeUndefined();
+      expect(response.data).toBeDefined();
+      expect(response.data?.error).toBeTruthy();
+      expect(response.data?.result).toContain(
+	"VM Exception while processing transaction: revert"
+      );
+    });
+
+    it("callContractMethod", async () => {
+      const label = "0x" + keccak256("testwhatever");
+      const response = await client.invoke({
+        uri,
+        method: "callContractMethod",
+        args: {
+          address: registrarAddress,
+          method: "function register(bytes32 label, address owner)",
+          args: [label, signer],
+        }
+      });
+
+      // TODO: add txOverrides
+
+      expect(response.error).toBeUndefined();
+      expect(response.data).toBeDefined();
+    });
+
+    it("callContractMethodAndWait", async () => {
+      const label = "0x" + keccak256("testwhatever");
+      const response = await client.invoke<Schema.TxReceipt>({
+        uri,
+        method: "callContractMethodAndWait",
+        args: {
+          address: registrarAddress,
+          method: "function register(bytes32 label, address owner)",
+          args: [label, signer],
+        }
+      });
+      expect(response.error).toBeUndefined();
+      expect(response.data).toBeDefined();
+    });
   });
 });

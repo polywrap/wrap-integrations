@@ -1,8 +1,8 @@
 use ethers_core::{
-    abi::{encode, AbiParser, HumanReadableParser, ParamType, Token},
+    abi::{encode, Abi, AbiParser, HumanReadableParser, ParamType, Token},
     types::{
         transaction::eip2718::TypedTransaction, Address, BlockId, BlockNumber, Bytes, Signature,
-        Transaction, TransactionRequest, H256, U256,
+        Transaction, TransactionReceipt, TransactionRequest, H256, U256,
     },
     utils::serialize,
 };
@@ -10,6 +10,7 @@ use ethers_middleware::SignerMiddleware;
 use ethers_providers::{Middleware, Provider};
 use ethers_signers::Signer;
 
+use crate::error::WrapperError;
 use crate::format::tokenize_values;
 use crate::provider::PolywrapProvider;
 use crate::signer::PolywrapSigner;
@@ -91,13 +92,13 @@ pub fn encode_function(method: &str, args: Vec<String>) -> Vec<u8> {
 
 pub async fn send_rpc(method: &str, params: Vec<String>) -> String {
     let provider = Provider::new(PolywrapProvider {});
-    let res = wallet.request(method, params).await.unwrap();
+    let res: serde_json::Value = provider.request(method, params).await.unwrap();
     res.to_string()
 }
 
 pub async fn estimate_transaction_gas(tx: TypedTransaction) -> U256 {
     let provider = Provider::new(PolywrapProvider {});
-    let gas = provider.estimate_gas(tx).await.unwrap();
+    let gas = provider.estimate_gas(&tx).await.unwrap();
     gas
 }
 
@@ -109,13 +110,18 @@ pub async fn await_transaction(tx_hash: H256) -> Transaction {
 
 pub async fn get_transaction_receipt(tx_hash: H256) -> TransactionReceipt {
     let provider = Provider::new(PolywrapProvider {});
-    let receipt = provider.get_transaction_receipt(input.tx_hash).await.unwrap();
+    let receipt = provider
+        .get_transaction_receipt(tx_hash)
+        .await
+        .unwrap()
+        .unwrap();
     receipt
 }
 
-pub async fn send_transaction(mut tx: TypedTransaction) -> Transaction {
+pub async fn send_transaction(mut tx: TypedTransaction) -> H256 {
     let provider = Provider::new(PolywrapProvider {});
     let wallet = PolywrapSigner::new();
+    let address = wallet.address;
     let client = SignerMiddleware::new(provider, wallet);
 
     client.fill_transaction(&mut tx, None).await.unwrap();
@@ -127,10 +133,37 @@ pub async fn send_transaction(mut tx: TypedTransaction) -> Transaction {
         .request("eth_sendRawTransaction", [rlp])
         .await
         .unwrap();
-    (data, signed_tx, tx_hash)
+    tx_hash
+}
+
+pub fn deploy_contract(
+    abi: Abi,
+    bytecode: Bytes,
+    params: Vec<String>,
+) -> Result<TransactionRequest, WrapperError> {
+    let data: Bytes = match (abi.constructor(), params.is_empty()) {
+        (None, false) => {
+            return Err(WrapperError::ContractError(
+                ethers_contract::ContractError::ConstructorError,
+            ))
+        }
+        (None, true) => bytecode.clone(),
+        (Some(constructor), _) => {
+            let kinds: Vec<ParamType> = constructor.inputs.iter().map(|i| i.kind.clone()).collect();
+            let tokens: Vec<Token> = tokenize_values(params, kinds);
+            constructor.encode_input(bytecode.to_vec(), &tokens)?.into()
+        }
+    };
+    let tx = TransactionRequest {
+        to: None,
+        data: Some(data),
+        ..Default::default()
+    };
+    Ok(tx)
 }
 
 pub async fn estimate_contract_call_gas(address: Address, method: &str, args: Vec<String>) -> U256 {
+    let provider = Provider::new(PolywrapProvider {});
     let function = AbiParser::default().parse_function(method).unwrap();
     let kinds: Vec<ParamType> = function.inputs.iter().map(|i| i.kind.clone()).collect();
     let tokens: Vec<Token> = tokenize_values(args, kinds);
@@ -141,7 +174,7 @@ pub async fn estimate_contract_call_gas(address: Address, method: &str, args: Ve
         ..Default::default()
     };
     let tx = tx.into();
-    let gas = provider.estimate_gas(tx).await.unwrap();
+    let gas = provider.estimate_gas(&tx).await.unwrap();
     gas
 }
 
@@ -176,16 +209,20 @@ pub async fn call_contract_view(address: Address, method: &str, args: Vec<String
     tokens
 }
 
-pub async fn call_contract_static(address: Address, method: &str, args: Vec<String>) -> Vec<Token> {
+pub async fn call_contract_static(
+    address: Address,
+    method: &str,
+    args: Vec<String>,
+) -> Result<Vec<Token>, WrapperError> {
     let provider = Provider::new(PolywrapProvider {});
     let wallet = PolywrapSigner::new();
     let client = SignerMiddleware::new(provider, wallet);
 
-    let function = AbiParser::default().parse_function(method).unwrap();
+    let function = AbiParser::default().parse_function(method)?;
     let kinds: Vec<ParamType> = function.inputs.iter().map(|i| i.kind.clone()).collect();
     let tokens: Vec<Token> = tokenize_values(args, kinds);
 
-    let data: Bytes = function.encode_input(&tokens).map(Into::into).unwrap();
+    let data: Bytes = function.encode_input(&tokens).map(Into::into)?;
 
     let tx = TransactionRequest {
         to: Some(address.into()),
@@ -195,13 +232,13 @@ pub async fn call_contract_static(address: Address, method: &str, args: Vec<Stri
 
     let mut tx: TypedTransaction = tx.into();
 
-    client.fill_transaction(&mut tx, None).await.unwrap();
+    client.fill_transaction(&mut tx, None).await?;
 
-    let bytes = provider.call(&tx, None).await.unwrap();
+    let bytes = client.inner().call(&tx, None).await?;
 
-    let tokens: Vec<Token> = function.decode_output(&bytes).unwrap();
+    let tokens: Vec<Token> = function.decode_output(&bytes)?;
 
-    tokens
+    Ok(tokens)
 }
 
 pub async fn call_contract_method(
