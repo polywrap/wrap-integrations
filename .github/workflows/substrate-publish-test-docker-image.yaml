@@ -1,0 +1,22 @@
+name: Publish-Docker
+
+on:
+  push:
+    branches:
+      - main   
+     paths:
+      - 'protocol/substrate/test-env/**'
+
+jobs:
+  Publish:
+    name: Substrate Publish Docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2 # Checking out the repo
+
+      - name: Build and Publish head Docker image
+        uses: VaultVulp/gp-docker-action@1.2.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }} # Provide GITHUB_TOKEN to login into the GitHub Packages
+          image-name: substrate-polywrap-test-env # Provide Docker image name
+          build-context: ./protocol/substrate/test-env # Provide path to the folder with the Dockerfile
