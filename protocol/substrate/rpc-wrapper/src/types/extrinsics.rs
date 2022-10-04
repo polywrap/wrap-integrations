@@ -17,20 +17,28 @@
 
 //! Primitives for substrate extrinsics.
 
-use sp_runtime::generic::Era;
-use sp_core::crypto::Ss58Codec;
-use sp_core::sr25519::Signature;
-use crate::types::extrinsic_params::GenericExtra;
-use crate::wrap::SignedExtrinsicPayload;
-use crate::error::Error;
-use crate::ExtrinsicPayload;
+use crate::{
+    error::Error,
+    types::extrinsic_params::GenericExtra,
+    utils::FromHexStr,
+    wrap::SignedExtrinsicPayload,
+    ExtrinsicPayload,
+};
 use codec::{
     Decode,
     Encode,
-    Input,
     Error as CodecError,
+    Input,
 };
-use sp_runtime::MultiSignature;
+use num_traits::ToPrimitive;
+use sp_core::{
+    crypto::Ss58Codec,
+    sr25519::Signature,
+};
+use sp_runtime::{
+    generic::Era,
+    MultiSignature,
+};
 pub use sp_runtime::{
     AccountId32,
     MultiAddress,
@@ -39,8 +47,6 @@ use sp_std::{
     fmt,
     prelude::*,
 };
-use crate::utils::FromHexStr;
-use num_traits::ToPrimitive;
 
 pub type GenericAddress = sp_runtime::MultiAddress<AccountId32, ()>;
 
@@ -99,15 +105,17 @@ impl TryFrom<SignedExtrinsicPayload> for UncheckedExtrinsicV4<Vec<u8>> {
         let call = <Vec<u8>>::from_hex(payload.extrinsic.method)?;
 
         // signer is ss58 encoding string
-        let signer = GenericAddress::from(AccountId32::from_ss58check(&payload.extrinsic.address)?);
+        let signer = GenericAddress::from(AccountId32::from_ss58check(
+            &payload.extrinsic.address,
+        )?);
 
         // signature is a hex string of a multisignature
         // The first byte indicates the signature type
-        // TODO: In future match on this to create different types. 
+        // TODO: In future match on this to create different types.
         // For now just skip it and assume sr2559
         let multisig_bytes = <[u8; 65]>::from_hex(&payload.signature)?;
         let signature = MultiSignature::from(
-            Signature::from_raw(multisig_bytes[1..].try_into().unwrap()) // this cannot fail
+            Signature::from_raw(multisig_bytes[1..].try_into().unwrap()), // this cannot fail
         );
 
         // era is hex string (2 bytes exactly)
@@ -115,15 +123,14 @@ impl TryFrom<SignedExtrinsicPayload> for UncheckedExtrinsicV4<Vec<u8>> {
         let era = Era::decode(&mut era_bytes.as_slice())?;
 
         let nonce = payload.extrinsic.nonce;
-        let tip = payload.extrinsic.tip.to_u128().ok_or(Error::OversizedBigInt)?;
+        let tip = payload
+            .extrinsic
+            .tip
+            .to_u128()
+            .ok_or(Error::OversizedBigInt)?;
         let extra = GenericExtra::new(era, nonce, tip);
 
-        Ok(Self::new_signed(
-            call,
-            signer,
-            signature,
-            extra,
-        ))
+        Ok(Self::new_signed(call, signer, signature, extra))
     }
 }
 
@@ -285,12 +292,13 @@ mod tests {
         let _xt = UncheckedExtrinsicV4::try_from(signed_payload).unwrap();
     }
 
-
     #[test]
     fn decode_encoded_payload() {
         let payload_hex = "0xb9018400d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d01aa976fea2fb2e941b3d74590375a578196a9c793100e7731539409b889d5321b27c183e484be0dcadf67366d384577692b66fb671823ec668dff946afd72958ea816000009001022686922";
         let payload_bytes = <Vec<u8>>::from_hex(payload_hex).unwrap();
-        let extrinsic = UncheckedExtrinsicV4::<Vec<u8>>::decode(&mut payload_bytes.as_slice());
+        let extrinsic = UncheckedExtrinsicV4::<Vec<u8>>::decode(
+            &mut payload_bytes.as_slice(),
+        );
         println!("{:?}", extrinsic);
     }
 
