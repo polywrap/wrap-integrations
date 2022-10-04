@@ -1,11 +1,14 @@
 name: Publish-Substrate-Docker
 
-on:
-  push:
-    branches:
-    - main
-    paths:
-    - 'protocol/substrate/test-env/**'
+# on:
+#   push:
+#     branches:
+#     - main
+#     paths:
+#     - 'protocol/substrate/test-env/**'
+
+on: [pull_request] # change this once the image has been created for the first time
+
 
 jobs:
   Publish:
