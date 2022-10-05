@@ -1,6 +1,10 @@
 use ethabi::token::Tokenizer;
 
-use ethers_core::abi::{ParamType, Token};
+use ethers_core::abi::{Param, ParamType, Token};
+
+pub fn params_to_types(params: &Vec<Param>) -> Vec<ParamType> {
+    params.clone().into_iter().map(|i| i.kind).collect()
+}
 
 pub fn tokenize_values(values: Vec<String>, kinds: Vec<ParamType>) -> Vec<Token> {
     values

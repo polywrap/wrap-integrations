@@ -4,14 +4,14 @@ use ethers_core::{
         transaction::eip2718::TypedTransaction, Address, BlockId, BlockNumber, Bytes, Signature,
         Transaction, TransactionReceipt, TransactionRequest, H256, U256,
     },
-    utils::serialize,
+    utils::{format_ether, parse_ether, serialize},
 };
 use ethers_middleware::SignerMiddleware;
 use ethers_providers::{Middleware, Provider};
 use ethers_signers::Signer;
 
 use crate::error::WrapperError;
-use crate::format::tokenize_values;
+use crate::format::{params_to_types, tokenize_values};
 use crate::provider::PolywrapProvider;
 use crate::signer::PolywrapSigner;
 
@@ -84,10 +84,25 @@ pub fn encode_params(types: Vec<String>, values: Vec<String>) -> Vec<u8> {
 
 pub fn encode_function(method: &str, args: Vec<String>) -> Vec<u8> {
     let function = AbiParser::default().parse_function(method).unwrap();
-    let kinds: Vec<ParamType> = function.inputs.iter().map(|i| i.kind.clone()).collect();
+    let kinds: Vec<ParamType> = params_to_types(&function.inputs);
     let tokens: Vec<Token> = tokenize_values(args, kinds);
     let bytes = function.encode_input(&tokens).unwrap();
     bytes
+}
+
+pub fn to_wei(eth: String) -> U256 {
+    match parse_ether(eth) {
+        Ok(wei) => wei,
+        Err(e) => panic!("{}", e),
+    }
+}
+
+pub fn to_eth(wei: String) -> U256 {
+    let wei = match U256::from_dec_str(&wei) {
+        Ok(w) => w,
+        Err(_) => panic!("Invalid Wei number: {}", wei),
+    };
+    format_ether(wei)
 }
 
 pub async fn send_rpc(method: &str, params: Vec<String>) -> String {
@@ -149,7 +164,7 @@ pub fn deploy_contract(
         }
         (None, true) => bytecode.clone(),
         (Some(constructor), _) => {
-            let kinds: Vec<ParamType> = constructor.inputs.iter().map(|i| i.kind.clone()).collect();
+            let kinds: Vec<ParamType> = params_to_types(&constructor.inputs);
             let tokens: Vec<Token> = tokenize_values(params, kinds);
             constructor.encode_input(bytecode.to_vec(), &tokens)?.into()
         }
@@ -165,7 +180,7 @@ pub fn deploy_contract(
 pub async fn estimate_contract_call_gas(address: Address, method: &str, args: Vec<String>) -> U256 {
     let provider = Provider::new(PolywrapProvider {});
     let function = AbiParser::default().parse_function(method).unwrap();
-    let kinds: Vec<ParamType> = function.inputs.iter().map(|i| i.kind.clone()).collect();
+    let kinds: Vec<ParamType> = params_to_types(&function.inputs);
     let tokens: Vec<Token> = tokenize_values(args, kinds);
     let data: Bytes = function.encode_input(&tokens).map(Into::into).unwrap();
     let tx = TransactionRequest {
@@ -180,7 +195,7 @@ pub async fn estimate_contract_call_gas(address: Address, method: &str, args: Ve
 
 pub async fn call_contract_view(address: Address, method: &str, args: Vec<String>) -> Vec<Token> {
     let function = AbiParser::default().parse_function(method).unwrap();
-    let kinds: Vec<ParamType> = function.inputs.iter().map(|i| i.kind.clone()).collect();
+    let kinds: Vec<ParamType> = params_to_types(&function.inputs);
     let tokens: Vec<Token> = tokenize_values(args, kinds);
     let data: Bytes = function.encode_input(&tokens).map(Into::into).unwrap();
 
@@ -219,7 +234,7 @@ pub async fn call_contract_static(
     let client = SignerMiddleware::new(provider, wallet);
 
     let function = AbiParser::default().parse_function(method)?;
-    let kinds: Vec<ParamType> = function.inputs.iter().map(|i| i.kind.clone()).collect();
+    let kinds: Vec<ParamType> = params_to_types(&function.inputs);
     let tokens: Vec<Token> = tokenize_values(args, kinds);
 
     let data: Bytes = function.encode_input(&tokens).map(Into::into)?;
@@ -251,7 +266,7 @@ pub async fn call_contract_method(
     let client = SignerMiddleware::new(provider, wallet);
 
     let function = AbiParser::default().parse_function(method).unwrap();
-    let kinds: Vec<ParamType> = function.inputs.iter().map(|i| i.kind.clone()).collect();
+    let kinds: Vec<ParamType> = params_to_types(&function.inputs);
     let tokens: Vec<Token> = tokenize_values(args, kinds);
 
     let data: Bytes = function.encode_input(&tokens).map(Into::into).unwrap();

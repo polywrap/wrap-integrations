@@ -116,9 +116,9 @@ type Module {
 
   checkAddress(address: String!): Boolean!
 
-  # toWei(eth: String!): String!
+  toWei(eth: String!): String!
 
-  # toEth(wei: String!): String!
+  toEth(wei: String!): String!
 
   # waitForEvent(
   #   address: String!
@@ -168,7 +168,6 @@ type Module {
     method: String!
     args: [String!]
   ): TxReceipt!
-  #): String!
 
   signMessage(message: String!): String!
 }

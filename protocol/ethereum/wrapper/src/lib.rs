@@ -79,6 +79,14 @@ pub fn encode_function(input: wrap::ArgsEncodeFunction) -> String {
     serde_json::to_string(&bytes).unwrap()
 }
 
+pub fn to_wei(input: ArgsToWei) -> String {
+    api::to_wei(input.eth).to_string()
+}
+
+pub fn to_eth(input: ArgsToEth) -> String {
+    api::to_eth(input.wei).to_string()
+}
+
 pub fn send_rpc(input: wrap::ArgsSendRpc) -> String {
     block_on(api::send_rpc(&input.method, input.params))
 }

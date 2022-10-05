@@ -236,6 +236,34 @@ describe("Ethereum Plugin", () => {
       expect(acceptsArrayArg.error).toBeUndefined();
     });
 
+    it("toWei", async () => {
+      const response = await client.invoke<string>({
+        uri,
+        method: "toWei",
+        args: {
+          eth: "20",
+        },
+      });
+
+      expect(response.error).toBeUndefined();
+      expect(response.data).toBeDefined();
+      expect(response.data).toEqual("20000000000000000000");
+    });
+
+    it("toEth", async () => {
+      const response = await client.invoke<string>({
+        uri,
+        method: "toEth",
+        args: {
+          wei: "20000000000000000000",
+        },
+      });
+
+      expect(response.error).toBeUndefined();
+      expect(response.data).toBeDefined();
+      expect(response.data).toEqual("20");
+    });
+
     it("sendRpc", async () => {
       const res = await client.invoke<string | undefined>({
         uri,
