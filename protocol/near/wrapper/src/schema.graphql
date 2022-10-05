@@ -1,4 +1,7 @@
-#import { Module, Transaction, Action, PublicKey, KeyType, ExecutionOutcome, ExecutionProof, FinalExecutionOutcome, FinalExecutionOutcomeWithReceipts } into Near from "wrap://ens/nearPlugin.polywrap.eth"
+#import { Module } into Near from "wrap://ens/nearPlugin.polywrap.eth"
+#import { Module, Request, Response } into HTTP from "wrap://ens/http.polywrap.eth"
+#import { Module } into Borsh from "wrap://ipfs/Qmck2PKpeC794L3ByjMfZoqH8BPDhae1craJsLySwfR6j4"
+#import { Transaction, TransactionWithHash, Action, AccessKey, AccessKeyPermission, Signature, SignedTransaction, FinalExecutionOutcome, ExecutionStatus, ExecutionOutcome, ExecutionOutcomeWithId, ExecutionProof, OutcomeMetaData, GasProfile } into Interface from "wrap://ens/near.interface.polywrap.eth"
 
 type Module {
     requestSignIn(
@@ -31,7 +34,7 @@ type Module {
 
     getPublicKey(
         accountId: String!
-    ): Near_PublicKey
+    ): Interface_PublicKey
 
     """
     RPC Query Functions not part of JsonRpcProvider (Implemented, Tested)
@@ -68,14 +71,14 @@ type Module {
     # creates a transaction. If signerId is not provided, creates transaction with wallet.
     createTransaction(
         receiverId: String!
-        actions: [Near_Action!]!
+        actions: [Interface_Action!]!
         signerId: String
-    ): Near_Transaction!
+    ): Interface_Transaction!
 
     # signs a transaction without wallet
     signTransaction(
-        transaction: Near_Transaction!
-    ): Near_SignTransactionResult!
+        transaction: Interface_Transaction!
+    ): SignTransactionResult!
 
     """
     Utility Functions
@@ -104,12 +107,12 @@ type Module {
     txStatus(
         txHash: String! #(Bytes | String)!
         accountId: String!
-    ): Near_FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     txStatusReceipts(
         txHash: String! #Bytes!
         accountId: String!
-    ): Near_FinalExecutionOutcomeWithReceipts!
+    ): FinalExecutionOutcomeWithReceipts!
 
     blockChanges(
         blockQuery: BlockReference!
@@ -176,7 +179,7 @@ type Module {
     # send one or more transactions to NEAR wallet to be signed and executed
     requestSignTransactions(
         # list of transactions to sign
-        transactions: [Near_Transaction!]!
+        transactions: [Interface_Transaction!]!
         # url NEAR Wallet will redirect to after transaction signing is complete
         callbackUrl: String
         # meta information NEAR Wallet will send back to the application. `meta` will be attached to the `callbackUrl` as a url search param
@@ -185,55 +188,55 @@ type Module {
 
     # sends a signed transaction and awaits execution
     sendTransaction(
-        signedTx: Near_SignedTransaction!
-    ): Near_FinalExecutionOutcome!
-
+        signedTx: Interface_SignedTransaction!
+    ): Interface_FinalExecutionOutcome!
+    
     # sends a signed transaction and immediately returns transaction hash
     sendTransactionAsync(
-        signedTx: Near_SignedTransaction!
+        signedTx: Interface_SignedTransaction!
     ): String!
 
     # creates, signs, and sends a transaction without wallet and awaits execution
     signAndSendTransaction(
         receiverId: String!
-        actions: [Near_Action!]!
+        actions: [Interface_Action!]!
         signerId: String!
-    ): Near_FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     # creates, signs, and sends a transaction without wallet and immediately returns transaction hash
     signAndSendTransactionAsync(
         receiverId: String!
-        actions: [Near_Action!]!
+        actions: [Interface_Action!]!
         signerId: String!
     ): String!
 
     # create a new Near account
     createAccount(
         newAccountId: String!
-        publicKey: Near_PublicKey! # | String
+        publicKey: Interface_PublicKey! # | String
         amount: BigInt!
         signerId: String!
-    ): Near_FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     deleteAccount(
         accountId: String!
         beneficiaryId: String!
         signerId: String!
-    ): Near_FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     # deploy a contract
     deployContract(
         data: Bytes!
         contractId: String!
         signerId: String!
-    ): Near_FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     # transfer Near from signer to receiver
     sendMoney(
         amount: BigInt!
         receiverId: String!,
         signerId: String!
-    ): Near_FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     # call a contract function
     functionCall(
@@ -245,33 +248,40 @@ type Module {
         walletMeta: String
         walletCallbackUrl: String
         signerId: String
-    ): Near_FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     # add access key to account
     addKey(
-        publicKey: Near_PublicKey! # | String
+        publicKey: Interface_PublicKey! # | String
         contractId: String
         methodNames: [String!],
         amount: BigInt
         signerId: String!
-    ): Near_FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     # delete access key associated with public key
     deleteKey(
-        publicKey: Near_PublicKey! # | String
+        publicKey: Interface_PublicKey! # | String
         signerId: String!
-    ): Near_FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
     # Create a new account and deploy a contract to it
     createAndDeployContract(
         contractId: String!
-        publicKey: Near_PublicKey! # | String
+        publicKey: Interface_PublicKey! # | String
         data: Bytes!
         amount: BigInt!
         signerId: String !
-    ): Near_FinalExecutionOutcome!
+    ): Interface_FinalExecutionOutcome!
 
 }
+
+type SignTransactionResult {
+  hash: Bytes!
+  signedTx: Interface_SignedTransaction!
+}
+
+##########
 
 # Based on these types from near-api-js:
 # export type Finality = 'optimistic' | 'near-final' | 'final'
@@ -370,7 +380,7 @@ type KeyValuePair {
 type ChunkResult {
     header: ChunkHeader!
     receipts: [JSON!]!
-    transactions: [Near_Transaction!]!
+    transactions: [Interface_TransactionWithHash!]!
 }
 
 type BlockChange {
@@ -464,10 +474,10 @@ type LightClientBlockLiteView {
 }
 
 type LightClientProof {
-    outcome_proof: Near_ExecutionOutcomeWithId!
-    outcome_root_proof: [Near_ExecutionProof!]!
+    outcome_proof: Interface_ExecutionOutcomeWithId!
+    outcome_root_proof: [Interface_ExecutionProof!]!
     block_header_lite: LightClientBlockLiteView!
-    block_proof: [Near_ExecutionProof!]!
+    block_proof: [Interface_ExecutionProof!]!
 }
 
 # All query responses implement QueryResponseKind
@@ -505,17 +515,9 @@ type AccountAuthorizedApp {
 }
 
 # Access key permissions determine how an account is allow to interact with a contract
-type AccessKeyPermission {
-    isFullAccess: Boolean!
-    receiverId: String
-    methodNames: [String!]
-    allowance: BigInt
-}
+type AccessKeyPermission implements Interface_AccessKeyPermission {}
 
-type AccessKey {
-    nonce: BigInt!
-    permission: AccessKeyPermission!
-}
+type AccessKey implements Interface_AccessKey {}
 
 type KeyValueCode {
     code_base64: String!
@@ -526,7 +528,7 @@ type KeyValueCode {
 # Access keys contain access key permissions, which determine how an account is allowed to interact with a contract
 type AccessKeyInfo {
     publicKey: String!
-    accessKey: AccessKey!
+    accessKey: Interface_AccessKey!
 }
 
 enum IdType {
@@ -555,4 +557,30 @@ type AccessKeyWithPublicKey {
 
 type ContractStateResult {
     values: [KeyValuePair!]!
+}
+
+# Final outcome of a sent transaction
+
+
+type FinalExecutionOutcomeWithReceipts {
+  status: Interface_ExecutionStatus!
+  transaction: Interface_TransactionWithHash!
+  transaction_outcome: Interface_ExecutionOutcomeWithId!
+  receipts_outcome: [Interface_ExecutionOutcomeWithId!]!
+  receipts: [ReceiptWithId!]!
+}
+
+type ReceiptWithId {
+  predecessor_id: String!
+  receipt: Receipt!
+  receipt_id: String!
+  receiver_id: String!
+}
+
+type Receipt {
+  Action: ActionContainer!
+}
+
+type ActionContainer {
+  actions: [Interface_Action!]!
 }

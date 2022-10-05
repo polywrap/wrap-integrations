@@ -1,21 +1,20 @@
 import { runCLI } from "@polywrap/test-env-js";
 import axios from "axios";
 import { ClientConfig } from "@polywrap/client-js";
-import { ethereumPlugin } from "@polywrap/ethereum-plugin-js";
+import { ethereumPlugin, Connections, Connection } from "@polywrap/ethereum-plugin-js";
 
 export function getPlugins(): Partial<ClientConfig> {
+  const connections: Connections = new Connections({
+    networks: {
+      mainnet: new Connection({ provider: "http://localhost:8546" }),
+    },
+    defaultNetwork: "mainnet",
+  });
   return {
     plugins: [
       {
         uri: "wrap://ens/ethereum.polywrap.eth",
-        plugin: ethereumPlugin({
-          networks: {
-            MAINNET: {
-              provider: "http://localhost:8546"
-            },
-          },
-          defaultNetwork: "MAINNET"
-        }),
+        plugin: ethereumPlugin({ connections }),
       },
     ]
   };

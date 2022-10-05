@@ -5,10 +5,10 @@ import {
   ChangeResult,
   IdType,
   NodeStatusResult,
+  FinalExecutionOutcome,
 } from "../tsTypes";
 import * as testUtils from "../testUtils";
 import { LightClientProof, ChunkResult } from "../../wrap";
-import { FinalExecutionOutcome } from "../../../../plugin-js/build/wrap";
 
 import type { Finality } from "near-api-js/lib/providers/provider";
 import { PolywrapClient } from "@polywrap/client-js";

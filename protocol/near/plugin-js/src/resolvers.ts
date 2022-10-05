@@ -7,12 +7,8 @@ import {
   Args_isSignedIn,
   Args_requestSignIn,
   Args_requestSignTransactions,
-  Args_sendJsonRpc,
-  Args_sendTransaction,
-  Args_sendTransactionAsync,
   Args_signMessage,
   Args_signOut,
-  Args_signTransaction,
 } from "./wrap";
 
 export const module = (plugin: NearPlugin) => ({
@@ -39,21 +35,21 @@ export const module = (plugin: NearPlugin) => ({
   ) => {
     return await plugin.createTransactionWithWallet(args);
   },
-  signTransaction: async (args: Args_signTransaction) => {
+  /* signTransaction: async (args: Args_signTransaction) => {
     return await plugin.signTransaction(args);
-  },
-  sendJsonRpc: (args: Args_sendJsonRpc) => {
+  }, */
+  /* sendJsonRpc: (args: Args_sendJsonRpc) => {
     return plugin.sendJsonRpc(args);
-  },
+  }, */
   requestSignTransactions: (args: Args_requestSignTransactions) => {
     return plugin.requestSignTransactions(args);
   },
-  sendTransaction: (args: Args_sendTransaction) => {
+  /* sendTransaction: (args: Args_sendTransaction) => {
     return plugin.sendTransaction(args);
-  },
-  sendTransactionAsync: (args: Args_sendTransactionAsync) => {
+  }, */
+  /* sendTransactionAsync: (args: Args_sendTransactionAsync) => {
     return plugin.sendTransactionAsync(args);
-  },
+  }, */
   createKey: (args: Args_createKey) => {
     return plugin.createKey(args);
   },

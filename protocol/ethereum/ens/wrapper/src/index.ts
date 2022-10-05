@@ -40,7 +40,6 @@ import {
   RegistrationResult,
   TxOverrides,
 } from "./wrap";
-import { BigInt } from "@polywrap/wasm-as";
 import {abi, bytecode} from "./contracts/FIFSRegistrar"
 
 export function getResolver(args: Args_getResolver): string {

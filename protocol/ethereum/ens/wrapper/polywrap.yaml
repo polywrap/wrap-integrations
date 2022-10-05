@@ -1,7 +1,15 @@
-format: 0.0.1-prealpha.9
-name: ens
-language: wasm/assemblyscript
-build: ./polywrap.build.yaml
-meta: ./polywrap.meta.yaml
-schema: ./schema.graphql
-module: ./src/index.ts
+format: 0.2.0
+project:
+  name: ens
+  type: wasm/assemblyscript
+source:
+  schema: ./src/schema.graphql
+  module: ./src/index.ts
+  import_abis:
+    - uri: wrap://ens/uts46.polywrap.eth
+      abi: ../../../../system/uts46-lite/wrapper/src/schema.graphql
+    - uri: wrap://ens/sha3.polywrap.eth
+      abi: ../../../../system/sha3/wrapper/src/schema.graphql
+extensions:
+  build: ./polywrap.build.yaml
+  meta: ./polywrap.meta.yaml

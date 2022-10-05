@@ -1,0 +1,5 @@
+format: 0.1.0
+name: sleep-interface
+language: interface
+schema: ./src/schema.graphql
+deploy: ./polywrap.deploy.yaml
