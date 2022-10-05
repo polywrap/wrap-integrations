@@ -2,11 +2,11 @@ module.exports = {
     /**
      * A set of globs passed to the glob package that qualify typescript files for testing.
      */
-    include: ["src/__tests__/**/*.spec.ts"],
+    include: ["src/__tests__/unit/*.spec.ts"],
     /**
      * A set of globs passed to the glob package that qualify files to be added to each test.
      */
-    add: ["src/__tests__/**/*.include.ts"],
+    add: ["src/__tests__/unit/*.include.ts"],
     /**
      * All the compiler flags needed for this test suite. Make sure that a binary file is output.
      */

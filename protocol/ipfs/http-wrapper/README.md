@@ -1,29 +1,23 @@
-# IPFS Web3API package
+# IPFS Polywrap Wasm Wrapper
 
-Inspect schema files to see what functionalities are available - `/query/schema.graphql` and `/mutation/schema.graphql`.
+Inspect the schema files to see what functionalities are available - `src/schema.graphql`.
 
-## How To Run
+## For Developers
 
-### 1. Setup Test Env
-
-```
-yarn test:env:up
-```
-
-### 2. Build & Deploy The Web3API
+### 1. Install dependencies
 
 ```
-yarn deploy
+nvm use && yarn install
 ```
 
-### 3. Test The Web3API Using A Query Recipe
+### 2. Build Wrapper
+
+```
+yarn build
+```
+
+### 3. Test
 
 ```
 yarn test
-```
-
-#### Remove Test Env
-
-```
-yarn test:env:down
 ```

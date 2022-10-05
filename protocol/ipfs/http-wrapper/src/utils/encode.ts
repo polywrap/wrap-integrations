@@ -1,8 +1,8 @@
 export function encodeURIComponent(str: string): string {
-  var hexDigits = '0123456789ABCDEF';
-  var ret = '';
-  for (var i = 0; i < str.length; i++) {
-      var c = str.charCodeAt(i);
+  let hexDigits = '0123456789ABCDEF';
+  let ret = '';
+  for (let i = 0; i < str.length; i++) {
+      let c = str.charCodeAt(i);
       if ((c >= 48/*0*/ && c <= 57/*9*/) ||
           (c >= 97/*a*/ && c <= 122/*z*/) ||
           (c >= 65/*A*/ && c <= 90/*Z*/) ||

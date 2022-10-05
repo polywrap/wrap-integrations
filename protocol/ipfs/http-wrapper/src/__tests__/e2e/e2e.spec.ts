@@ -1,20 +1,5 @@
-/*
-TODO:
-- catFile
-- catFileToString
-- resolve
-- uri-resolver methods
-*/
-
-import {
-  buildAndDeployApi,
-  initTestEnvironment,
-  stopTestEnvironment
-} from "@polywrap/test-env-js";
-import {
-  PolywrapClient,
-  createPolywrapClient
-} from "@polywrap/client-js";
+import { buildWrapper } from "@polywrap/test-env-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import path from "path";
 import fs from "fs";
 
@@ -22,48 +7,30 @@ jest.setTimeout(360000);
 
 describe("e2e", () => {
 
+  const ipfsProvider = "https://ipfs.wrappers.io";
+
   let client: PolywrapClient;
-  let ipfsProvider: string;
-  let ensUri: string;
-  let ipfsUri: string;
+  let fsUri: string;
 
   beforeAll(async () => {
-    // Create Client
-    const { ethereum, ipfs, ensAddress } = await initTestEnvironment();
-
-    client = await createPolywrapClient({
-      ethereum: {
-        networks: {
-          testnet: {
-            provider: ethereum
-          }
+    // create client
+    client = new PolywrapClient({
+      plugins: [
+        {
+          uri: "wrap://ens/http.polywrap.eth",
+          plugin: httpPlugin({}),
         },
-        defaultNetwork: "testnet"
-      },
-      ipfs: {
-        provider: ipfs
-      },
-      ens: {
-        addresses: {
-          testnet: ensAddress
-        },
-      },
-    });
+      ]
+    })
 
-    ipfsProvider = ipfs;
-
-    // Deploy API
+    // build wrapper
     const apiPath = path.join(__dirname, "/../../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
+    await buildWrapper(apiPath);
 
-    // Cache the API's URI
-    ensUri = `/ens/testnet/${api.ensDomain}`;
-    ipfsUri = `/ipfs/${api.ipfsCid}`;
+    // save uri
+    fsUri = `wrap://fs/${apiPath}/build`;
   });
 
-  afterAll(async () => {
-    await stopTestEnvironment();
-  });
 
   describe("Query", () => {
     it("catFile", async () => {
@@ -77,7 +44,7 @@ describe("e2e", () => {
         const { data, errors } = await client.query<{
           catFile: Uint8Array
         }>({
-          uri: ensUri,
+          uri: fsUri,
           query: `
             query {
               catFile(
@@ -100,7 +67,7 @@ describe("e2e", () => {
         const { data, errors } = await client.query<{
           catFile: Uint8Array
         }>({
-          uri: ensUri,
+          uri: fsUri,
           query: `
             query {
               catFile(

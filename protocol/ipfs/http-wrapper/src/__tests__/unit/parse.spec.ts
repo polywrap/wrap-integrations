@@ -1,12 +1,12 @@
 import {
   parseAddDirectoryResponse,
-  parseAddFileResponse
+  parseAddResponse
 } from "../../utils";
 
 describe('Parse functions tests', () => {
 
   test("parseAddFileResponse", () => {
-    const r = parseAddFileResponse('{"Name":"file0.txt","Hash":"","Size":"16"}')
+    const r = parseAddResponse('{"Name":"file0.txt","Hash":"","Size":"16"}')
 
     expect(r).toStrictEqual(
         {

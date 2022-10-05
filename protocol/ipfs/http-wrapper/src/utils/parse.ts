@@ -1,40 +1,35 @@
 import { AddResult } from "../wrap";
 import { JSON } from "@polywrap/wasm-as";
 
-export function parseAddDirectoryResponse(body: string | null): AddResult[] {
+export function parseAddDirectoryResponse(body: string): AddResult[] {
     let results: AddResult[] = []
-    if (body != null) {
-        const rawResults = (body as string).split("\n");
-        for (let i = 0; i < rawResults.length - 1; i++) {
-            const parsedResult = parseAddResponse(rawResults[i]);
-            results.push(parsedResult)
-        }
+    const rawResults = body.split("\n");
+    // TODO: should this loop stop at length - 1?
+    for (let i = 0; i < rawResults.length - 1; i++) {
+        const parsedResult = parseAddResponse(rawResults[i]);
+        results.push(parsedResult)
     }
     return results;
 }
 
-export function parseAddFileResponse(body: string | null): AddResult {
-    return parseAddResponse(body)
-}
+export function parseAddResponse(body: string): AddResult {
+    const addResult: AddResult = { name: "", hash: "", size: "" };
+    const responseObj: JSON.Obj = <JSON.Obj>(JSON.parse(body));
 
-function parseAddResponse(body: string | null): AddResult {
-    let addResult: AddResult = { name: "", hash: "", size: "" }
-    if (body != null) {
-        const responseObj: JSON.Obj = <JSON.Obj>(JSON.parse(body));
-        const nameOrNull: JSON.Str | null = responseObj.getString("Name");
-        if (nameOrNull != null) {
-            addResult.name = nameOrNull.valueOf();
-        }
-
-        const hashOrNull: JSON.Str | null = responseObj.getString("Hash");
-        if (hashOrNull != null) {
-            addResult.hash = hashOrNull.valueOf();
-        }
-
-        const sizeOrNull: JSON.Str | null = responseObj.getString("Size");
-        if (sizeOrNull != null) {
-            addResult.size = sizeOrNull.valueOf();
-        }
+    const nameOrNull: JSON.Str | null = responseObj.getString("Name");
+    if (nameOrNull !== null) {
+        addResult.name = nameOrNull.valueOf();
     }
+
+    const hashOrNull: JSON.Str | null = responseObj.getString("Hash");
+    if (hashOrNull !== null) {
+        addResult.hash = hashOrNull.valueOf();
+    }
+
+    const sizeOrNull: JSON.Str | null = responseObj.getString("Size");
+    if (sizeOrNull !== null) {
+        addResult.size = sizeOrNull.valueOf();
+    }
+
     return addResult;
 }

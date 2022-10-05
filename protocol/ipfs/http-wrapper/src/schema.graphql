@@ -1,0 +1,66 @@
+#import { Module, Request, Response, ResponseType } into Http from "wrap://ens/http.polywrap.eth"
+
+type Module {
+  cat(
+    cid: String!
+    options: IpfsOptions!
+    catOptions: CatOptions
+  ): Bytes!
+
+  resolve(
+    cid: String!
+    options: IpfsOptions!
+  ): String!
+
+  add(
+    data: FileEntry!
+    options: IpfsOptions!
+    addOptions: AddOptions
+  ): AddResult!
+
+  addDir(
+    data: DirectoryBlob!
+    options: IpfsOptions!
+    addOptions: AddOptions
+  ): [AddResult!]!
+}
+
+type IpfsOptions {
+  provider: String!
+}
+
+type CatOptions {
+  headers: Map @annotate(type: "Map<String!, String!>")
+  queryString: Map @annotate(type: "Map<String!, String!>")
+  offset: Int32
+  length: Int32
+  timeout: UInt32
+}
+
+type AddOptions {
+  pin: Boolean
+  onlyHash: Boolean
+  wrapWithDirectory: Boolean
+}
+
+type AddResult {
+  name: String!
+  hash: String!
+  size: String!
+}
+
+type FileEntry {
+  name: String!
+  data: Bytes!
+}
+
+type DirectoryEntry {
+  name: String!
+  directories: [DirectoryEntry!]!
+  files: [FileEntry!]!
+}
+
+type DirectoryBlob {
+  directories: [DirectoryEntry!]!
+  files: [FileEntry!]!
+}

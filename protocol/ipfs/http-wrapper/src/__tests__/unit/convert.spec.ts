@@ -82,7 +82,7 @@ describe('Convert functions tests', () => {
         {
           key: "file_0",
           data: "file_0_data",
-          opts: {
+          options: {
             contentType: "application/octet-stream",
             fileName: "file_0",
             filePath: null
@@ -91,7 +91,7 @@ describe('Convert functions tests', () => {
         {
           key: "file_1",
           data: "file_1_data",
-          opts: {
+          options: {
             contentType: "application/octet-stream",
             fileName: "file_1",
             filePath: null
@@ -100,7 +100,7 @@ describe('Convert functions tests', () => {
         {
           key: "dirA",
           data: null,
-          opts: {
+          options: {
             contentType: "application/x-directory",
             fileName: "dirA",
             filePath: ""
@@ -109,7 +109,7 @@ describe('Convert functions tests', () => {
         {
           key: "dirAA",
           data: null,
-          opts: {
+          options: {
             contentType: "application/x-directory",
             fileName: "dirAA",
             filePath: ""
@@ -118,7 +118,7 @@ describe('Convert functions tests', () => {
         {
           key: "file_AA_0",
           data: "file_AA_0_data",
-          opts: {
+          options: {
             contentType: "application/octet-stream",
             fileName: "dirA%2FdirAA%2Ffile_AA_0",
             filePath: null
@@ -127,7 +127,7 @@ describe('Convert functions tests', () => {
         {
           key: "dirAAA",
           data: null,
-          opts: {
+          options: {
             contentType: "application/x-directory",
             fileName: "dirAAA",
             filePath: ""
@@ -136,7 +136,7 @@ describe('Convert functions tests', () => {
         {
           key: "dirAAAA",
           data: null,
-          opts: {
+          options: {
             contentType: "application/x-directory",
             fileName: "dirAAAA",
             filePath: ""
@@ -145,7 +145,7 @@ describe('Convert functions tests', () => {
         {
           key: "file_AAAA_0",
           data: "file_AAAA_0_data",
-          opts: {
+          options: {
             contentType: "application/octet-stream",
             fileName: "dirA%2FdirAA%2FdirAAA%2FdirAAAA%2Ffile_AAAA_0",
             filePath: null
@@ -154,7 +154,7 @@ describe('Convert functions tests', () => {
         {
           key: "dirAB",
           data: null,
-          opts: {
+          options: {
             contentType: "application/x-directory",
             fileName: "dirAB",
             filePath: ""
@@ -163,7 +163,7 @@ describe('Convert functions tests', () => {
         {
           key: "file_AB_0",
           data: "file_AB_0_data",
-          opts: {
+          options: {
             contentType: "application/octet-stream",
             fileName: "dirA%2FdirAB%2Ffile_AB_0",
             filePath: null
@@ -172,7 +172,7 @@ describe('Convert functions tests', () => {
         {
           key: "dirABA",
           data: null,
-          opts: {
+          options: {
             contentType: "application/x-directory",
             fileName: "dirABA",
             filePath: ""
@@ -181,7 +181,7 @@ describe('Convert functions tests', () => {
         {
           key: "file_ABA_0",
           data: "file_ABA_0_data",
-          opts: {
+          options: {
             contentType: "application/octet-stream",
             fileName: "dirA%2FdirAB%2FdirABA%2Ffile_ABA_0",
             filePath: null
@@ -190,7 +190,7 @@ describe('Convert functions tests', () => {
         {
           key: "file_ABA_1",
           data: "file_ABA_1_data",
-          opts: {
+          options: {
             contentType: "application/octet-stream",
             fileName: "dirA%2FdirAB%2FdirABA%2Ffile_ABA_1",
             filePath: null
