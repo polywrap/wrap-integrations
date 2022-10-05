@@ -16,14 +16,12 @@ export function convertDirectoryBlobToFormData(directoryBlob: DirectoryBlob): Ar
 function convertFileEntriesToFormData(files: FileEntry[], path: string, formData: Http_FormDataEntry[]): void {
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        const filePath = path + file.name;
         formData.push({
-            key: file.name,
-            data: String.UTF8.decode(file.data),
-            options: {
-                contentType: "application/octet-stream",
-                fileName: encodeURIComponent(path + file.name),
-                filePath: null
-            }
+            name: filePath,
+            value: String.UTF8.decode(file.data),
+            fileName: encodeURIComponent(filePath),
+            _type: "application/octet-stream",
         });
     }
 }
@@ -31,14 +29,12 @@ function convertFileEntriesToFormData(files: FileEntry[], path: string, formData
 function convertDirectoryEntryToFormData(dirs: DirectoryEntry[], path: string, formData: Http_FormDataEntry[]): void {
     for (let i = 0; i < dirs.length; i++) {
         const dir = dirs[i];
+        const dirPath = path + dir.name;
         formData.push({
-            key: dir.name,
-            data: null,
-            options: {
-                contentType: "application/x-directory",
-                fileName: encodeURIComponent(dir.name),
-                filePath: ""
-            }
+            name: dirPath,
+            value: null,
+            fileName: encodeURIComponent(dirPath),
+            _type: "application/x-directory",
         });
         const newPath = path + dir.name + "/";
         convertFileEntriesToFormData(dir.files, newPath, formData);

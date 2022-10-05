@@ -80,121 +80,83 @@ describe('Convert functions tests', () => {
     expect(r).toStrictEqual(
       [
         {
-          key: "file_0",
-          data: "file_0_data",
-          options: {
-            contentType: "application/octet-stream",
-            fileName: "file_0",
-            filePath: null
-          }
+          name: "file_0",
+          value: "file_0_data",
+          _type: "application/octet-stream",
+          fileName: "file_0",
         },
         {
-          key: "file_1",
-          data: "file_1_data",
-          options: {
-            contentType: "application/octet-stream",
-            fileName: "file_1",
-            filePath: null
-          }
+          name: "file_1",
+          value: "file_1_data",
+          _type: "application/octet-stream",
+          fileName: "file_1",
         },
         {
-          key: "dirA",
-          data: null,
-          options: {
-            contentType: "application/x-directory",
-            fileName: "dirA",
-            filePath: ""
-          }
+          name: "dirA",
+          value: null,
+          _type: "application/x-directory",
+          fileName: "dirA",
         },
         {
-          key: "dirAA",
-          data: null,
-          options: {
-            contentType: "application/x-directory",
-            fileName: "dirAA",
-            filePath: ""
-          }
+          name: "dirAA",
+          value: null,
+          _type: "application/x-directory",
+          fileName: "dirAA",
         },
         {
-          key: "file_AA_0",
-          data: "file_AA_0_data",
-          options: {
-            contentType: "application/octet-stream",
-            fileName: "dirA%2FdirAA%2Ffile_AA_0",
-            filePath: null
-          }
+          name: "file_AA_0",
+          value: "file_AA_0_data",
+          _type: "application/octet-stream",
+          fileName: "dirA%2FdirAA%2Ffile_AA_0",
         },
         {
-          key: "dirAAA",
-          data: null,
-          options: {
-            contentType: "application/x-directory",
-            fileName: "dirAAA",
-            filePath: ""
-          }
+          name: "dirAAA",
+          value: null,
+          _type: "application/x-directory",
+          fileName: "dirAAA",
         },
         {
-          key: "dirAAAA",
-          data: null,
-          options: {
-            contentType: "application/x-directory",
-            fileName: "dirAAAA",
-            filePath: ""
-          }
+          name: "dirAAAA",
+          value: null,
+          _type: "application/x-directory",
+          fileName: "dirAAAA",
         },
         {
-          key: "file_AAAA_0",
-          data: "file_AAAA_0_data",
-          options: {
-            contentType: "application/octet-stream",
-            fileName: "dirA%2FdirAA%2FdirAAA%2FdirAAAA%2Ffile_AAAA_0",
-            filePath: null
-          }
+          name: "file_AAAA_0",
+          value: "file_AAAA_0_data",
+          _type: "application/octet-stream",
+          fileName: "dirA%2FdirAA%2FdirAAA%2FdirAAAA%2Ffile_AAAA_0",
         },
         {
-          key: "dirAB",
-          data: null,
-          options: {
-            contentType: "application/x-directory",
-            fileName: "dirAB",
-            filePath: ""
-          }
+          name: "dirAB",
+          value: null,
+          _type: "application/x-directory",
+
+          fileName: "dirAB",
         },
         {
-          key: "file_AB_0",
-          data: "file_AB_0_data",
-          options: {
-            contentType: "application/octet-stream",
-            fileName: "dirA%2FdirAB%2Ffile_AB_0",
-            filePath: null
-          }
+          name: "file_AB_0",
+          value: "file_AB_0_data",
+          _type: "application/octet-stream",
+          fileName: "dirA%2FdirAB%2Ffile_AB_0",
         },
         {
-          key: "dirABA",
-          data: null,
-          options: {
-            contentType: "application/x-directory",
-            fileName: "dirABA",
-            filePath: ""
-          }
+          name: "dirABA",
+          value: null,
+          _type: "application/x-directory",
+          fileName: "dirABA",
         },
         {
-          key: "file_ABA_0",
-          data: "file_ABA_0_data",
-          options: {
-            contentType: "application/octet-stream",
-            fileName: "dirA%2FdirAB%2FdirABA%2Ffile_ABA_0",
-            filePath: null
-          }
+          name: "file_ABA_0",
+          value: "file_ABA_0_data",
+          _type: "application/octet-stream",
+          fileName: "dirA%2FdirAB%2FdirABA%2Ffile_ABA_0",
         },
         {
-          key: "file_ABA_1",
-          data: "file_ABA_1_data",
-          options: {
-            contentType: "application/octet-stream",
-            fileName: "dirA%2FdirAB%2FdirABA%2Ffile_ABA_1",
-            filePath: null
-          }
+          name: "file_ABA_1",
+          value: "file_ABA_1_data",
+          _type: "application/octet-stream",
+          fileName: "dirA%2FdirAB%2FdirABA%2Ffile_ABA_1",
         }
       ]
     );

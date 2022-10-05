@@ -11,7 +11,6 @@ import {
   Http_Request,
   Http_Response,
   Http_ResponseType,
-  IpfsOptions
 } from "./wrap";
 import { convertDirectoryBlobToFormData, IpfsError, parseAddDirectoryResponse, parseAddResponse } from "./utils";
 
@@ -20,7 +19,7 @@ import { Result } from "@polywrap/wasm-as";
 
 export function cat(args: Args_cat): ArrayBuffer {
   const result = executeOperation(
-    args.options,
+    args.ipfsProvider,
     createRequest(args.cid, Http_ResponseType.BINARY, args.catOptions),
     "catFile",
     "/api/v0/cat"
@@ -30,7 +29,7 @@ export function cat(args: Args_cat): ArrayBuffer {
 
 export function resolve(args: Args_resolve): string {
   return executeOperation(
-    args.options,
+    args.ipfsProvider,
     createRequest(args.cid, Http_ResponseType.TEXT),
     "resolve",
     "/api/v0/resolve"
@@ -38,11 +37,16 @@ export function resolve(args: Args_resolve): string {
 }
 
 export function add(args: Args_add): AddResult {
-  const key = args.data.name;
-  const data = String.UTF8.decode(args.data.data);
+  const name = args.data.name;
+  const data = args.data.data;
   const addResponse = executeAdd(
-    [{ key, data }],
-    args.options,
+    args.ipfsProvider,
+    [{
+      name,
+      value: String.UTF8.decode(data),
+      fileName: name,
+      _type: "application/octet-stream"
+    }],
     args.addOptions
   );
   return parseAddResponse(addResponse);
@@ -50,31 +54,34 @@ export function add(args: Args_add): AddResult {
 
 export function addDir(args: Args_addDir): AddResult[] {
   const addDirectoryResponse = executeAdd(
+    args.ipfsProvider,
     convertDirectoryBlobToFormData(args.data),
-    args.options,
     args.addOptions
   );
   return parseAddDirectoryResponse(addDirectoryResponse);
 }
 
 function executeOperation(
-  ipfs: IpfsOptions,
+  provider: string,
   request: Http_Request,
   operation: string,
   operationUrl: string
 ): string {
-  const url = ipfs.provider + operationUrl;
+  const url = provider + operationUrl;
   const httpResult = Http_Module.get({ url, request });
   return unwrapHttpResult(operation, httpResult);
 }
 
-function executeAdd(data: Http_FormDataEntry[], options: IpfsOptions, addOptions: AddOptions | null = null): string {
-  let url = options.provider + "/api/v0/add";
+function executeAdd(provider: string, data: Http_FormDataEntry[], addOptions: AddOptions | null = null): string {
+  let url = provider + "/api/v0/add";
   const urlParams: Map<string, string> | null = getAddUrlParameters(addOptions);
+  const headers: Map<string, string> = new Map<string, string>();
+  headers.set("Content-Type", "multipart/form-data");
 
   const httpResult = Http_Module.post({
     url: url,
     request: {
+      headers,
       urlParams,
       responseType: Http_ResponseType.TEXT,
       data
@@ -94,10 +101,10 @@ function createRequest(cid: string, responseType: Http_ResponseType, catOptions:
     if (catOptions.headers !== null) {
       headers = catOptions.headers;
     }
-    if (catOptions.queryString !== null) {
-      const keys = catOptions.queryString!.keys();
+    if (catOptions.urlParams !== null) {
+      const keys = catOptions.urlParams!.keys();
       for (let i = 0; i < keys.length; i++) {
-        urlParams.set(keys[i], catOptions.queryString!.get(keys[i]));
+        urlParams.set(keys[i], catOptions.urlParams!.get(keys[i]));
       }
     }
     if (catOptions.length !== null) {

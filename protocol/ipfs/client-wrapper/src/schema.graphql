@@ -3,38 +3,33 @@
 type Module {
   cat(
     cid: String!
-    options: IpfsOptions!
+    ipfsProvider: String!
     catOptions: CatOptions
   ): Bytes!
 
   resolve(
     cid: String!
-    options: IpfsOptions!
+    ipfsProvider: String!
   ): String!
 
   add(
     data: FileEntry!
-    options: IpfsOptions!
+    ipfsProvider: String!
     addOptions: AddOptions
   ): AddResult!
 
   addDir(
     data: DirectoryBlob!
-    options: IpfsOptions!
+    ipfsProvider: String!
     addOptions: AddOptions
   ): [AddResult!]!
 }
 
-type IpfsOptions {
-  provider: String!
-}
-
 type CatOptions {
   headers: Map @annotate(type: "Map<String!, String!>")
-  queryString: Map @annotate(type: "Map<String!, String!>")
+  urlParams: Map @annotate(type: "Map<String!, String!>")
   offset: Int32
   length: Int32
-  timeout: UInt32
 }
 
 type AddOptions {

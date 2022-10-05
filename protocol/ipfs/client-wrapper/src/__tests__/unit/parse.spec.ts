@@ -5,7 +5,7 @@ import {
 
 describe('Parse functions tests', () => {
 
-  test("parseAddFileResponse", () => {
+  test("parseAddResponse", () => {
     const r = parseAddResponse('{"Name":"file0.txt","Hash":"","Size":"16"}')
 
     expect(r).toStrictEqual(
