@@ -88,10 +88,47 @@ describe("e2e", () => {
   });
 
   it("add", async () => {
+    const bytes = fs.readFileSync(path.join(__dirname, "testData", "test.txt"));
 
+    const result = await client.invoke<Ipfs.Ipfs_AddResult>({
+      uri: fsUri,
+      method: "add",
+      args: {
+        data: {
+          name: "test.txt",
+          data: bytes,
+        },
+        ipfsProvider
+      }
+    });
+
+    if (!result.ok) fail(result.error);
+    expect(result.value.hash).toEqual(singleFileCid);
   });
 
-  it("addDir", async () => {
+  it("add with options", async () => {
+    const bytes = fs.readFileSync(path.join(__dirname, "testData", "test.txt"));
 
+    const result = await client.invoke<Ipfs.Ipfs_AddResult>({
+      uri: fsUri,
+      method: "add",
+      args: {
+        data: {
+          name: "test.txt",
+          data: bytes,
+        },
+        ipfsProvider,
+        options: {
+          onlyHash: true
+        },
+      }
+    });
+
+    if (!result.ok) fail(result.error);
+    expect(result.value.hash).toEqual(singleFileCid);
   });
+
+  // TODO: write test for addDir
+  // it("addDir", async () => {
+  // });
 });
