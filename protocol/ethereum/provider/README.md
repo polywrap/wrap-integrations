@@ -1,3 +1,3 @@
-# @polywrap/uri-resolver-interface
+# @polywrap/ethereum-provider-plugin
 
-Interface for extendable WRAP URI resolvers.
+Plugin for interacting with Ethereum.
