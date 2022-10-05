@@ -1,13 +1,18 @@
 import { buildWrapper } from "@polywrap/test-env-js";
 import { PolywrapClient } from "@polywrap/client-js";
+import { httpPlugin } from "@polywrap/http-plugin-js";
 import path from "path";
 import fs from "fs";
+import * as Ipfs from "./types";
 
 jest.setTimeout(360000);
 
 describe("e2e", () => {
 
+  const singleFileCid = "QmcUZ2oVczdFaRsY8Fcqi8f27GLF8fY6mVboGZGYS8JE72";
   const ipfsProvider = "https://ipfs.wrappers.io";
+
+  const encoder = new TextEncoder();
 
   let client: PolywrapClient;
   let fsUri: string;
@@ -31,83 +36,62 @@ describe("e2e", () => {
     fsUri = `wrap://fs/${apiPath}/build`;
   });
 
+  it("cat", async () => {
+    const expected = fs.readFileSync(path.join(__dirname, "testData", "test.txt"));
 
-  describe("Query", () => {
-    it("catFile", async () => {
-      const expected = fs.readFileSync(
-        `${__dirname}/../../../build/schema.graphql`,
-        "utf-8"
-      );
-      const decoder = new TextDecoder();
-
-      {
-        const { data, errors } = await client.query<{
-          catFile: Uint8Array
-        }>({
-          uri: fsUri,
-          query: `
-            query {
-              catFile(
-                cid: "${ipfsUri}/schema.graphql"
-                ipfs: {
-                  provider: "${ipfsProvider}"
-                }
-              )
-            }
-          `
-        });
-
-        expect(errors).toBeFalsy();
-        expect(data).toBeTruthy();
-        expect(
-          decoder.decode(data?.catFile?.buffer)
-        ).toBe(expected);
-      }
-      {
-        const { data, errors } = await client.query<{
-          catFile: Uint8Array
-        }>({
-          uri: fsUri,
-          query: `
-            query {
-              catFile(
-                cid: "${ipfsUri}/schema.graphql"
-                ipfs: {
-                  provider: "http://test.com"
-                  fallbackProviders: [
-                    "http://foo.com",
-                    "${ipfsProvider}"
-                  ]
-                }
-              )
-            }
-          `
-        });
-
-        expect(errors).toBeFalsy();
-        expect(data).toBeTruthy();
-        expect(
-          decoder.decode(data?.catFile?.buffer)
-        ).toBe(expected);
+    const result = await client.invoke<Ipfs.Bytes>({
+      uri: fsUri,
+      method: "cat",
+      args: {
+        cid: singleFileCid,
+        ipfsProvider
       }
     });
 
-    /*it("catFileToString", async () => {
-
-    });
-
-    it("uri-resolver interface", async () => {
-      // TODO
-    });*/
+    if (!result.ok) fail(result.error);
+    expect(result.value).toBeTruthy();
+    expect(result.value.buffer).toEqual(expected);
   });
 
-  /*describe("Mutation", () => {
-    it("addFile", async () => {
-      
+  it("cat with options", async () => {
+    const expected = encoder.encode("From IPFS!");
+
+    const result = await client.invoke<Ipfs.Bytes>({
+      uri: fsUri,
+      method: "cat",
+      args: {
+        cid: singleFileCid,
+        ipfsProvider,
+        catOptions: {
+          offset: 6,
+          length: 10,
+        },
+      }
     });
 
-    it("addFolder", async () => {
+    if (!result.ok) fail(result.error);
+    expect(result.value).toEqual(expected);
+  });
 
+  it("resolve", async () => {
+    const result = await client.invoke<Ipfs.String>({
+      uri: fsUri,
+      method: "resolve",
+      args: {
+        cid: singleFileCid,
+        ipfsProvider
+      }
     });
-  });*/
+
+    if (!result.ok) fail(result.error);
+    expect(result.value).toEqual(singleFileCid);
+  });
+
+  it("add", async () => {
+
+  });
+
+  it("addDir", async () => {
+
+  });
 });
