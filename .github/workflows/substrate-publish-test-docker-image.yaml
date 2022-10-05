@@ -31,4 +31,4 @@ jobs:
           context: ./protocol/substrate/test-env
           push: true
           tags: |
-            ghcr.io/chainsafe/integrations/substrate-polywrap-test-env:latest
+            ghcr.io/polywrap/integrations/substrate-polywrap-test-env:latest
