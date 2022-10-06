@@ -1,0 +1,25 @@
+#import { Module } into Ipfs from "ens/interface.ipfs.polywrap.eth"
+
+type Module implements Ipfs_Module {}
+
+type Env {
+  """
+  Global timeout for IPFS actions
+  """
+  timeout: UInt32
+
+  """
+  Default provider
+  """
+  provider: String!
+
+  """
+  Fallback providers
+  """
+  fallbackProviders: [String!]
+
+  """
+  Disable querying providers in parallel when resolving URIs
+  """
+  disableParallelRequests: Boolean
+}

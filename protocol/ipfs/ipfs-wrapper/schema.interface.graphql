@@ -1,0 +1,35 @@
+type Module {
+  cat(cid: String!, options: Options): Bytes! @env(required: true)
+
+  resolve(cid: String!, options: Options): ResolveResult @env(required: true)
+
+  addFile(data: Bytes!): String! @env(required: true)
+}
+
+type ResolveResult {
+  cid: String!
+  provider: String!
+}
+
+type Options {
+  """
+  Timeout (in ms) for the operation.
+  Fallback providers are used if timeout is reached.
+  """
+  timeout: UInt32
+
+  """
+  The IPFS provider to be used
+  """
+  provider: String
+
+  """
+  Fallback IPFS providers
+  """
+  fallbackProviders: [String!]
+
+  """
+  Disable querying providers in parallel when resolving URIs
+  """
+  disableParallelRequests: Boolean
+}
