@@ -1,7 +1,7 @@
 import { Http_FormDataEntry, Http_Request, Http_Response, Http_ResponseTypeEnum } from "./wrap";
 
 import { AxiosResponse, AxiosRequestConfig } from "axios";
-import * as fd from "formdata-node";
+import { FormData, Blob } from "formdata-node";
 
 /**
  * Convert AxiosResponse<string> to Response
@@ -88,17 +88,17 @@ export function toAxiosRequestConfig(
   return config;
 }
 
-export function toFormData(entries: Http_FormDataEntry[]): fd.FormData {
-    const formData = new fd.FormData();
+export function toFormData(entries: Http_FormDataEntry[]): FormData {
+    const fd = new FormData();
     entries.forEach((entry) => {
-      let value: string | fd.Blob | null | undefined = entry.value;
+      let value: string | Blob | null | undefined = entry.value;
       if (entry.type) {
         const data = entry.value
           ? new Buffer(entry.value, "base64")
           : Buffer.alloc(0);
-        value = new fd.Blob(data, { type: entry.type });
+        value = new Blob(data, { type: entry.type });
       }
-      formData.append(entry.name, value, entry.fileName ?? undefined);
+      fd.append(entry.name, value, entry.fileName ?? undefined);
     });
-    return formData;
+    return fd;
 }

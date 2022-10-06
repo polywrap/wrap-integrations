@@ -18,7 +18,7 @@
     "as-base64": "0.2.0"
   },
   "devDependencies": {
-    "@polywrap/http-plugin-js": "file:./../http-revision",
+    "@polywrap/http-plugin-js": "0.8.0",
     "@as-pect/cli": "6.2.4",
     "@types/jest": "26.0.8",
     "assemblyscript": "0.19.23",

@@ -12,7 +12,7 @@ type Module {
     ipfsProvider: String!
   ): String!
 
-  add(
+  addFile(
     data: FileEntry!
     ipfsProvider: String!
     addOptions: AddOptions

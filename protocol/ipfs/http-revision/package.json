@@ -22,7 +22,7 @@
   "dependencies": {
     "@polywrap/core-js": "0.8.0",
     "axios": "0.21.4",
-    "formdata-node": "5.0.0"
+    "formdata-node": "4.4.1"
   },
   "devDependencies": {
     "@polywrap/client-js": "0.8.0",

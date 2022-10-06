@@ -1,7 +1,7 @@
 import {
   AddOptions,
   AddResult,
-  Args_add,
+  Args_addFile,
   Args_addDir,
   Args_cat,
   Args_resolve,
@@ -36,7 +36,7 @@ export function resolve(args: Args_resolve): string {
   );
 }
 
-export function add(args: Args_add): AddResult {
+export function addFile(args: Args_addFile): AddResult {
   const name = args.data.name;
   const data = args.data.data;
   const addResponse = executeAdd(

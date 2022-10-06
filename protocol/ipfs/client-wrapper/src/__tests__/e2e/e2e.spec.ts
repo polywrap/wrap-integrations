@@ -87,12 +87,12 @@ describe("e2e", () => {
     expect(result.value).toEqual(singleFileCid);
   });
 
-  it("add", async () => {
+  it("addFile", async () => {
     const bytes = fs.readFileSync(path.join(__dirname, "testData", "test.txt"));
 
     const result = await client.invoke<Ipfs.Ipfs_AddResult>({
       uri: fsUri,
-      method: "add",
+      method: "addFile",
       args: {
         data: {
           name: "test.txt",
@@ -106,12 +106,12 @@ describe("e2e", () => {
     expect(result.value.hash).toEqual(singleFileCid);
   });
 
-  it("add with options", async () => {
+  it("addFile with options", async () => {
     const bytes = fs.readFileSync(path.join(__dirname, "testData", "test.txt"));
 
     const result = await client.invoke<Ipfs.Ipfs_AddResult>({
       uri: fsUri,
-      method: "add",
+      method: "addFile",
       args: {
         data: {
           name: "test.txt",
