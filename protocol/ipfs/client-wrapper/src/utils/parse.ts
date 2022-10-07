@@ -1,13 +1,14 @@
 import { AddResult } from "../wrap";
 import { JSON } from "@polywrap/wasm-as";
+import { IpfsError } from "./error";
 
 export function parseResolveResponse(body: string): string {
     const responseObj: JSON.Obj = <JSON.Obj>(JSON.parse(body));
-    const cid: JSON.Str | null = responseObj.getString("Path");
+    const cid: JSON.Str | null = responseObj.getString("Path")!;
     if (cid !== null) {
         return cid.valueOf();
     }
-    return "";
+    throw new IpfsError("resolve", null, null, `Malformed response: ${body}`);
 }
 
 export function parseAddResponse(body: string): AddResult {
