@@ -1,4 +1,5 @@
-pub use crate::wrap::{ IpfsOptions, Env };
+use std::slice::Iter;
+use crate::wrap::{IpfsOptions, Env };
 
 pub struct Options<'t> {
     pub disable_parallel_requests: bool,
@@ -59,7 +60,7 @@ pub fn get_options<'t>(args: &'t Option<IpfsOptions>, env: &'t Env) -> Options<'
     }
 
     // if we added options.provider, we still need to add env.provider
-    if !providers.contains(env.provider.as_ref()) {
+    if !providers.contains(&env.provider.as_ref()) {
         providers.push(env.provider.as_ref());
     }
 
@@ -68,6 +69,8 @@ pub fn get_options<'t>(args: &'t Option<IpfsOptions>, env: &'t Env) -> Options<'
         fallback_providers.iter()
             .map(|s| s.as_ref())
             .filter(|p| !providers.contains(p))
+            .collect::<Vec<&str>>()
+            .iter()
             .for_each(|p| providers.push(p));
     }
 

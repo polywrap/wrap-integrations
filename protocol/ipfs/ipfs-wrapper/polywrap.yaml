@@ -8,6 +8,10 @@ source:
   import_abis:
     - uri: "ens/interface.ipfs.polywrap.eth"
       abi: ./schema.interface.graphql
+    - uri: "ens/ipfs-client.polywrap.eth"
+      abi: ../client-wrapper/src/schema.graphql
+    - uri: "ens/http.polywrap.eth"
+      abi: ../http-revision/schema.interface.graphql
 extensions:
   build: ./polywrap.build.yaml
   deploy: ./polywrap.deploy.yaml
