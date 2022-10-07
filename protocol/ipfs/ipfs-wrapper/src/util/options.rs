@@ -59,7 +59,7 @@ pub fn get_options<'t>(args: &'t Option<IpfsOptions>, env: &'t Env) -> Options<'
     }
 
     // if we added options.provider, we still need to add env.provider
-    if providers[0] != env.provider {
+    if !providers.contains(env.provider.as_ref()) {
         providers.push(env.provider.as_ref());
     }
 
@@ -67,6 +67,7 @@ pub fn get_options<'t>(args: &'t Option<IpfsOptions>, env: &'t Env) -> Options<'
     if let Some(fallback_providers) = &env.fallback_providers {
         fallback_providers.iter()
             .map(|s| s.as_ref())
+            .filter(|p| !providers.contains(p))
             .for_each(|p| providers.push(p));
     }
 
