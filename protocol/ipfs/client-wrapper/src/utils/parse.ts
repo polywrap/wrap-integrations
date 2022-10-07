@@ -1,15 +1,13 @@
 import { AddResult } from "../wrap";
 import { JSON } from "@polywrap/wasm-as";
 
-export function parseAddDirectoryResponse(body: string): AddResult[] {
-    let results: AddResult[] = []
-    const rawResults = body.split("\n");
-    // TODO: should this loop stop at length - 1?
-    for (let i = 0; i < rawResults.length - 1; i++) {
-        const parsedResult = parseAddResponse(rawResults[i]);
-        results.push(parsedResult)
+export function parseResolveResponse(body: string): string {
+    const responseObj: JSON.Obj = <JSON.Obj>(JSON.parse(body));
+    const cid: JSON.Str | null = responseObj.getString("Path");
+    if (cid !== null) {
+        return cid.valueOf();
     }
-    return results;
+    return "";
 }
 
 export function parseAddResponse(body: string): AddResult {
@@ -32,4 +30,15 @@ export function parseAddResponse(body: string): AddResult {
     }
 
     return addResult;
+}
+
+export function parseAddDirectoryResponse(body: string): AddResult[] {
+    let results: AddResult[] = []
+    const rawResults = body.split("\n");
+    // TODO: should this loop stop at length - 1?
+    for (let i = 0; i < rawResults.length - 1; i++) {
+        const parsedResult = parseAddResponse(rawResults[i]);
+        results.push(parsedResult)
+    }
+    return results;
 }

@@ -17,7 +17,7 @@ import {
   convertDirectoryBlobToFormData,
   IpfsError,
   parseAddDirectoryResponse,
-  parseAddResponse
+  parseAddResponse, parseResolveResponse
 } from "./utils";
 
 import { decode } from "as-base64";
@@ -34,12 +34,13 @@ export function cat(args: Args_cat): ArrayBuffer {
 }
 
 export function resolve(args: Args_resolve): string {
-  return executeGetOperation(
+  const resolveResponse = executeGetOperation(
     args.ipfsProvider,
     createResolveRequest(args.cid, Http_ResponseType.TEXT, args.resolveOptions),
     "resolve",
     "/api/v0/resolve"
   );
+  return parseResolveResponse(resolveResponse);
 }
 
 export function addFile(args: Args_addFile): AddResult {
