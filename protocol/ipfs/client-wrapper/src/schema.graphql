@@ -10,6 +10,7 @@ type Module {
   resolve(
     cid: String!
     ipfsProvider: String!
+    resolveOptions: ResolveOptions
   ): String!
 
   addFile(
@@ -34,6 +35,12 @@ type AddOptions {
   pin: Boolean
   onlyHash: Boolean
   wrapWithDirectory: Boolean
+}
+
+type ResolveOptions {
+  recursive: Boolean
+  dhtRecordCount: Int32
+  dhtTimeout: String
 }
 
 type AddResult {

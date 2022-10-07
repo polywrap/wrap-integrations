@@ -6,21 +6,27 @@ import {
   Args_cat,
   Args_resolve,
   CatOptions,
+  ResolveOptions,
   Http_FormDataEntry,
   Http_Module,
   Http_Request,
   Http_Response,
   Http_ResponseType,
 } from "./wrap";
-import { convertDirectoryBlobToFormData, IpfsError, parseAddDirectoryResponse, parseAddResponse } from "./utils";
+import {
+  convertDirectoryBlobToFormData,
+  IpfsError,
+  parseAddDirectoryResponse,
+  parseAddResponse
+} from "./utils";
 
 import { decode } from "as-base64";
 import { Result } from "@polywrap/wasm-as";
 
 export function cat(args: Args_cat): ArrayBuffer {
-  const result = executeOperation(
+  const result = executeGetOperation(
     args.ipfsProvider,
-    createRequest(args.cid, Http_ResponseType.BINARY, args.catOptions),
+    createCatRequest(args.cid, Http_ResponseType.BINARY, args.catOptions),
     "catFile",
     "/api/v0/cat"
   );
@@ -28,40 +34,108 @@ export function cat(args: Args_cat): ArrayBuffer {
 }
 
 export function resolve(args: Args_resolve): string {
-  return executeOperation(
+  return executeGetOperation(
     args.ipfsProvider,
-    createRequest(args.cid, Http_ResponseType.TEXT),
+    createResolveRequest(args.cid, Http_ResponseType.TEXT, args.resolveOptions),
     "resolve",
     "/api/v0/resolve"
   );
 }
 
 export function addFile(args: Args_addFile): AddResult {
-  const name = args.data.name;
-  const data = args.data.data;
-  const addResponse = executeAdd(
-    args.ipfsProvider,
-    [{
-      name,
-      value: String.UTF8.decode(data),
-      fileName: name,
+  const request = createAddRequest([{
+      name: args.data.name,
+      value: String.UTF8.decode(args.data.data),
+      fileName: args.data.name,
       _type: "application/octet-stream"
     }],
+    Http_ResponseType.TEXT,
     args.addOptions
+  );
+  const addResponse = executePostOperation(
+    args.ipfsProvider,
+    request,
+    "add",
+    "/api/v0/add"
   );
   return parseAddResponse(addResponse);
 }
 
 export function addDir(args: Args_addDir): AddResult[] {
-  const addDirectoryResponse = executeAdd(
-    args.ipfsProvider,
+  const request = createAddRequest(
     convertDirectoryBlobToFormData(args.data),
+    Http_ResponseType.TEXT,
     args.addOptions
+  );
+  const addDirectoryResponse = executePostOperation(
+    args.ipfsProvider,
+    request,
+    "addDir",
+    "/api/v0/add"
   );
   return parseAddDirectoryResponse(addDirectoryResponse);
 }
 
-function executeOperation(
+function createCatRequest(cid: string, responseType: Http_ResponseType, options: CatOptions | null = null): Http_Request {
+  const urlParams: Map<string, string> = new Map<string, string>();
+
+  urlParams.set("arg", cid);
+
+  if (options !== null) {
+    if (options.length !== null) {
+      urlParams.set("length", options.length!.unwrap().toString());
+    }
+    if (options.offset !== null) {
+      urlParams.set("offset", options.offset!.unwrap().toString());
+    }
+  }
+
+  return { urlParams, responseType };
+}
+
+function createResolveRequest(cid: string, responseType: Http_ResponseType, options: ResolveOptions | null = null): Http_Request {
+  const urlParams: Map<string, string> = new Map<string, string>();
+
+  urlParams.set("arg", cid);
+
+  if (options !== null) {
+    if (options.recursive !== null) {
+      urlParams.set("recursive", options.recursive!.unwrap().toString());
+    }
+    if (options.dhtRecordCount !== null) {
+      urlParams.set("dht-record-count", options.dhtRecordCount!.unwrap().toString());
+    }
+    if (options.dhtTimeout !== null) {
+      urlParams.set("dht-timeout", options.dhtTimeout!);
+    }
+  }
+
+  return { urlParams, responseType };
+}
+
+function createAddRequest(data: Http_FormDataEntry[], responseType: Http_ResponseType, options: AddOptions | null = null): Http_Request {
+  const headers: Map<string, string> = new Map<string, string>();
+  headers.set("Content-Type", "multipart/form-data");
+
+  let urlParams: Map<string, string> | null = null;
+
+  if (options !== null) {
+    urlParams = new Map<string, string>();
+    if (options.onlyHash) {
+      urlParams.set("only-hash", options.onlyHash!.unwrap().toString())
+    }
+    if (options.pin) {
+      urlParams.set("pin", options.pin!.unwrap().toString())
+    }
+    if (options.wrapWithDirectory) {
+      urlParams.set("wrap-with-directory", options.wrapWithDirectory!.unwrap().toString())
+    }
+  }
+
+  return { headers, urlParams, responseType, data };
+}
+
+function executeGetOperation(
   provider: string,
   request: Http_Request,
   operation: string,
@@ -72,57 +146,15 @@ function executeOperation(
   return unwrapHttpResult(operation, httpResult);
 }
 
-function executeAdd(provider: string, data: Http_FormDataEntry[], addOptions: AddOptions | null = null): string {
-  let url = provider + "/api/v0/add";
-  const urlParams: Map<string, string> | null = getAddUrlParameters(addOptions);
-  const headers: Map<string, string> = new Map<string, string>();
-  headers.set("Content-Type", "multipart/form-data");
-
-  const httpResult = Http_Module.post({
-    url: url,
-    request: {
-      headers,
-      urlParams,
-      responseType: Http_ResponseType.TEXT,
-      data
-    }
-  });
-
-  return unwrapHttpResult("add", httpResult);
-}
-
-function createRequest(cid: string, responseType: Http_ResponseType, catOptions: CatOptions | null = null): Http_Request {
-  const urlParams: Map<string, string> = new Map<string, string>();
-  let headers: Map<string, string> | null = null;
-
-  urlParams.set("arg", cid);
-
-  if (catOptions !== null) {
-    if (catOptions.length !== null) {
-      urlParams.set("length", catOptions.length!.unwrap().toString());
-    }
-    if (catOptions.offset !== null) {
-      urlParams.set("offset", catOptions.offset!.unwrap().toString());
-    }
-  }
-
-  return { headers, urlParams, responseType };
-}
-
-function getAddUrlParameters(options: AddOptions | null): Map<string, string> | null {
-  if (options === null) return null;
-  const urlParams = new Map<string, string>();
-  if (options.onlyHash) {
-    urlParams.set("only-hash", options.onlyHash!.unwrap().toString())
-  }
-  if (options.pin) {
-    urlParams.set("pin", options.pin!.unwrap().toString())
-  }
-  if (options.wrapWithDirectory) {
-    urlParams.set("wrap-with-directory", options.wrapWithDirectory!.unwrap().toString())
-  }
-  if (urlParams.size == 0) return null;
-  return urlParams;
+function executePostOperation(
+  provider: string,
+  request: Http_Request,
+  operation: string,
+  operationUrl: string
+): string {
+  const url = provider + operationUrl;
+  const httpResult = Http_Module.post({ url, request });
+  return unwrapHttpResult(operation, httpResult);
 }
 
 function unwrapHttpResult(operation: string, httpResult: Result<Http_Response | null, string>): string {
