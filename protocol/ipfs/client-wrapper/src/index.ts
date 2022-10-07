@@ -98,15 +98,6 @@ function createRequest(cid: string, responseType: Http_ResponseType, catOptions:
   urlParams.set("arg", cid);
 
   if (catOptions !== null) {
-    if (catOptions.headers !== null) {
-      headers = catOptions.headers;
-    }
-    if (catOptions.urlParams !== null) {
-      const keys = catOptions.urlParams!.keys();
-      for (let i = 0; i < keys.length; i++) {
-        urlParams.set(keys[i], catOptions.urlParams!.get(keys[i]));
-      }
-    }
     if (catOptions.length !== null) {
       urlParams.set("length", catOptions.length!.unwrap().toString());
     }
