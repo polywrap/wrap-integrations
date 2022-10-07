@@ -75,6 +75,7 @@ export function toAxiosRequestConfig(
 
   let config: AxiosRequestConfig = {
     responseType,
+    timeout: request.timeout ?? 0
   };
 
   if (request.urlParams) {

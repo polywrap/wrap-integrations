@@ -21,12 +21,18 @@ import {
 } from "./utils";
 
 import { decode } from "as-base64";
-import { Result } from "@polywrap/wasm-as";
+import { Box, Result } from "@polywrap/wasm-as";
 
 export function cat(args: Args_cat): ArrayBuffer {
+  const request = createCatRequest(
+    args.cid,
+    Http_ResponseType.BINARY,
+    args.timeout,
+    args.catOptions
+  );
   const result = executeGetOperation(
     args.ipfsProvider,
-    createCatRequest(args.cid, Http_ResponseType.BINARY, args.catOptions),
+    request,
     "catFile",
     "/api/v0/cat"
   );
@@ -34,9 +40,15 @@ export function cat(args: Args_cat): ArrayBuffer {
 }
 
 export function resolve(args: Args_resolve): string {
+  const request = createResolveRequest(
+    args.cid,
+    Http_ResponseType.TEXT,
+    args.timeout,
+    args.resolveOptions
+  );
   const resolveResponse = executeGetOperation(
     args.ipfsProvider,
-    createResolveRequest(args.cid, Http_ResponseType.TEXT, args.resolveOptions),
+    request,
     "resolve",
     "/api/v0/resolve"
   );
@@ -51,6 +63,7 @@ export function addFile(args: Args_addFile): AddResult {
       _type: "application/octet-stream"
     }],
     Http_ResponseType.TEXT,
+    args.timeout,
     args.addOptions
   );
   const addResponse = executePostOperation(
@@ -66,6 +79,7 @@ export function addDir(args: Args_addDir): AddResult[] {
   const request = createAddRequest(
     convertDirectoryBlobToFormData(args.data),
     Http_ResponseType.TEXT,
+    args.timeout,
     args.addOptions
   );
   const addDirectoryResponse = executePostOperation(
@@ -77,7 +91,7 @@ export function addDir(args: Args_addDir): AddResult[] {
   return parseAddDirectoryResponse(addDirectoryResponse);
 }
 
-function createCatRequest(cid: string, responseType: Http_ResponseType, options: CatOptions | null = null): Http_Request {
+function createCatRequest(cid: string, responseType: Http_ResponseType, timeout: Box<u32> | null, options: CatOptions | null = null): Http_Request {
   const urlParams: Map<string, string> = new Map<string, string>();
 
   urlParams.set("arg", cid);
@@ -91,10 +105,10 @@ function createCatRequest(cid: string, responseType: Http_ResponseType, options:
     }
   }
 
-  return { urlParams, responseType };
+  return { urlParams, responseType, timeout };
 }
 
-function createResolveRequest(cid: string, responseType: Http_ResponseType, options: ResolveOptions | null = null): Http_Request {
+function createResolveRequest(cid: string, responseType: Http_ResponseType, timeout: Box<u32> | null, options: ResolveOptions | null = null): Http_Request {
   const urlParams: Map<string, string> = new Map<string, string>();
 
   urlParams.set("arg", cid);
@@ -111,10 +125,10 @@ function createResolveRequest(cid: string, responseType: Http_ResponseType, opti
     }
   }
 
-  return { urlParams, responseType };
+  return { urlParams, responseType, timeout };
 }
 
-function createAddRequest(data: Http_FormDataEntry[], responseType: Http_ResponseType, options: AddOptions | null = null): Http_Request {
+function createAddRequest(data: Http_FormDataEntry[], responseType: Http_ResponseType, timeout: Box<u32> | null, options: AddOptions | null = null): Http_Request {
   const headers: Map<string, string> = new Map<string, string>();
   headers.set("Content-Type", "multipart/form-data");
 
@@ -133,7 +147,7 @@ function createAddRequest(data: Http_FormDataEntry[], responseType: Http_Respons
     }
   }
 
-  return { headers, urlParams, responseType, data };
+  return { headers, urlParams, responseType, data, timeout };
 }
 
 function executeGetOperation(

@@ -4,24 +4,28 @@ type Module {
   cat(
     cid: String!
     ipfsProvider: String!
+    timeout: UInt32
     catOptions: CatOptions
   ): Bytes!
 
   resolve(
     cid: String!
     ipfsProvider: String!
+    timeout: UInt32
     resolveOptions: ResolveOptions
   ): String!
 
   addFile(
     data: FileEntry!
     ipfsProvider: String!
+    timeout: UInt32
     addOptions: AddOptions
   ): AddResult!
 
   addDir(
     data: DirectoryBlob!
     ipfsProvider: String!
+    timeout: UInt32
     addOptions: AddOptions
   ): [AddResult!]!
 }
