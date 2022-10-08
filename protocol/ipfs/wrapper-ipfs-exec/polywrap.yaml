@@ -9,9 +9,11 @@ source:
     - uri: "ens/interface.ipfs.polywrap.eth"
       abi: ./schema.interface.graphql
     - uri: "ens/ipfs-client.polywrap.eth"
-      abi: ../client-wrapper/src/schema.graphql
+      abi: ../wrapper-ipfs-client/src/schema.graphql
     - uri: "ens/http.polywrap.eth"
-      abi: ../client-wrapper/schema.http.graphql
+      abi: ../wrapper-ipfs-client/schema.http.graphql
+    - uri: "ens/interface.concurrent.polywrap.eth"
+      abi: ../../../system/concurrency/interface/src/schema.graphql
 extensions:
   build: ./polywrap.build.yaml
   deploy: ./polywrap.deploy.yaml

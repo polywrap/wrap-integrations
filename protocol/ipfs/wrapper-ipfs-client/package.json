@@ -1,6 +1,6 @@
 {
   "name": "@polywrap/ipfs-client-wasm",
-  "description": "IPFS Client Wrapper",
+  "description": "A Polywrap Wasm wrapper that implements an IPFS Client",
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
