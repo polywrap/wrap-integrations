@@ -11,7 +11,7 @@ source:
     - uri: "ens/ipfs-client.polywrap.eth"
       abi: ../client-wrapper/src/schema.graphql
     - uri: "ens/http.polywrap.eth"
-      abi: ../http-revision/schema.interface.graphql
+      abi: ../client-wrapper/schema.http.graphql
 extensions:
   build: ./polywrap.build.yaml
   deploy: ./polywrap.deploy.yaml
