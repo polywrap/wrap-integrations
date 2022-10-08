@@ -33,7 +33,11 @@ pub fn exec_resolve(ipfs_provider: &str, cid: &str, timeout: u32) -> Result<Ipfs
         cid: cid.to_owned(),
         ipfs_provider: ipfs_provider.to_owned(),
         timeout: Some(timeout),
-        resolve_options: None,
+        resolve_options: Some( ClientResolveOptions {
+            dht_timeout: Some(format!("{}ms", timeout)),
+            dht_record_count: None,
+            recursive: None,
+        }),
     });
     if result.is_err() {
         let error = build_exec_error("resolve", ipfs_provider, timeout, result.unwrap_err().as_ref());
