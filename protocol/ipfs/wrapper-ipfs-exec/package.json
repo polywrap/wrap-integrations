@@ -4,7 +4,7 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "build": "npx polywrap build",
+    "build": "npx polywrap build --no-codegen",
     "codegen": "npx polywrap codegen",
     "deploy": "npx polywrap deploy",
     "test": "yarn test:e2e",

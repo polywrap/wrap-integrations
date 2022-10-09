@@ -1,76 +1,58 @@
-use crate::options::Options;
-use crate::wrap::imported::client_module::{
-    ArgsCat as ClientArgsCat,
-    ArgsResolve as ClientArgsResolve,
-    ArgsAddFile as ClientArgsAddFile,
-};
-use crate::wrap::{
-    ClientModule,
-    ClientCatOptions,
-    ClientResolveOptions,
-    ClientAddOptions,
-    ClientAddResult,
-    ClientFileEntry,
-    IpfsResolveResult
-};
+use std::fmt::Debug;
+use crate::{ConcurrentReturnWhen, ConcurrentTaskResult};
+use crate::imported::ArgsResult;
+use crate::wrap::imported::{ConcurrentTask, ConcurrentModule, ArgsSchedule};
 
-pub fn exec_cat(ipfs_provider: &str, cid: &str, timeout: u32) -> Result<Vec<u8>, String> {
-    let result = ClientModule::cat(&ClientArgsCat {
-        cid: cid.to_owned(),
-        ipfs_provider: ipfs_provider.to_owned(),
-        timeout: Some(timeout),
-        cat_options: None,
-    });
-    if result.is_err() {
-        let error = build_exec_error("cat", ipfs_provider, timeout, result.unwrap_err().as_ref());
-        return Err(error);
+pub fn exec_sequential<TReturn: Debug>(
+    providers: Vec<&str>,
+    func: &dyn Fn(&str) -> Result<TReturn, String>
+) -> TReturn {
+    let mut errors: Vec<String> = Vec::new();
+    for provider in providers {
+        let result = func(provider);
+        if result.is_ok() {
+            return result.unwrap();
+        }
+        errors.push(result.unwrap_err());
     }
-    result
+    panic!("{}", errors.join("\n"));
 }
 
-pub fn exec_resolve(ipfs_provider: &str, cid: &str, timeout: u32) -> Result<IpfsResolveResult, String> {
-    let result = ClientModule::resolve(&ClientArgsResolve {
-        cid: cid.to_owned(),
-        ipfs_provider: ipfs_provider.to_owned(),
-        timeout: Some(timeout),
-        resolve_options: Some( ClientResolveOptions {
-            dht_timeout: Some(format!("{}ms", timeout)),
-            dht_record_count: None,
-            recursive: None,
-        }),
-    });
-    if result.is_err() {
-        let error = build_exec_error("resolve", ipfs_provider, timeout, result.unwrap_err().as_ref());
-        return Err(error);
+pub fn exec_parallel<TReturn: Debug>(
+    providers: Vec<&str>,
+    task_func: &dyn Fn(&str) -> ConcurrentTask,
+    result_func: fn(&ConcurrentTaskResult, &str) -> Result<TReturn, String>
+) -> TReturn {
+    // schedule tasks
+    let mut tasks: Vec<ConcurrentTask> = Vec::new();
+    for provider in &providers {
+        tasks.push(task_func(provider));
     }
-    Ok(IpfsResolveResult {
-        cid: result.unwrap(),
-        provider: String::from(ipfs_provider),
-    })
+    let task_ids: Vec<i32> = ConcurrentModule::schedule(&ArgsSchedule { tasks })
+        .unwrap_or_else(|e| panic!("{}", e));
+
+    // request task results
+    let return_when = ConcurrentReturnWhen::ANY_COMPLETED;
+    let results: Vec<ConcurrentTaskResult> = ConcurrentModule::result(&ArgsResult { task_ids, return_when })
+        .unwrap_or_else(|e| panic!("{}", e));
+
+    // return completed result value or panic
+    let mut errors: Vec<String> = Vec::new();
+    for i in 0..results.len() {
+        let result = result_func(&results[i], providers[i]);
+        if result.is_ok() {
+            return result.unwrap();
+        }
+        errors.push(result.unwrap_err());
+    }
+    panic!("{}", errors.join("\n"));
 }
 
-pub fn exec_add_file(ipfs_provider: &str, bytes: &Vec<u8>, timeout: u32) -> Result<String, String> {
-    let result = ClientModule::add_file(&ClientArgsAddFile {
-        data: ClientFileEntry {
-            name: String::from("file"),
-            data: bytes.to_owned()
-        },
-        ipfs_provider: ipfs_provider.to_owned(),
-        timeout: Some(timeout),
-        add_options: None,
-    });
-    if result.is_err() {
-        let error = build_exec_error("addFile", ipfs_provider, timeout, result.unwrap_err().as_ref());
-        return Err(error);
-    }
-    Ok(result.unwrap().hash)
-}
-
-fn build_exec_error(operation: &str, provider: &str, timeout: u32, error: &str) -> String  {
+pub fn build_exec_error(operation: &str, provider: &str, timeout: u32, error: &str) -> String  {
     return format!("An error occurred\nOperation: {}\nProvider: {}\nTimeout: {}\nError: {}",
-        operation,
-        provider,
-        timeout,
-        error
+                   operation,
+                   provider,
+                   timeout,
+                   error
     );
 }
