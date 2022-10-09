@@ -77,86 +77,84 @@ describe('Convert functions tests', () => {
       ]
     })
 
-    expect(r).toStrictEqual(
-      [
+    expect(r).toStrictEqual([
         {
           name: "file_0",
           value: "file_0_data",
-          _type: "application/octet-stream",
           fileName: "file_0",
+          _type: "application/octet-stream"
         },
         {
           name: "file_1",
           value: "file_1_data",
-          _type: "application/octet-stream",
           fileName: "file_1",
+          _type: "application/octet-stream"
         },
         {
           name: "dirA",
           value: null,
-          _type: "application/x-directory",
           fileName: "dirA",
+          _type: "application/x-directory"
         },
         {
-          name: "dirAA",
+          name: "dirA/dirAA",
           value: null,
-          _type: "application/x-directory",
-          fileName: "dirAA",
+          fileName: "dirA%2FdirAA",
+          _type: "application/x-directory"
         },
         {
-          name: "file_AA_0",
+          name: "dirA/dirAA/file_AA_0",
           value: "file_AA_0_data",
-          _type: "application/octet-stream",
           fileName: "dirA%2FdirAA%2Ffile_AA_0",
+          _type: "application/octet-stream"
         },
         {
-          name: "dirAAA",
+          name: "dirA/dirAA/dirAAA",
           value: null,
-          _type: "application/x-directory",
-          fileName: "dirAAA",
+          fileName: "dirA%2FdirAA%2FdirAAA",
+          _type: "application/x-directory"
         },
         {
-          name: "dirAAAA",
+          name: "dirA/dirAA/dirAAA/dirAAAA",
           value: null,
-          _type: "application/x-directory",
-          fileName: "dirAAAA",
+          fileName: "dirA%2FdirAA%2FdirAAA%2FdirAAAA",
+          _type: "application/x-directory"
         },
         {
-          name: "file_AAAA_0",
+          name: "dirA/dirAA/dirAAA/dirAAAA/file_AAAA_0",
           value: "file_AAAA_0_data",
-          _type: "application/octet-stream",
           fileName: "dirA%2FdirAA%2FdirAAA%2FdirAAAA%2Ffile_AAAA_0",
+          _type: "application/octet-stream"
         },
         {
-          name: "dirAB",
+          name: "dirA/dirAB",
           value: null,
-          _type: "application/x-directory",
-
-          fileName: "dirAB",
+          fileName: "dirA%2FdirAB",
+          _type: "application/x-directory"
         },
         {
-          name: "file_AB_0",
+          name: "dirA/dirAB/file_AB_0",
           value: "file_AB_0_data",
-          _type: "application/octet-stream",
           fileName: "dirA%2FdirAB%2Ffile_AB_0",
+          _type: "application/octet-stream"
         },
         {
-          name: "dirABA",
+          name: "dirA/dirAB/dirABA",
           value: null,
-          _type: "application/x-directory",
-          fileName: "dirABA",
+          fileName: "dirA%2FdirAB%2FdirABA",
+          _type: "application/x-directory"
         },
         {
-          name: "file_ABA_0",
+          name: "dirA/dirAB/dirABA/file_ABA_0",
           value: "file_ABA_0_data",
-          _type: "application/octet-stream",
           fileName: "dirA%2FdirAB%2FdirABA%2Ffile_ABA_0",
+          _type: "application/octet-stream"
         },
         {
-          name: "file_ABA_1",
+          name: "dirA/dirAB/dirABA/file_ABA_1",
           value: "file_ABA_1_data",
-          _type: "application/octet-stream",
           fileName: "dirA%2FdirAB%2FdirABA%2Ffile_ABA_1",
+          _type: "application/octet-stream"
         }
       ]
     );

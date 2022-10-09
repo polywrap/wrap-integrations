@@ -5,6 +5,7 @@ import {
   FileEntry
 } from "../wrap";
 import { encodeURIComponent } from ".";
+import { encode } from "as-base64";
 
 export function convertDirectoryBlobToFormData(directoryBlob: DirectoryBlob): Array<Http_FormDataEntry> {
     const formData: Http_FormDataEntry[] = []
@@ -19,7 +20,7 @@ function convertFileEntriesToFormData(files: FileEntry[], path: string, formData
         const filePath = path + file.name;
         formData.push({
             name: filePath,
-            value: String.UTF8.decode(file.data),
+            value: encode(Uint8Array.wrap(file.data)),
             fileName: encodeURIComponent(filePath),
             _type: "application/octet-stream",
         });

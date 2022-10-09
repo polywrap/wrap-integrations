@@ -15,12 +15,12 @@ import {
 } from "./wrap";
 import {
   convertDirectoryBlobToFormData,
-  IpfsError,
+  ipfsError,
   parseAddDirectoryResponse,
   parseAddResponse, parseResolveResponse
 } from "./utils";
 
-import { decode } from "as-base64";
+import { decode, encode } from "as-base64";
 import { Box, Result } from "@polywrap/wasm-as";
 
 export function cat(args: Args_cat): ArrayBuffer {
@@ -33,7 +33,7 @@ export function cat(args: Args_cat): ArrayBuffer {
   const result = executeGetOperation(
     args.ipfsProvider,
     request,
-    "catFile",
+    "cat",
     "/api/v0/cat"
   );
   return decode(result).buffer;
@@ -58,7 +58,7 @@ export function resolve(args: Args_resolve): string {
 export function addFile(args: Args_addFile): AddResult {
   const request = createAddRequest([{
       name: args.data.name,
-      value: String.UTF8.decode(args.data.data),
+      value: encode(Uint8Array.wrap(args.data.data)),
       fileName: args.data.name,
       _type: "application/octet-stream"
     }],
@@ -174,21 +174,21 @@ function executePostOperation(
 
 function unwrapHttpResult(operation: string, httpResult: Result<Http_Response | null, string>): string {
   if (httpResult.isErr) {
-    throw new IpfsError(operation, null, null, httpResult.unwrapErr());
+    throw new Error(ipfsError(operation, httpResult.unwrapErr()));
   }
 
   const response: Http_Response | null = httpResult.unwrap();
 
   if (response === null) {
-    throw new IpfsError(operation);
+    throw new Error(ipfsError(operation, "Http Response is null"));
   }
 
   if (response.status !== 200) {
-    throw new IpfsError(operation, response.status, response.statusText);
+    throw new Error(ipfsError(operation, "Http error", new Box(response.status), response.statusText));
   }
 
   if (response.body === null) {
-    throw new IpfsError(operation);
+    throw new Error(ipfsError(operation, "Http Response body is null"));
   }
 
   return response.body!;
