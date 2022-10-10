@@ -1,5 +1,5 @@
 {
-  "extends": "assemblyscript/std/assembly.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "build"
   },
@@ -7,7 +7,6 @@
     "./src/**/*.ts",
   ],
   "exclude": [
-    "./src/__tests__/e2e/**/*.ts",
-    "./src/__tests__/integration/**/*.ts",
+    "./src/__tests__/**/*.ts",
   ]
 }

@@ -1,39 +1,29 @@
 import { PolywrapClient } from "@polywrap/client-js";
-import {
-  initTestEnvironment,
-  runCLI,
-  stopTestEnvironment,
-} from "@polywrap/test-env-js";
-import { getPlugins } from "./utils";
+import { buildWrapper } from "@polywrap/test-env-js";
+import { concurrentPromisePlugin } from "../index";
 
 jest.setTimeout(300000);
 
 describe("e2e", () => {
   let client: PolywrapClient;
-  let ensUri: string;
-
-  const POLYWRAP_CLI = `${__dirname}/../../node_modules/polywrap/bin/polywrap`;
+  let fsUri: string;
 
   beforeAll(async () => {
-    await initTestEnvironment(POLYWRAP_CLI);
-    // get cliente
-    await runCLI({
-      args: ["build"],
-      cwd: `${__dirname}/integration`,
-      cli: POLYWRAP_CLI,
+    client = new PolywrapClient({
+      plugins: [
+        {
+          uri: "wrap://ens/interface.concurrent.polywrap.eth",
+          plugin: concurrentPromisePlugin({}),
+        },
+      ],
     });
-    const clientConfig = getPlugins();
-    client = new PolywrapClient({ ...clientConfig, tracingEnabled: true });
-    ensUri = `fs/${__dirname}/integration/build`;
-  });
-
-  afterAll(async () => {
-    await stopTestEnvironment();
+    await buildWrapper(`${__dirname}/integration`)
+    fsUri = `fs/${__dirname}/integration/build`;
   });
 
   test("asyncBatchFetch", async () => {
     const result = await client.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "asyncBatchFetch",
       args: { delays: ["1", "2", "3"] },
     });
@@ -44,7 +34,7 @@ describe("e2e", () => {
 
   test("batchFetch", async () => {
     const result = await client.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "batchFetch",
       args: { delays: ["1", "2", "3"] },
     });

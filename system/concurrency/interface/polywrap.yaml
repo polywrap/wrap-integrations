@@ -1,5 +1,8 @@
-format: 0.0.1-prealpha.9
-name: concurrent-interface
-language: interface
-deploy: ./polywrap.deploy.yaml
-schema: ./src/schema.graphql
+format: 0.2.0
+project:
+  name: concurrent-interface
+  type: interface
+source:
+  schema: ./src/schema.graphql
+extensions:
+  deploy: ./polywrap.deploy.yaml

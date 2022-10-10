@@ -10,8 +10,6 @@ source:
       abi: ./schema.interface.graphql
     - uri: "ens/ipfs-client.polywrap.eth"
       abi: ../wrapper-ipfs-client/src/schema.graphql
-    - uri: "ens/http.polywrap.eth"
-      abi: ../wrapper-ipfs-client/schema.http.graphql
     - uri: "ens/interface.concurrent.polywrap.eth"
       abi: ../../../system/concurrency/interface/src/schema.graphql
 extensions:

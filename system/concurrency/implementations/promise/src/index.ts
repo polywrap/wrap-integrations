@@ -1,9 +1,9 @@
 import {
   Client,
   InvokeResult,
-  msgpackEncode,
   PluginFactory,
 } from "@polywrap/core-js";
+import { msgpackEncode } from "@polywrap/msgpack-js"
 import {
   Args_result,
   Args_schedule,
@@ -43,10 +43,9 @@ export class ConcurrentPromisePlugin extends Module<ConcurrentPromisePluginConfi
         return [result];
       }
       case Interface_ReturnWhenEnum.ALL_COMPLETED: {
-        const results = await Promise.all(
+        return await Promise.all(
           input.taskIds.map((id) => this.resolveTask(id))
         );
-        return results;
       }
       default: {
         throw new Error("Not Implemented");
@@ -63,13 +62,12 @@ export class ConcurrentPromisePlugin extends Module<ConcurrentPromisePluginConfi
 
   public schedule(input: Args_schedule, client: Client): Array<Int> {
     return input.tasks.map((task) => {
-      const taskId = this.scheduleTask(
+      return this.scheduleTask(
         {
           ...task,
         },
         client
       );
-      return taskId;
     });
   }
 
