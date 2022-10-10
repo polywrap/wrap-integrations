@@ -14,7 +14,7 @@ describe("IPFS Plugin", () => {
 
   const sampleFileTextContents = "Hello World!";
   let sampleFileIpfsInfo: IpfsFileInfo;
-  const sampleFileBuffer = Buffer.from(sampleFileTextContents, "utf-8");
+  const sampleFileBuffer = Uint8Array.from(Buffer.from(sampleFileTextContents, "utf-8"));
 
   beforeAll(async () => {
     await initInfra();
@@ -44,7 +44,7 @@ describe("IPFS Plugin", () => {
     expect(result.value).toEqual(sampleFileBuffer);
   });
 
-  it.only("Should resolve a file successfully", async () => {
+  it("Should resolve a file successfully", async () => {
     expect(sampleFileIpfsInfo).toBeDefined();
 
     let result = await Ipfs_Module.resolve(
@@ -99,6 +99,7 @@ describe("IPFS Plugin", () => {
 
     let result = await Promise.race([catPromise, racePromise]);
 
+    console.log(JSON.stringify(result, null, 2));
     expect(result).toBeTruthy();
     result = result as { ok: false; error: Error | undefined };
     expect(result.error).toBeTruthy();

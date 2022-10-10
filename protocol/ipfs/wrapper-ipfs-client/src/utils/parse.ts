@@ -6,8 +6,7 @@ export function parseResolveResponse(body: string): string {
     const responseObj: JSON.Obj = <JSON.Obj>(JSON.parse(body));
     const responseStr: JSON.Str | null = responseObj.getString("Path")!;
     if (responseStr !== null) {
-        const cid = responseStr.valueOf()
-        return cid.substring(cid.indexOf("Qm"));
+        return responseStr.valueOf();
     }
     throw new Error(ipfsError("resolve", `Failed to parse malformed response: ${body}`));
 }

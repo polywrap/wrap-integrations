@@ -18,8 +18,8 @@ export function getClientConfig(
   return {
     envs: [
       {
-        uri: ipfsExecUri,
-        env: { provider, timeout },
+        uri: "wrap://ens/ipfs.polywrap.eth",
+        env: { provider, timeout, disableParallelRequests: true },
       },
     ],
     redirects: [

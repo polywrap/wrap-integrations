@@ -37,7 +37,7 @@ pub fn exec_add_file(ipfs_provider: &str, bytes: &Vec<u8>, timeout: u32) -> Resu
 
 pub fn add_file_task(ipfs_provider: &str, bytes: &Vec<u8>, timeout: u32) -> ConcurrentTask {
     ConcurrentTask {
-        uri: String::from("ens/ipfs-client.polywrap.eth"),
+        uri: String::from("ens/ipfs-client.polywrap.eth"), // TODO: replace with interface
         method: String::from("addFile"),
         args: serialize_add_file_args(&add_file_args(ipfs_provider, bytes, timeout)).unwrap()
     }

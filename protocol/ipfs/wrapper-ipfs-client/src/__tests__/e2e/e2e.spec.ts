@@ -108,7 +108,24 @@ describe("e2e", () => {
     });
 
     if (!result.ok) fail(result.error);
-    expect(result.value).toEqual(singleFileCid);
+    expect(result.value).toEqual("/ipfs/" + singleFileCid);
+  });
+
+  it("throws when trying to resolve non-existent cid", async () => {
+    const nonExistentFileCid = "Qmaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    let result = await client.invoke<Ipfs.String>({
+      uri: fsUri,
+      method: "resolve",
+      args: {
+        cid: nonExistentFileCid,
+        ipfsProvider,
+        timeout: 1000,
+      }
+    });
+
+    expect(result.ok).toBeFalsy();
+    result = result as { ok: false; error: Error | undefined };
+    expect(result.error).toContain("IpfsError");
   });
 
   it("cat", async () => {

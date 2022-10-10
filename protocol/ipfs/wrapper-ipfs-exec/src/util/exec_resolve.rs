@@ -40,7 +40,7 @@ pub fn exec_resolve(ipfs_provider: &str, cid: &str, timeout: u32) -> Result<Ipfs
 
 pub fn resolve_task(ipfs_provider: &str, cid: &str, timeout: u32) -> ConcurrentTask {
     ConcurrentTask {
-        uri: String::from("ens/ipfs-client.polywrap.eth"),
+        uri: String::from("ens/ipfs-client.polywrap.eth"), // TODO: replace with interface
         method: String::from("resolve"),
         args: serialize_resolve_args(&resolve_args(ipfs_provider, cid, timeout)).unwrap()
     }

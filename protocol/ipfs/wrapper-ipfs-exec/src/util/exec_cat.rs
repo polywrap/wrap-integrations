@@ -32,7 +32,7 @@ pub fn exec_cat(ipfs_provider: &str, cid: &str, timeout: u32) -> Result<Vec<u8>,
 
 pub fn cat_task(ipfs_provider: &str, cid: &str, timeout: u32) -> ConcurrentTask {
     ConcurrentTask {
-        uri: String::from("ens/ipfs-client.polywrap.eth"),
+        uri: String::from("ens/ipfs-client.polywrap.eth"), // TODO: replace with interface
         method: String::from("cat"),
         args: serialize_cat_args(&cat_args(ipfs_provider, cid, timeout)).unwrap()
     }
