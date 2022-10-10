@@ -14,8 +14,8 @@ use crate::util::build_exec_error;
 
 pub fn cat_args(ipfs_provider: &str, cid: &str, timeout: u32) -> ClientArgsCat {
     ClientArgsCat {
-        cid: cid.to_owned(),
-        ipfs_provider: ipfs_provider.to_owned(),
+        cid: cid.to_string(),
+        ipfs_provider: ipfs_provider.to_string(),
         timeout: Some(timeout),
         cat_options: None,
     }

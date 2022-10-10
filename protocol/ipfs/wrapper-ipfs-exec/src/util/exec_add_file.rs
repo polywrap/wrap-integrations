@@ -18,9 +18,9 @@ pub fn add_file_args(ipfs_provider: &str, bytes: &Vec<u8>, timeout: u32) -> Clie
     ClientArgsAddFile {
         data: ClientFileEntry {
             name: String::from("file"),
-            data: bytes.to_owned()
+            data: bytes.to_vec(),
         },
-        ipfs_provider: ipfs_provider.to_owned(),
+        ipfs_provider: ipfs_provider.to_string(),
         timeout: Some(timeout),
         add_options: None,
     }
