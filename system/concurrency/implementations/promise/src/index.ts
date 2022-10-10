@@ -81,17 +81,17 @@ export class ConcurrentPromisePlugin extends Module<ConcurrentPromisePluginConfi
     return this._tasks[taskId]
       .then((result: InvokeResult) => {
         this._status[taskId] = Interface_TaskStatusEnum.COMPLETED;
-        if (result.error) {
+        if (!result.ok) {
           return {
             taskId,
             result: undefined,
-            error: result.error.message,
+            error: result.error?.message ?? `Unknown error occurred in concurrent task ${taskId}`,
             status: Interface_TaskStatusEnum.FAILED,
           };
         }
         return {
           taskId: taskId,
-          result: new Uint8Array(msgpackEncode(result.data)),
+          result: new Uint8Array(msgpackEncode(result.value)),
           error: undefined,
           status: Interface_TaskStatusEnum.COMPLETED,
         };

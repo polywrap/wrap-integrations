@@ -28,6 +28,7 @@ pub fn exec_parallel<TReturn: Debug>(
     for provider in &providers {
         tasks.push(task_func(provider));
     }
+
     let task_ids: Vec<i32> = ConcurrentModule::schedule(&ArgsSchedule { tasks })
         .unwrap_or_else(|e| panic!("{}", e));
 

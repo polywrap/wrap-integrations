@@ -1,18 +1,16 @@
 import { Result, ResultOk } from "@polywrap/result";
 import { PolywrapClient } from "@polywrap/client-js";
-import { concurrentPromisePlugin } from "@polywrap/concurrent-promise-plugin";
 
 import { Ipfs_Module } from "./types";
 import createIpfsClient, { IpfsClient, IpfsFileInfo } from "@polywrap/ipfs-http-client-lite";
 import { initInfra, ipfsProvider, stopInfra } from "./utils/infra";
-import path from "path";
+import { getClientConfig } from "./utils/config";
 
 jest.setTimeout(300000);
 
 describe("IPFS Plugin", () => {
   let client: PolywrapClient;
   let ipfs: IpfsClient;
-  let fsUri: string;
 
   const sampleFileTextContents = "Hello World!";
   let sampleFileIpfsInfo: IpfsFileInfo;
@@ -22,40 +20,8 @@ describe("IPFS Plugin", () => {
     await initInfra();
     ipfs = createIpfsClient(ipfsProvider);
 
-    const ipfsExecPath = path.resolve(path.join(__dirname, "/../../build"));
-    fsUri = `wrap://fs/${ipfsExecPath}`;
-
-    const ipfsClientPath = path.resolve(path.join(__dirname, "/../../../wrapper-ipfs-client/build"));
-    const clientFsUri = `wrap://fs/${ipfsClientPath}`;
-    
-    client = new PolywrapClient({
-      envs: [
-        {
-          uri: fsUri,
-          env: {
-            provider: ipfsProvider,
-          },
-        },
-      ],
-      redirects: [
-        {
-          from: "ens/ipfs-client.polywrap.eth",
-          to: clientFsUri,
-        }
-      ],
-      plugins: [
-        {
-          uri: "ens/concurrent.polywrap.eth",
-          plugin: concurrentPromisePlugin({})
-        }
-      ],
-      interfaces: [
-        {
-          interface: "ens/interface.concurrent.polywrap.eth",
-          implementations: ["ens/concurrent.polywrap.eth"]
-        }
-      ]
-    });
+    const config = getClientConfig(ipfsProvider);
+    client = new PolywrapClient(config);
 
     let ipfsAddResult = await ipfs.add(sampleFileBuffer);
     sampleFileIpfsInfo = ipfsAddResult[0];
@@ -71,7 +37,6 @@ describe("IPFS Plugin", () => {
     let result = await Ipfs_Module.cat(
       { cid: sampleFileIpfsInfo.hash.toString() },
       client,
-      fsUri
     );
     
     if (!result.ok) fail(result.error);
@@ -79,13 +44,12 @@ describe("IPFS Plugin", () => {
     expect(result.value).toEqual(sampleFileBuffer);
   });
 
-  it("Should resolve a file successfully", async () => {
+  it.only("Should resolve a file successfully", async () => {
     expect(sampleFileIpfsInfo).toBeDefined();
 
     let result = await Ipfs_Module.resolve(
       { cid: sampleFileIpfsInfo.hash.toString() },
       client,
-      fsUri
     );
 
     if (!result.ok) fail(result.error);
@@ -100,7 +64,7 @@ describe("IPFS Plugin", () => {
     const expectedContents = "A new sample file";
     const contentsBuffer = Buffer.from(expectedContents, "utf-8");
 
-    let result = await Ipfs_Module.addFile({ data: contentsBuffer }, client, fsUri);
+    let result = await Ipfs_Module.addFile({ data: contentsBuffer }, client);
 
     if (!result.ok) fail(result.error);
 
@@ -124,21 +88,12 @@ describe("IPFS Plugin", () => {
       );
     };
 
-    const altClient = new PolywrapClient({
-      envs: [
-        {
-          uri: fsUri,
-          env: {
-            provider: ipfsProvider,
-            timeout: 1000,
-          },
-        },
-      ],
-    });
+    const config = getClientConfig(ipfsProvider, 1000);
+    const altClient = new PolywrapClient(config);
 
     const nonExistentFileCid = "Qmaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
-    const catPromise = Ipfs_Module.cat({ cid: nonExistentFileCid }, altClient, fsUri);
+    const catPromise = Ipfs_Module.cat({ cid: nonExistentFileCid }, altClient);
 
     let racePromise = createRacePromise(1100);
 
@@ -156,7 +111,6 @@ describe("IPFS Plugin", () => {
         options: { timeout: 500 },
       },
       altClient,
-      fsUri
     );
 
     racePromise = createRacePromise(600);
@@ -174,16 +128,8 @@ describe("IPFS Plugin", () => {
   });
 
   it("Should use provider from method options", async () => {
-    const clientWithBadProvider = new PolywrapClient({
-      envs: [
-        {
-          uri: fsUri,
-          env: {
-            provider: "this-provider-doesnt-exist",
-          },
-        },
-      ],
-    });
+    const config = getClientConfig("this-provider-doesnt-exist");
+    const clientWithBadProvider = new PolywrapClient(config);
 
     const catResult = await Ipfs_Module.cat(
       {
@@ -191,7 +137,6 @@ describe("IPFS Plugin", () => {
         options: { provider: ipfsProvider },
       },
       clientWithBadProvider,
-      fsUri
     );
 
     if (!catResult.ok) fail(catResult.error);
@@ -203,7 +148,6 @@ describe("IPFS Plugin", () => {
         options: { provider: ipfsProvider },
       },
       clientWithBadProvider,
-      fsUri
     );
 
     if (!resolveResult.ok) fail(resolveResult.error);
@@ -214,16 +158,8 @@ describe("IPFS Plugin", () => {
   });
 
   it("Should use fallback provider from method options", async () => {
-    const clientWithBadProvider = new PolywrapClient({
-      envs: [
-        {
-          uri: fsUri,
-          env: {
-            provider: "this-provider-doesnt-exist",
-          },
-        },
-      ],
-    });
+    const config = getClientConfig("this-provider-doesnt-exist");
+    const clientWithBadProvider = new PolywrapClient(config);
 
     const catResult = await Ipfs_Module.cat(
       {
@@ -234,7 +170,6 @@ describe("IPFS Plugin", () => {
         },
       },
       clientWithBadProvider,
-      fsUri
     );
 
     if (!catResult.ok) fail(catResult.error);
@@ -249,7 +184,6 @@ describe("IPFS Plugin", () => {
         },
       },
       clientWithBadProvider,
-      fsUri
     );
 
     if (!resolveResult.ok) fail(resolveResult.error);

@@ -12,3 +12,4 @@ source:
       abi: ./schema.http.graphql
 extensions:
   deploy: ./polywrap.deploy.yaml
+  build: ./polywrap.build.yaml

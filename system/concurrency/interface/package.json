@@ -2,12 +2,12 @@
   "name": "@polywrap/concurrent-interface",
   "description": "Concurrent interface",
   "private": true,
-  "version": "0.8.0",
+  "version": "0.9.0",
   "scripts": {
     "build": "npx polywrap build",
     "deploy": "npx polywrap deploy"
   },
   "devDependencies": {
-    "polywrap": "0.8.0"
+    "polywrap": "0.9.0"
   }
 }

@@ -27,9 +27,8 @@ describe("e2e", () => {
       method: "asyncBatchFetch",
       args: { delays: ["1", "2", "3"] },
     });
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
-    expect(result.data).toHaveLength(3);
+    if (!result.ok) fail(result.error);
+    expect(result.value).toHaveLength(3);
   });
 
   test("batchFetch", async () => {
@@ -38,8 +37,7 @@ describe("e2e", () => {
       method: "batchFetch",
       args: { delays: ["1", "2", "3"] },
     });
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
-    expect(result.data).toHaveLength(3);
+    if (!result.ok) fail(result.error);
+    expect(result.value).toHaveLength(3);
   });
 });

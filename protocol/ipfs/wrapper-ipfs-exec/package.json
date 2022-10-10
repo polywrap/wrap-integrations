@@ -4,7 +4,7 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "build": "npx polywrap build --no-codegen",
+    "build": "npx polywrap build --no-codegen -s image",
     "codegen": "npx polywrap codegen",
     "deploy": "npx polywrap deploy",
     "test": "yarn test:e2e",
@@ -12,7 +12,7 @@
     "test:e2e:codegen": "npx polywrap codegen -m ./src/__tests__/types/polywrap.app.yaml -g ./src/__tests__/types/wrap"
   },
   "devDependencies": {
-    "polywrap": "0.8.0",
+    "polywrap": "0.9.0",
     "@polywrap/ipfs-http-client-lite": "0.3.0",
     "@polywrap/concurrent-promise-plugin": "file:../../../system/concurrency/implementations/promise",
     "@types/jest": "27.0.3",
