@@ -21,7 +21,7 @@ pub fn exec_sequential<TReturn: Debug>(
 pub fn exec_parallel<TReturn: Debug>(
     providers: Vec<&str>,
     task_func: &dyn Fn(&str) -> ConcurrentTask,
-    result_func: fn(&ConcurrentTaskResult, &str) -> Result<TReturn, String>
+    result_func: fn(&ConcurrentTaskResult) -> Result<TReturn, String>
 ) -> TReturn {
     // get Concurrent implementation
     let impls = Concurrent::get_implementations();
@@ -36,19 +36,20 @@ pub fn exec_parallel<TReturn: Debug>(
     for &provider in &providers {
         tasks.push(task_func(provider));
     }
-
-    let task_ids: Vec<i32> = concurrent_module.schedule(&ArgsSchedule { tasks })
+    let task_ids: Vec<i32> = concurrent_module
+        .schedule(&ArgsSchedule { tasks })
         .unwrap_or_else(|e| panic!("{}", e));
 
     // request task results
     let return_when = ConcurrentReturnWhen::ANY_COMPLETED;
-    let results: Vec<ConcurrentTaskResult> = concurrent_module.result(&ArgsResult { task_ids, return_when })
+    let results: Vec<ConcurrentTaskResult> = concurrent_module
+        .result(&ArgsResult { task_ids: task_ids.clone(), return_when })
         .unwrap_or_else(|e| panic!("{}", e));
 
     // return completed result value or panic
     let mut errors: Vec<String> = Vec::new();
     for i in 0..results.len() {
-        let result = result_func(&results[i], providers[i]);
+        let result = result_func(&results[i]);
         if result.is_ok() {
             return result.unwrap();
         }

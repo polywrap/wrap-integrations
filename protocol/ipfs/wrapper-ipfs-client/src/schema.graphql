@@ -13,7 +13,7 @@ type Module {
     ipfsProvider: String!
     timeout: UInt32
     resolveOptions: ResolveOptions
-  ): String!
+  ): ResolveResult!
 
   addFile(
     data: FileEntry!
@@ -45,6 +45,11 @@ type ResolveOptions {
   recursive: Boolean
   dhtRecordCount: Int32
   dhtTimeout: String
+}
+
+type ResolveResult {
+  cid: String!
+  provider: String!
 }
 
 type AddResult {

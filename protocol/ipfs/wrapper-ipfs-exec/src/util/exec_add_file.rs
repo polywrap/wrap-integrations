@@ -43,7 +43,7 @@ pub fn add_file_task(ipfs_provider: &str, bytes: &Vec<u8>, timeout: u32) -> Conc
     }
 }
 
-pub fn add_file_task_result(task_result: &ConcurrentTaskResult, ipfs_provider: &str) -> Result<String, String> {
+pub fn add_file_task_result(task_result: &ConcurrentTaskResult) -> Result<String, String> {
     if matches!(task_result.status, ConcurrentTaskStatus::COMPLETED) {
         return match &task_result.result {
             Some(result) => {

@@ -11,7 +11,7 @@ import {
   Http_Module,
   Http_Request,
   Http_Response,
-  Http_ResponseType,
+  Http_ResponseType, ResolveResult
 } from "./wrap";
 import {
   convertDirectoryBlobToFormData,
@@ -39,7 +39,7 @@ export function cat(args: Args_cat): ArrayBuffer {
   return decode(result).buffer;
 }
 
-export function resolve(args: Args_resolve): string {
+export function resolve(args: Args_resolve): ResolveResult {
   const request = createResolveRequest(
     args.cid,
     Http_ResponseType.TEXT,
@@ -52,7 +52,10 @@ export function resolve(args: Args_resolve): string {
     "resolve",
     "/api/v0/resolve"
   );
-  return parseResolveResponse(resolveResponse);
+  return {
+    cid: parseResolveResponse(resolveResponse),
+    provider: args.ipfsProvider,
+  };
 }
 
 export function addFile(args: Args_addFile): AddResult {

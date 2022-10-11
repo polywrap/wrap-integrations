@@ -32,9 +32,10 @@ pub fn exec_resolve(ipfs_provider: &str, cid: &str, timeout: u32) -> Result<Ipfs
         let error = build_exec_error("resolve", ipfs_provider, timeout, result.unwrap_err().as_ref());
         return Err(error);
     }
+    let resolve_result = result.unwrap();
     Ok(IpfsResolveResult {
-        cid: result.unwrap(),
-        provider: ipfs_provider.to_string(),
+        cid: resolve_result.cid,
+        provider: resolve_result.provider,
     })
 }
 
@@ -46,13 +47,16 @@ pub fn resolve_task(ipfs_provider: &str, cid: &str, timeout: u32) -> ConcurrentT
     }
 }
 
-pub fn resolve_task_result(task_result: &ConcurrentTaskResult, ipfs_provider: &str) -> Result<IpfsResolveResult, String> {
+pub fn resolve_task_result(task_result: &ConcurrentTaskResult) -> Result<IpfsResolveResult, String> {
     if matches!(task_result.status, ConcurrentTaskStatus::COMPLETED) {
         return match &task_result.result {
-            Some(result) => Ok(IpfsResolveResult {
-                cid: deserialize_resolve_result(result.as_ref()).unwrap(),
-                provider: String::from(ipfs_provider),
-            }),
+            Some(result) => {
+                let resolve_result = deserialize_resolve_result(result.as_ref()).unwrap();
+                Ok(IpfsResolveResult {
+                    cid: resolve_result.cid,
+                    provider: resolve_result.provider,
+                })
+            },
             None => Err(String::from("Received empty result from concurrent task"))
         };
     }

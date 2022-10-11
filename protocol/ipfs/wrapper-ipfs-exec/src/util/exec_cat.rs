@@ -38,7 +38,7 @@ pub fn cat_task(ipfs_provider: &str, cid: &str, timeout: u32) -> ConcurrentTask 
     }
 }
 
-pub fn cat_task_result(task_result: &ConcurrentTaskResult, ipfs_provider: &str) -> Result<Vec<u8>, String> {
+pub fn cat_task_result(task_result: &ConcurrentTaskResult) -> Result<Vec<u8>, String> {
     if matches!(task_result.status, ConcurrentTaskStatus::COMPLETED) {
         return match &task_result.result {
             Some(result) => Ok(deserialize_cat_result(result.as_ref()).unwrap()),
