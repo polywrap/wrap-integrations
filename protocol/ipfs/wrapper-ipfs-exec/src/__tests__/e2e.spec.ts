@@ -75,7 +75,7 @@ describe("IPFS Plugin", () => {
     expect(contentsBuffer).toEqual(addedFileBuffer);
   });
 
-  it.only("Should timeout within a specified amount of time - env and options", async () => {
+  it("Should timeout within a specified amount of time - env and options", async () => {
     const createRacePromise = (
       timeout: number
     ): Promise<Result<Uint8Array, Error>> => {
@@ -123,8 +123,8 @@ describe("IPFS Plugin", () => {
     expect(resultForOverride).toBeTruthy();
     resultForOverride = resultForOverride as { ok: false; error: Error | undefined };
     expect(resultForOverride.error).toBeTruthy();
-    expect(result.error?.stack).toMatch("IPFS method 'cat' failed");
-    expect(result.error?.stack).toMatch(`Timeout of ${500}ms exceeded`);
+    expect(resultForOverride.error?.stack).toMatch("IPFS method 'cat' failed");
+    expect(resultForOverride.error?.stack).toMatch(`Timeout of ${500}ms exceeded`);
   });
 
   it("Should use provider from method options", async () => {
