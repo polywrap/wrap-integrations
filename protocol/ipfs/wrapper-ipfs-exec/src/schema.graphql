@@ -1,6 +1,7 @@
 #import { Module } into Ipfs from "ens/interface.ipfs.polywrap.eth"
 #import { Module, CatOptions, AddOptions, AddResult, FileEntry } into Client from "ens/ipfs-client.polywrap.eth"
 #import { Module, Task, TaskResult, ReturnWhen } into Concurrent from "ens/interface.concurrent.polywrap.eth"
+#use { getImplementations } for Concurrent
 
 type Module implements Ipfs_Module {}
 

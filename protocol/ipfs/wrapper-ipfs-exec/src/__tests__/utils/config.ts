@@ -19,7 +19,7 @@ export function getClientConfig(
     envs: [
       {
         uri: "wrap://ens/ipfs.polywrap.eth",
-        env: { provider, timeout, disableParallelRequests: true },
+        env: { provider, timeout },
       },
     ],
     redirects: [
@@ -44,7 +44,7 @@ export function getClientConfig(
     ],
     interfaces: [
       {
-        interface: concurrencyInterfaceUri,
+        interface: "ens/interface.concurrent.polywrap.eth",
         implementations: ["ens/concurrent.polywrap.eth"]
       }
     ]

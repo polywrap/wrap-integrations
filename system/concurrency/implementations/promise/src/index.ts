@@ -47,9 +47,27 @@ export class ConcurrentPromisePlugin extends Module<ConcurrentPromisePluginConfi
           input.taskIds.map((id) => this.resolveTask(id))
         );
       }
-      default: {
-        throw new Error("Not Implemented");
+      case Interface_ReturnWhenEnum.ANY_COMPLETED: {
+        const result = await Promise.any(
+          input.taskIds.map((id) => this.resolveTask(id)
+            .then((result) => {
+              if (result.error) {
+                return Promise.reject(result.error);
+              }
+              return result;
+            })
+          )
+        ).catch((err: AggregateError) => input.taskIds.map((id, idx) => ({
+            taskId: id,
+            result: undefined,
+            error: err.errors[idx],
+            status: Interface_TaskStatusEnum.FAILED,
+          }))
+        );
+        return Array.isArray(result) ? result : [result];
       }
+      default:
+        throw new Error("Invalid value of ReturnWhen enum: " + input.returnWhen);
     }
   }
 

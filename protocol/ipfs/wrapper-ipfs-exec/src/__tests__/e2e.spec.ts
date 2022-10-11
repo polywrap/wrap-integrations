@@ -99,7 +99,6 @@ describe("IPFS Plugin", () => {
 
     let result = await Promise.race([catPromise, racePromise]);
 
-    console.log(JSON.stringify(result, null, 2));
     expect(result).toBeTruthy();
     result = result as { ok: false; error: Error | undefined };
     expect(result.error).toBeTruthy();
