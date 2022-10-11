@@ -75,7 +75,7 @@ describe("IPFS Plugin", () => {
     expect(contentsBuffer).toEqual(addedFileBuffer);
   });
 
-  it("Should timeout within a specified amount of time - env and options", async () => {
+  it.only("Should timeout within a specified amount of time - env and options", async () => {
     const createRacePromise = (
       timeout: number
     ): Promise<Result<Uint8Array, Error>> => {
@@ -95,15 +95,15 @@ describe("IPFS Plugin", () => {
 
     const catPromise = Ipfs_Module.cat({ cid: nonExistentFileCid }, altClient);
 
-    let racePromise = createRacePromise(1100);
+    let racePromise = createRacePromise(1500);
 
     let result = await Promise.race([catPromise, racePromise]);
 
     expect(result).toBeTruthy();
     result = result as { ok: false; error: Error | undefined };
     expect(result.error).toBeTruthy();
-    expect(result.error?.stack).toMatch("Timeout has been reached");
-    expect(result.error?.stack).toMatch("Timeout: 1000");
+    expect(result.error?.stack).toMatch("IPFS method 'cat' failed");
+    expect(result.error?.stack).toMatch(`Timeout of ${1000}ms exceeded`);
 
     const catPromiseWithTimeoutOverride = Ipfs_Module.cat(
       {
@@ -113,7 +113,7 @@ describe("IPFS Plugin", () => {
       altClient,
     );
 
-    racePromise = createRacePromise(600);
+    racePromise = createRacePromise(1000);
 
     let resultForOverride = await Promise.race([
       catPromiseWithTimeoutOverride,
@@ -123,8 +123,8 @@ describe("IPFS Plugin", () => {
     expect(resultForOverride).toBeTruthy();
     resultForOverride = resultForOverride as { ok: false; error: Error | undefined };
     expect(resultForOverride.error).toBeTruthy();
-    expect(resultForOverride.error?.stack).toMatch("Timeout has been reached");
-    expect(resultForOverride.error?.stack).toMatch("Timeout: 500");
+    expect(result.error?.stack).toMatch("IPFS method 'cat' failed");
+    expect(result.error?.stack).toMatch(`Timeout of ${500}ms exceeded`);
   });
 
   it("Should use provider from method options", async () => {

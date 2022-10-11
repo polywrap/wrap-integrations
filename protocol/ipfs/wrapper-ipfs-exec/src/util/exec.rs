@@ -21,7 +21,9 @@ pub fn exec_sequential<TReturn: Debug>(
 pub fn exec_parallel<TReturn: Debug>(
     providers: Vec<&str>,
     task_func: &dyn Fn(&str) -> ConcurrentTask,
-    result_func: fn(&ConcurrentTaskResult) -> Result<TReturn, String>
+    result_func: fn(&ConcurrentTaskResult) -> Result<TReturn, String>,
+    operation: &str,
+    timeout: u32,
 ) -> TReturn {
     // get Concurrent implementation
     let impls = Concurrent::get_implementations();
@@ -53,7 +55,8 @@ pub fn exec_parallel<TReturn: Debug>(
         if result.is_ok() {
             return result.unwrap();
         }
-        errors.push(result.unwrap_err());
+        let error = build_exec_error(operation, providers[i], timeout, result.unwrap_err().as_str());
+        errors.push(error);
     }
     panic!("{}", errors.join("\n"));
 }

@@ -12,7 +12,7 @@ pub fn cat(args: ArgsCat, env: Env) -> Vec<u8> {
     }
     let task: &dyn Fn(&str) -> ConcurrentTask =
         &|provider: &str| cat_task(provider, args.cid.as_ref(), options.timeout);
-    return exec_parallel(options.providers, task, cat_task_result);
+    return exec_parallel(options.providers, task, cat_task_result, "cat", options.timeout);
 }
 
 pub fn resolve(args: ArgsResolve, env: Env) -> Option<IpfsResolveResult> {
@@ -24,7 +24,7 @@ pub fn resolve(args: ArgsResolve, env: Env) -> Option<IpfsResolveResult> {
     }
     let task: &dyn Fn(&str) -> ConcurrentTask =
         &|provider: &str| resolve_task(provider, args.cid.as_ref(), options.timeout);
-    return Some(exec_parallel(options.providers, task, resolve_task_result));
+    return Some(exec_parallel(options.providers, task, resolve_task_result, "resolve", options.timeout));
 }
 
 pub fn add_file(args: ArgsAddFile, env: Env) -> String {
@@ -36,5 +36,5 @@ pub fn add_file(args: ArgsAddFile, env: Env) -> String {
     }
     let task: &dyn Fn(&str) -> ConcurrentTask =
         &|provider: &str| add_file_task(provider, &args.data, options.timeout);
-    return exec_parallel(options.providers, task, add_file_task_result);
+    return exec_parallel(options.providers, task, add_file_task_result, "addFile", options.timeout);
 }
