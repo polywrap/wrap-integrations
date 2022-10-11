@@ -1,5 +1,5 @@
 {
-  "name": "@polywrap/ipfs-client-wasm",
+  "name": "@polywrap/ipfs-http-client-wasm",
   "description": "A Polywrap Wasm wrapper that implements an IPFS Client",
   "version": "0.1.0",
   "private": true,

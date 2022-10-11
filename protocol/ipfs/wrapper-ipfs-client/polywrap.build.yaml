@@ -1,6 +1,6 @@
 format: 0.1.0
 docker:
-  name: ipfs-client-wasm
+  name: ipfs-http-client-wasm
 linked_packages:
   - name: http-plugin-js
     path: ./../http-revision
