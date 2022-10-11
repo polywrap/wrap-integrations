@@ -7,4 +7,4 @@ source:
   module: ./src/index.ts
   import_abis:
     - uri: "ens/http.polywrap.eth"
-      abi: ./schema.http.graphql
+      abi: ../http-plugin-formdata/schema.interface.graphql

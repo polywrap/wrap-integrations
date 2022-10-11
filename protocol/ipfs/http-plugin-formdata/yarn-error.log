@@ -1,0 +1,80 @@
+Arguments: 
+  /Users/kris/.nvm/versions/node/v16.13.0/bin/node /Users/kris/.nvm/versions/node/v16.13.0/bin/yarn config get npmScopes --json
+
+PATH: 
+  /Users/kris/.nvm/versions/node/v16.13.0/bin:/Users/kris/.yarn/bin:/Users/kris/.config/yarn/global/node_modules/.bin:/Users/kris/.nvm/versions/node/v14.16.0/bin:/Library/Frameworks/Python.framework/Versions/3.9/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/kris/.cargo/bin:/Users/kris/Library/Application Support/JetBrains/Toolbox/scripts
+
+Yarn version: 
+  1.22.17
+
+Node version: 
+  16.13.0
+
+Platform: 
+  darwin x64
+
+Trace: 
+  SyntaxError: /Users/kris/WebstormProjects/monorepo/packages/js/plugins/http/package.json: Unexpected token < in JSON at position 750
+      at JSON.parse (<anonymous>)
+      at /Users/kris/.nvm/versions/node/v16.13.0/lib/node_modules/yarn/lib/cli.js:1625:59
+      at Generator.next (<anonymous>)
+      at step (/Users/kris/.nvm/versions/node/v16.13.0/lib/node_modules/yarn/lib/cli.js:310:30)
+      at /Users/kris/.nvm/versions/node/v16.13.0/lib/node_modules/yarn/lib/cli.js:321:13
+
+npm manifest: 
+  {
+    "name": "@polywrap/http-plugin-js",
+    "description": "Polywrap HTTP Javascript Plugin",
+    "version": "0.9.0",
+    "license": "MIT",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/polywrap/monorepo.git"
+    },
+    "main": "build/index.js",
+    "files": [
+      "build"
+    ],
+    "scripts": {
+      "build": "rimraf ./build && yarn codegen && tsc --project tsconfig.build.json",
+      "codegen": "node ../../../../dependencies/node_modules/polywrap/bin/polywrap codegen",
+      "lint": "eslint --color -c ../../../../.eslintrc.js src/",
+      "test": "jest --passWithNoTests --runInBand --verbose",
+      "test:ci": "jest --passWithNoTests --runInBand --verbose",
+      "test:watch": "jest --watch --passWithNoTests --verbose"
+    },
+    "dependencies": {
+  <<<<<<< HEAD
+      "@polywrap/core-js": "0.8.0",
+      "axios": "0.21.4",
+      "form-data": "4.0.0"
+  =======
+      "@polywrap/core-js": "0.9.0",
+      "axios": "0.21.4"
+  >>>>>>> origin/origin-dev
+    },
+    "devDependencies": {
+      "@polywrap/client-js": "0.9.0",
+      "@polywrap/ens-resolver-plugin-js": "0.9.0",
+      "@polywrap/ipfs-plugin-js": "0.9.0",
+      "@polywrap/test-env-js": "0.9.0",
+      "@types/jest": "26.0.8",
+      "@types/prettier": "2.6.0",
+      "jest": "26.6.3",
+      "nock": "13.0.7",
+      "rimraf": "3.0.2",
+      "ts-jest": "26.5.4",
+      "ts-node": "8.10.2",
+      "typescript": "4.0.7"
+    },
+    "gitHead": "7346adaf5adb7e6bbb70d9247583e995650d390a",
+    "publishConfig": {
+      "access": "public"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

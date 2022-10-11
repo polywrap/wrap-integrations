@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "axios": "0.21.4",
-    "@polywrap/http-plugin-js": "0.9.0",
+    "@polywrap/http-plugin-js": "file:../http-plugin-formdata",
     "@polywrap/client-js": "0.9.0",
     "@polywrap/test-env-js": "0.9.0",
     "@as-pect/cli": "6.2.4",
