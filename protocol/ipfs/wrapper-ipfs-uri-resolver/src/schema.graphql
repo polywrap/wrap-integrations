@@ -1,9 +1,9 @@
-#import { Module } into Ipfs from "ens/interface.ipfs.polywrap.eth"
-#import { Module, AddResult, FileEntry } into Client from "ens/ipfs-client.polywrap.eth"
+#import { Module, MaybeUriOrManifest } into UriResolver from "ens/interface.resolver.polywrap.eth"
+#import { Module } into Client from "ens/ipfs-resolver-client.polywrap.eth"
 #import { Module, Task, TaskResult, ReturnWhen } into Concurrent from "ens/interface.concurrent.polywrap.eth"
 #use { getImplementations } for Concurrent
 
-type Module implements Ipfs_Module {}
+type Module implements UriResolver_Module {}
 
 type Env {
   """

@@ -2,7 +2,6 @@ use crate::wrap::imported::{
     ConcurrentTask,
     ConcurrentTaskResult,
     ConcurrentTaskStatus,
-    ClientAddOptions,
     ClientAddResult,
     ClientFileEntry,
 };

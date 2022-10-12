@@ -8,7 +8,7 @@ import { defaultIpfsProviders } from "../../../../../../../monorepo/packages/js/
 
 jest.setTimeout(360000);
 
-describe("e2e", () => {
+describe("IPFS HTTP Client Wrapper", () => {
   const singleFileCid = "QmXjuLkuAKVtfg9ZxhWyLanMZasYwhza2EozCH7cg3VY31";
   const addFileCid = "QmWjGyqGNWMAH9pCXK1nJo2Do68EHLb7zUqt6fHuq5pRU4";
   const encoder = new TextEncoder();

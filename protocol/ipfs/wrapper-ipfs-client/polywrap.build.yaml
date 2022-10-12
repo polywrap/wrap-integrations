@@ -3,4 +3,4 @@ docker:
   name: ipfs-http-client-wasm
 linked_packages:
   - name: http-plugin-js
-    path: ./../http-revision
+    path: ./../http-plugin-formdata

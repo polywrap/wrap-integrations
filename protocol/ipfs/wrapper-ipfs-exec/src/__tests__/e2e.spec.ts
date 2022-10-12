@@ -8,7 +8,7 @@ import { getClientConfig } from "./utils/config";
 
 jest.setTimeout(300000);
 
-describe("IPFS Plugin", () => {
+describe("IPFS Wasm Wrapper", () => {
   let client: PolywrapClient;
   let ipfs: IpfsClient;
 

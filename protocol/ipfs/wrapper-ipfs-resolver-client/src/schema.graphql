@@ -1,0 +1,9 @@
+#import { Module, Request, Response, ResponseType } into Http from "wrap://ens/http.polywrap.eth"
+
+type Module {
+  cat(
+    cid: String!
+    ipfsProvider: String!
+    timeout: UInt32
+  ): Bytes!
+}

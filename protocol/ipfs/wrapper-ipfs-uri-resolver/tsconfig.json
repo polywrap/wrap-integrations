@@ -1,14 +1,12 @@
 {
   "compilerOptions": {
-    "outDir": "build",
-    "esModuleInterop": true,
     "lib": [
       "es2015",
       "es5",
       "dom"
     ],
-    "downlevelIteration": true,
-    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "outDir": "build",
     "moduleResolution": "node",
     "declaration": true,
     "preserveSymlinks": true,
@@ -23,12 +21,8 @@
     "sourceMap": true,
     "target": "es5",
     "resolveJsonModule": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "experimentalDecorators": true
   },
-  "include": [
-    "./src/**/*.ts"
-  ],
-  "exclude": [
-    "./**/.polywrap/**/*.ts"
-  ]
+  "typeAcquisition": { "include": ["jest"] }
 }

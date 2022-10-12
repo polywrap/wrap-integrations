@@ -1,0 +1,12 @@
+{
+  "name": "test-case-simple",
+  "private": true,
+  "scripts": {
+    "build": "npx polywrap build -s image",
+    "deploy": "npx polywrap deploy"
+  },
+  "dependencies": {
+    "@polywrap/wasm-as": "0.9.0",
+    "assemblyscript": "0.19.23"
+  }
+}
