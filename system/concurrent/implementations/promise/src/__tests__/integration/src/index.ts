@@ -6,8 +6,8 @@ import {
   Concurrent_Task,
   FetchResult,
   HTTP_Module,
-  HTTP_Response,
-  HTTP_ResponseType,
+  HTTP_Http_Response,
+  HTTP_Http_ResponseType,
 } from "./wrap";
 import {
   serializegetArgs,
@@ -24,7 +24,7 @@ export function asyncBatchFetch(args: Args_asyncBatchFetch): FetchResult[] {
         headers: null,
         urlParams: params,
         body: "",
-        responseType: HTTP_ResponseType.TEXT,
+        responseType: HTTP_Http_ResponseType.TEXT,
       },
     });
 
@@ -70,8 +70,8 @@ export function asyncBatchFetch(args: Args_asyncBatchFetch): FetchResult[] {
   return parsedResults;
 }
 
-export function batchFetch(args: Args_batchFetch): HTTP_Response[] {
-  const results: HTTP_Response[] = [];
+export function batchFetch(args: Args_batchFetch): HTTP_Http_Response[] {
+  const results: HTTP_Http_Response[] = [];
   for (let i = 0; i < args.delays.length; i++) {
     const param = new Map<string, string>().set("seconds", args.delays[i]);
     const apiResult = HTTP_Module.get({
@@ -80,9 +80,9 @@ export function batchFetch(args: Args_batchFetch): HTTP_Response[] {
         headers: null,
         urlParams: param,
         body: "",
-        responseType: HTTP_ResponseType.TEXT,
+        responseType: HTTP_Http_ResponseType.TEXT,
       },
-    }).unwrap() as HTTP_Response;
+    }).unwrap() as HTTP_Http_Response;
 
     results.push(apiResult);
   }

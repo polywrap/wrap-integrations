@@ -13,7 +13,7 @@ source:
     - uri: "ens/http.polywrap.eth"
       abi: ../http-plugin-formdata/schema.interface.graphql
     - uri: "ens/interface.concurrent.polywrap.eth"
-      abi: ../../../system/concurrency/interface/src/schema.graphql
+      abi: ../../../system/concurrent/interface/src/schema.graphql
 extensions:
   build: ./polywrap.build.yaml
   deploy: ./polywrap.deploy.yaml

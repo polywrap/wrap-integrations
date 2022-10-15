@@ -119,7 +119,7 @@ export class ConcurrentPromisePlugin extends Module<ConcurrentPromisePluginConfi
         return {
           taskId: taskId,
           result: undefined,
-          error: err.message as string,
+          error: err.message ?? `Unknown error occurred in concurrent task ${taskId}`,
           status: Interface_TaskStatusEnum.FAILED,
         };
       });
