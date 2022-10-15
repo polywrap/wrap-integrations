@@ -2,7 +2,7 @@
   "name": "concurrency-demo",
   "description": "Concurrent promise plugin Demo",
   "private": true,
-  "version": "0.8.0",
+  "version": "0.9.0",
   "scripts": {
     "codegen": "npx polywrap codegen",
     "build": "npx polywrap build",
@@ -11,6 +11,6 @@
   "devDependencies": {
     "polywrap": "0.9.0",
     "@polywrap/wasm-as": "0.9.0",
-    "assemblyscript": "0.19.1"
+    "assemblyscript": "0.19.23"
   }
 }

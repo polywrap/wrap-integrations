@@ -2,7 +2,7 @@ module.exports = {
   collectCoverage: false,
   preset: "ts-jest",
   testEnvironment: "node",
-  testMatch: ["**/__tests__/**/?(*.)+(spec|test).[jt]s?(x)"],
+  testMatch: ["**/__tests__/**/e2e.spec.ts"],
   modulePathIgnorePatterns: [
     "./src/__tests__/mutation",
     "./src/__tests__/query",

@@ -17,12 +17,12 @@ import {
 export function asyncBatchFetch(args: Args_asyncBatchFetch): FetchResult[] {
   const tasks: Concurrent_Task[] = [];
   for (let i = 0; i < args.delays.length; i++) {
-    const param = new Map<string, string>().set("seconds", args.delays[i]);
+    const params = new Map<string, string>().set("seconds", args.delays[i]);
     const apiCall: ArrayBuffer = serializegetArgs({
       url: "https://hub.dummyapis.com/delay",
       request: {
         headers: null,
-        urlParams: param,
+        urlParams: params,
         body: "",
         responseType: HTTP_ResponseType.TEXT,
       },

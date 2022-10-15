@@ -1,9 +1,17 @@
 {
-  "name": "@polywrap/concurrent-promise-plugin",
+  "name": "@wraplib/concurrent-promise-plugin",
   "description": "Run wrapper concurrently using promise",
   "private": true,
   "version": "0.9.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/polywrap/integrations.git"
+  },
   "main": "build/index.js",
+  "files": [
+    "build"
+  ],
   "scripts": {
     "build": "rimraf ./build && tsc --project tsconfig.build.json",
     "prebuild": "npx polywrap codegen",
@@ -11,7 +19,8 @@
     "test": "jest --passWithNoTests --runInBand --verbose"
   },
   "dependencies": {
-    "@polywrap/core-js": "0.9.0"
+    "@polywrap/core-js": "0.9.0",
+    "@polywrap/msgpack-js": "0.9.0"
   },
   "devDependencies": {
     "@polywrap/test-env-js": "0.9.0",
