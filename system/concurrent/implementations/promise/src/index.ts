@@ -1,9 +1,9 @@
 import {
   Client,
   InvokeResult,
-  msgpackEncode,
   PluginFactory,
 } from "@polywrap/core-js";
+import { msgpackEncode } from "@polywrap/msgpack-js";
 import {
   Args_result,
   Args_schedule,

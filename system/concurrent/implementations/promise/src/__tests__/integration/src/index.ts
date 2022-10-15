@@ -6,9 +6,8 @@ import {
   Concurrent_Task,
   FetchResult,
   HTTP_Module,
-  HTTP_Response,
-  HTTP_ResponseType,
-  HTTP_UrlParam,
+  HTTP_Http_Response,
+  HTTP_Http_ResponseType,
 } from "./wrap";
 import {
   serializegetArgs,
@@ -18,19 +17,16 @@ import {
 export function asyncBatchFetch(args: Args_asyncBatchFetch): FetchResult[] {
   const tasks: Concurrent_Task[] = [];
   for (let i = 0; i < args.delays.length; i++) {
-    const param: HTTP_UrlParam[] = [
-      {
-        key: "seconds",
-        value: args.delays[i],
-      },
-    ];
+    const params: Map<string, string> = new Map();
+    params.set("seconds", args.delays[i])
+    
     const apiCall: ArrayBuffer = serializegetArgs({
       url: "https://hub.dummyapis.com/delay",
       request: {
-        headers: [],
-        urlParams: param,
+        headers: null,
+        urlParams: params,
         body: "",
-        responseType: HTTP_ResponseType.TEXT,
+        responseType: HTTP_Http_ResponseType.TEXT,
       },
     });
 
@@ -76,24 +72,20 @@ export function asyncBatchFetch(args: Args_asyncBatchFetch): FetchResult[] {
   return parsedResults;
 }
 
-export function batchFetch(args: Args_batchFetch): HTTP_Response[] {
-  const results: HTTP_Response[] = [];
+export function batchFetch(args: Args_batchFetch): HTTP_Http_Response[] {
+  const results: HTTP_Http_Response[] = [];
   for (let i = 0; i < args.delays.length; i++) {
-    const param: HTTP_UrlParam[] = [
-      {
-        key: "seconds",
-        value: args.delays[i],
-      },
-    ];
+    const params: Map<string, string> = new Map()
+    params.set("seconds", args.delays[i]);
     const apiResult = HTTP_Module.get({
       url: "https://hub.dummyapis.com/delay",
       request: {
-        headers: [],
-        urlParams: param,
+        headers: null,
+        urlParams: params,
         body: "",
-        responseType: HTTP_ResponseType.TEXT,
+        responseType: HTTP_Http_ResponseType.TEXT,
       },
-    }).unwrap() as HTTP_Response;
+    }).unwrap() as HTTP_Http_Response;
 
     results.push(apiResult);
   }
