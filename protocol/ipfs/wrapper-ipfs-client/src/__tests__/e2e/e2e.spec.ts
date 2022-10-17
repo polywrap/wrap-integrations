@@ -72,6 +72,28 @@ describe("IPFS HTTP Client Wrapper", () => {
     expect(result.value.hash).toEqual(addFileCid);
   });
 
+  it("addFile from buffer", async () => {
+    const expectedContents = "A new sample file";
+    const buffer = Buffer.from(expectedContents, "utf-8");
+    const bytes: Ipfs.Bytes = Uint8Array.from(buffer);
+
+    const result = await client.invoke<Ipfs.Ipfs_AddResult>({
+      uri: fsUri,
+      method: "addFile",
+      args: {
+        data: {
+          name: "addTest.txt",
+          data: bytes,
+        },
+        ipfsProvider,
+        timeout: 5000,
+      }
+    });
+
+    if (!result.ok) fail(result.error);
+    expect(result.value.hash).toEqual("Qmawvzw32Jq7RbMw2K8axEbzfNK74NPynBoq4tJnWvkYqP");
+  });
+
   it("addFile with onlyHash option", async () => {
     const buffer: Buffer = fs.readFileSync(path.join(__dirname, "testData", "addTest.txt"));
     const bytes: Ipfs.Bytes = Uint8Array.from(buffer);
