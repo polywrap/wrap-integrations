@@ -1,0 +1,20 @@
+[package]
+name = "ens-text-record-resolver-wrapper"
+version = "0.1.0"
+description = "Wrapper resolving ENS text records"
+authors = ["Polywrap"]
+repository = "https://github.com/nerfZael/ens-text-record-resolver-wrapper"
+license = "MIT"
+edition = "2021"
+
+[dependencies]
+polywrap-wasm-rs = { version = "0.1.1" }
+serde = { version = "1.0", features = ["derive"] }
+
+[lib]
+crate-type = ["cdylib"]
+
+[profile.release]
+opt-level = 's'
+lto = true
+panic = 'abort'
