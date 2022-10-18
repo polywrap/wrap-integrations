@@ -360,19 +360,29 @@ export function registerDomainAndSubdomainsRecursively(
       connection: args.connection
     });
 
+
     if (!isRegistered) {
       if(i === 0) {
         // Main domain case
-        result.tx = registerDomain({
+        const registerResult = registerDomain({
           domain: subdomains[i],
           registrarAddress: args.registrarAddress,
           registryAddress: args.registryAddress,
           owner: args.owner,
           connection: args.connection,
           txOverrides: args.txOverrides
+        });
+
+        Ethereum_Module.awaitTransaction({
+          txHash: registerResult.hash,
+          connection: args.connection,
+          confirmations: 1,
+          timeout: 60000
         })
 
-        setResolver({
+        result.tx = registerResult
+
+        const resolverRes = setResolver({
           domain: subdomains[i],
           registryAddress: args.registryAddress,
           resolverAddress: args.resolverAddress,
@@ -380,12 +390,19 @@ export function registerDomainAndSubdomainsRecursively(
           txOverrides: args.txOverrides
         })
 
+        Ethereum_Module.awaitTransaction({
+          txHash: resolverRes.hash,
+          connection: args.connection,
+          confirmations: 1,
+          timeout: 60000
+        })
+
       } else {
         // Subdomain case
         const label = subdomains[i].split('.')[0]
         const domain = subdomains[i].split('.').slice(1).join('.')
   
-        result.tx = setSubdomainRecord({
+        const setSubdomainResult = setSubdomainRecord({
           domain,
           label,
           owner: args.owner,
@@ -394,7 +411,16 @@ export function registerDomainAndSubdomainsRecursively(
           registryAddress: args.registryAddress,
           connection: args.connection,
           txOverrides: args.txOverrides
+        });
+
+        Ethereum_Module.awaitTransaction({
+          txHash: setSubdomainResult.hash,
+          connection: args.connection,
+          confirmations: 1,
+          timeout: 60000
         })
+
+        result.tx = setSubdomainResult
       }
 
       result.didRegister = true;
@@ -439,8 +465,7 @@ export function registerSubdomainsRecursively(
     if (!isRegistered) {
       const label = subdomains[i].split('.')[0]
       const domain = subdomains[i].split('.').slice(1).join('.')
-
-      result.tx = setSubdomainRecord({
+      const setSubdomainResult = setSubdomainRecord({
         domain,
         label,
         owner: args.owner,
@@ -449,8 +474,16 @@ export function registerSubdomainsRecursively(
         registryAddress: args.registryAddress,
         connection: args.connection,
         txOverrides: args.txOverrides
+      });
+
+      Ethereum_Module.awaitTransaction({
+        txHash: setSubdomainResult.hash,
+        connection: args.connection,
+        confirmations: 1,
+        timeout: 60000
       })
 
+      result.tx = setSubdomainResult
       result.didRegister = true;
     }
 
