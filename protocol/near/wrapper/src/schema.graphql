@@ -73,6 +73,8 @@ type Module {
         receiverId: String!
         actions: [Interface_Action!]!
         signerId: String
+        publicKey: Interface_PublicKey
+        nonce: BigInt
     ): Interface_Transaction!
 
     # signs a transaction without wallet

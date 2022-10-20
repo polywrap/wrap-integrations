@@ -60,16 +60,7 @@ export function createTransaction(
     return fromPluginTransaction(result);
   }
   const signerId: string = args.signerId!;
-  const accessKeyInfo: AccessKeyInfo | null = NEAR_READ.findAccessKey({
-    accountId: signerId,
-  });
-  if (accessKeyInfo == null) {
-    throw new Error(
-      `Can not sign transactions for account ${signerId} on requested network, no matching key pair found in signer.`
-    );
-  }
-  const accessKey: Interface_AccessKey = accessKeyInfo.accessKey;
-  const publicKey = accessKeyInfo.publicKey;
+
   const block: BlockResult = NEAR_READ.getBlock({
     blockQuery: {
       finality: "final",
@@ -80,6 +71,38 @@ export function createTransaction(
   const blockHash: ArrayBuffer = <ArrayBuffer>(
     bs58.decode(block.header.hash).buffer
   );
+
+  // Case if publicKey is provided (Ledger)
+  if (args.publicKey != null) {
+    let inputNonce: BigInt;
+    if (args.nonce) {
+      inputNonce = args.nonce!;
+    } else {
+      inputNonce = BigInt.from(0);
+    }
+    return {
+      signerId: signerId,
+      publicKey: args.publicKey!,
+      nonce: inputNonce,
+      receiverId: args.receiverId,
+      blockHash: blockHash,
+      actions: args.actions,
+    };
+  }
+
+  const accessKeyInfo: AccessKeyInfo | null = NEAR_READ.findAccessKey({
+    accountId: signerId,
+  });
+
+  if (accessKeyInfo == null) {
+    throw new Error(
+      `Can not sign transactions for account ${signerId} on requested network, no matching key pair found in signer.`
+    );
+  }
+
+  const accessKey: Interface_AccessKey = accessKeyInfo.accessKey;
+  const publicKey = accessKeyInfo.publicKey;
+
   const nonce = accessKey.nonce.addInt(1);
 
   return {
@@ -224,7 +247,9 @@ export function addKey(args: Args_addKey): Interface_FinalExecutionOutcome {
   });
 }
 
-export function createAccount(args: Args_createAccount): Interface_FinalExecutionOutcome {
+export function createAccount(
+  args: Args_createAccount
+): Interface_FinalExecutionOutcome {
   return signAndSendTransaction({
     receiverId: args.newAccountId,
     signerId: args.signerId,
@@ -236,7 +261,9 @@ export function createAccount(args: Args_createAccount): Interface_FinalExecutio
   });
 }
 
-export function deleteAccount(args: Args_deleteAccount): Interface_FinalExecutionOutcome {
+export function deleteAccount(
+  args: Args_deleteAccount
+): Interface_FinalExecutionOutcome {
   return signAndSendTransaction({
     receiverId: args.accountId,
     signerId: args.signerId,
@@ -254,7 +281,9 @@ export function deployContract(
   });
 }
 
-export function sendMoney(args: Args_sendMoney): Interface_FinalExecutionOutcome {
+export function sendMoney(
+  args: Args_sendMoney
+): Interface_FinalExecutionOutcome {
   return signAndSendTransaction({
     receiverId: args.receiverId,
     signerId: args.signerId,
@@ -262,7 +291,9 @@ export function sendMoney(args: Args_sendMoney): Interface_FinalExecutionOutcome
   });
 }
 
-export function functionCall(args: Args_functionCall): Interface_FinalExecutionOutcome {
+export function functionCall(
+  args: Args_functionCall
+): Interface_FinalExecutionOutcome {
   const actions = [
     action.functionCall(args.methodName, args.args, args.gas, args.deposit),
   ];
@@ -284,7 +315,9 @@ export function functionCall(args: Args_functionCall): Interface_FinalExecutionO
   return sendTransaction({ signedTx: signedTxResult.signedTx });
 }
 
-export function deleteKey(args: Args_deleteKey): Interface_FinalExecutionOutcome {
+export function deleteKey(
+  args: Args_deleteKey
+): Interface_FinalExecutionOutcome {
   return signAndSendTransaction({
     receiverId: args.signerId,
     signerId: args.signerId,
