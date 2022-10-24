@@ -33,6 +33,7 @@ import {
   Interface_TransactionWithHash,
   Interface_FinalExecutionOutcome,
   Interface_AccessKeyPermission,
+  UsdRatio,
 } from "../wrap";
 import { BigInt, JSON, JSONEncoder } from "@polywrap/wasm-as";
 import { publicKeyFromStr } from "./typeUtils";
@@ -691,6 +692,20 @@ function toExecutionStatus(json: JSON.Obj): Interface_ExecutionStatus {
     result.failure = failure;
   }
   return result;
+}
+
+export function toUsdRatio(json: JSON.Obj): UsdRatio | null {
+  const near = json.getObj("near");
+  if (near == null) {
+    return null;
+  }
+  const usd = near.getNum("usd")!.valueOf();
+  const last_updated_at = near.getInteger("last_updated_at")!.valueOf();
+
+  return {
+    usd: usd.toString(),
+    last_updated_at: BigInt.from(last_updated_at),
+  };
 }
 
 function toBase64String(value: string): string {

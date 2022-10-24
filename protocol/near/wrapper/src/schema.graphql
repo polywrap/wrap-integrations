@@ -73,6 +73,8 @@ type Module {
         receiverId: String!
         actions: [Interface_Action!]!
         signerId: String
+        publicKey: Interface_PublicKey
+        nonce: BigInt
     ): Interface_Transaction!
 
     # signs a transaction without wallet
@@ -173,6 +175,35 @@ type Module {
     ): JSON!
 
     """
+    Fetch Requests
+    """    
+    createMasterAccount(
+        newAccountId: String!
+        publicKey: Interface_PublicKey!
+    ): Interface_FinalExecutionOutcome!
+
+    getStakingDeposits(
+        accountId: String!
+    ): JSON!
+
+    # Returns contract addresses of account NFT's
+    listLikelyNftsContracts(
+        accountId: String!
+    ): JSON!
+
+    # Returns contract addresses of account fungible tokens
+    likelyTokensFromBlock(
+        accountId: String!
+    ): JSON!
+
+    # Returns account bound to stringified public key
+    accountsAtPublicKey(
+        publicKeyString: String!
+    ): JSON!
+
+    nearToUsdRatio: UsdRatio
+
+    """
     Generic Mutation Functions
     """
 
@@ -210,7 +241,7 @@ type Module {
         signerId: String!
     ): String!
 
-    # create a new Near account
+    # create a new Near account from Master
     createAccount(
         newAccountId: String!
         publicKey: Interface_PublicKey! # | String
@@ -583,4 +614,9 @@ type Receipt {
 
 type ActionContainer {
   actions: [Interface_Action!]!
+}
+
+type UsdRatio {
+    usd: String!
+    last_updated_at: BigInt!
 }

@@ -47,7 +47,10 @@ type Module {
 }
 
 type ConnectionConfig {
+  networkId: String!
   nodeUrl: String!
+  helperUrl: String
+  indexerServiceUrl: String
 }
 # Account public key data
 type PublicKey {
