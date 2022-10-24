@@ -33,22 +33,15 @@ import {
   fullAccessKey,
   functionCallAccessKey,
   publicKeyFromStr,
-  publicKeyToStr,
 } from "../utils/typeUtils";
 import { toFinalExecutionOutcome } from "../utils/jsonMap";
 
 import * as action from "../utils/actionCreators";
 import * as NEAR_READ from "../modules/read";
 
-import {
-  fromPluginTransaction,
-  toPluginAction,
-  toPluginPublicKey,
-  toPluginTransaction,
-} from "../utils/typeMapping";
+import { fromPluginTransaction, toPluginAction } from "../utils/typeMapping";
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import { toBorshSignedTransaction, toBorshTransaction } from "../utils/toBorsh";
-import fetchJson from "../utils/fetchJson";
 
 export function createTransaction(
   args: Args_createTransaction
@@ -117,20 +110,6 @@ export function createTransaction(
     blockHash: blockHash,
     actions: args.actions,
   };
-}
-
-export function createMasterAccount(args: Args_createMasterAccount): JSON.Obj {
-  const helperUrl = Near_Module.getConfig({}).unwrap().helperUrl;
-  const encoder = new JSONEncoder()
-  encoder.pushObject(null)
-  encoder.setString('newAccountId', args.newAccountId)
-  encoder.setString('newAccountPublicKey', publicKeyToStr(args.publicKey))
-  encoder.popObject()
-
-  if (!helperUrl == null) {
-    return fetchJson(helperUrl + '/account', encoder.toString())
-  }
-  throw Error("No helper url specified in plugin config");
 }
 
 export function signTransaction(

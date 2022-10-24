@@ -351,34 +351,4 @@ describe("Write operations", () => {
     expect(functionResult.status.failure).toBeFalsy();
     expect(functionResult.status.SuccessValue).toBeDefined();
   });
-
-  test("Should create master account", async () => {
-    const newAccountId = testUtils.generateUniqueString("test");
-
-    const accountToCreate = await near.account(newAccountId);
-    
-    expect(accountToCreate.state()).rejects.toThrow();
-    
-    const publicKey = KeyPair.fromRandom("ed25519").getPublicKey();
-
-    const result = await client.invoke({
-      uri: apiUri,
-      method: "createMasterAccount",
-      args: {
-        newAccountId,
-        publicKey,
-      },
-    });
-
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
-
-    const creationResult = result.data;
-
-    expect(creationResult).toBeTruthy();
-
-    const accountCreated = await near.account(newAccountId);
-
-    expect(accountCreated.state()).resolves;
-  });
 });

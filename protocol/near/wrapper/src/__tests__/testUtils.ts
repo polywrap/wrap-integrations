@@ -42,6 +42,7 @@ export async function setUpTestConfig(): Promise<NearPluginConfig> {
     nodeUrl: "https://rpc.testnet.near.org",
     walletUrl: "https://wallet.testnet.near.org",
     helperUrl: "https://helper.testnet.near.org",
+    indexerServiceUrl: "https://testnet-api.kitwallet.app",
     masterAccount: testAccountId,
     initialBalance: "1100000000000000000000000",
   };

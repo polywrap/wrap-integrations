@@ -27,7 +27,9 @@ export { keyStores as KeyStores, KeyPair } from "near-api-js";
 
 export interface NearPluginConfig
   extends ConnectConfig,
-    Record<string, unknown> {}
+    Record<string, unknown> {
+  indexerServiceUrl?: string;
+}
 
 export class NearPlugin extends Module<NearPluginConfig> {
   private near: nearApi.Near;
@@ -60,7 +62,12 @@ export class NearPlugin extends Module<NearPluginConfig> {
   }
 
   public getConfig(): ConnectionConfig {
-    return { nodeUrl: this.config.nodeUrl, helperUrl: this.config.helperUrl };
+    return {
+      nodeUrl: this.config.nodeUrl,
+      helperUrl: this.config.helperUrl,
+      networkId: this.config.networkId,
+      indexerServiceUrl: this.config.indexerServiceUrl,
+    };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
