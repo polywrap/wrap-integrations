@@ -16,6 +16,7 @@
     "test": "jest --passWithNoTests --runInBand --verbose",
     "test:read": "jest ./e2e/read.spec.ts --passWithNoTests --runInBand --verbose --silent=false",
     "test:write": "jest ./e2e/write.spec.ts --passWithNoTests --runInBand --verbose --silent=false",
+    "test:enhancements": "jest ./e2e/enhancements.spec.ts --passWithNoTests --runInBand --verbose --silent=false",
     "test:jsonRpcRequest": "jest ./e2e/jsonRpcRequests.spec.ts --passWithNoTests --runInBand --verbose --silent=false",
     "test:transactions": "jest ./e2e/transactions.spec.ts --passWithNoTests --runInBand --verbose --silent=false",
     "test:wallet": "jest ./e2e/wallet.spec.ts --passWithNoTests --runInBand --verbose --silent=false",

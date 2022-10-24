@@ -60,7 +60,7 @@ export class NearPlugin extends Module<NearPluginConfig> {
   }
 
   public getConfig(): ConnectionConfig {
-    return { nodeUrl: this.config.nodeUrl };
+    return { nodeUrl: this.config.nodeUrl, helperUrl: this.config.helperUrl };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

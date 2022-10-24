@@ -48,6 +48,7 @@ type Module {
 
 type ConnectionConfig {
   nodeUrl: String!
+  helperUrl: String
 }
 # Account public key data
 type PublicKey {
