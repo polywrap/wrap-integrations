@@ -15,16 +15,10 @@ import {
 import "localstorage-polyfill";
 import { FinalExecutionOutcome } from "../tsTypes";
 
-const MockBrowser = require("mock-browser").mocks.MockBrowser;
-const mock = new MockBrowser();
-
-global["document"] = mock.getDocument();
-global["window"] = mock.getWindow();
-global["localStorage"] = localStorage;
 
 jest.setTimeout(360000);
 
-describe("Write operations", () => {
+describe("Fetch operations", () => {
   let client: PolywrapClient;
   let apiUri: string;
   let nearConfig: NearPluginConfig;
