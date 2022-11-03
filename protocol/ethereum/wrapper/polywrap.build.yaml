@@ -1,9 +1,0 @@
-format: 0.1.0
-docker:
-  name: ethereum-wrapper
-config:
-  rust_version: "1.58.0"
-  include:
-    - ./src/lib.rs
-    - ./src/task.rs
-    - ./src/provider.rs

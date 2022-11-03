@@ -95,6 +95,8 @@ type Module {
 
   encodeFunction(method: String!, args: [String!]): String!
 
+  decodeFunction(method: String!, data: String!): [String!]!
+
   getSignerAddress: String!
 
   getSignerBalance(blockTag: BigInt): BigInt!

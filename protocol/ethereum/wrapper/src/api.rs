@@ -90,6 +90,23 @@ pub fn encode_function(method: &str, args: Vec<String>) -> Vec<u8> {
     bytes
 }
 
+pub fn decode_function(method: &str, data: Vec<u8>) -> Vec<Token> {
+    let function = AbiParser::default().parse_function(method).unwrap();
+    let sig = function.short_signature();
+    let mut has_sig = false;
+
+    if data[0..4] == sig {
+        has_sig = true;
+    }
+
+    let arg_bytes: &[u8] = match has_sig {
+        true => &data[4..],
+        false => &data[0..]
+    };
+
+    function.decode_input(arg_bytes).unwrap()
+}
+
 pub fn to_wei(eth: String) -> U256 {
     match parse_ether(eth) {
         Ok(wei) => wei,

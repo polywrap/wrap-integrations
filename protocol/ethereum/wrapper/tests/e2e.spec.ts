@@ -1,13 +1,8 @@
 import { PolywrapClient } from "@polywrap/client-js";
-import { WrapManifest } from "@polywrap/wrap-manifest-types-js";
-import { defaultIpfsProviders } from "@polywrap/client-config-builder-js";
-import { Client, PluginModule } from "@polywrap/core-js";
 import { ensResolverPlugin } from "@polywrap/ens-resolver-plugin-js";
-import { ipfsPlugin } from "@polywrap/ipfs-plugin-js";
 import {
   initTestEnvironment,
   stopTestEnvironment,
-  buildWrapper,
   ensAddresses,
   providers,
 } from "@polywrap/test-env-js";
@@ -54,13 +49,6 @@ describe("Ethereum Plugin", () => {
     client = new PolywrapClient({
       plugins: [
         {
-          uri: "wrap://ens/ipfs.polywrap.eth",
-          plugin: ipfsPlugin({
-            provider: providers.ipfs,
-            fallbackProviders: defaultIpfsProviders,
-          }),
-        },
-        {
           uri: "wrap://ens/ens-resolver.polywrap.eth",
           plugin: ensResolverPlugin({
             addresses: {
@@ -92,9 +80,10 @@ describe("Ethereum Plugin", () => {
         args: {},
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-      expect(response.data).toBe("1337");
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
+      expect(response.value).toBe("1337");
     });
 
     it("getBalance", async () => {
@@ -106,8 +95,9 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
     });
 
     it("checkAddress", async () => {
@@ -119,9 +109,10 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-      expect(response.data).toEqual(true);
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
+      expect(response.value).toEqual(true);
     });
 
     it("getGasPrice", async () => {
@@ -130,8 +121,9 @@ describe("Ethereum Plugin", () => {
         method: "getGasPrice"
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
     });
 
     it("signMessage", async () => {
@@ -143,8 +135,9 @@ describe("Ethereum Plugin", () => {
         }
       });
 
-      expect(response.error).toBeUndefined();
-      expect(JSON.parse(response.data)).toBe(
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBe(
         "0xa4708243bf782c6769ed04d83e7192dbcf4fc131aa54fde9d889d8633ae39dab03d7babd2392982dff6bc20177f7d887e27e50848c851320ee89c6c63d18ca761c"
       );
     });
@@ -155,9 +148,10 @@ describe("Ethereum Plugin", () => {
         method: "getSignerAddress",
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-      expect(response.data?.startsWith("0x")).toBe(true);
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
+      expect(response.value?.startsWith("0x")).toBe(true);
     });
 
     it("getSignerBalance", async () => {
@@ -166,8 +160,9 @@ describe("Ethereum Plugin", () => {
         method: "getSignerBalance",
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
     });
 
     it("getSignerTransactionCount", async () => {
@@ -176,9 +171,10 @@ describe("Ethereum Plugin", () => {
         method: "getSignerTransactionCount",
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-      expect(Number(response.data)).toBeTruthy();
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
+      expect(Number(response.value)).toBeTruthy();
     });
 
     it("getGasPrice", async () => {
@@ -187,9 +183,10 @@ describe("Ethereum Plugin", () => {
         method: "getGasPrice",
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-      expect(Number(response.data)).toBeTruthy();
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
+      expect(Number(response.value)).toBeTruthy();
     });
 
     it("encodeParams", async () => {
@@ -202,7 +199,9 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(JSON.parse(response.data)).toBe(
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBe(
         "0x000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000"
       );
 
@@ -219,8 +218,9 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(response.error).toBeUndefined();
-      expect(JSON.parse(response.data)).toBe(
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBe(
         "0x46d4adf20000000000000000000000000000000000000000000000000000000000000064"
       );
 
@@ -233,7 +233,7 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(acceptsArrayArg.error).toBeUndefined();
+      expect(acceptsArrayArg.ok).toBeTruthy();
     });
 
     it("toWei", async () => {
@@ -245,9 +245,10 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-      expect(response.data).toEqual("20000000000000000000");
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
+      expect(response.value).toEqual("20000000000000000000");
     });
 
     it("toEth", async () => {
@@ -259,9 +260,10 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-      expect(response.data).toEqual("20");
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
+      expect(response.value).toEqual("20");
     });
 
     it("sendRpc", async () => {
@@ -273,8 +275,9 @@ describe("Ethereum Plugin", () => {
         }
       });
 
-      expect(res.error).toBeUndefined();
-      expect(res.data).toBeDefined();
+      expect(res.ok).toBeTruthy();
+      if (!res.ok) throw Error("never");
+      expect(res.value).toBeDefined();
     });
 
     it("estimateTransactionGas", async () => {
@@ -290,9 +293,10 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-      const num = ethers.BigNumber.from(response.data);
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
+      const num = ethers.BigNumber.from(response.value);
       expect(num.gt(0)).toBeTruthy();
     });
 
@@ -309,9 +313,10 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data?.hash).toBeTruthy();
-      const txHash = response.data?.hash as string;
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value.hash).toBeTruthy();
+      const txHash = response.value.hash as string;
 
       const awaitResponse = await client.invoke<Schema.TxReceipt>({
         uri,
@@ -323,9 +328,10 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(awaitResponse.error).toBeUndefined();
-      expect(awaitResponse.data).toBeDefined();
-      expect(awaitResponse.data?.transactionHash).toBeDefined();
+      expect(awaitResponse.ok).toBeTruthy();
+      if (!awaitResponse.ok) throw Error("never");
+      expect(awaitResponse.value).toBeDefined();
+      expect(awaitResponse.value.transactionHash).toBeDefined();
     });
 
     it("sendTransaction", async () => {
@@ -337,9 +343,10 @@ describe("Ethereum Plugin", () => {
         }
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-      expect(response.data?.hash).toBeDefined();
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
+      expect(response.value.hash).toBeDefined();
     });
 
     it("sendTransactionAndWait", async () => {
@@ -351,10 +358,11 @@ describe("Ethereum Plugin", () => {
         }
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
       expect(
-        response.data?.transactionHash
+        response.value.transactionHash
       ).toBeDefined();
     });
 
@@ -371,9 +379,10 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-      const num = ethers.BigNumber.from(response.data);
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
+      const num = ethers.BigNumber.from(response.value);
       expect(num.gt(0)).toBeTruthy();
     });
 
@@ -387,9 +396,10 @@ describe("Ethereum Plugin", () => {
         }
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-      expect(response.data).toContain("0x");
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
+      expect(response.value).toContain("0x");
     });
 
     it("estimateContractCallGas", async () => {
@@ -404,9 +414,10 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(response.data).toBeDefined();
-      expect(response.error).toBeUndefined();
-      const num = ethers.BigNumber.from(response.data);
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
+      const num = ethers.BigNumber.from(response.value);
       expect(num.gt(0)).toBeTruthy();
     });
 
@@ -422,9 +433,10 @@ describe("Ethereum Plugin", () => {
         }
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-      expect(response.data).toBe("0x0000000000000000000000000000000000000000");
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
+      expect(response.value).toBe("0x0000000000000000000000000000000000000000");
     });
 
     it("callContractStatic (no error)", async () => {
@@ -439,9 +451,10 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data?.error).toBeFalsy();
-      expect(response.data?.result).toBe("");
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value.error).toBeFalsy();
+      expect(response.value.result).toBe("");
     });
 
     it("callContractStatic (expecting error)", async () => {
@@ -456,10 +469,11 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-      expect(response.data?.error).toBeTruthy();
-      expect(response.data?.result).toContain(
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
+      expect(response.value.error).toBeTruthy();
+      expect(response.value.result).toContain(
 	"VM Exception while processing transaction: revert"
       );
     });
@@ -478,8 +492,9 @@ describe("Ethereum Plugin", () => {
 
       // TODO: add txOverrides
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
     });
 
     it("callContractMethodAndWait", async () => {
@@ -493,8 +508,9 @@ describe("Ethereum Plugin", () => {
           args: [label, signer],
         }
       });
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBeDefined();
     });
   });
 });

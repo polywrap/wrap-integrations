@@ -47,7 +47,7 @@ impl PolywrapSigner {
 
     /// Signs the provided hash.
     pub fn sign_hash(&self, hash: H256) -> Signature {
-        let params_s = serde_json::to_string(&hash.as_bytes()).unwrap();
+        let params_s = serde_json::to_string(&hash).unwrap();
         let signature = ProviderModule::request(&ArgsRequest {
             method: "personal_signDigest".to_owned(),
             params: Some(params_s),

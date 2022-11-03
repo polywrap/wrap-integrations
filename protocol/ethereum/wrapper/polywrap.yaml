@@ -9,4 +9,4 @@ source:
   - uri: wrap://ens/ethereum-provider.polywrap.eth
     abi: ../provider/build/wrap.info
 extensions:
-  build: ./polywrap.build.yaml
+  deploy: ./polywrap.deploy.yaml

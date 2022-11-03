@@ -23,7 +23,7 @@ pub fn format_token(token: &Token) -> String {
         Token::Bytes(ref bytes) | Token::FixedBytes(ref bytes) => {
             format!("{}", hex::encode(&bytes))
         }
-        Token::Uint(ref i) | Token::Int(ref i) => format!("{:x}", i),
+        Token::Uint(ref i) | Token::Int(ref i) => format!("{}", i),
         Token::Array(ref arr) | Token::FixedArray(ref arr) => {
             let s = arr
                 .iter()

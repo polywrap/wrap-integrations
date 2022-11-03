@@ -64,19 +64,28 @@ pub fn sign_message(input: wrap::ArgsSignMessage) -> String {
     block_on(async {
         let signature = api::sign_message(&input.message).await;
         let bytes: Bytes = signature.to_vec().into();
-        serde_json::to_string(&bytes).unwrap()
+        format!("{}", bytes).to_string()
     })
 }
 
 pub fn encode_params(input: wrap::ArgsEncodeParams) -> String {
     let bytes: Bytes = api::encode_params(input.types, input.values).into();
-    serde_json::to_string(&bytes).unwrap()
+    format!("{}", bytes).to_string()
 }
 
 pub fn encode_function(input: wrap::ArgsEncodeFunction) -> String {
     let args: Vec<String> = input.args.unwrap_or(vec![]);
     let bytes: Bytes = api::encode_function(&input.method, args).into();
-    serde_json::to_string(&bytes).unwrap()
+    format!("{}", bytes).to_string()
+}
+
+pub fn decode_function(input: wrap::ArgsDecodeFunction) -> Vec<String> {
+    let data = Bytes::from_str(&input.data).unwrap().to_vec();
+    let tokens = api::decode_function(&input.method, data);
+    tokens
+        .iter()
+        .map(|t| format::format_token(t))
+        .collect()
 }
 
 pub fn to_wei(input: ArgsToWei) -> String {
