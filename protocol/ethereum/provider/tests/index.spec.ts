@@ -1,8 +1,7 @@
 import { PolywrapClient } from "@polywrap/client-js";
-//import * as path from 'path'
 
 import { BigNumber, Wallet, ethers } from "ethers";
-import { ethereumProviderPlugin } from "../src/index";
+import { ethereumProviderPlugin } from "../src";
 
 jest.setTimeout(360000);
 
@@ -34,14 +33,11 @@ describe("Ethereum Plugin", () => {
         method: "request",
         args: { method: "eth_chainId" }
       });
-      const data = response.data;
-      let res;
-      if (data) {
-        res = BigNumber.from(JSON.parse(data)).toString();
-      }
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
+      if (!response.ok) fail(response.error);
+      expect(response.value).toBeDefined();
+
+      const res = BigNumber.from(JSON.parse(response.value)).toString();
       expect(res).toBe("56");
     });
 
@@ -55,9 +51,10 @@ describe("Ethereum Plugin", () => {
         args: { method: "personal_signDigest", params},
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-      expect(response.data).toBe("0xa4708243bf782c6769ed04d83e7192dbcf4fc131aa54fde9d889d8633ae39dab03d7babd2392982dff6bc20177f7d887e27e50848c851320ee89c6c63d18ca761c");
+      if (!response.ok) fail(response.error);
+
+      expect(response.value).toBeDefined();
+      expect(response.value).toBe("0xa4708243bf782c6769ed04d83e7192dbcf4fc131aa54fde9d889d8633ae39dab03d7babd2392982dff6bc20177f7d887e27e50848c851320ee89c6c63d18ca761c");
     });
 
     it("personal_address", async () => {
@@ -67,21 +64,22 @@ describe("Ethereum Plugin", () => {
         args: { method: "personal_address" }
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBeDefined();
-      expect(response.data?.startsWith("0x")).toBe(true);
+      if (!response.ok) fail(response.error);
+      expect(response.value).toBeDefined();
+
+      expect(response.value?.startsWith("0x")).toBe(true);
     });
 
-    // it("personal_chainId", async () => {
-    //   const response = await client.invoke<string>({
-    //     uri,
-    //     method: "request",
-    //     args: { method: "personal_chainId" }
-    //   });
+    it("personal_chainId", async () => {
+      const response = await client.invoke<string>({
+        uri,
+        method: "request",
+        args: { method: "personal_chainId" }
+      });
 
-    //   expect(response.error).toBeUndefined();
-    //   expect(response.data).toBeDefined();
-    // });
+      if (!response.ok) fail(response.error);
+      expect(response.value).toEqual("56");
+    });
   });
 });
 

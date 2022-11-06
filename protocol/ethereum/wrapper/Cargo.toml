@@ -12,7 +12,7 @@ edition = "2021"
 [dependencies]
 thiserror = "1.0.30"
 async-trait = "0.1.57"
-polywrap-wasm-rs = "0.7.0"
+polywrap-wasm-rs = "0.9.3"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0.64", default-features = false, features = ["raw_value"] }
 ethers-providers = { version = "0.17.0", features = [] }

@@ -31,7 +31,7 @@ jest.setTimeout(360000);
 describe("Ethereum Plugin", () => {
   let client: PolywrapClient;
   let ensAddress: string;
-  let resolverAddress: string;
+  // let resolverAddress: string;
   let registrarAddress: string;
   const signer = "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1";
 
@@ -43,7 +43,7 @@ describe("Ethereum Plugin", () => {
     await initTestEnvironment();
 
     ensAddress = ensAddresses.ensAddress;
-    resolverAddress = ensAddresses.resolverAddress;
+    // resolverAddress = ensAddresses.resolverAddress;
     registrarAddress = ensAddresses.registrarAddress;
 
     client = new PolywrapClient({
