@@ -6,11 +6,11 @@ pub fn params_to_types(params: &Vec<Param>) -> Vec<ParamType> {
     params.clone().into_iter().map(|i| i.kind).collect()
 }
 
-pub fn tokenize_values(values: Vec<String>, kinds: Vec<ParamType>) -> Vec<Token> {
+pub fn tokenize_values(values: &Vec<String>, kinds: &Vec<ParamType>) -> Vec<Token> {
     values
         .iter()
         .zip(kinds.iter())
-        .map(|(arg, kind)| ethabi::token::LenientTokenizer::tokenize(&kind, arg).unwrap())
+        .map(|(arg, kind)| ethabi::token::LenientTokenizer::tokenize(kind, arg).unwrap())
         .collect()
 }
 
@@ -43,13 +43,13 @@ pub fn format_token(token: &Token) -> String {
     }
 }
 
-pub fn format_tokens(tokens: Vec<Token>) -> String {
+pub fn format_tokens(tokens: &Vec<Token>) -> String {
     match tokens.len() {
         0 => "".to_string(),
         1 => format_token(&tokens[0]),
         _ => format!(
             "[{}]",
-            &tokens
+            tokens
                 .iter()
                 .map(format_token)
                 .collect::<Vec<String>>()

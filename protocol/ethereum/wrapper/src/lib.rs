@@ -169,7 +169,7 @@ pub fn call_contract_view(input: wrap::ArgsCallContractView) -> String {
         };
         let args: Vec<String> = input.args.unwrap_or(vec![]);
         let tokens = api::call_contract_view(address, &input.method, args).await;
-        format::format_tokens(tokens)
+        format::format_tokens(&tokens)
     })
 }
 
@@ -183,7 +183,7 @@ pub fn call_contract_static(input: ArgsCallContractStatic) -> wrap::StaticTxResu
         let result = api::call_contract_static(address, &input.method, args).await;
         match result {
             Ok(tokens) => wrap::StaticTxResult {
-                result: format::format_tokens(tokens),
+                result: format::format_tokens(&tokens),
                 error: false,
             },
             Err(e) => wrap::StaticTxResult {

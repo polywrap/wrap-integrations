@@ -77,7 +77,7 @@ pub fn encode_params(types: Vec<String>, values: Vec<String>) -> Vec<u8> {
         .iter()
         .map(|t| HumanReadableParser::parse_type(&t).unwrap())
         .collect();
-    let tokens: Vec<Token> = tokenize_values(values, kinds);
+    let tokens: Vec<Token> = tokenize_values(&values, &kinds);
     let bytes = encode(&tokens);
     bytes
 }
@@ -85,7 +85,7 @@ pub fn encode_params(types: Vec<String>, values: Vec<String>) -> Vec<u8> {
 pub fn encode_function(method: &str, args: Vec<String>) -> Vec<u8> {
     let function = AbiParser::default().parse_function(method).unwrap();
     let kinds: Vec<ParamType> = params_to_types(&function.inputs);
-    let tokens: Vec<Token> = tokenize_values(args, kinds);
+    let tokens: Vec<Token> = tokenize_values(&args, &kinds);
     let bytes = function.encode_input(&tokens).unwrap();
     bytes
 }
@@ -110,7 +110,7 @@ pub fn decode_function(method: &str, data: Vec<u8>) -> Vec<Token> {
 pub fn to_wei(eth: String) -> U256 {
     match parse_ether(eth) {
         Ok(wei) => wei,
-        Err(e) => panic!("{}", e),
+        Err(e) => panic!("{}", e.to_string()),
     }
 }
 
@@ -182,7 +182,7 @@ pub fn deploy_contract(
         (None, true) => bytecode.clone(),
         (Some(constructor), _) => {
             let kinds: Vec<ParamType> = params_to_types(&constructor.inputs);
-            let tokens: Vec<Token> = tokenize_values(params, kinds);
+            let tokens: Vec<Token> = tokenize_values(&params, &kinds);
             constructor.encode_input(bytecode.to_vec(), &tokens)?.into()
         }
     };
@@ -198,7 +198,7 @@ pub async fn estimate_contract_call_gas(address: Address, method: &str, args: Ve
     let provider = Provider::new(PolywrapProvider {});
     let function = AbiParser::default().parse_function(method).unwrap();
     let kinds: Vec<ParamType> = params_to_types(&function.inputs);
-    let tokens: Vec<Token> = tokenize_values(args, kinds);
+    let tokens: Vec<Token> = tokenize_values(&args, &kinds);
     let data: Bytes = function.encode_input(&tokens).map(Into::into).unwrap();
     let tx = TransactionRequest {
         to: Some(address.into()),
@@ -213,7 +213,7 @@ pub async fn estimate_contract_call_gas(address: Address, method: &str, args: Ve
 pub async fn call_contract_view(address: Address, method: &str, args: Vec<String>) -> Vec<Token> {
     let function = AbiParser::default().parse_function(method).unwrap();
     let kinds: Vec<ParamType> = params_to_types(&function.inputs);
-    let tokens: Vec<Token> = tokenize_values(args, kinds);
+    let tokens: Vec<Token> = tokenize_values(&args, &kinds);
     let data: Bytes = function.encode_input(&tokens).map(Into::into).unwrap();
 
     // TODO check if chain supports EIP-1559
@@ -252,7 +252,7 @@ pub async fn call_contract_static(
 
     let function = AbiParser::default().parse_function(method)?;
     let kinds: Vec<ParamType> = params_to_types(&function.inputs);
-    let tokens: Vec<Token> = tokenize_values(args, kinds);
+    let tokens: Vec<Token> = tokenize_values(&args, &kinds);
 
     let data: Bytes = function.encode_input(&tokens).map(Into::into)?;
 
@@ -284,7 +284,7 @@ pub async fn call_contract_method(
 
     let function = AbiParser::default().parse_function(method).unwrap();
     let kinds: Vec<ParamType> = params_to_types(&function.inputs);
-    let tokens: Vec<Token> = tokenize_values(args, kinds);
+    let tokens: Vec<Token> = tokenize_values(&args, &kinds);
 
     let data: Bytes = function.encode_input(&tokens).map(Into::into).unwrap();
 
