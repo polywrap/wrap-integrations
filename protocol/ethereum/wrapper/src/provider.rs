@@ -32,6 +32,7 @@ impl From<ClientError> for ProviderError {
 }
 
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait)]
 impl JsonRpcClient for PolywrapProvider {
     type Error = ClientError;
 
@@ -41,7 +42,7 @@ impl JsonRpcClient for PolywrapProvider {
         &self,
         method: &str,
         params: T,
-    ) -> Result<R, ClientError> {
+    ) -> Result<R, Self::Error> {
         let params_s = serde_json::to_string(&params).unwrap();
         let res = ProviderModule::request(&ArgsRequest {
             method: method.to_string(),
