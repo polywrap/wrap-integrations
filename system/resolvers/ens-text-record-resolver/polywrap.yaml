@@ -1,7 +1,9 @@
-format: 0.1.0
-name: ens-text-record-resolver
-language: wasm/rust
-build: ./polywrap.build.yaml
-deploy: ./polywrap.deploy.yaml
-module: ./Cargo.toml
-schema: ./src/schema.graphql
+format: 0.2.0
+project:
+  name: ens-text-record-resolver
+  type: wasm/rust
+source:
+  module: ./Cargo.toml
+  schema: ./src/schema.graphql
+extensions:
+  deploy: ./polywrap.deploy.yaml

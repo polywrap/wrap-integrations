@@ -1,2 +1,2 @@
 # ENS text record resolver wrapper
-Wrapper resolving ENS text records
+Wrapper resolving ENS text records.

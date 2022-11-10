@@ -9,4 +9,5 @@ module.exports = {
       diagnostics: false,
     },
   },
+  modulePathIgnorePatterns: [".polywrap"]
 };

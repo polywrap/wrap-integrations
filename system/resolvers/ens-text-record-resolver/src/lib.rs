@@ -74,7 +74,7 @@ fn _try_resolve_uri(
     let text_record_info = parse_uri(args);
 
     if let None = text_record_info {
-        return not_found(args);
+        return None;
     }
 
     let TextRecordInfo {
@@ -84,48 +84,45 @@ fn _try_resolve_uri(
         text_record_key
     } = text_record_info.unwrap();
 
-    let resolver_address = get_resolver(&ArgsGetResolver {
+    let resolver_address = match get_resolver(&ArgsGetResolver {
         registry_address: ENS_REGISTRY_ADDRESS.to_string(),
         domain: domain.to_string(),
         connection: network_to_connection(network_name.clone())
-    });
+    }) {
+        Ok(value) => value,
+        Err(_) => return not_found()
+    };
 
-    match resolver_address {
-        Ok(resolver_address) => {
-            let text_record = get_text_record(&ArgsGetTextRecord{
-                domain: domain.to_string(),
-                resolver_address,
-                key: text_record_key.to_string(),
-                connection: network_to_connection(network_name.clone())
-            });
-        
-            match text_record {
-                Ok(text_record) => {
-                    if carry_over_path.is_empty() {
-                        redirect(text_record)
-                    } else {
-                        redirect(text_record + "/" + &carry_over_path)
-                    }
-                }
-                Err(_) => {
-                    not_found(&args)
-                }
-            }
-        },
-        Err(_) => not_found(&args)
+    let text_record = match get_text_record(&ArgsGetTextRecord{
+        domain: domain.to_string(),
+        resolver_address,
+        key: text_record_key.to_string(),
+        connection: network_to_connection(network_name.clone())
+    }) {
+        Ok(value) => value,
+        Err(_) => return not_found()
+    };
+
+    if carry_over_path.is_empty() {
+        redirect(text_record)
+    } else {
+        redirect(text_record + "/" + &carry_over_path)
     }
 }
 
-fn not_found(args: &ArgsTryResolveUri) -> Option<UriResolverMaybeUriOrManifest> {
-    return redirect("wrap://".to_string() + &args.authority + "/" + &args.path);
-} 
+fn not_found() -> Option<UriResolverMaybeUriOrManifest> {
+    Some(UriResolverMaybeUriOrManifest {
+        uri: None,
+        manifest: None
+    })
+}
 
 fn network_to_connection<T: Into<String>>(network_name: T) -> Option<ENSEthereumConnection> {
     Some(ENSEthereumConnection {
         network_name_or_chain_id: Some(network_name.into()),
         node: None
     })
-} 
+}
 
 fn redirect<T: Into<String>>(uri: T) -> Option<UriResolverMaybeUriOrManifest> {
     Some(UriResolverMaybeUriOrManifest {
@@ -157,7 +154,7 @@ mod tests {
                     network_name: "mainnet".to_string(),
                     carry_over_path: "".to_string(),
                     domain: "domain.eth".to_string(),
-                    text_record_key: "polywrap/some_key".to_string()
+                    text_record_key: "wrap/some_key".to_string()
                 }
             )
         );
@@ -175,7 +172,7 @@ mod tests {
                     network_name: "mainnet".to_string(),
                     carry_over_path: "".to_string(),
                     domain: "domain.eth".to_string(),
-                    text_record_key: "polywrap/some_key".to_string()
+                    text_record_key: "wrap/some_key".to_string()
                 }
             )
         );
@@ -193,7 +190,7 @@ mod tests {
                     network_name: "goerli".to_string(),
                     carry_over_path: "dir/wrap.info".to_string(),
                     domain: "domain.eth".to_string(),
-                    text_record_key: "polywrap/some_key".to_string()
+                    text_record_key: "wrap/some_key".to_string()
                 }
             )
         );
@@ -216,11 +213,11 @@ mod tests {
             authority: "ens".to_string(),
             path: "domain.eth:invalid_key".to_string(),
         },
-        "polywrap/some_key".to_string(),
+        "wrap/some_key".to_string(),
         "wrap://ens/test.eth".to_string(), 
         &Some(
             UriResolverMaybeUriOrManifest {
-                uri: Some("wrap://ens/domain.eth:invalid_key".to_string()),
+                uri: None,
                 manifest: None
             }
         ));
@@ -233,7 +230,7 @@ mod tests {
                 authority: "ens".to_string(),
                 path: "goerli/domain.eth:some_key".to_string(),
             },
-            "polywrap/some_key".to_string(),
+            "wrap/some_key".to_string(),
             "ipfs/Qmdasd".to_string(), 
             &Some(
                 UriResolverMaybeUriOrManifest {
@@ -250,7 +247,7 @@ mod tests {
             authority: "ens".to_string(),
             path: "goerli/domain.eth:some_key/dir/wrap.info".to_string(),
         },
-        "polywrap/some_key".to_string(),
+        "wrap/some_key".to_string(),
         "ipfs/Qmdasd".to_string(), 
         &Some(
             UriResolverMaybeUriOrManifest {
@@ -260,7 +257,7 @@ mod tests {
         ));
     }
 
-    fn assert_resolve_uri(args: &ArgsTryResolveUri, text_record_key: String, text_record_value: String, expected_uri: &Option<UriResolverMaybeUriOrManifest>) {
+    fn assert_resolve_uri(args: &ArgsTryResolveUri, text_record_key: String, text_record_value: String, expected_res: &Option<UriResolverMaybeUriOrManifest>) {
         match _try_resolve_uri(
             &args, 
             &|_| Ok("0x123".to_string()),
@@ -282,14 +279,14 @@ mod tests {
             Some(UriResolverMaybeUriOrManifest {
                 uri: Some(uri),
                 manifest: None
-            }) => match expected_uri {
-                Some(expected_uri) => {
-                    match expected_uri {
+            }) => match expected_res {
+                Some(expected_res) => {
+                    match expected_res {
                         UriResolverMaybeUriOrManifest {
-                            uri: Some(expected_uri),
+                            uri: Some(expected_res),
                             manifest: None
                         } => {
-                            assert_eq!(&uri, expected_uri);
+                            assert_eq!(&uri, expected_res);
                         }
                         _ => {
                             panic!("Unexpected uri");
@@ -298,6 +295,24 @@ mod tests {
                 }
                 None => {
                     panic!("Unexpected uri");
+                }
+            },
+            Some(UriResolverMaybeUriOrManifest {
+                uri: None,
+                manifest: None
+            }) => {
+                match expected_res {
+                    Some(UriResolverMaybeUriOrManifest {
+                        uri: None,
+                        manifest: None
+                    }) => (),
+                    _ => panic!("Expected a uri or manifest to be returned")
+                }
+            },
+            None => {
+                match expected_res {
+                    None => (),
+                    _ => panic!("Expected a null response")
                 }
             },
             _ => assert!(false)
