@@ -59,9 +59,9 @@ describe("Ethereum Plugin", () => {
         {
           uri: "wrap://ens/ethereum-provider.polywrap.eth",
           plugin: ethereumProviderPlugin({
-	    url: providers.ethereum, 
-	    wallet: new Wallet("0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d")
-	  }),
+            url: providers.ethereum,
+            wallet: new Wallet("0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d")
+          }),
         },
       ],
     });
@@ -204,8 +204,61 @@ describe("Ethereum Plugin", () => {
       expect(response.value).toBe(
         "0x000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000"
       );
+    });
 
-      // TODO: test tuple
+    it("encodeParams - tuple standard", async () => {
+
+      const response = await client.invoke<string>({
+        uri,
+        method: "encodeParams",
+        args: {
+          types: ["(uint256, uint256)"],
+          values: ["(8, 16)"],
+        },
+      });
+
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBe(
+        ""
+      );
+
+    });
+
+    it("encodeParams - tuple standard, address", async () => {
+
+      const response = await client.invoke<string>({
+        uri,
+        method: "encodeParams",
+        args: {
+          types: ["(uint256, uint256, address)"],
+          values: ["(8, 16, '0x0000000000000000000000000000000000000000')"],
+        },
+      });
+
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBe(
+        ""
+      );
+
+    });
+
+    it("encodeParams - tuple ethers", async () => {
+      const response = await client.invoke<string>({
+        uri,
+        method: "encodeParams",
+        args: {
+          types: ["tuple(uint256, uint256)"],
+          values: ["tuple(8, 16)"],
+        },
+      });
+
+      expect(response.ok).toBeTruthy();
+      if (!response.ok) throw Error("never");
+      expect(response.value).toBe(
+        ""
+      );
     });
 
     it("encodeFunction", async () => {
@@ -474,7 +527,7 @@ describe("Ethereum Plugin", () => {
       expect(response.value).toBeDefined();
       expect(response.value.error).toBeTruthy();
       expect(response.value.result).toContain(
-	"VM Exception while processing transaction: revert"
+        "VM Exception while processing transaction: revert"
       );
     });
 
