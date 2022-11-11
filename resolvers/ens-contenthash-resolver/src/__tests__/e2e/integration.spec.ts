@@ -1,15 +1,14 @@
-import { UriResolutionContext, Uri } from "@polywrap/core-js";
 import { PolywrapClient } from "@polywrap/client-js";
 import path from "path";
 
 jest.setTimeout(60000);
 
-describe("ens-text-record-resolver e2e tests", () => {
+describe("ens-contenthash-resolver e2e tests", () => {
 
   const client: PolywrapClient = new PolywrapClient();
   let wrapperUri: string;
 
-  beforeAll(async () => {
+  beforeAll(() => {
     const dirname: string = path.resolve(__dirname);
     const wrapperPath: string = path.join(dirname, "..", "..", "..");
     wrapperUri = `fs/${wrapperPath}/build`;
@@ -21,7 +20,7 @@ describe("ens-text-record-resolver e2e tests", () => {
       method: "tryResolveUri",
       args: {
         authority: "ens",
-        path: "goerli/wrappers.polywrap-test.eth:foo"
+        path: "goerli/wrappers.polywrap-test.eth"
       }
     });
 
@@ -29,7 +28,7 @@ describe("ens-text-record-resolver e2e tests", () => {
     if (result.ok) {
       expect(result.value).toMatchObject({
         manifest: null,
-        uri: "ipfs/QmYetqf2GwXx2TKvg7Mv5ikKLfJGdD1sY3GVrnM2nPKAf2"
+        uri: "ens-contenthash/" + "0xe3010170122099414d050f2047adef185f430d0b8780e6fd793bfde965627b01e48f5ac0c971"
       });
     }
   });
@@ -40,7 +39,7 @@ describe("ens-text-record-resolver e2e tests", () => {
       method: "tryResolveUri",
       args: {
         authority: "foo",
-        path: "goerli/wrappers.polywrap-test.eth:foo"
+        path: "goerli/wrappers.polywrap-test.eth"
       }
     });
 
@@ -56,7 +55,7 @@ describe("ens-text-record-resolver e2e tests", () => {
       method: "tryResolveUri",
       args: {
         authority: "ens",
-        path: "goerli/foo.polywrap-test.eth:bar"
+        path: "goerli/foo.polywrap-test.eth"
       }
     });
 
@@ -69,46 +68,22 @@ describe("ens-text-record-resolver e2e tests", () => {
     }
   });
 
-  it("recursively resolves", async () => {
-    const client = new PolywrapClient({
-      interfaces: [{
-        interface: "wrap://ens/uri-resolver.core.polywrap.eth",
-        implementations: [wrapperUri]
-      }]
-    });
-
+  it("text-record appended", async () => {
     const result = await client.invoke({
       uri: wrapperUri,
       method: "tryResolveUri",
       args: {
         authority: "ens",
-        path: "goerli/wrappers.polywrap-test.eth:package@1.0.0"
+        path: "goerli/wrappers.polywrap-test.eth:foo"
       }
     });
 
     expect(result.ok).toBeTruthy();
     if (result.ok) {
       expect(result.value).toMatchObject({
+        uri: null,
         manifest: null,
-        uri: "wrap://ens/goerli/wrappers.polywrap-test.eth:foo"
       });
     }
-
-    const context = new UriResolutionContext();
-    const uri = await client.tryResolveUri({
-      uri: "ens/goerli/wrappers.polywrap-test.eth:package@1.0.0",
-      resolutionContext: context
-    });
-    const path = context.getResolutionPath();
-
-    expect(uri.ok).toBeTruthy();
-    if (uri.ok) {
-      expect(uri.value.type).toBe("wrapper");
-    }
-    expect(path).toMatchObject([
-      new Uri("ens/goerli/wrappers.polywrap-test.eth:package@1.0.0"),
-      new Uri("ens/goerli/wrappers.polywrap-test.eth:foo"),
-      new Uri("ipfs/QmYetqf2GwXx2TKvg7Mv5ikKLfJGdD1sY3GVrnM2nPKAf2")
-    ]);
   });
 });
