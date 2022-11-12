@@ -37,7 +37,11 @@ fn parse_uri(args: &ArgsTryResolveUri) -> Option<TextRecordInfo> {
     if domain_or_network.contains(".eth") {
         network_name = "mainnet";
         domain_and_text_record = domain_or_network;
-        carry_over_path = path_parts[1..].join(PATH_SEPARATOR);
+        if (path_parts.len() > 1) {
+            carry_over_path = path_parts[1..].join(PATH_SEPARATOR);
+        } else {
+            carry_over_path = "".to_string();
+        }
     } else if path_parts.len() < 2 {
         return None;
     } else {
@@ -47,6 +51,11 @@ fn parse_uri(args: &ArgsTryResolveUri) -> Option<TextRecordInfo> {
     };
 
     let domain_parts: Vec<&str> = domain_and_text_record.split(TEXT_RECORD_SEPARATOR).collect();
+
+    if domain_parts.len() < 2 {
+        return None;
+    }
+
     let domain = domain_parts[0];
     let text_record_key = domain_parts[1];
 
