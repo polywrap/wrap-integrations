@@ -90,4 +90,19 @@ describe("ens-contenthash-resolver e2e tests", () => {
       });
     }
   });
+
+  it("getFile", async () => {
+    const result = await client.invoke({
+      uri: wrapperUri,
+      method: "getFile",
+      args: {
+        path: "./src/__tests__/test-wrapper/wrap.info"
+      }
+    });
+
+    expect(result.ok).toBeTruthy();
+    if (result.ok) {
+      expect(result.value).toMatchObject(manifest);
+    }
+  });
 });
