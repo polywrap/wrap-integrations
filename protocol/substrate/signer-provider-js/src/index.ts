@@ -27,6 +27,10 @@ export class SubstrateSignerProviderPlugin extends Module<SubstrateSignerProvide
     this._registry = new TypeRegistry();
   }
 
+  /**
+   * Return the accounts managed by the connected polkadot-js plugin.
+   * args is an empty arg just included to meet the function signature requirementss
+   */
   async getAccounts(
     args: Args_getAccounts,
     client: Client
@@ -35,6 +39,11 @@ export class SubstrateSignerProviderPlugin extends Module<SubstrateSignerProvide
     return await web3Accounts();
   }
 
+  /**
+   * Sign a substrate transaction payload.
+   * This should always be used in preference to `signRaw` for transaction as it 
+   * displays a more informative dialog to the user
+   */
   async signPayload(
     { payload }: Args_signPayload,
     client: Client
@@ -50,6 +59,11 @@ export class SubstrateSignerProviderPlugin extends Module<SubstrateSignerProvide
     );
   }
 
+  /**
+   * Sign arbitrary non-transaction data.
+   * User will be presented with the hex encoded string of the payload.
+   * This is opaque so the user may not know what they are signing.
+   */
   async signRaw(
     { payload }: Args_signRaw,
     client: Client
