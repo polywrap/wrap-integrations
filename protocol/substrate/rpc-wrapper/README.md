@@ -7,6 +7,75 @@ A wrapper to be used in developing application specific Substrate wrappers.
     `nvm install & nvm use`
 - Docker installed (see OS specific installation guides)
 
+## Using the Wrapper
+
+The Substrate core wrapper can either be used directly in an application or used to make dApp specific wrapper.
+
+### Using directly (js example)
+
+The wrapper requires a Substrate signer-provider in order to sign transactions. Current the only implementation for this is for a browser javascript host and integrates with the polkadot-js browser extension for signing. In the future other signing providers might be added.
+
+In your web code create a new Polywrap client with the required plugin:
+
+```javascript
+import { PolywrapClient, Uri } from "@polywrap/client-js";
+import { substrateSignerProviderPlugin } from "substrate-signer-provider-plugin-js";
+
+client = new PolywrapClient({
+  plugins: [
+    {
+      uri: "ens/substrate-signer-provider.eth",
+      plugin: substrateSignerProviderPlugin({})
+    }
+  ]
+});
+```
+
+This client can be used to make calls using the `Substrate_Module`:
+
+```javascript
+import { Substrate_Module } from "@polywrap/substrate-rpc-wrapper"; // Package name may differ
+
+const url = "<URL/OF/Chain/RPC>";
+const uri = "ens/substrate-rpc-wrapper.eth";
+
+const result = await Substrate_Module.chainGetMetadata({
+    url
+  },
+  client,
+  uri
+);
+// Returns the metadata for the connected chain
+```
+
+### Using in Custom Wrappers (js/ts)
+
+Create a new empty wrapper following the [Polywrap developer docs](https://docs.polywrap.io/quick-start/create-plugin-wrappers/create-js-plugin)
+
+Import the Substrate base functionality into the `schema.graphql` file
+
+```graphql
+#import * into Substrate from "ens/substrate-rpc-wrapper.eth"
+```
+
+Generate the code from this using:
+
+```shell
+npm run codegen
+```
+
+You will now have access to all of the core substrate-rpc functionality inside the new wrapper code.
+
+```javascript
+import { Substrate_Module } from "../wrap";
+
+const result = await Substrate_Module.blockHash({
+    url,
+    number: 0
+});
+```
+
+
 ## Building and Development
 1. Download the needed dependencies
 ```shell
