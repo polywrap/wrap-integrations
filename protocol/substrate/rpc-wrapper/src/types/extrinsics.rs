@@ -1,35 +1,15 @@
 //! Primitives for substrate extrinsics.
 
 use crate::{
-    error::Error,
-    types::extrinsic_params::GenericExtra,
-    utils::FromHexStr,
-    wrap::SignedExtrinsicPayload,
-    ExtrinsicPayload,
+    error::Error, types::extrinsic_params::GenericExtra, utils::FromHexStr,
+    wrap::SignedExtrinsicPayload, ExtrinsicPayload,
 };
-use codec::{
-    Decode,
-    Encode,
-    Error as CodecError,
-    Input,
-};
+use codec::{Decode, Encode, Error as CodecError, Input};
 use num_traits::ToPrimitive;
-use sp_core::{
-    crypto::Ss58Codec,
-    sr25519::Signature,
-};
-use sp_runtime::{
-    generic::Era,
-    MultiSignature,
-};
-pub use sp_runtime::{
-    AccountId32,
-    MultiAddress,
-};
-use sp_std::{
-    fmt,
-    prelude::*,
-};
+use sp_core::{crypto::Ss58Codec, sr25519::Signature};
+use sp_runtime::{generic::Era, MultiSignature};
+pub use sp_runtime::{AccountId32, MultiAddress};
+use sp_std::{fmt, prelude::*};
 
 pub type GenericAddress = sp_runtime::MultiAddress<AccountId32, ()>;
 
@@ -215,11 +195,7 @@ mod tests {
     use crate::ExtrinsicPayload;
     use polywrap_wasm_rs::BigInt;
     use sp_core::Pair;
-    use sp_runtime::{
-        generic::Era,
-        testing::sr25519,
-        MultiSignature,
-    };
+    use sp_runtime::{generic::Era, testing::sr25519, MultiSignature};
 
     #[test]
     fn encode_decode_roundtrip_works() {
