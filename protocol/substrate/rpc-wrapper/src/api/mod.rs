@@ -12,7 +12,7 @@ mod extrinsic_api;
 mod storage_api;
 
 /// Api adds additional state to a BaseApi so that
-/// the chain metadata, genesis_hash and runtime_version don't need to 
+/// the chain metadata, genesis_hash and runtime_version don't need to
 /// be retrieved for each call.
 pub struct Api {
     base_api: BaseApi,

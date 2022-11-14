@@ -1,9 +1,9 @@
 //!
 //! Base API
-//! 
+//!
 //! This component of the API does not require any data other than the RPC URL to operate.
 //! It just wraps some of the RPC calls to obtain information about the connected chain
-//! 
+//!
 
 use crate::{
     error::Error,

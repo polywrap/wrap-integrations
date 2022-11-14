@@ -1,12 +1,13 @@
-# Substrate core wrapper (WIP)
+# Substrate core wrapper
 
 A wrapper to be used in developing application specific Substrate wrappers.
 
 ## Prerequisite
 - Install a recent version of node
     `nvm install & nvm use`
+- Docker installed (see OS specific installation guides)
 
-## Building and testing
+## Building and Development
 1. Download the needed dependencies
 ```shell
 yarn
@@ -17,16 +18,28 @@ yarn
 yarn codegen && yarn build
 ```
 
-3. Run the test
+Codegen must be run before attempting any development on the wrapper.
+
+## Testing
+
+Integration tests are included to test integration with:
+
+- The signer-provider plugin
+- A mock browser with a polkadot-js extension
+- A substrate chain
+
+Integration tests are included in [tests/e2e.spec.ts](./tests/e2e.spec.ts) and can be run with:
+
 ```shell
 yarn test
 ```
+
+This will take care of starting a Substrate test chain using Docker and running the tests.
 
 ## Deploying the wrapper
 ```
 yarn deploy
 ```
-
 
 Take note of the hash, this will be use to set the URI when using the module
 ```shell
@@ -36,7 +49,7 @@ Done in 3.80s.
 
 ## Future Work
 
-This is still a work in progress and requires the following before it is ready for use by API developers
+This is missing some features and requires the following before it is ready for use by API developers
 
 - [ ] Fix extrinsic encoding issue so tx are accepted in tests (see ./tests/e2e.spec.ts)
     - I think this is something to do with the signature encoding. Not sure on the details.

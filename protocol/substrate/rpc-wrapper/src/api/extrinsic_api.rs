@@ -1,8 +1,8 @@
 //!
 //! Extrinsic API
-//! 
+//!
 //! Extension to the API for building, signing and submitting extrinsics
-//! 
+//!
 
 use crate::{
     api::Api,
