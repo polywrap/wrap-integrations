@@ -1,10 +1,23 @@
 type Module {
+  """
+  Return a list of accounts managed by the host polkadot-js plugin
+  """
   getAccounts: [Account!]!
 
+  """
+  Sign a transaction payload
+  This will display nicely formatted transaction information to the user
+  in a prompt from the plugin.
+  """
   signPayload(
     payload: SignerPayloadJSON!
   ): SignerResult!
 
+  """
+  Sign an arbitraty byte payload
+  This is less preferable as the user will only see the raw bytes and
+  will not have visibility to what they are signing.
+  """
   signRaw(
     payload: SignerPayloadRaw!
   ): SignerResult!
