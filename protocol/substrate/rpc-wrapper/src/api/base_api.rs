@@ -1,3 +1,10 @@
+//!
+//! Base API
+//! 
+//! This component of the API does not require any data other than the RPC URL to operate.
+//! It just wraps some of the RPC calls to obtain information about the connected chain
+//! 
+
 use crate::{
     error::Error,
     types::metadata::Metadata,
@@ -29,8 +36,6 @@ pub struct JsonResult {
     result: serde_json::Value,
 }
 
-/// This api doesn't need Metadata, Runtime version to work
-/// It just fetch the content right away
 pub struct BaseApi {
     /// the url of the substrate node we are running the rpc call from
     url: String,

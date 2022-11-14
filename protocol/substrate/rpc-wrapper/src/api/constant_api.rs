@@ -1,4 +1,9 @@
-//! fetch metadata constant values
+//!
+//! Constant API
+//! 
+//! Extension to the API for retrieving chain constant data
+//! 
+
 use crate::{api::Api, Error};
 use frame_metadata::PalletConstantMetadata;
 use scale_info::{form::PortableForm, Type};
