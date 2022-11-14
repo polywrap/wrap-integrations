@@ -13,7 +13,6 @@ type Module {
 type Account {
   address: String!
   meta: AccountMetadata!
-  # TODO: replace w/ union = 'ed25519' | 'sr25519' | 'ecdsa' | 'ethereum'
   type: String
 }
 
