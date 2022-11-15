@@ -7,7 +7,7 @@ import {
   initInfra, stopInfra, getConfig,
   getUniswapPool, getPoolFromAddress, getTokens, isDefined, toUniToken,
   Pool, Route, Token, Price, buildDependencies
-} from "./helpers";
+} from "../helpers";
 
 jest.setTimeout(360000);
 
@@ -31,7 +31,7 @@ describe("Route (mainnet fork)", () => {
     const config = getConfig(sha3Uri, graphUri);
     client = new PolywrapClient(config);
     // get uri
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     pools = [
@@ -94,10 +94,9 @@ describe("Route (mainnet fork)", () => {
         outToken: outToken,
       },
     });
-    expect(midPriceInvocation.error).toBeFalsy();
-    expect(midPriceInvocation.data).toBeTruthy();
+    if (midPriceInvocation.ok == false) fail(midPriceInvocation.error);
 
-    const price = midPriceInvocation.data;
+    const price = midPriceInvocation.value;
     const uniPrice: uniCore.Price<uniCore.Token, uniCore.Token> = uniRoute.midPrice;
     expect(price?.price).toEqual(uniPrice.toFixed(18));
     expect(price).toStrictEqual(route.midPrice);

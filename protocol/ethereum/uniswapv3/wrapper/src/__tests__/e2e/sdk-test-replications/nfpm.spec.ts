@@ -17,7 +17,7 @@ import {
   Token,
   TokenAmount,
   getFakeTestToken
-} from "./helpers";
+} from "../helpers";
 
 jest.setTimeout(120000);
 
@@ -59,7 +59,7 @@ describe('NonfungiblePositionManager (SDK test replication)', () => {
     // get client
     client = new PolywrapClient();
     // get uri
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     token0 = getFakeTestToken(0);

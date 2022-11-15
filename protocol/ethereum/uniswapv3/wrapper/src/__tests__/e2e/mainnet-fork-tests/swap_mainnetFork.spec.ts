@@ -10,10 +10,10 @@ import {
   getPoolFromAddress, getTokens,
   bestTradeExactOut, bestTradeExactIn, getNative,
   getConfig, initInfra, stopInfra, buildDependencies
-} from "./helpers";
+} from "../helpers";
 import path from "path";
 import * as ethers from "ethers";
-import erc20ABI from "./testData/erc20ABI.json";
+import erc20ABI from "../testData/erc20ABI.json";
 
 jest.setTimeout(360000);
 
@@ -41,7 +41,7 @@ describe("Swap (mainnet fork)", () => {
     const config = getConfig(sha3Uri, graphUri);
     client = new PolywrapClient(config);
     // get uri
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     pools = await Promise.all([
@@ -58,7 +58,8 @@ describe("Swap (mainnet fork)", () => {
         method: "approve",
         args: { token },
       });
-      const approve: string = txResponse.data!.hash;
+      if (txResponse.ok == false) throw txResponse.error;
+      const approve: string = txResponse.value.hash;
       const approveTx = await ethersProvider.getTransaction(approve);
       await approveTx.wait();
     }
@@ -88,10 +89,9 @@ describe("Swap (mainnet fork)", () => {
         swapOptions: getSwapParams(recipient),
       },
     });
-    expect(ethUsdcQuery.error).toBeFalsy();
-    expect(ethUsdcQuery.data).toBeTruthy();
+    if (ethUsdcQuery.ok == false) fail(ethUsdcQuery.error);
 
-    const ethUsdcHash: string = ethUsdcQuery.data?.hash ?? "";
+    const ethUsdcHash: string = ethUsdcQuery.value.hash ?? "";
     const ethUsdcTx = await ethersProvider.getTransaction(ethUsdcHash);
     const ethUsdcTxResponse = await ethUsdcTx.wait();
     expect(ethUsdcTxResponse.status).toBeTruthy();
@@ -113,10 +113,9 @@ describe("Swap (mainnet fork)", () => {
         swapOptions: getSwapParams(recipient),
       },
     });
-    expect(usdcWbtcQuery.error).toBeFalsy();
-    expect(usdcWbtcQuery.data).toBeTruthy();
+    if (usdcWbtcQuery.ok == false) fail(usdcWbtcQuery.error)
 
-    const usdcWbtcHash: string = usdcWbtcQuery.data?.hash ?? "";
+    const usdcWbtcHash: string = usdcWbtcQuery.value.hash ?? "";
     const usdcWbtcTx = await ethersProvider.getTransaction(usdcWbtcHash);
     const usdcWbtcTxResponse = await usdcWbtcTx.wait();
     expect(usdcWbtcTxResponse.status).toBeTruthy();
@@ -138,10 +137,9 @@ describe("Swap (mainnet fork)", () => {
         swapOptions: getSwapParams(recipient),
       },
     });
-    expect(wbtcEthQuery.error).toBeFalsy();
-    expect(wbtcEthQuery.data).toBeTruthy();
+    if (wbtcEthQuery.ok == false) fail(wbtcEthQuery.error);
 
-    const wbtcEthHash: string = wbtcEthQuery.data?.hash ?? "";
+    const wbtcEthHash: string = wbtcEthQuery.value.hash ?? "";
     const wbtcEthTx = await ethersProvider.getTransaction(wbtcEthHash);
     const wbtcEthTxResponse = await wbtcEthTx.wait();
     expect(wbtcEthTxResponse.status).toBeTruthy();
@@ -168,10 +166,9 @@ describe("Swap (mainnet fork)", () => {
         swapOptions: getSwapParams(recipient),
       },
     });
-    expect(ethUsdcQuery.error).toBeFalsy();
-    expect(ethUsdcQuery.data).toBeTruthy();
+    if (ethUsdcQuery.ok == false) fail (ethUsdcQuery.error);
 
-    const ethUsdcHash: string = ethUsdcQuery.data?.hash ?? "";
+    const ethUsdcHash: string = ethUsdcQuery.value.hash ?? "";
     const ethUsdcTx = await ethersProvider.getTransaction(ethUsdcHash);
     const ethUsdcTxResponse = await ethUsdcTx.wait();
     expect(ethUsdcTxResponse.status).toBeTruthy();
@@ -210,10 +207,9 @@ describe("Swap (mainnet fork)", () => {
         swapOptions: getSwapParams(recipient),
       },
     });
-    expect(ethUsdcQuery.error).toBeFalsy();
-    expect(ethUsdcQuery.data).toBeTruthy();
+    if (ethUsdcQuery.ok == false) fail(ethUsdcQuery.error);
 
-    const ethUsdcHash: string = ethUsdcQuery.data?.hash ?? "";
+    const ethUsdcHash: string = ethUsdcQuery.value.hash ?? "";
     const ethUsdcTx = await ethersProvider.getTransaction(ethUsdcHash);
     const ethUsdcTxResponse = await ethUsdcTx.wait();
     expect(ethUsdcTxResponse.status).toBeTruthy();
@@ -233,10 +229,9 @@ describe("Swap (mainnet fork)", () => {
         swapOptions: getSwapParams(recipient),
       },
     });
-    expect(usdcWbtcQuery.error).toBeFalsy();
-    expect(usdcWbtcQuery.data).toBeTruthy();
+    if (usdcWbtcQuery.ok == false) fail(usdcWbtcQuery.error);
 
-    const usdcWbtcHash: string = usdcWbtcQuery.data?.hash ?? "";
+    const usdcWbtcHash: string = usdcWbtcQuery.value.hash ?? "";
     const usdcWbtcTx = await ethersProvider.getTransaction(usdcWbtcHash);
     const usdcWbtcTxResponse = await usdcWbtcTx.wait();
     expect(usdcWbtcTxResponse.status).toBeTruthy();

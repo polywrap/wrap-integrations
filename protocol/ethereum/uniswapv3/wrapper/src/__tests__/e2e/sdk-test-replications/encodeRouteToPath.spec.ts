@@ -10,7 +10,7 @@ import {
   createRoute,
   encodeRouteToPath,
   getFakeTestToken,
-} from "./helpers";
+} from "../helpers";
 import path from "path";
 
 jest.setTimeout(120000);
@@ -56,7 +56,7 @@ describe('encodeRouteToPath (SDK test replication)', () => {
     // get client
     client = new PolywrapClient();
     // get uri
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     token0 = getFakeTestToken(0);

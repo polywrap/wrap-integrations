@@ -5,7 +5,7 @@ import {
   encodeSweepToken,
   encodeRefundETH,
   getFakeTestToken
-} from "./helpers";
+} from "../helpers";
 import { PolywrapClient } from "@polywrap/client-js";
 import path from "path";
 
@@ -29,7 +29,7 @@ describe('Payments (SDK test replication)', () => {
     // get client
     client = new PolywrapClient();
     // get uri
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     token = getFakeTestToken(0);

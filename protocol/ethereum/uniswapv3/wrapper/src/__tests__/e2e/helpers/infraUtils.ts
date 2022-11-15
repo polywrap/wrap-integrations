@@ -10,9 +10,9 @@ export async function buildDependencies(): Promise<{ sha3Uri: string, graphUri: 
   const sha3Path = path.join(systemsWrappersPath, "sha3", "wrapper");
   const graphNodePath = path.join(systemsWrappersPath, "graph-node", "wrapper");
   await buildWrapper(sha3Path);
-  await buildWrapper(graphNodePath)
-  const sha3Uri = `wrap://fs/${sha3Path}/build`
-  const graphUri = `wrap://fs/${graphNodePath}/build`
+  await buildWrapper(graphNodePath);
+  const sha3Uri = `wrap://fs/${sha3Path}/build`;
+  const graphUri = `wrap://fs/${graphNodePath}/build`;
   return { sha3Uri, graphUri };
 }
 

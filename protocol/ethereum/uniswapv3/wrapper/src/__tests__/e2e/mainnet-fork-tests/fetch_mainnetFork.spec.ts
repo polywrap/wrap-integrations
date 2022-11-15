@@ -3,13 +3,12 @@ import {
   ChainIdEnum, Pool, Token,
   getConfig, initInfra, stopInfra,
   getFeeAmount, getPools, getTokens, getUniPools,
-  getUniswapPool, buildDependencies
-} from "./helpers";
+  getUniswapPool, buildDependencies, Tick
+} from "../helpers";
 import path from "path";
 import * as uni from "@uniswap/v3-sdk";
-import poolList from "./testData/poolList.json";
+import poolList from "../testData/poolList.json";
 import * as ethers from "ethers";
-import { Tick } from "../../wrap";
 
 jest.setTimeout(360000);
 
@@ -28,7 +27,7 @@ describe("Fetch (mainnet fork)", () => {
     const config = getConfig(sha3Uri, graphUri);
     client = new PolywrapClient(config);
     // get uri
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up ethers provider
     ethersProvider = ethers.providers.getDefaultProvider("http://localhost:8546");
@@ -50,10 +49,9 @@ describe("Fetch (mainnet fork)", () => {
         address: poolAddresses[0],
       },
     });
-    expect(tickListQuery.error).toBeFalsy();
-    expect(tickListQuery.data).toBeTruthy();
+    if (tickListQuery.ok == false) fail(tickListQuery.error);
 
-    const tickList = tickListQuery.data!;
+    const tickList = tickListQuery.value;
     for (let i = 0; i < tickList.length; i++) {
       const tick = tickList[i];
       // @ts-ignore
@@ -76,10 +74,9 @@ describe("Fetch (mainnet fork)", () => {
           fetchTicks: false,
         },
       });
-      expect(poolData.error).toBeFalsy();
-      expect(poolData.data).toBeTruthy();
+      if (poolData.ok == false) fail(poolData.error);
 
-      const pool = poolData.data!;
+      const pool = poolData.value;
       const uniPool: uni.Pool = uniPools[i];
 
       expect(pool.token0.address).toEqual(uniPool.token0.address);
@@ -105,11 +102,10 @@ describe("Fetch (mainnet fork)", () => {
         },
       });
       // compare results
-      expect(tokenData.error).toBeFalsy();
-      expect(tokenData.data).toBeTruthy();
-      expect(tokenData.data?.currency.decimals).toEqual(tokens[i].currency.decimals);
-      expect(tokenData.data?.currency.symbol).toEqual(tokens[i].currency.symbol);
-      expect(tokenData.data?.currency.name).toEqual(tokens[i].currency.name);
+      if (tokenData.ok == false) fail(tokenData.error);
+      expect(tokenData.value.currency.decimals).toEqual(tokens[i].currency.decimals);
+      expect(tokenData.value.currency.symbol).toEqual(tokens[i].currency.symbol);
+      expect(tokenData.value.currency.name).toEqual(tokens[i].currency.name);
     }
   });
   
@@ -127,10 +123,9 @@ describe("Fetch (mainnet fork)", () => {
           fetchTicks: false,
         },
       });
-      expect(poolData.error).toBeFalsy();
-      expect(poolData.data).toBeTruthy();
+      if (poolData.ok == false) fail(poolData.error);
 
-      const pool = poolData.data;
+      const pool = poolData.value;
       const expectedPool: Pool = pools[i];
       expect(pool).toStrictEqual(expectedPool);
     }

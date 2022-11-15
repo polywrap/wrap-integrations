@@ -9,7 +9,7 @@ import {
   feeAmountToTickSpacing, createTradeFromRoute, createTradeFromRoutes, createRoute, swapCallParameters,
   getFakeTestToken,
   ChainIdEnum, FeeAmountEnum, Pool, Token, Trade, TradeTypeEnum
-} from "./helpers";
+} from "../helpers";
 
 jest.setTimeout(120000);
 
@@ -81,7 +81,7 @@ describe('SwapRouter (SDK test replication)', () => {
     // get client
     client = new PolywrapClient();
     // get uri
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     token0 = getFakeTestToken(0);
