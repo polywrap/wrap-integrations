@@ -5,7 +5,7 @@
   "version": "0.9.4",
   "scripts": {
     "build": "npx polywrap build",
-    "deploy": "npx polywrap deploy",
+    "deploy": "npx polywrap deploy -o deployment.json",
     "test": "jest --passWithNoTests --runInBand --verbose"
   },
   "devDependencies": {

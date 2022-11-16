@@ -6,7 +6,7 @@
   "scripts": {
     "codegen": "npx polywrap codegen",
     "build": "npx polywrap build",
-    "deploy": "npx polywrap deploy",
+    "deploy": "npx polywrap deploy -o deployment.json",
     "test": "jest --passWithNoTests --runInBand --verbose"
   },
   "devDependencies": {

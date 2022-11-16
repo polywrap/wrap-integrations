@@ -1,0 +1,8 @@
+format: 0.2.0
+project:
+  type: interface
+  name: foo
+source:
+  schema: ./schema.graphql
+extensions:
+  deploy: ./polywrap.deploy.yaml

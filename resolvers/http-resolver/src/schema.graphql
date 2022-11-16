@@ -1,0 +1,5 @@
+#import { Module, MaybeUriOrManifest } into UriResolver from "wrap://ipfs/QmVnRxP9WGxC1D9xjFBGFmCVw8UPetu9EUtKMrXwi3hSDi"
+#import { Module } into Http from "wrap://ens/http.polywrap.eth"
+
+type Module implements UriResolver_Module {
+}

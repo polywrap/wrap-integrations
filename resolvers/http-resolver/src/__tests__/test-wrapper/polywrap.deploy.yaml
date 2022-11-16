@@ -1,0 +1,9 @@
+format: 0.2.0
+jobs:
+  deploy-http:
+    steps:
+      - name: "http-deploy"
+        package: "http"
+        uri: "fs/."
+        config:
+          postUrl: http://localhost:3500/wrappers/local/test-wrapper
