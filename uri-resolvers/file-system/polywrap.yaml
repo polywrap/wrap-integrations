@@ -1,6 +1,6 @@
 format: 0.2.0
 project:
-  name: template-wasm-rs
+  name: file-system-uri-resolver
   type: wasm/rust
 source:
   module: ./Cargo.toml
