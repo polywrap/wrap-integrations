@@ -9,13 +9,13 @@ import {
   Trade,
   getPoolFromAddress, getPools, getTokens,
   bestTradeExactOut, getNative, swapCallParameters,
-  getPlugins, initInfra, stopInfra
-} from "./helpers";
+  getConfig, initInfra, stopInfra, buildDependencies
+} from "../helpers";
 import path from "path";
 import * as ethers from "ethers";
-import erc20ABI from "./testData/erc20ABI.json";
+import erc20ABI from "../testData/erc20ABI.json";
 
-jest.setTimeout(180000);
+jest.setTimeout(360000);
 
 describe("Call (mainnet fork)", () => {
 
@@ -30,10 +30,11 @@ describe("Call (mainnet fork)", () => {
   beforeAll(async () => {
     await initInfra();
     // get client
-    const config = getPlugins();
+    const { sha3Uri, graphUri } = await buildDependencies();
+    const config = getConfig(sha3Uri, graphUri);
     client = new PolywrapClient(config);
     // get uri
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up ethers provider
     ethersProvider = new ethers.providers.JsonRpcProvider("http://localhost:8546");
@@ -53,10 +54,9 @@ describe("Call (mainnet fork)", () => {
         method: "approve",
         args: { token },
       });
-      expect(txResponse.error).toBeFalsy();
-      expect(txResponse.data).toBeTruthy();
+      if (txResponse.ok == false) fail(txResponse.error);
 
-      const approve: string = txResponse.data!.hash;
+      const approve: string = txResponse.value.hash;
       const approveTx = await ethersProvider.getTransaction(approve);
       const receipt = await approveTx.wait();
       expect(receipt.status).toBeTruthy();
@@ -74,7 +74,8 @@ describe("Call (mainnet fork)", () => {
         method: "approve",
         args: { token },
       });
-      const approve: string = txResponse.data!.hash;
+      if (txResponse.ok == false) fail(txResponse.error);
+      const approve: string = txResponse.value.hash;
       const approveTx = await ethersProvider.getTransaction(approve);
       await approveTx.wait();
     }
@@ -101,10 +102,9 @@ describe("Call (mainnet fork)", () => {
         chainId: ChainIdEnum[ChainIdEnum.MAINNET],
       },
     });
-    expect(ethUsdcQuery.error).toBeFalsy();
-    expect(ethUsdcQuery.data).toBeTruthy();
+    if (ethUsdcQuery.ok == false) fail(ethUsdcQuery.error);
 
-    const ethUsdcHash: string = ethUsdcQuery.data?.hash ?? "";
+    const ethUsdcHash: string = ethUsdcQuery.value.hash ?? "";
     const ethUsdcTx = await ethersProvider.getTransaction(ethUsdcHash);
     const ethUsdcTxResponse = await ethUsdcTx.wait();
     expect(ethUsdcTxResponse.status).toBeTruthy();

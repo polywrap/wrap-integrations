@@ -4,12 +4,12 @@ import * as uni from "@uniswap/v3-sdk";
 import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
 import {
-  initInfra, stopInfra, getPlugins,
+  initInfra, stopInfra, getConfig,
   getUniswapPool, getPoolFromAddress, getTokens, isDefined, toUniToken,
-  Pool, Route, Token, Price
-} from "./helpers";
+  Pool, Route, Token, Price, buildDependencies
+} from "../helpers";
 
-jest.setTimeout(120000);
+jest.setTimeout(360000);
 
 describe("Route (mainnet fork)", () => {
 
@@ -27,10 +27,11 @@ describe("Route (mainnet fork)", () => {
   beforeAll(async () => {
     await initInfra();
     // get client
-    const config = getPlugins();
+    const { sha3Uri, graphUri } = await buildDependencies();
+    const config = getConfig(sha3Uri, graphUri);
     client = new PolywrapClient(config);
     // get uri
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     pools = [
@@ -93,10 +94,9 @@ describe("Route (mainnet fork)", () => {
         outToken: outToken,
       },
     });
-    expect(midPriceInvocation.error).toBeFalsy();
-    expect(midPriceInvocation.data).toBeTruthy();
+    if (midPriceInvocation.ok == false) fail(midPriceInvocation.error);
 
-    const price = midPriceInvocation.data;
+    const price = midPriceInvocation.value;
     const uniPrice: uniCore.Price<uniCore.Token, uniCore.Token> = uniRoute.midPrice;
     expect(price?.price).toEqual(uniPrice.toFixed(18));
     expect(price).toStrictEqual(route.midPrice);

@@ -2,14 +2,14 @@ import { PolywrapClient } from "@polywrap/client-js";
 import {
   ChainIdEnum, Pool, Tick, Token, TokenAmount, Trade,
   getPools, getTokens, getUniPools,
-  getPlugins, initInfra, stopInfra
-} from "./helpers";
+  getConfig, initInfra, stopInfra, buildDependencies
+} from "../helpers";
 import path from "path";
 import * as uni from "@uniswap/v3-sdk";
 import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
 
-jest.setTimeout(180000);
+jest.setTimeout(360000);
 
 describe("Trade (mainnet fork)", () => {
 
@@ -23,10 +23,11 @@ describe("Trade (mainnet fork)", () => {
   beforeAll(async () => {
     await initInfra();
     // get client
-    const config = getPlugins();
+    const { sha3Uri, graphUri } = await buildDependencies();
+    const config = getConfig(sha3Uri, graphUri);
     client = new PolywrapClient(config);
     // get uri
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     const sliceStart = 0;
@@ -76,9 +77,8 @@ describe("Trade (mainnet fork)", () => {
             options: null,
           },
         });
-        expect(query.error).toBeUndefined();
-        expect(query.data).toBeDefined();
-        const actualTrades: Trade[] = query.data!;
+        if (query.ok == false) fail(query.error);
+        const actualTrades: Trade[] = query.value!;
 
         // get expected best trades
         const uniTokenIn: uniCore.Token = amountIn.token.address === ""
@@ -144,9 +144,8 @@ describe("Trade (mainnet fork)", () => {
             options: null,
           },
         });
-        expect(query.error).toBeUndefined();
-        expect(query.data).toBeDefined();
-        const actualTrades: Trade[] = query.data!;
+        if (query.ok == false) fail(query.error);
+        const actualTrades: Trade[] = query.value!;
 
         // get expected best trades
         const uniTokenIn: uniCore.Token = tokenIn.address === ""

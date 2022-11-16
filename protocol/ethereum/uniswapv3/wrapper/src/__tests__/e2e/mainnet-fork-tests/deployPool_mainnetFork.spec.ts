@@ -4,9 +4,9 @@ import {
   getPoolFromAddress,
   getWrappedNative,
   initInfra,
-  getPlugins,
-  stopInfra
-} from "./helpers";
+  getConfig,
+  stopInfra, buildDependencies
+} from "../helpers";
 import path from "path";
 import * as ethers from "ethers";
 
@@ -21,10 +21,11 @@ describe("Deploy pool (mainnet fork)", () => {
   beforeAll(async () => {
     await initInfra();
     // get client
-    const config = getPlugins();
+    const { sha3Uri, graphUri } = await buildDependencies();
+    const config = getConfig(sha3Uri, graphUri);
     client = new PolywrapClient(config);
     // get uri
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up ethers provider
     ethersProvider = new ethers.providers.JsonRpcProvider("http://localhost:8546");
@@ -55,10 +56,9 @@ describe("Deploy pool (mainnet fork)", () => {
         fee: FeeAmountEnum.MEDIUM,
       },
     });
-    expect(txResponse.error).toBeFalsy();
-    expect(txResponse.data).toBeTruthy();
+    if (txResponse.ok == false) fail(txResponse.error);
 
-    const txHash: string = txResponse.data!.hash;
+    const txHash: string = txResponse.value.hash;
     const tx = await ethersProvider.getTransaction(txHash);
     const receipt = await tx.wait();
     expect(receipt.status).toBeTruthy();
@@ -72,10 +72,9 @@ describe("Deploy pool (mainnet fork)", () => {
         fee: FeeAmountEnum.MEDIUM,
       },
     });
-    expect(addressQuery.error).toBeFalsy();
-    expect(addressQuery.data).toBeTruthy();
+    if (addressQuery.ok == false) fail(addressQuery.error);
 
-    const pool: Pool = await getPoolFromAddress(client, fsUri, addressQuery.data!);
+    const pool: Pool = await getPoolFromAddress(client, fsUri, addressQuery.value);
     expect(pool.token0).toStrictEqual(WETH);
     expect(pool.token1).toStrictEqual(WRAP);
     expect(pool.fee).toEqual(FeeAmountEnum.MEDIUM);

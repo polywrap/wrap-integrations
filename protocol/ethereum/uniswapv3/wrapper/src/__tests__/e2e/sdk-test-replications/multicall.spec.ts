@@ -1,6 +1,6 @@
 import { PolywrapClient } from "@polywrap/client-js";
 import path from "path";
-import { encodeMulticall } from "./helpers";
+import { encodeMulticall } from "../helpers";
 
 jest.setTimeout(120000);
 
@@ -13,7 +13,7 @@ describe('Multicall (SDK test replication)', () => {
     // get client
     client = new PolywrapClient();
     // get uri
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
     fsUri = "fs/" + wrapperAbsPath + '/build';
   });
 

@@ -24,7 +24,7 @@ describe("Graph Node Plugin", () => {
   });
 
   test("Query works", async () => {
-    const { data, error } = await client.invoke<string>({
+    const response = await client.invoke<string>({
       uri,
       method: "querySubgraph",
       args: {
@@ -48,17 +48,16 @@ describe("Graph Node Plugin", () => {
         }`
       }
     })
-    expect(error).toBeUndefined();
-    expect(data).toBeDefined();
+    if (response.ok == false) fail(response.error);
 
-    const result = JSON.parse(data as string);
+    const result = JSON.parse(response.value);
     expect(result.data).toBeDefined();
     expect(result.data.domains).toBeDefined();
     expect(result.data.transfers).toBeDefined();
   });
 
   it("throws if errors in querystring", async () => {
-    const { error } = await client.invoke<string>({
+    const response = await client.invoke<string>({
       uri,
       method: "querySubgraph",
       args: {
@@ -82,14 +81,15 @@ describe("Graph Node Plugin", () => {
         }`
       }
     });
-    expect(error).toBeDefined();
-    expect(error?.message).toContain(`Message: Type \`Domain\` has no field \`ids\``);
-    expect(error?.message).toContain(`Message: Type \`Domain\` has no field \`names\``);
-    expect(error?.message).toContain(`Message: Type \`Domain\` has no field \`labelNames\``);
+    expect(response.ok).toBeFalsy();
+    if (response.ok == true) fail("never");
+    expect(response.error?.message).toContain(`Message: Type \`Domain\` has no field \`ids\``);
+    expect(response.error?.message).toContain(`Message: Type \`Domain\` has no field \`names\``);
+    expect(response.error?.message).toContain(`Message: Type \`Domain\` has no field \`labelNames\``);
   });
 
   it("throws if wrong subgraph author", async () => {
-    const { error } = await client.invoke<string>({
+    const response = await client.invoke<string>({
       uri,
       method: "querySubgraph",
       args: {
@@ -113,12 +113,13 @@ describe("Graph Node Plugin", () => {
         }`
       }
     });
-    expect(error).toBeDefined();
-    expect(error?.message).toContain("`ens/ens` does not exist");
+    expect(response.ok).toBeFalsy();
+    if (response.ok == true) fail("never");
+    expect(response.error?.message).toContain("`ens/ens` does not exist");
   });
 
   it("throws if wrong subgraph name", async () => {
-    const { error } = await client.invoke<string>({
+    const response = await client.invoke<string>({
       uri,
       method: "querySubgraph",
       args: {
@@ -142,7 +143,8 @@ describe("Graph Node Plugin", () => {
         }`
       }
     });
-    expect(error).toBeDefined();
-    expect(error?.message).toContain("`ensdomains/foo` does not exist");
+    expect(response.ok).toBeFalsy();
+    if (response.ok == true) fail("never");
+    expect(response.error?.message).toContain("`ensdomains/foo` does not exist");
   });
 });

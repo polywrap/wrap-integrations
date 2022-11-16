@@ -1,15 +1,15 @@
 import { PolywrapClient } from "@polywrap/client-js";
 import {
-  MethodParameters, Pool, Tick, Token, TokenAmount, Trade ,
+  MethodParameters, Pool, Tick, Token, TokenAmount, Trade,
   getPools, getTokens, getUniPools,
-  getPlugins, initInfra, stopInfra
-} from "./helpers";
+  getConfig, initInfra, stopInfra, buildDependencies
+} from "../helpers";
 import path from "path";
 import * as uni from "@uniswap/v3-sdk";
 import * as uniCore from "@uniswap/sdk-core";
 import * as ethers from "ethers";
 
-jest.setTimeout(180000);
+jest.setTimeout(360000);
 
 describe("SwapRouter (mainnet fork)", () => {
 
@@ -23,10 +23,11 @@ describe("SwapRouter (mainnet fork)", () => {
   beforeAll(async () => {
     await initInfra();
     // get client
-    const config = getPlugins();
+    const { sha3Uri, graphUri } = await buildDependencies();
+    const config = getConfig(sha3Uri, graphUri);
     client = new PolywrapClient(config);
     // get uri
-    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../");
+    const wrapperAbsPath: string = path.resolve(__dirname + "/../../../../");
     fsUri = "fs/" + wrapperAbsPath + '/build';
     // set up test case data
     const sliceStart = 0;
@@ -67,9 +68,8 @@ describe("SwapRouter (mainnet fork)", () => {
             options: null,
           },
         });
-        expect(query.error).toBeUndefined();
-        expect(query.data).toBeDefined();
-        const bestTrades: Trade[] = query.data!;
+        if (query.ok == false) fail(query.error);
+        const bestTrades: Trade[] = query.value;
 
         // get expected best trades
         const uniTokenIn: uniCore.Token = amountIn.token.address === ""
@@ -114,9 +114,8 @@ describe("SwapRouter (mainnet fork)", () => {
             }
           }
         });
-        expect(routerQuery.error).toBeUndefined();
-        expect(routerQuery.data).toBeDefined();
-        const methodParameters: MethodParameters = routerQuery.data!
+        if (routerQuery.ok == false) fail(routerQuery.error);
+        const methodParameters: MethodParameters = routerQuery.value;
 
         // get uni method parameters
         const uniMethodParameters: uni.MethodParameters = uni.SwapRouter.swapCallParameters(uniBestTrades, {
@@ -159,9 +158,8 @@ describe("SwapRouter (mainnet fork)", () => {
             options: null,
           },
         });
-        expect(query.error).toBeUndefined();
-        expect(query.data).toBeDefined();
-        const bestTrades: Trade[] = query.data!;
+        if (query.ok == false) fail(query.error);
+        const bestTrades: Trade[] = query.value;
 
         // get expected best trades
         const uniTokenIn: uniCore.Token = tokenIn.address === ""
@@ -207,9 +205,8 @@ describe("SwapRouter (mainnet fork)", () => {
             }
           }
         });
-        expect(routerQuery.error).toBeUndefined();
-        expect(routerQuery.data).toBeDefined();
-        const methodParameters: MethodParameters = routerQuery.data!
+        if (routerQuery.ok == false) fail(routerQuery.error);
+        const methodParameters: MethodParameters = routerQuery.value;
 
         // get uni method parameters
         const uniMethodParameters: uni.MethodParameters = uni.SwapRouter.swapCallParameters(uniBestTrades, {
@@ -246,9 +243,8 @@ describe("SwapRouter (mainnet fork)", () => {
             options: null,
           },
         });
-        expect(query.error).toBeUndefined();
-        expect(query.data).toBeDefined();
-        const bestTrades: Trade[] = query.data!;
+        if (query.ok == false) fail(query.error);
+        const bestTrades: Trade[] = query.value;
 
         // get expected best trades
         const uniTokenIn: uniCore.Token = amountIn.token.address === ""
@@ -296,9 +292,8 @@ describe("SwapRouter (mainnet fork)", () => {
             }
           }
         });
-        expect(routerQuery.error).toBeUndefined();
-        expect(routerQuery.data).toBeDefined();
-        const methodParameters: MethodParameters = routerQuery.data!
+        if (routerQuery.ok == false) fail(routerQuery.error);
+        const methodParameters: MethodParameters = routerQuery.value;
 
         // get uni method parameters
         const uniMethodParameters: uni.MethodParameters = uni.SwapRouter.swapCallParameters(uniBestTrades, {

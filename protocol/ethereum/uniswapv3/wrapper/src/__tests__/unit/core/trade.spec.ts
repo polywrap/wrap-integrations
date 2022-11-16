@@ -26,7 +26,7 @@ import {
   tradeMinimumAmountOut, tradePriceImpact,
   tradeWorstExecutionPrice
 } from "../../..";
-import { BigInt, BigNumber, Option } from "@polywrap/wasm-as";
+import { BigInt, BigNumber, Box } from "@polywrap/wasm-as";
 import { _feeAmountToTickSpacing, _MAX_TICK, _MIN_TICK, Price } from "../../../utils";
 
 const ETHER: Currency = {
@@ -859,8 +859,8 @@ describe('Trade', () => {
           },
           tokenOut: token2,
           options: {
-            maxHops: new Option(0, false),
-            maxNumResults: new Option(),
+            maxHops: new Box(0),
+            maxNumResults: null,
           },
         });
       };
@@ -898,8 +898,8 @@ describe('Trade', () => {
         },
         tokenOut: token2,
         options: {
-          maxHops: new Option(1, false),
-          maxNumResults: new Option(),
+          maxHops: new Box(1),
+          maxNumResults: null,
         },
       });
       expect(result).toHaveLength(1);
@@ -932,8 +932,8 @@ describe('Trade', () => {
         },
         tokenOut: token2,
         options: {
-          maxHops: new Option(),
-          maxNumResults: new Option(1, false),
+          maxHops: null,
+          maxNumResults: new Box(1),
         },
       });
       expect(result).toHaveLength(1);
@@ -1206,8 +1206,8 @@ describe('Trade', () => {
             amount: BigInt.fromUInt16(100),
           },
           options: {
-            maxHops: new Option(0, false),
-            maxNumResults: new Option(),
+            maxHops: new Box(0),
+            maxNumResults: null,
           },
         });
       };
@@ -1244,8 +1244,8 @@ describe('Trade', () => {
           amount: BigInt.fromUInt16(10),
         },
         options: {
-          maxHops: new Option(1, false),
-          maxNumResults: new Option(),
+          maxHops: new Box(1),
+          maxNumResults: null,
         },
       });
       expect(result).toHaveLength(1);
@@ -1290,8 +1290,8 @@ describe('Trade', () => {
           amount: BigInt.fromUInt16(10),
         },
         options: {
-          maxHops: new Option(),
-          maxNumResults: new Option(1, false),
+          maxHops: null,
+          maxNumResults: new Box(1),
         }
       });
       expect(result).toHaveLength(1);
