@@ -1,9 +1,18 @@
 type Module {
+  """
+  Send a remote RPC request to the registered provider
+  """
   request(method: String!, params: String): String!
+
   """
   Sign a transaction hash and return the signature. Throws if wallet is missing.
   """
   signDigest(digest: Bytes!): String!
+
+  """
+  Get the ethereum address of the registered signer. Throws if wallet is missing.
+  """
   address: String!
+
   chainId: String!
 }
