@@ -217,8 +217,7 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBe(
         ""
       );
@@ -236,8 +235,7 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBe(
         ""
       );
@@ -254,8 +252,7 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBe(
         ""
       );
