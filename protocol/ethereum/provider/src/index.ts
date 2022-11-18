@@ -30,7 +30,8 @@ export class EthereumProviderPlugin extends Module<ProviderConfig> {
     args: Args_request,
     client: Client
   ): Promise<string> {
-    const req = await this._provider.send(args.method, JSON.parse(args?.params ?? "[]"));
+    const params = JSON.parse(args?.params ?? "[]");
+    const req = await this._provider.send(args.method, params);
     return JSON.stringify(req);
   }
 
