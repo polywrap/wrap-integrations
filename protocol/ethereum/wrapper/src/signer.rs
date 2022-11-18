@@ -1,10 +1,7 @@
-use super::wrap::imported::ArgsRequest;
+use super::wrap::imported::{ArgsRequest, ArgsAddress, ArgsChainId, ArgsSignDigest};
 use super::wrap::ProviderModule;
 use async_trait::async_trait;
-use ethers_core::types::{
-    transaction::{eip2718::TypedTransaction, eip712::Eip712},
-    Address, Signature, H256,
-};
+use ethers_core::types::{transaction::{eip2718::TypedTransaction, eip712::Eip712}, Address, Signature, H256, SignatureError};
 use ethers_core::utils::hash_message;
 use ethers_signers::{to_eip155_v, Signer};
 use std::str::FromStr;
@@ -28,17 +25,9 @@ pub enum SignerError {
 
 impl PolywrapSigner {
     pub fn new() -> Self {
-        let address = ProviderModule::request(&ArgsRequest {
-            method: "personal_address".to_owned(),
-            params: None,
-        })
-        .expect("provider request failed");
-        let chain_id = ProviderModule::request(&ArgsRequest {
-            method: "personal_chainId".to_owned(),
-            params: None,
-        })
-        .expect("provider request failed");
-
+        let address = ProviderModule::address(&ArgsAddress {}).unwrap();
+        let chain_id = ProviderModule::chain_id(&ArgsChainId {})
+            .expect("failed to obtain signer chain id from provider plugin");
         Self {
             address: Address::from_str(&address).unwrap(),
             chain_id: u64::from_str(&chain_id).unwrap(),
@@ -46,14 +35,10 @@ impl PolywrapSigner {
     }
 
     /// Signs the provided hash.
-    pub fn sign_hash(&self, hash: H256) -> Signature {
-        let params_s = serde_json::to_string(&hash).unwrap();
-        let signature = ProviderModule::request(&ArgsRequest {
-            method: "personal_signDigest".to_owned(),
-            params: Some(params_s),
-        })
-        .expect("provider request failed");
-        Signature::from_str(&signature).unwrap()
+    pub fn sign_hash(&self, hash: H256) -> Result<Signature, String> {
+        let digest = hash.as_bytes().to_vec();
+        let signature = ProviderModule::sign_digest(&ArgsSignDigest { digest })?;
+        Ok(Signature::from_str(&signature).unwrap())
     }
 }
 
@@ -62,14 +47,15 @@ impl PolywrapSigner {
 impl Signer for PolywrapSigner {
     type Error = SignerError;
 
+    // TODO: format errors correctly for Eip712 spec
+
     async fn sign_message<S: Send + Sync + AsRef<[u8]>>(
         &self,
         message: S,
     ) -> Result<Signature, Self::Error> {
         let message = message.as_ref();
-        let message_hash = hash_message(message);
-
-        Ok(self.sign_hash(message_hash))
+        let hash = hash_message(message);
+        self.sign_hash(hash).map_err(|e| SignerError::Eip712Error(e))
     }
 
     async fn sign_transaction(&self, tx: &TypedTransaction) -> Result<Signature, Self::Error> {
@@ -79,11 +65,15 @@ impl Signer for PolywrapSigner {
         tx.set_chain_id(chain_id);
 
         let sighash = tx.sighash();
-        let mut sig = self.sign_hash(sighash);
 
-        // sign_hash sets `v` to recid + 27, so we need to subtract 27 before normalizing
-        sig.v = to_eip155_v(sig.v as u8 - 27, chain_id);
-        Ok(sig)
+        match self.sign_hash(sighash) {
+            Ok(mut sig) => {
+                // sign_hash sets `v` to recid + 27, so we need to subtract 27 before normalizing
+                sig.v = to_eip155_v(sig.v as u8 - 27, chain_id);
+                Ok(sig)
+            },
+            Err(e) => Err(SignerError::Eip712Error(e))
+        }
     }
 
     async fn sign_typed_data<T: Eip712 + Send + Sync>(
@@ -93,8 +83,8 @@ impl Signer for PolywrapSigner {
         let encoded = payload
             .encode_eip712()
             .map_err(|e| Self::Error::Eip712Error(e.to_string()))?;
-
-        Ok(self.sign_hash(H256::from(encoded)))
+        let hash = H256::from(encoded);
+        self.sign_hash(hash).map_err(|e| SignerError::Eip712Error(e))
     }
 
     fn address(&self) -> Address {

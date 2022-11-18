@@ -34,7 +34,7 @@ describe("Ethereum Plugin", () => {
         args: { method: "eth_chainId" }
       });
 
-      if (!response.ok) fail(response.error);
+      if (response.ok === false) fail(response.error);
       expect(response.value).toBeDefined();
 
       const res = BigNumber.from(JSON.parse(response.value)).toString();
@@ -44,27 +44,25 @@ describe("Ethereum Plugin", () => {
     it("personal_signDigest", async () => {
       const hash = ethers.utils.hashMessage("Hello World")
       const digest = Array.from(ethers.utils.arrayify(hash))
-      const params = JSON.stringify(digest)
-      const response = await client.invoke<string>({
+      const response = await client.invoke<string | undefined>({
         uri,
-        method: "request",
-        args: { method: "personal_signDigest", params},
+        method: "signDigest",
+        args: { digest },
       });
 
-      if (!response.ok) fail(response.error);
+      if (response.ok === false) fail(response.error);
 
       expect(response.value).toBeDefined();
       expect(response.value).toBe("0xa4708243bf782c6769ed04d83e7192dbcf4fc131aa54fde9d889d8633ae39dab03d7babd2392982dff6bc20177f7d887e27e50848c851320ee89c6c63d18ca761c");
     });
 
     it("personal_address", async () => {
-      const response = await client.invoke<string>({
+      const response = await client.invoke<string | undefined>({
         uri,
-        method: "request",
-        args: { method: "personal_address" }
+        method: "address",
       });
 
-      if (!response.ok) fail(response.error);
+      if (response.ok === false) fail(response.error);
       expect(response.value).toBeDefined();
 
       expect(response.value?.startsWith("0x")).toBe(true);
@@ -73,11 +71,10 @@ describe("Ethereum Plugin", () => {
     it("personal_chainId", async () => {
       const response = await client.invoke<string>({
         uri,
-        method: "request",
-        args: { method: "personal_chainId" }
+        method: "chainId",
       });
 
-      if (!response.ok) fail(response.error);
+      if (response.ok === false) fail(response.error);
       expect(response.value).toEqual("56");
     });
   });
