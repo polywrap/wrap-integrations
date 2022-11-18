@@ -5,9 +5,20 @@ type Env {
 }
 
 type Module {
+  """
+  Query subgraph using provider in Env by providing an author and name
+  """
   querySubgraph(
     subgraphAuthor: String!
     subgraphName: String!
     query: String!
   ): String! @env(required: true)
+
+  """
+  Query subgraph using endpoint passed in as a url
+  """
+  querySubgraphEndpoint(
+    url: String!
+    query: String!
+  ): String!
 }
