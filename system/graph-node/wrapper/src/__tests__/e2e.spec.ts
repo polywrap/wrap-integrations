@@ -13,14 +13,7 @@ describe("Graph Node Plugin", () => {
     const absPath: string = path.resolve(wrapperPath);
     uri = `wrap://fs/${absPath}`;
 
-    client = new PolywrapClient({
-      envs: [{
-        uri: uri,
-        env: {
-          provider: "https://api.thegraph.com"
-        }
-      }]
-    });
+    client = new PolywrapClient();
   });
 
   test("Query works", async () => {
@@ -28,8 +21,7 @@ describe("Graph Node Plugin", () => {
       uri,
       method: "querySubgraph",
       args: {
-        subgraphAuthor: "ensdomains",
-        subgraphName: "ens",
+        url: "https://api.thegraph.com/subgraphs/name/ensdomains/ens",
         query: `{
           domains(first: 5) {
             id
@@ -61,8 +53,7 @@ describe("Graph Node Plugin", () => {
       uri,
       method: "querySubgraph",
       args: {
-        subgraphAuthor: "ensdomains",
-        subgraphName: "ens",
+        url: "https://api.thegraph.com/subgraphs/name/ensdomains/ens",
         query: `{
           domains(first: 5) {
             ids
@@ -93,8 +84,7 @@ describe("Graph Node Plugin", () => {
       uri,
       method: "querySubgraph",
       args: {
-        subgraphAuthor: "ens",
-        subgraphName: "ens",
+        url: "https://api.thegraph.com/subgraphs/name/ens/ens",
         query: `{
           domains(first: 5) {
             id
@@ -123,8 +113,7 @@ describe("Graph Node Plugin", () => {
       uri,
       method: "querySubgraph",
       args: {
-        subgraphAuthor: "ensdomains",
-        subgraphName: "foo",
+        url: "https://api.thegraph.com/subgraphs/name/ensdomains/foo",
         query: `{
           domains(first: 5) {
             id
@@ -146,37 +135,5 @@ describe("Graph Node Plugin", () => {
     expect(response.ok).toBeFalsy();
     if (response.ok == true) fail("never");
     expect(response.error?.message).toContain("`ensdomains/foo` does not exist");
-  });
-
-  test("Query works with querySubgraphEndpoint syntax", async () => {
-    const response = await client.invoke<string>({
-      uri,
-      method: "querySubgraphEndpoint",
-      args: {
-        url: "https://api.thegraph.com/subgraphs/name/ensdomains/ens",
-        query: `{
-          domains(first: 5) {
-            id
-            name
-            labelName
-            labelhash
-          }
-          transfers(first: 5) {
-            id
-            domain {
-              id
-            }
-            blockNumber
-            transactionID
-          }
-        }`
-      }
-    })
-    if (response.ok == false) fail(response.error);
-
-    const result = JSON.parse(response.value);
-    expect(result.data).toBeDefined();
-    expect(result.data.domains).toBeDefined();
-    expect(result.data.transfers).toBeDefined();
   });
 });

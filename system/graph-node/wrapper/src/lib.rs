@@ -27,18 +27,8 @@ struct RequestError {
     errors: Vec<Error>,
 }
 
-pub fn query_subgraph(args: ArgsQuerySubgraph, env: Env) -> String {
-    let ArgsQuerySubgraph { subgraph_author, subgraph_name, query } = args;
-    let url: String = format!("{}/subgraphs/name/{}/{}", &env.provider, &subgraph_author, &subgraph_name);
-    _query_subgraph(url, query)
-}
-
-pub fn query_subgraph_endpoint(args: ArgsQuerySubgraphEndpoint) -> String {
-    let ArgsQuerySubgraphEndpoint { url, query } = args;
-    _query_subgraph(url, query)
-}
-
-fn _query_subgraph(url: String, query: String) -> String {
+pub fn query_subgraph(args: ArgsQuerySubgraph) -> String {
+    let ArgsQuerySubgraph { url, query } = args;
     // prepare http request
     let request: Option<HttpRequest> = Some(HttpRequest {
         headers: None,
