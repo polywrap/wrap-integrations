@@ -28,7 +28,7 @@ const contracts = {
 
 jest.setTimeout(360000);
 
-describe("Ethereum Plugin", () => {
+describe("Ethereum Wrapper", () => {
   let client: PolywrapClient;
   let ensAddress: string;
   // let resolverAddress: string;
@@ -189,7 +189,7 @@ describe("Ethereum Plugin", () => {
       expect(Number(response.value)).toBeTruthy();
     });
 
-    it("encodeParams", async () => {
+    it.only("encodeParams", async () => {
       const response = await client.invoke<string>({
         uri,
         method: "encodeParams",
@@ -199,66 +199,46 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBe(
         "0x000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000"
       );
     });
 
-    it("encodeParams - tuple standard", async () => {
-
+    it.only("encodeParams - (uint256, uint256)", async () => {
       const response = await client.invoke<string>({
         uri,
         method: "encodeParams",
         args: {
           types: ["(uint256, uint256)"],
-          values: ["(8, 16)"],
+          values: ["(8,16)"],
         },
       });
 
       if (!response.ok) throw response.error;
       expect(response.value).toBe(
-        ""
+        "0x00000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000010"
       );
 
     });
 
-    it("encodeParams - tuple standard, address", async () => {
-
+    it.only("encodeParams - (uint256, uint256, address)", async () => {
       const response = await client.invoke<string>({
         uri,
         method: "encodeParams",
         args: {
           types: ["(uint256, uint256, address)"],
-          values: ["(8, 16, '0x0000000000000000000000000000000000000000')"],
+          values: ["(8,16,0x0000000000000000000000000000000000000000)"],
         },
       });
 
       if (!response.ok) throw response.error;
       expect(response.value).toBe(
-        ""
-      );
-
-    });
-
-    it("encodeParams - tuple ethers", async () => {
-      const response = await client.invoke<string>({
-        uri,
-        method: "encodeParams",
-        args: {
-          types: ["tuple(uint256, uint256)"],
-          values: ["tuple(8, 16)"],
-        },
-      });
-
-      if (!response.ok) throw response.error;
-      expect(response.value).toBe(
-        ""
+        "0x000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000"
       );
     });
 
-    it("encodeFunction", async () => {
+    it.only("encodeFunction", async () => {
       const response = await client.invoke<string>({
         uri,
         method: "encodeFunction",
@@ -268,13 +248,14 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBe(
         "0x46d4adf20000000000000000000000000000000000000000000000000000000000000064"
       );
+    });
 
-      const acceptsArrayArg = await client.invoke<string>({
+    it.only("encodeFunction - array arg", async () => {
+      const response = await client.invoke<string>({
         uri,
         method: "encodeFunction",
         args: {
@@ -283,7 +264,20 @@ describe("Ethereum Plugin", () => {
         },
       });
 
-      expect(acceptsArrayArg.ok).toBeTruthy();
+      expect(response.ok).toBeTruthy();
+    });
+
+    it.only("encodeFunction - tuple arg", async () => {
+      const response = await client.invoke<string>({
+        uri,
+        method: "encodeFunction",
+        args: {
+          method: "function createTuple(tuple(uint256, uint256) memory)",
+          args: ["(8,16)"],
+        },
+      });
+
+      expect(response.ok).toBeTruthy();
     });
 
     it("toWei", async () => {
