@@ -189,7 +189,7 @@ describe("Ethereum Wrapper", () => {
       expect(Number(response.value)).toBeTruthy();
     });
 
-    it.only("encodeParams", async () => {
+    it("encodeParams", async () => {
       const response = await client.invoke<string>({
         uri,
         method: "encodeParams",
@@ -205,7 +205,7 @@ describe("Ethereum Wrapper", () => {
       );
     });
 
-    it.only("encodeParams - (uint256, uint256)", async () => {
+    it("encodeParams - (uint256, uint256)", async () => {
       const response = await client.invoke<string>({
         uri,
         method: "encodeParams",
@@ -222,7 +222,7 @@ describe("Ethereum Wrapper", () => {
 
     });
 
-    it.only("encodeParams - (uint256, uint256, address)", async () => {
+    it("encodeParams - (uint256, uint256, address)", async () => {
       const response = await client.invoke<string>({
         uri,
         method: "encodeParams",
@@ -238,7 +238,7 @@ describe("Ethereum Wrapper", () => {
       );
     });
 
-    it.only("encodeFunction", async () => {
+    it("encodeFunction", async () => {
       const response = await client.invoke<string>({
         uri,
         method: "encodeFunction",
@@ -254,26 +254,13 @@ describe("Ethereum Wrapper", () => {
       );
     });
 
-    it.only("encodeFunction - array arg", async () => {
+    it("encodeFunction - array arg", async () => {
       const response = await client.invoke<string>({
         uri,
         method: "encodeFunction",
         args: {
           method: "function createArr(uint256[] memory)",
           args: [JSON.stringify([1, 2])],
-        },
-      });
-
-      expect(response.ok).toBeTruthy();
-    });
-
-    it.only("encodeFunction - tuple arg", async () => {
-      const response = await client.invoke<string>({
-        uri,
-        method: "encodeFunction",
-        args: {
-          method: "function createTuple(tuple(uint256, uint256) memory)",
-          args: ["(8,16)"],
         },
       });
 
