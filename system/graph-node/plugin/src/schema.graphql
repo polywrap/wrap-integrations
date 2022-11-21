@@ -2,8 +2,7 @@
 
 type Module {
   querySubgraph(
-    subgraphAuthor: String!
-    subgraphName: String!
+    url: String!
     query: String!
   ): String!
 }
