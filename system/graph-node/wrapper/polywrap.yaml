@@ -1,0 +1,10 @@
+format: 0.2.0
+project:
+  name: graph-node-wasm-rs
+  type: wasm/rust
+source:
+  module: ./Cargo.toml
+  schema: ./src/schema.graphql
+extensions:
+  build: ./polywrap.build.yaml
+  deploy: ./polywrap.deploy.yaml

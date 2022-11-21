@@ -12,7 +12,7 @@ import {
 import { MAX_UINT_256, ROUTER_ADDRESS } from "../utils";
 import { toHex } from "../router";
 
-import { BigInt, Option } from "@polywrap/wasm-as";
+import { BigInt } from "@polywrap/wasm-as";
 
 export function execCall(args: Args_execCall): Ethereum_TxResponse {
   const methodParameters: MethodParameters = args.parameters;
@@ -23,14 +23,14 @@ export function execCall(args: Args_execCall): Ethereum_TxResponse {
   return Ethereum_Module.sendTransaction({
     tx: {
       to: address,
-      m_from: null,
-      nonce: new Option(),
+      _from: null,
+      nonce: null,
       gasLimit: gasOptions === null ? null : gasOptions.gasLimit,
       gasPrice: gasOptions === null ? null : gasOptions.gasPrice,
       data: methodParameters.calldata,
       value: BigInt.fromString(methodParameters.value, 16),
       chainId: null,
-      m_type: new Option(),
+      _type: null,
     },
     connection: {
       node: null,

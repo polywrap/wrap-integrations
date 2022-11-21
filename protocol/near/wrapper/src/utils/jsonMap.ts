@@ -1,24 +1,12 @@
 import {
-  AccessKey,
+  Interface_AccessKey as AccessKey,
   AccessKeyInfo,
-  AccessKeyPermission,
   BlockReference,
   BlockResult,
   Chunk,
-  Near_Action,
-  Near_ExecutionStatus,
-  Near_ExecutionProof,
-  Near_ExecutionOutcome,
-  Near_ExecutionOutcomeWithId,
-  Near_Receipt,
-  Near_ReceiptWithId,
-  Near_FinalExecutionOutcome,
-  Near_OutcomeMetaData,
-  Near_GasProfile,
-  Near_Transaction,
+  Interface_GasProfile,
   NearProtocolConfig,
   NodeStatusResult,
-  Near_FinalExecutionOutcomeWithReceipts,
   ChunkResult,
   BlockChangeResult,
   BlockChange,
@@ -33,6 +21,19 @@ import {
   ContractStateResult,
   getIdTypeKey,
   KeyValuePair,
+  Interface_Action,
+  Interface_ExecutionStatus,
+  Interface_ExecutionOutcomeWithId,
+  Interface_ExecutionProof,
+  FinalExecutionOutcomeWithReceipts,
+  ReceiptWithId,
+  Receipt,
+  Interface_ExecutionOutcome,
+  Interface_OutcomeMetaData,
+  Interface_TransactionWithHash,
+  Interface_FinalExecutionOutcome,
+  Interface_AccessKeyPermission,
+  UsdRatio,
 } from "../wrap";
 import { BigInt, JSON, JSONEncoder } from "@polywrap/wasm-as";
 import { publicKeyFromStr } from "./typeUtils";
@@ -55,7 +56,9 @@ export function fromBlockReference(blockQuery: BlockReference): JSON.Obj {
   return <JSON.Obj>JSON.parse(encoder.serialize());
 }
 
-export function fromLightClientProofRequest(request: LightClientProofRequest): JSON.Obj {
+export function fromLightClientProofRequest(
+  request: LightClientProofRequest
+): JSON.Obj {
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
   encoder.setString("light_client_head", request.light_client_head);
@@ -77,7 +80,11 @@ export function fromLightClientProofRequest(request: LightClientProofRequest): J
   return <JSON.Obj>JSON.parse(encoder.serialize());
 }
 
-export function fromViewFunction(contractId: string, methodName: string, args: JSON.Value): JSON.Obj {
+export function fromViewFunction(
+  contractId: string,
+  methodName: string,
+  args: JSON.Value
+): JSON.Obj {
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
   encoder.setString("request_type", "call_function");
@@ -136,7 +143,9 @@ export function toBlockResult(json: JSON.Obj): BlockResult {
       chunk_headers_root: header.getString("chunk_headers_root")!.valueOf(),
       chunk_tx_root: header.getString("chunk_tx_root")!.valueOf(),
       outcome_root: header.getString("outcome_root")!.valueOf(),
-      chunks_included: BigInt.fromString(header.getValue("chunks_included")!.stringify()),
+      chunks_included: BigInt.fromString(
+        header.getValue("chunks_included")!.stringify()
+      ),
       challenges_root: header.getString("challenges_root")!.valueOf(),
       timestamp: BigInt.fromString(header.getValue("timestamp")!.stringify()),
       timestamp_nanosec: header.getString("timestamp_nanosec")!.valueOf(),
@@ -158,38 +167,59 @@ export function toBlockResult(json: JSON.Obj): BlockResult {
       approvals: header
         .getArr("approvals")!
         .valueOf()
-        .map<string | null>((v: JSON.Value) => (v.isNull ? null : (<JSON.Str>v).valueOf())),
+        .map<string | null>((v: JSON.Value) =>
+          v.isNull ? null : (<JSON.Str>v).valueOf()
+        ),
       signature: header.getString("signature")!.valueOf(),
-      latest_protocol_version: BigInt.fromString(header.getValue("latest_protocol_version")!.stringify()),
+      latest_protocol_version: BigInt.fromString(
+        header.getValue("latest_protocol_version")!.stringify()
+      ),
     },
-    chunks: chunks.valueOf().map<Chunk>((v: JSON.Value, i: i32, s: JSON.Value[]) => {
-      const chunk: JSON.Obj = <JSON.Obj>v;
-      return {
-        chunk_hash: chunk.getString("chunk_hash")!.valueOf(),
-        prev_block_hash: chunk.getString("prev_block_hash")!.valueOf(),
-        outcome_root: chunk.getString("outcome_root")!.valueOf(),
-        prev_state_root: chunk.getString("prev_state_root")!.valueOf(),
-        encoded_merkle_root: chunk.getString("encoded_merkle_root")!.valueOf(),
-        encoded_length: BigInt.fromString(chunk.getValue("encoded_length")!.stringify()),
-        height_created: BigInt.fromString(chunk.getValue("height_created")!.stringify()),
-        height_included: BigInt.fromString(chunk.getValue("height_included")!.stringify()),
-        shard_id: BigInt.fromString(chunk.getValue("shard_id")!.stringify()),
-        gas_used: BigInt.fromString(chunk.getValue("gas_used")!.stringify()),
-        gas_limit: BigInt.fromString(chunk.getValue("gas_limit")!.stringify()),
-        rent_paid: chunk.getString("rent_paid")!.valueOf(),
-        validator_reward: chunk.getString("validator_reward")!.valueOf(),
-        balance_burnt: chunk.getString("balance_burnt")!.valueOf(),
-        outgoing_receipts_root: chunk.getString("outgoing_receipts_root")!.valueOf(),
-        tx_root: chunk.getString("tx_root")!.valueOf(),
-        validator_proposals: chunk.getArr("validator_proposals")!.valueOf(),
-        signature: chunk.getString("signature")!.valueOf(),
-      };
-    }),
+    chunks: chunks
+      .valueOf()
+      .map<Chunk>((v: JSON.Value, i: i32, s: JSON.Value[]) => {
+        const chunk: JSON.Obj = <JSON.Obj>v;
+        return {
+          chunk_hash: chunk.getString("chunk_hash")!.valueOf(),
+          prev_block_hash: chunk.getString("prev_block_hash")!.valueOf(),
+          outcome_root: chunk.getString("outcome_root")!.valueOf(),
+          prev_state_root: chunk.getString("prev_state_root")!.valueOf(),
+          encoded_merkle_root: chunk
+            .getString("encoded_merkle_root")!
+            .valueOf(),
+          encoded_length: BigInt.fromString(
+            chunk.getValue("encoded_length")!.stringify()
+          ),
+          height_created: BigInt.fromString(
+            chunk.getValue("height_created")!.stringify()
+          ),
+          height_included: BigInt.fromString(
+            chunk.getValue("height_included")!.stringify()
+          ),
+          shard_id: BigInt.fromString(chunk.getValue("shard_id")!.stringify()),
+          gas_used: BigInt.fromString(chunk.getValue("gas_used")!.stringify()),
+          gas_limit: BigInt.fromString(
+            chunk.getValue("gas_limit")!.stringify()
+          ),
+          rent_paid: chunk.getString("rent_paid")!.valueOf(),
+          validator_reward: chunk.getString("validator_reward")!.valueOf(),
+          balance_burnt: chunk.getString("balance_burnt")!.valueOf(),
+          outgoing_receipts_root: chunk
+            .getString("outgoing_receipts_root")!
+            .valueOf(),
+          tx_root: chunk.getString("tx_root")!.valueOf(),
+          validator_proposals: chunk.getArr("validator_proposals")!.valueOf(),
+          signature: chunk.getString("signature")!.valueOf(),
+        };
+      }),
   };
 }
 
 export function toChangeResult(json: JSON.Obj): ChangeResult {
-  return { block_hash: json.getString("block_hash")!.valueOf(), changes: json.getArr("changes")!.valueOf() };
+  return {
+    block_hash: json.getString("block_hash")!.valueOf(),
+    changes: json.getArr("changes")!.valueOf(),
+  };
 }
 
 export function toChunkResult(json: JSON.Obj): ChunkResult {
@@ -200,16 +230,24 @@ export function toChunkResult(json: JSON.Obj): ChunkResult {
       prev_block_hash: header.getString("prev_block_hash")!.valueOf(),
       prev_state_root: header.getString("prev_state_root")!.valueOf(),
       encoded_merkle_root: header.getString("encoded_merkle_root")!.valueOf(),
-      encoded_length: BigInt.fromString(header.getValue("encoded_length")!.stringify()),
-      height_created: BigInt.fromString(header.getValue("height_created")!.stringify()),
-      height_included: BigInt.fromString(header.getValue("height_included")!.stringify()),
+      encoded_length: BigInt.fromString(
+        header.getValue("encoded_length")!.stringify()
+      ),
+      height_created: BigInt.fromString(
+        header.getValue("height_created")!.stringify()
+      ),
+      height_included: BigInt.fromString(
+        header.getValue("height_included")!.stringify()
+      ),
       shard_id: BigInt.fromString(header.getValue("shard_id")!.stringify()),
       gas_used: header.getValue("gas_used")!.stringify(),
       gas_limit: BigInt.fromString(header.getValue("gas_limit")!.stringify()),
       rent_paid: header.getString("rent_paid")!.valueOf(),
       validator_reward: header.getString("validator_reward")!.valueOf(),
       balance_burnt: header.getString("balance_burnt")!.valueOf(),
-      outgoing_receipts_root: header.getString("outgoing_receipts_root")!.valueOf(),
+      outgoing_receipts_root: header
+        .getString("outgoing_receipts_root")!
+        .valueOf(),
       tx_root: header.getString("tx_root")!.valueOf(),
       validator_proposals: header.getArr("validator_proposals")!.valueOf(),
       signature: header.getString("signature")!.valueOf(),
@@ -218,7 +256,7 @@ export function toChunkResult(json: JSON.Obj): ChunkResult {
     transactions: json
       .getArr("transactions")!
       .valueOf()
-      .map<Near_Transaction>((v) => toTransaction(<JSON.Obj>v)),
+      .map<Interface_TransactionWithHash>((v) => toTransaction(<JSON.Obj>v)),
   };
 }
 
@@ -233,7 +271,7 @@ export function toAccessKeyInfo(json: JSON.Obj): AccessKeyInfo {
 
 export function toAccessKey(json: JSON.Obj): AccessKey {
   let nonce: BigInt = BigInt.fromString("0");
-  let permission: AccessKeyPermission;
+  let permission: Interface_AccessKeyPermission;
   const jsonPermVal: JSON.Value | null = json.getValue("permission");
   if (jsonPermVal == null || jsonPermVal.isString) {
     permission = {
@@ -249,7 +287,9 @@ export function toAccessKey(json: JSON.Obj): AccessKey {
       .getArr("method_names")!
       .valueOf()
       .map<string>((v: JSON.Value) => (<JSON.Str>v).valueOf());
-    const allowance = BigInt.fromString(jsonFunCall.getString("allowance")!.valueOf());
+    const allowance = BigInt.fromString(
+      jsonFunCall.getString("allowance")!.valueOf()
+    );
     permission = {
       isFullAccess: false,
       receiverId,
@@ -271,7 +311,9 @@ export function toProtocolResult(json: JSON.Obj): NearProtocolConfig {
   const runtime_config: JSON.Obj = json.getObj("runtime_config")!;
   return {
     runtime_config: {
-      storage_amount_per_byte: runtime_config.getString("storage_amount_per_byte")!.valueOf(),
+      storage_amount_per_byte: runtime_config
+        .getString("storage_amount_per_byte")!
+        .valueOf(),
     },
   };
 }
@@ -288,10 +330,14 @@ export function toNodeStatus(json: JSON.Obj): NodeStatusResult {
     },
     chain_id: json.getString("chain_id")!.valueOf(),
     rpc_addr: json.getString("rpc_addr")!.valueOf(),
-    validators: validators.map<string>((v: JSON.Value) => (<JSON.Obj>v).getString("account_id")!.valueOf()),
+    validators: validators.map<string>((v: JSON.Value) =>
+      (<JSON.Obj>v).getString("account_id")!.valueOf()
+    ),
     sync_info: {
       latest_block_hash: sync_info.getString("latest_block_hash")!.valueOf(),
-      latest_block_height: BigInt.fromString(sync_info.getValue("latest_block_height")!.stringify()),
+      latest_block_height: BigInt.fromString(
+        sync_info.getValue("latest_block_height")!.stringify()
+      ),
       latest_state_root: sync_info.getString("latest_state_root")!.valueOf(),
       latest_block_time: sync_info.getString("latest_block_time")!.valueOf(),
       syncing: sync_info.getBool("syncing")!.valueOf(),
@@ -299,36 +345,40 @@ export function toNodeStatus(json: JSON.Obj): NodeStatusResult {
   };
 }
 
-export function toAction(json: JSON.Obj): Near_Action {
-  const action = {} as Near_Action;
-  const obj = json.valueOf();
-  //const keys = obj.keys();
-  const values = <JSON.Obj>obj.values()[0];
+export function toAction(json: JSON.Value): Interface_Action {
+  const action = {} as Interface_Action;
 
-  const depositValue = values.getString("deposit");
-  const argsValue = values.getString("args");
-  const gasValue = values.getString("args");
-  const method_nameValue = values.getString("method_name");
-  if (depositValue != null) {
-    action.deposit = BigInt.fromString(depositValue.valueOf());
-  }
-  if (argsValue != null) {
-    action.args = bs58.decode(argsValue.valueOf()).buffer;
-  }
-  if (gasValue != null) {
-    action.gas = BigInt.fromString(gasValue.valueOf());
-  }
-  if (method_nameValue != null) {
-    action.methodName = method_nameValue.valueOf();
+  if (json.isObj) {
+    const jsonAction = <JSON.Obj>json;
+
+    const depositValue = jsonAction.getString("deposit");
+    const argsValue = jsonAction.getValue("args");
+    const gasValue = jsonAction.getString("gas");
+    const method_nameValue = jsonAction.getString("method_name");
+
+    if (depositValue != null) {
+      action.deposit = BigInt.fromString(depositValue.valueOf());
+    }
+    if (argsValue != null) {
+      action.args = bs58.decode(argsValue.stringify()).buffer;
+    }
+    if (gasValue != null) {
+      action.gas = BigInt.fromString(gasValue.valueOf());
+    }
+    if (method_nameValue != null) {
+      action.methodName = method_nameValue.valueOf();
+    }
   }
   return action;
 }
-export function toReceipt(json: JSON.Obj): Near_Receipt {
+export function toReceipt(json: JSON.Obj): Receipt {
   const actions = json.getObj("Action")!.getArr("actions")!.valueOf();
-  return { Action: { actions: actions.map<Near_Action>((v) => toAction(<JSON.Obj>v)) } };
+  return {
+    Action: { actions: actions.map<Interface_Action>((v) => toAction(v)) },
+  };
 }
 
-export function toReceiptWithId(json: JSON.Obj): Near_ReceiptWithId {
+export function toReceiptWithId(json: JSON.Obj): ReceiptWithId {
   const receipt = json.getObj("receipt")!;
   return {
     predecessor_id: json.getString("predecessor_id")!.valueOf(),
@@ -338,8 +388,8 @@ export function toReceiptWithId(json: JSON.Obj): Near_ReceiptWithId {
   };
 }
 
-export function toExecutionOutcome(json: JSON.Obj): Near_ExecutionOutcome {
-  const result: Near_ExecutionOutcome = {
+export function toExecutionOutcome(json: JSON.Obj): Interface_ExecutionOutcome {
+  const result: Interface_ExecutionOutcome = {
     logs: json
       .getArr("logs")!
       .valueOf()
@@ -367,7 +417,9 @@ export function toExecutionOutcome(json: JSON.Obj): Near_ExecutionOutcome {
   return result;
 }
 
-export function toExecutionOutcomeWithId(json: JSON.Obj): Near_ExecutionOutcomeWithId {
+export function toExecutionOutcomeWithId(
+  json: JSON.Obj
+): Interface_ExecutionOutcomeWithId {
   const outcome = json.getObj("outcome")!;
   const proof = json.getArr("proof")!.valueOf();
 
@@ -375,12 +427,17 @@ export function toExecutionOutcomeWithId(json: JSON.Obj): Near_ExecutionOutcomeW
     id: json.getString("id")!.valueOf(),
     block_hash: json.getString("block_hash")!.valueOf(),
     outcome: toExecutionOutcome(outcome),
-    proof: proof.map<Near_ExecutionProof>((v) => toExecutionProof(<JSON.Obj>v)),
+    proof: proof.map<Interface_ExecutionProof>((v) =>
+      toExecutionProof(<JSON.Obj>v)
+    ),
   };
 }
 
-export function toTransaction(transaction: JSON.Obj): Near_Transaction {
-  const result: Near_Transaction = {
+export function toTransaction(
+  transaction: JSON.Obj
+): Interface_TransactionWithHash {
+  const result: Interface_TransactionWithHash = {
+    hash: "",
     signerId: transaction.getString("signer_id")!.valueOf(),
     publicKey: publicKeyFromStr(transaction.getString("public_key")!.valueOf()),
     nonce: BigInt.fromString(transaction.getValue("nonce")!.stringify()), //TODO change to BigNumber
@@ -388,8 +445,8 @@ export function toTransaction(transaction: JSON.Obj): Near_Transaction {
     actions: transaction
       .getArr("actions")!
       .valueOf()
-      .map<Near_Action>((v: JSON.Value) => toAction(<JSON.Obj>v)),
-  } as Near_Transaction;
+      .map<Interface_Action>((v) => toAction(v)),
+  } as Interface_TransactionWithHash;
 
   const blockHashValue = transaction.getString("block_hash");
   const hashValue = transaction.getString("hash");
@@ -403,25 +460,46 @@ export function toTransaction(transaction: JSON.Obj): Near_Transaction {
   return result;
 }
 
-export function toFinalExecutionOutcome(json: JSON.Obj): Near_FinalExecutionOutcome {
-  const status = json.getObj("status")!;
+export function toFinalExecutionOutcome(
+  json: JSON.Obj
+): Interface_FinalExecutionOutcome {
+  const statusObj = json.getObj("status")!;
   const transaction = json.getObj("transaction")!;
   const transaction_outcome = json.getObj("transaction_outcome")!;
   const receipts_outcome = json.getArr("receipts_outcome")!;
 
+  const status = {} as Interface_ExecutionStatus;
+  const successValue = statusObj.getString("SuccessValue");
+  const failure = statusObj.getString("failure");
+  const successReceiptId = statusObj.getString("SuccessReceiptId");
+
+  if (successValue != null) {
+    status.SuccessValue = successValue.valueOf();
+  }
+
+  if (failure != null) {
+    status.failure = failure; //.valueOf()
+  }
+
+  if (successReceiptId != null) {
+    status.SuccessReceiptId = successReceiptId.valueOf();
+  }
+
   return {
-    status: {
-      SuccessValue: status.getString("SuccessValue")!.valueOf(),
-    },
+    status: status,
     transaction: toTransaction(transaction),
     transaction_outcome: toExecutionOutcomeWithId(transaction_outcome),
     receipts_outcome: receipts_outcome
       .valueOf()
-      .map<Near_ExecutionOutcomeWithId>((v: JSON.Value) => toExecutionOutcomeWithId(<JSON.Obj>v)),
-  } as Near_FinalExecutionOutcome;
+      .map<Interface_ExecutionOutcomeWithId>((v: JSON.Value) =>
+        toExecutionOutcomeWithId(<JSON.Obj>v)
+      ),
+  } as Interface_FinalExecutionOutcome;
 }
 
-export function toFinalExecutionOutcomeWithReceipts(json: JSON.Obj): Near_FinalExecutionOutcomeWithReceipts {
+export function toFinalExecutionOutcomeWithReceipts(
+  json: JSON.Obj
+): FinalExecutionOutcomeWithReceipts {
   //const txStatus = toFinalExecutionOutcome(json); // TODO change with this
 
   const status = json.getObj("status")!;
@@ -434,18 +512,20 @@ export function toFinalExecutionOutcomeWithReceipts(json: JSON.Obj): Near_FinalE
   const receipts = json
     .getArr("receipts")!
     .valueOf()
-    .map<Near_ReceiptWithId>((v) => toReceiptWithId(<JSON.Obj>v));
+    .map<ReceiptWithId>((v) => toReceiptWithId(<JSON.Obj>v));
 
-  const txStatusReceipts: Near_FinalExecutionOutcomeWithReceipts = {
+  const txStatusReceipts: FinalExecutionOutcomeWithReceipts = {
     receipts: receipts,
     status: {
       SuccessValue: status.getString("SuccessValue")!.valueOf(),
-    } as Near_ExecutionStatus,
+    } as Interface_ExecutionStatus,
     transaction: toTransaction(transaction),
     transaction_outcome: toExecutionOutcomeWithId(transaction_outcome),
     receipts_outcome: receipts_outcome
       .valueOf()
-      .map<Near_ExecutionOutcomeWithId>((v: JSON.Value) => toExecutionOutcomeWithId(<JSON.Obj>v)),
+      .map<Interface_ExecutionOutcomeWithId>((v: JSON.Value) =>
+        toExecutionOutcomeWithId(<JSON.Obj>v)
+      ),
   };
 
   return txStatusReceipts;
@@ -463,17 +543,31 @@ export function toEpochValidatorInfo(json: JSON.Obj): EpochValidatorInfo {
     current_validators: current_validators.map<CurrentEpochValidatorInfo>((v) =>
       toCurrentEpochValidatorInfo(<JSON.Obj>v)
     ),
-    next_validators: next_validators.map<NextEpochValidatorInfo>((v) => toNextEpochValidatorInfo(<JSON.Obj>v)),
-    current_fisherman: current_fisherman.map<ValidatorStakeView>((v) => toValidatorStakeView(<JSON.Obj>v)),
-    next_fisherman: next_fisherman.map<ValidatorStakeView>((v) => toValidatorStakeView(<JSON.Obj>v)),
-    current_proposals: current_proposals.map<ValidatorStakeView>((v) => toValidatorStakeView(<JSON.Obj>v)),
-    prev_epoch_kickout: prev_epoch_kickout.map<ValidatorStakeView>((v) => toValidatorStakeView(<JSON.Obj>v)),
-    epoch_start_height: BigInt.fromString(json.getValue("epoch_start_height")!.stringify()),
+    next_validators: next_validators.map<NextEpochValidatorInfo>((v) =>
+      toNextEpochValidatorInfo(<JSON.Obj>v)
+    ),
+    current_fisherman: current_fisherman.map<ValidatorStakeView>((v) =>
+      toValidatorStakeView(<JSON.Obj>v)
+    ),
+    next_fisherman: next_fisherman.map<ValidatorStakeView>((v) =>
+      toValidatorStakeView(<JSON.Obj>v)
+    ),
+    current_proposals: current_proposals.map<ValidatorStakeView>((v) =>
+      toValidatorStakeView(<JSON.Obj>v)
+    ),
+    prev_epoch_kickout: prev_epoch_kickout.map<ValidatorStakeView>((v) =>
+      toValidatorStakeView(<JSON.Obj>v)
+    ),
+    epoch_start_height: BigInt.fromString(
+      json.getValue("epoch_start_height")!.stringify()
+    ),
     epoch_height: BigInt.fromString(json.getValue("epoch_height")!.stringify()),
   } as EpochValidatorInfo;
 }
 
-function toCurrentEpochValidatorInfo(json: JSON.Obj): CurrentEpochValidatorInfo {
+function toCurrentEpochValidatorInfo(
+  json: JSON.Obj
+): CurrentEpochValidatorInfo {
   return {
     account_id: json.getString("account_id")!.valueOf(),
     public_key: json.getString("public_key")!.valueOf(),
@@ -483,8 +577,12 @@ function toCurrentEpochValidatorInfo(json: JSON.Obj): CurrentEpochValidatorInfo 
       .getArr("shards")!
       .valueOf()
       .map<BigInt>((v) => BigInt.fromString((<JSON.Value>v).stringify())),
-    num_produced_blocks: BigInt.fromString(json.getValue("num_produced_blocks")!.stringify()).toUInt32(),
-    num_expected_blocks: BigInt.fromString(json.getValue("num_expected_blocks")!.stringify()).toUInt32(),
+    num_produced_blocks: BigInt.fromString(
+      json.getValue("num_produced_blocks")!.stringify()
+    ).toUInt32(),
+    num_expected_blocks: BigInt.fromString(
+      json.getValue("num_expected_blocks")!.stringify()
+    ).toUInt32(),
   };
 }
 
@@ -516,9 +614,13 @@ export function toLightClientProof(json: JSON.Obj): LightClientProof {
 
   return {
     block_header_lite: toBlockHeaderLite(block_header_lite),
-    block_proof: block_proof.map<Near_ExecutionProof>((v) => toExecutionProof(<JSON.Obj>v)),
+    block_proof: block_proof.map<Interface_ExecutionProof>((v) =>
+      toExecutionProof(<JSON.Obj>v)
+    ),
     outcome_proof: toExecutionOutcomeWithId(outcome_proof),
-    outcome_root_proof: outcome_root_proof.map<Near_ExecutionProof>((v) => toExecutionProof(<JSON.Obj>v)),
+    outcome_root_proof: outcome_root_proof.map<Interface_ExecutionProof>((v) =>
+      toExecutionProof(<JSON.Obj>v)
+    ),
   };
 }
 
@@ -533,38 +635,47 @@ function toBlockHeaderLite(json: JSON.Obj): LightClientBlockLiteView {
       next_epoch_id: inner_lite.getString("next_epoch_id")!.valueOf(),
       outcome_root: inner_lite.getString("outcome_root")!.valueOf(),
       prev_state_root: inner_lite.getString("prev_state_root")!.valueOf(),
-      timestamp: BigInt.fromString(inner_lite.getValue("timestamp")!.stringify()),
+      timestamp: BigInt.fromString(
+        inner_lite.getValue("timestamp")!.stringify()
+      ),
     },
     inner_rest_hash: json.getString("inner_rest_hash")!.valueOf(),
     prev_block_hash: json.getString("prev_block_hash")!.valueOf(),
   } as LightClientBlockLiteView;
 }
 
-function toExecutionProof(json: JSON.Obj): Near_ExecutionProof {
-  return { hash: json.getString("hash")!.valueOf(), direction: json.getString("direction")!.valueOf() };
+function toExecutionProof(json: JSON.Obj): Interface_ExecutionProof {
+  return {
+    hash: json.getString("hash")!.valueOf(),
+    direction: json.getString("direction")!.valueOf(),
+  };
 }
 
-function toOutcomeMetadata(json: JSON.Obj): Near_OutcomeMetaData {
-  const metadata: Near_OutcomeMetaData = {
+function toOutcomeMetadata(json: JSON.Obj): Interface_OutcomeMetaData {
+  const metadata: Interface_OutcomeMetaData = {
     gas_profile: [],
-    version: BigInt.fromString(json.getValue("version")!.stringify()).toUInt32(),
+    version: BigInt.fromString(
+      json.getValue("version")!.stringify()
+    ).toUInt32(),
   };
   const gas_profileValue = json.getArr("gas_profile");
   if (gas_profileValue != null) {
-    metadata.gas_profile = gas_profileValue.valueOf().map<Near_GasProfile | null>((v: JSON.Value) => {
-      const profile = <JSON.Obj>v;
-      return {
-        cost: profile.getString("cost")!.valueOf(),
-        cost_category: profile.getString("cost_category")!.valueOf(),
-        gas_used: profile.getString("gas_used")!.valueOf(),
-      };
-    });
+    metadata.gas_profile = gas_profileValue
+      .valueOf()
+      .map<Interface_GasProfile | null>((v: JSON.Value) => {
+        const profile = <JSON.Obj>v;
+        return {
+          cost: profile.getString("cost")!.valueOf(),
+          cost_category: profile.getString("cost_category")!.valueOf(),
+          gas_used: profile.getString("gas_used")!.valueOf(),
+        };
+      });
   }
   return metadata;
 }
 
-function toExecutionStatus(json: JSON.Obj): Near_ExecutionStatus {
-  const result = {} as Near_ExecutionStatus;
+function toExecutionStatus(json: JSON.Obj): Interface_ExecutionStatus {
+  const result = {} as Interface_ExecutionStatus;
 
   const successValue = json.getString("SuccessValue");
   if (successValue != null) {
@@ -583,8 +694,25 @@ function toExecutionStatus(json: JSON.Obj): Near_ExecutionStatus {
   return result;
 }
 
+export function toUsdRatio(json: JSON.Obj): UsdRatio | null {
+  const near = json.getObj("near");
+  if (near == null) {
+    return null;
+  }
+  const usd = near.getNum("usd")!.valueOf();
+  const last_updated_at = near.getInteger("last_updated_at")!.valueOf();
+
+  return {
+    usd: usd.toString(),
+    last_updated_at: BigInt.from(last_updated_at),
+  };
+}
+
 function toBase64String(value: string): string {
   const valueBuffer = String.UTF8.encode(value);
-  const valueArray: Uint8Array = valueBuffer.byteLength > 0 ? Uint8Array.wrap(valueBuffer) : new Uint8Array(0);
+  const valueArray: Uint8Array =
+    valueBuffer.byteLength > 0
+      ? Uint8Array.wrap(valueBuffer)
+      : new Uint8Array(0);
   return bs64.encode(valueArray);
 }

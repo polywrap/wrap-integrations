@@ -15,7 +15,12 @@ type Query {
   isSignedIn: Boolean!
 
   getAccountId: String
-
+  
+  """
+  Creates a transaction.
+  If signerId is provided, the transaction will be signed using data from the KeyStore in the plugin config.
+  Otherwise, wallet authorization is expected.
+  """
   createTransactionWithWallet(
     receiverId: String!
     actions: [Action!]!

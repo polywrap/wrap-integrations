@@ -1,0 +1,13 @@
+format: 0.2.0
+project:
+  type: wasm/assemblyscript
+  name: concurrency-demo
+source:
+  module: ./src/index.ts
+  schema: ./src/schema.graphql
+  import_abis:
+    - uri: "ens/interface.concurrent.polywrap.eth"
+      abi: ../../../../../interface/build/wrap.info
+extensions:
+  build: ./polywrap.build.yaml
+  deploy: ./polywrap.deploy.yaml

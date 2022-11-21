@@ -2,12 +2,12 @@
 
 import {
   AccessKey,
-  Transaction,
-  ExecutionOutcome,
-  Action,
-  ExecutionOutcomeWithId,
-  FinalExecutionOutcome,
-  ExecutionStatus,
+  Near_ExecutionOutcome as ExecutionOutcome,
+  Near_ExecutionOutcomeWithId as ExecutionOutcomeWithId,
+  Near_FinalExecutionOutcome as FinalExecutionOutcome,
+  Near_ExecutionStatus as ExecutionStatus,
+  Near_Transaction,
+  Near_Action,
 } from "./wrap";
 import { toPublicKey } from "./typeMapping";
 import {
@@ -20,7 +20,7 @@ import {
   JsonTransaction,
 } from "./jsonTypes";
 
-export const parseJsonResponseTx = (tx: JsonTransaction): Transaction => {
+export const parseJsonResponseTx = (tx: JsonTransaction): Near_Transaction => {
   const jsonActions: JsonAction[] = tx.actions
     .map((v: Record<string, JsonAction>): JsonAction[] => Object.values(v))
     .flat();
@@ -30,11 +30,11 @@ export const parseJsonResponseTx = (tx: JsonTransaction): Transaction => {
     nonce: tx.nonce.toString(),
     receiverId: tx.receiver_id,
     actions: jsonActions.map(parseJsonResponseAction),
-    hash: tx.hash,
+    //hash: tx.hash,
   };
 };
 
-export const parseJsonResponseAction = (jsonAction: JsonAction): Action => {
+export const parseJsonResponseAction = (jsonAction: JsonAction): Near_Action => {
   const allPropsAction: Record<string, unknown> = {
     code: jsonAction.code ? Buffer.from(jsonAction.code) : undefined, // TODO: how to deserialize this?
     methodName: jsonAction.method_name,
@@ -56,7 +56,7 @@ export const parseJsonResponseAction = (jsonAction: JsonAction): Action => {
       action[key] = allPropsAction[key];
     }
   });
-  return action as Action;
+  return action as Near_Action;
 };
 
 export const parseJsonResponseAccessKey = (

@@ -1,0 +1,62 @@
+type Module {
+  """
+  Convert Unicode to ASCII/Punycode following UTS #46 standard. Throws if an error is encountered.
+  https://www.unicode.org/reports/tr46/#ToASCII
+  """
+  toAscii(
+    value: String!
+    flags: Flags
+  ): String!
+
+  """
+  Convert ASCII/Punycode to Unicode following UTS #46 standard. Always returns a unicode string, even if an error is encountered during processing.
+  Only use_std3_ascii_rules is used in flags.
+  https://www.unicode.org/reports/tr46/#ToUnicode
+  """
+  toUnicode(
+    value: String!
+    flags: Flags
+  ): UnicodeResult!
+
+  """
+  Converts a domain name in correct way, returning IDNA2003 / IDNA2008 strings where it makes sense as this is dependent on the domain extension / TLD.
+  """
+  convert(
+    value: String!
+  ): ConvertResult!
+}
+
+"""
+Per the unicode standard, the toUnicode method always returns a string, even if it's processed with errors.
+"""
+type UnicodeResult {
+  value: String!
+  withError: Boolean!
+}
+
+type ConvertResult {
+  IDN: String!
+  PC: String!
+}
+
+"""
+Optional settings for processing and conversion algorithms.
+All flags are false by default, providing correct behavior for most use cases.
+"""
+type Flags {
+  """
+  UseSTD3ASCIIRules flag
+  https://www.unicode.org/reports/tr46/#UseSTD3ASCIIRules
+  """
+  use_std3_ascii_rules: Boolean
+  """
+  Transitional_Processing or Nontransitional Processing, for transitional handling of Deviation characters
+  https://www.unicode.org/reports/tr46/#Conformance
+  """
+  transitional_processing: Boolean
+  """
+  VerifyDnsLength flag, to verify DNS length restrictions
+  https://www.unicode.org/reports/tr46/#ToASCII
+  """
+  verify_dns_length: Boolean
+}

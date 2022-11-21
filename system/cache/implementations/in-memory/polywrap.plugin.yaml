@@ -1,8 +1,10 @@
-format: 0.1.0
-name: in-memory-cache
-language: plugin/typescript
-schema: ./src/schema.graphql
-module: ./src/index.ts
-import_redirects:
-  - uri: "ens/interface.cache.polywrap.eth"
-    schema: ../../interface/build/schema.graphql
+format: 0.2.0
+project:
+  type: plugin/typescript
+  name: in-memory-cache
+source:
+  module: ./src/index.ts
+  schema: ./src/schema.graphql
+  import_abis:
+    - uri: "ens/interface.cache.polywrap.eth"
+      abi: ../../interface/build/wrap.info

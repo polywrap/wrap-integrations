@@ -10,7 +10,7 @@ module.exports = {
   /**
    * A set of regexp that will disclude source files from testing.
    */
-  disclude: [/node_modules|e2e/],
+  disclude: [/node_modules|e2e|.polywrap/],
   /**
    * All the compiler flags needed for this test suite. Make sure that a binary file is output.
    */
