@@ -80,8 +80,7 @@ describe("Ethereum Wrapper", () => {
         args: {},
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
       expect(response.value).toBe("1337");
     });
@@ -95,8 +94,7 @@ describe("Ethereum Wrapper", () => {
         },
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
     });
 
@@ -109,8 +107,7 @@ describe("Ethereum Wrapper", () => {
         },
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
       expect(response.value).toEqual(true);
     });
@@ -121,8 +118,7 @@ describe("Ethereum Wrapper", () => {
         method: "getGasPrice"
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
     });
 
@@ -135,8 +131,7 @@ describe("Ethereum Wrapper", () => {
         }
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBe(
         "0xa4708243bf782c6769ed04d83e7192dbcf4fc131aa54fde9d889d8633ae39dab03d7babd2392982dff6bc20177f7d887e27e50848c851320ee89c6c63d18ca761c"
       );
@@ -148,8 +143,7 @@ describe("Ethereum Wrapper", () => {
         method: "getSignerAddress",
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
       expect(response.value?.startsWith("0x")).toBe(true);
     });
@@ -160,8 +154,7 @@ describe("Ethereum Wrapper", () => {
         method: "getSignerBalance",
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
     });
 
@@ -171,8 +164,7 @@ describe("Ethereum Wrapper", () => {
         method: "getSignerTransactionCount",
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
       expect(Number(response.value)).toBeTruthy();
     });
@@ -183,8 +175,7 @@ describe("Ethereum Wrapper", () => {
         method: "getGasPrice",
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
       expect(Number(response.value)).toBeTruthy();
     });
@@ -276,8 +267,7 @@ describe("Ethereum Wrapper", () => {
         },
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
       expect(response.value).toEqual("20000000000000000000");
     });
@@ -291,8 +281,7 @@ describe("Ethereum Wrapper", () => {
         },
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
       expect(response.value).toEqual("20");
     });
@@ -324,8 +313,7 @@ describe("Ethereum Wrapper", () => {
         },
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
       const num = ethers.BigNumber.from(response.value);
       expect(num.gt(0)).toBeTruthy();
@@ -344,8 +332,7 @@ describe("Ethereum Wrapper", () => {
         },
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value.hash).toBeTruthy();
       const txHash = response.value.hash as string;
 
@@ -374,8 +361,7 @@ describe("Ethereum Wrapper", () => {
         }
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
       expect(response.value.hash).toBeDefined();
     });
@@ -389,8 +375,7 @@ describe("Ethereum Wrapper", () => {
         }
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
       expect(
         response.value.transactionHash
@@ -410,8 +395,7 @@ describe("Ethereum Wrapper", () => {
         },
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
       const num = ethers.BigNumber.from(response.value);
       expect(num.gt(0)).toBeTruthy();
@@ -427,8 +411,7 @@ describe("Ethereum Wrapper", () => {
         }
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
       expect(response.value).toContain("0x");
     });
@@ -445,8 +428,7 @@ describe("Ethereum Wrapper", () => {
         },
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
       const num = ethers.BigNumber.from(response.value);
       expect(num.gt(0)).toBeTruthy();
@@ -464,8 +446,7 @@ describe("Ethereum Wrapper", () => {
         }
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
       expect(response.value).toBe("0x0000000000000000000000000000000000000000");
     });
@@ -482,8 +463,7 @@ describe("Ethereum Wrapper", () => {
         },
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value.error).toBeFalsy();
       expect(response.value.result).toBe("");
     });
@@ -500,12 +480,35 @@ describe("Ethereum Wrapper", () => {
         },
       });
 
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
       expect(response.value.error).toBeTruthy();
       expect(response.value.result).toContain(
         "VM Exception while processing transaction: revert"
+      );
+    });
+
+    it("callContractStatic (expecting error) - txOverrides", async () => {
+      const label = "0x" + keccak256("testwhatever");
+      const response = await client.invoke<Schema.StaticTxResult>({
+        uri,
+        method: "callContractStatic",
+        args: {
+          address: registrarAddress,
+          method: "function register(bytes32 label, address owner)",
+          args: [label, signer],
+          txOverrides: {
+            value: null,
+            gasPrice: "50",
+            gasLimit: "1",
+          },
+        },
+      });
+
+      if (!response.ok) throw response.error;
+      expect(response.value?.error).toBeTruthy();
+      expect(response.value?.result).toContain(
+        "base fee exceeds gas limit"
       );
     });
 
@@ -518,13 +521,15 @@ describe("Ethereum Wrapper", () => {
           address: registrarAddress,
           method: "function register(bytes32 label, address owner)",
           args: [label, signer],
-        }
+          txOverrides: {
+            value: null,
+            gasPrice: "50",
+            gasLimit: "200000"
+          },
+        },
       });
 
-      // TODO: add txOverrides
-
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
     });
 
@@ -537,10 +542,15 @@ describe("Ethereum Wrapper", () => {
           address: registrarAddress,
           method: "function register(bytes32 label, address owner)",
           args: [label, signer],
+          txOverrides: {
+            value: null,
+            gasPrice: "50",
+            gasLimit: "200000"
+          },
         }
       });
-      expect(response.ok).toBeTruthy();
-      if (!response.ok) throw Error("never");
+
+      if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
     });
   });

@@ -6,6 +6,7 @@ use ethers_core::{
     },
     utils::{format_ether, parse_ether, serialize},
 };
+use ethers_core::types::NameOrAddress;
 use ethers_middleware::SignerMiddleware;
 use ethers_providers::{Middleware, Provider};
 use ethers_signers::Signer;
@@ -14,6 +15,7 @@ use crate::error::WrapperError;
 use crate::format::{params_to_types, tokenize_values};
 use crate::provider::PolywrapProvider;
 use crate::signer::PolywrapSigner;
+use crate::format::EthersTxOverrides;
 
 pub async fn get_chain_id() -> U256 {
     let provider = Provider::new(PolywrapProvider {});
@@ -194,15 +196,18 @@ pub fn deploy_contract(
     Ok(tx)
 }
 
-pub async fn estimate_contract_call_gas(address: Address, method: &str, args: Vec<String>) -> U256 {
+pub async fn estimate_contract_call_gas(address: &Address, method: &str, args: &Vec<String>, overrides: &EthersTxOverrides) -> U256 {
     let provider = Provider::new(PolywrapProvider {});
     let function = AbiParser::default().parse_function(method).unwrap();
     let kinds: Vec<ParamType> = params_to_types(&function.inputs);
     let tokens: Vec<Token> = tokenize_values(&args, &kinds);
     let data: Bytes = function.encode_input(&tokens).map(Into::into).unwrap();
     let tx = TransactionRequest {
-        to: Some(address.into()),
+        to: Some(address.clone().into()),
         data: Some(data),
+        gas: overrides.gas_limit,
+        gas_price: overrides.gas_price,
+        value: overrides.value,
         ..Default::default()
     };
     let tx = tx.into();
@@ -245,6 +250,7 @@ pub async fn call_contract_static(
     address: Address,
     method: &str,
     args: Vec<String>,
+    overrides: &EthersTxOverrides,
 ) -> Result<Vec<Token>, WrapperError> {
     let provider = Provider::new(PolywrapProvider {});
     let wallet = PolywrapSigner::new();
@@ -259,6 +265,9 @@ pub async fn call_contract_static(
     let tx = TransactionRequest {
         to: Some(address.into()),
         data: Some(data.clone()),
+        gas: overrides.gas_limit,
+        gas_price: overrides.gas_price,
+        value: overrides.value,
         ..Default::default()
     };
 
@@ -277,6 +286,7 @@ pub async fn call_contract_method(
     address: Address,
     method: &str,
     args: Vec<String>,
+    overrides: &EthersTxOverrides,
 ) -> (Bytes, Bytes, H256) {
     let provider = Provider::new(PolywrapProvider {});
     let wallet = PolywrapSigner::new();
@@ -299,6 +309,9 @@ pub async fn call_contract_method(
     let tx = TransactionRequest {
         to: Some(address.into()),
         data: Some(data.clone()),
+        gas: overrides.gas_limit,
+        gas_price: overrides.gas_price,
+        value: overrides.value,
         ..Default::default()
     };
 

@@ -3,11 +3,13 @@ use futures::executor::block_on;
 use ethers_core::types::{Address, Bytes, H256};
 use polywrap_wasm_rs::BigInt;
 use std::str::FromStr;
+use crate::format::{unwrap_tx_overrides, EthersTxOverrides};
 
 pub mod provider;
 pub mod signer;
 pub mod wrap;
 use wrap::*;
+
 pub mod api;
 pub mod error;
 pub mod format;
@@ -156,7 +158,8 @@ pub fn estimate_contract_call_gas(input: wrap::ArgsEstimateContractCallGas) -> B
             Err(e) => panic!("Invalid contract address: {}. Error: {}", &input.address, e),
         };
         let args: Vec<String> = input.args.unwrap_or(vec![]);
-        let gas = api::estimate_contract_call_gas(address, &input.method, args).await;
+        let tx_overrides: EthersTxOverrides = unwrap_tx_overrides(input.tx_overrides);
+        let gas = api::estimate_contract_call_gas(&address, &input.method, &args, &tx_overrides).await;
         BigInt::from_str(&gas.to_string()).unwrap()
     })
 }
@@ -180,7 +183,8 @@ pub fn call_contract_static(input: ArgsCallContractStatic) -> wrap::StaticTxResu
             Err(e) => panic!("Invalid contract address: {}. Error: {}", &input.address, e),
         };
         let args: Vec<String> = input.args.unwrap_or(vec![]);
-        let result = api::call_contract_static(address, &input.method, args).await;
+        let tx_overrides: EthersTxOverrides = unwrap_tx_overrides(input.tx_overrides);
+        let result = api::call_contract_static(address, &input.method, args, &tx_overrides).await;
         match result {
             Ok(tokens) => wrap::StaticTxResult {
                 result: format::format_tokens(&tokens),
@@ -201,7 +205,8 @@ pub fn call_contract_method(input: wrap::ArgsCallContractMethod) -> wrap::TxResp
             Err(e) => panic!("Invalid contract address: {}. Error: {}", &input.address, e),
         };
         let args: Vec<String> = input.args.unwrap_or(vec![]);
-        let (data, raw, tx_hash) = api::call_contract_method(address, &input.method, args).await;
+        let tx_overrides: EthersTxOverrides = unwrap_tx_overrides(input.tx_overrides);
+        let (data, raw, tx_hash) = api::call_contract_method(address, &input.method, args, &tx_overrides).await;
         let response = api::await_transaction(tx_hash).await;
         let tx_response = mapping::to_wrap_response(response, Some(data), Some(raw)).await;
         tx_response
@@ -217,7 +222,8 @@ pub fn call_contract_method_and_wait(
             Err(e) => panic!("Invalid contract address: {}. Error: {}", &input.address, e),
         };
         let args: Vec<String> = input.args.unwrap_or(vec![]);
-        let (_, _, tx_hash) = api::call_contract_method(address, &input.method, args).await;
+        let tx_overrides: EthersTxOverrides = unwrap_tx_overrides(input.tx_overrides);
+        let (_, _, tx_hash) = api::call_contract_method(address, &input.method, args, &tx_overrides).await;
         let receipt = api::get_transaction_receipt(tx_hash).await;
         let tx_receipt = mapping::to_wrap_receipt(receipt);
         tx_receipt

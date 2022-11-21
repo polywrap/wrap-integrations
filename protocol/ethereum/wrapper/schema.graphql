@@ -71,6 +71,12 @@ type TxReceipt {
     status: UInt32
 }
 
+type TxOverrides {
+    gasLimit: BigInt
+    gasPrice: BigInt
+    value: BigInt
+}
+
 type StaticTxResult {
     result: String!
     error: Boolean!
@@ -89,6 +95,7 @@ type Module {
     address: String!
     method: String!
     args: [String!]
+    txOverrides: TxOverrides
   ): StaticTxResult!
 
   encodeParams(types: [String!]!, values: [String!]!): String!
@@ -157,18 +164,21 @@ type Module {
     address: String!
     method: String!
     args: [String!]
+    txOverrides: TxOverrides
   ): BigInt!
 
   callContractMethod(
     address: String!
     method: String!
     args: [String!]
+    txOverrides: TxOverrides
   ): TxResponse!
 
   callContractMethodAndWait(
     address: String!
     method: String!
     args: [String!]
+    txOverrides: TxOverrides
   ): TxReceipt!
 
   signMessage(message: String!): String!
