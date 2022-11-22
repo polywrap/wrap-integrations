@@ -1,8 +1,6 @@
 import { PolywrapClient } from "@polywrap/client-js";
 import { ensResolverPlugin } from "@polywrap/ens-resolver-plugin-js";
 import {
-  initTestEnvironment,
-  stopTestEnvironment,
   ensAddresses,
   providers,
 } from "@polywrap/test-env-js";
@@ -13,6 +11,7 @@ import { ethers } from "ethers";
 import { keccak256 } from "js-sha3";
 import { ethereumProviderPlugin } from "../../provider/src";
 import * as Schema from "./types/wrap";
+import { initInfra, stopInfra } from "./utils/infra";
 
 const { hash: namehash } = require("eth-ens-namehash");
 const contracts = {
@@ -40,7 +39,7 @@ describe("Ethereum Wrapper", () => {
   const uri = `fs/${wrapperPath}/build`;
 
   beforeAll(async () => {
-    await initTestEnvironment();
+    await initInfra();
 
     ensAddress = ensAddresses.ensAddress;
     // resolverAddress = ensAddresses.resolverAddress;
@@ -69,7 +68,7 @@ describe("Ethereum Wrapper", () => {
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    await stopInfra();
   });
 
   describe("EthereumWrapper", () => {
@@ -341,13 +340,11 @@ describe("Ethereum Wrapper", () => {
         method: "awaitTransaction",
         args: {
           txHash: txHash,
-          confirmations: 1,
-          timeout: 60000,
+          // timeout: 60000,
         },
       });
 
-      expect(awaitResponse.ok).toBeTruthy();
-      if (!awaitResponse.ok) throw Error("never");
+      if (!awaitResponse.ok) throw awaitResponse.error;
       expect(awaitResponse.value).toBeDefined();
       expect(awaitResponse.value.transactionHash).toBeDefined();
     });
@@ -488,7 +485,7 @@ describe("Ethereum Wrapper", () => {
       );
     });
 
-    it("callContractStatic (expecting error) - txOverrides", async () => {
+    it("callContractStatic (expecting error) - TxOptions", async () => {
       const label = "0x" + keccak256("testwhatever");
       const response = await client.invoke<Schema.StaticTxResult>({
         uri,
@@ -497,9 +494,8 @@ describe("Ethereum Wrapper", () => {
           address: registrarAddress,
           method: "function register(bytes32 label, address owner)",
           args: [label, signer],
-          txOverrides: {
-            value: null,
-            gasPrice: "50",
+          options: {
+            maxFeePerGas: "50",
             gasLimit: "1",
           },
         },
@@ -507,9 +503,7 @@ describe("Ethereum Wrapper", () => {
 
       if (!response.ok) throw response.error;
       expect(response.value?.error).toBeTruthy();
-      expect(response.value?.result).toContain(
-        "base fee exceeds gas limit"
-      );
+      expect(response.value?.result).toContain("out of gas");
     });
 
     it("callContractMethod", async () => {
@@ -521,9 +515,8 @@ describe("Ethereum Wrapper", () => {
           address: registrarAddress,
           method: "function register(bytes32 label, address owner)",
           args: [label, signer],
-          txOverrides: {
-            value: null,
-            gasPrice: "50",
+          options: {
+            maxFeePerGas: "50",
             gasLimit: "200000"
           },
         },
@@ -542,9 +535,8 @@ describe("Ethereum Wrapper", () => {
           address: registrarAddress,
           method: "function register(bytes32 label, address owner)",
           args: [label, signer],
-          txOverrides: {
-            value: null,
-            gasPrice: "50",
+          options: {
+            maxFeePerGas: "50",
             gasLimit: "200000"
           },
         }

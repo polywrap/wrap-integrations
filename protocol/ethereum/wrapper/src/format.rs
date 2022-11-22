@@ -1,29 +1,6 @@
 use ethabi::token::Tokenizer;
 
 use ethers_core::abi::{Param, ParamType, Token};
-use ethers_core::abi::ethereum_types::U256;
-use crate::TxOverrides;
-
-pub struct EthersTxOverrides {
-    pub gas_limit: Option<U256>,
-    pub gas_price: Option<U256>,
-    pub value: Option<U256>,
-}
-
-pub fn unwrap_tx_overrides(maybe_overrides: Option<TxOverrides>) -> EthersTxOverrides {
-    match maybe_overrides {
-        Some(overrides) => EthersTxOverrides {
-            gas_limit: overrides.gas_limit.map(|big_int| U256::from_str_radix(&big_int.to_string(), 10).unwrap()),
-            gas_price: overrides.gas_price.map(|big_int| U256::from_str_radix(&big_int.to_string(), 10).unwrap()),
-            value: overrides.value.map(|big_int| U256::from_str_radix(&big_int.to_string(), 10).unwrap()),
-        },
-        None => EthersTxOverrides {
-            gas_limit: None,
-            gas_price: None,
-            value: None,
-        }
-    }
-}
 
 pub fn params_to_types(params: &Vec<Param>) -> Vec<ParamType> {
     params.clone().into_iter().map(|i| i.kind).collect()

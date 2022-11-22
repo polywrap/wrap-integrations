@@ -3,12 +3,15 @@ use futures::executor::block_on;
 use ethers_core::types::{Address, Bytes, H256};
 use polywrap_wasm_rs::BigInt;
 use std::str::FromStr;
-use crate::format::{unwrap_tx_overrides, EthersTxOverrides};
+use ethers_middleware::SignerMiddleware;
+use ethers_providers::Provider;
 
 pub mod provider;
 pub mod signer;
 pub mod wrap;
 use wrap::*;
+use crate::provider::PolywrapProvider;
+use crate::signer::PolywrapSigner;
 
 pub mod api;
 pub mod error;
@@ -121,9 +124,12 @@ pub fn await_transaction(input: wrap::ArgsAwaitTransaction) -> wrap::TxReceipt {
 pub fn send_transaction(input: wrap::ArgsSendTransaction) -> wrap::TxResponse {
     block_on(async {
         let tx = mapping::from_wrap_request(input.tx);
-        let tx_hash = api::send_transaction(tx).await;
+        let provider = Provider::new(PolywrapProvider {});
+        let signer = PolywrapSigner::new();
+        let client = SignerMiddleware::new(provider, signer);
+        let tx_hash = api::sign_and_send_transaction(client, tx).await;
         let response = api::await_transaction(tx_hash).await;
-        let tx_response = mapping::to_wrap_response(response, None, None).await;
+        let tx_response = mapping::to_wrap_response(response).await;
         tx_response
     })
 }
@@ -131,7 +137,10 @@ pub fn send_transaction(input: wrap::ArgsSendTransaction) -> wrap::TxResponse {
 pub fn send_transaction_and_wait(input: wrap::ArgsSendTransactionAndWait) -> wrap::TxReceipt {
     block_on(async {
         let tx = mapping::from_wrap_request(input.tx);
-        let tx_hash = api::send_transaction(tx).await;
+        let provider = Provider::new(PolywrapProvider {});
+        let signer = PolywrapSigner::new();
+        let client = SignerMiddleware::new(provider, signer);
+        let tx_hash = api::sign_and_send_transaction(client, tx).await;
         let receipt = api::get_transaction_receipt(tx_hash).await;
         let tx_receipt = mapping::to_wrap_receipt(receipt);
         tx_receipt
@@ -144,8 +153,12 @@ pub fn deploy_contract(input: wrap::ArgsDeployContract) -> String {
         let bytecode = Bytes::from_str(&input.bytecode).unwrap();
         let args: Vec<String> = input.args.unwrap_or(vec![]);
 
-        let tx = api::deploy_contract(abi, bytecode, args).unwrap();
-        let tx_hash = api::send_transaction(tx.into()).await;
+        let tx_options: mapping::EthersTxOptions = mapping::from_wrap_tx_options(input.options);
+        let tx = api::create_deploy_contract_transaction(abi, bytecode, args, &tx_options).unwrap();
+        let provider = Provider::new(PolywrapProvider {});
+        let signer = PolywrapSigner::new();
+        let client = SignerMiddleware::new(provider, signer);
+        let tx_hash = api::sign_and_send_transaction(client, tx.into()).await;
         let receipt = api::get_transaction_receipt(tx_hash).await;
         receipt.contract_address.unwrap().to_string()
     })
@@ -158,8 +171,8 @@ pub fn estimate_contract_call_gas(input: wrap::ArgsEstimateContractCallGas) -> B
             Err(e) => panic!("Invalid contract address: {}. Error: {}", &input.address, e),
         };
         let args: Vec<String> = input.args.unwrap_or(vec![]);
-        let tx_overrides: EthersTxOverrides = unwrap_tx_overrides(input.tx_overrides);
-        let gas = api::estimate_contract_call_gas(&address, &input.method, &args, &tx_overrides).await;
+        let tx_options: mapping::EthersTxOptions = mapping::from_wrap_tx_options(input.options);
+        let gas = api::estimate_contract_call_gas(address, &input.method, &args, &tx_options).await;
         BigInt::from_str(&gas.to_string()).unwrap()
     })
 }
@@ -183,8 +196,8 @@ pub fn call_contract_static(input: ArgsCallContractStatic) -> wrap::StaticTxResu
             Err(e) => panic!("Invalid contract address: {}. Error: {}", &input.address, e),
         };
         let args: Vec<String> = input.args.unwrap_or(vec![]);
-        let tx_overrides: EthersTxOverrides = unwrap_tx_overrides(input.tx_overrides);
-        let result = api::call_contract_static(address, &input.method, args, &tx_overrides).await;
+        let tx_options: mapping::EthersTxOptions = mapping::from_wrap_tx_options(input.options);
+        let result = api::call_contract_static(address, &input.method, args, &tx_options).await;
         match result {
             Ok(tokens) => wrap::StaticTxResult {
                 result: format::format_tokens(&tokens),
@@ -205,10 +218,10 @@ pub fn call_contract_method(input: wrap::ArgsCallContractMethod) -> wrap::TxResp
             Err(e) => panic!("Invalid contract address: {}. Error: {}", &input.address, e),
         };
         let args: Vec<String> = input.args.unwrap_or(vec![]);
-        let tx_overrides: EthersTxOverrides = unwrap_tx_overrides(input.tx_overrides);
-        let (data, raw, tx_hash) = api::call_contract_method(address, &input.method, args, &tx_overrides).await;
+        let tx_options: mapping::EthersTxOptions = mapping::from_wrap_tx_options(input.options);
+        let tx_hash = api::call_contract_method(address, &input.method, args, &tx_options).await;
         let response = api::await_transaction(tx_hash).await;
-        let tx_response = mapping::to_wrap_response(response, Some(data), Some(raw)).await;
+        let tx_response = mapping::to_wrap_response(response).await;
         tx_response
     })
 }
@@ -222,8 +235,8 @@ pub fn call_contract_method_and_wait(
             Err(e) => panic!("Invalid contract address: {}. Error: {}", &input.address, e),
         };
         let args: Vec<String> = input.args.unwrap_or(vec![]);
-        let tx_overrides: EthersTxOverrides = unwrap_tx_overrides(input.tx_overrides);
-        let (_, _, tx_hash) = api::call_contract_method(address, &input.method, args, &tx_overrides).await;
+        let tx_options: mapping::EthersTxOptions = mapping::from_wrap_tx_options(input.options);
+        let tx_hash = api::call_contract_method(address, &input.method, args, &tx_options).await;
         let receipt = api::get_transaction_receipt(tx_hash).await;
         let tx_receipt = mapping::to_wrap_receipt(receipt);
         tx_receipt

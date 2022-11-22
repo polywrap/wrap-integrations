@@ -3,16 +3,33 @@
 type TxRequest {
     to: String
     from: String
-    nonce: UInt32
-    gasLimit: BigInt
-    gasPrice: BigInt
     data: String
-    value: BigInt
-    chainId: BigInt
     type: UInt32
+    chainId: BigInt
+    accessList: [AccessItem!]
+    """Gas supplied for the transaction"""
+    gasLimit: BigInt
+    """
+    The max total fee to pay per unit of gas.
+    The difference between maxFeePerGas and baseFeePerGas + maxPriorityFeePerGas is “refunded” to the user.
+    When noEip1559 is set to true, this property represents gasPrice (in wei) per unit of gas for the transaction.
+    """
+    maxFeePerGas: BigInt
+    """
+    The gas price paid is baseFeePerGas + maxPriorityFeePerGas.
+    The difference between maxFeePerGas and baseFeePerGas + maxPriorityFeePerGas is “refunded” to the user.
+    This property is ignored when noEip1559 is set to true.
+    """
+    maxPriorityFeePerGas: BigInt
+    """Ether value sent with transaction"""
+    value: BigInt
+    """Override default nonce"""
+    nonce: UInt32
+    """If true, sends legacy (non-EIP-1559) transaction using maxFeePerGas as gasPrice"""
+    noEip1559: Boolean
 }
 
-type Access {
+type AccessItem {
     address: String!
     storageKeys: [String!]!
 }
@@ -23,20 +40,19 @@ type TxResponse {
     from: String!
     nonce: UInt32!
     gasLimit: BigInt!
-    gasPrice: BigInt
-    data: String!
+    """represents gasPrice for legacy (non-EIP-1559) transactions"""
+    maxFeePerGas: BigInt
+    maxPriorityFeePerGas: BigInt
     value: BigInt!
     chainId: BigInt!
     blockNumber: BigInt
     blockHash: String
     timestamp: UInt32
-    confirmations: UInt32!
-    raw: String
     r: String
     s: String
     v: UInt32
     type: UInt32
-    accessList: [Access!]
+    accessList: [AccessItem!]
 }
 
 type Log {
@@ -63,18 +79,33 @@ type TxReceipt {
     logs: [Log!]!
     blockNumber: BigInt!
     blockHash: String!
-    confirmations: UInt32!
     cumulativeGasUsed: BigInt!
     effectiveGasPrice: BigInt!
-    byzantium: Boolean!
     type: UInt32!
     status: UInt32
 }
 
-type TxOverrides {
+type TxOptions {
+    """Gas supplied for the transaction"""
     gasLimit: BigInt
-    gasPrice: BigInt
+    """
+    The max total fee to pay per unit of gas.
+    The difference between maxFeePerGas and baseFeePerGas + maxPriorityFeePerGas is “refunded” to the user.
+    When noEip1559 is set to true, this property represents gasPrice (in wei) per unit of gas for the transaction.
+    """
+    maxFeePerGas: BigInt
+    """
+    The gas price paid is baseFeePerGas + maxPriorityFeePerGas.
+    The difference between maxFeePerGas and baseFeePerGas + maxPriorityFeePerGas is “refunded” to the user.
+    This property is ignored when noEip1559 is set to true.
+    """
+    maxPriorityFeePerGas: BigInt
+    """Ether value sent with transaction"""
     value: BigInt
+    """Override default nonce"""
+    nonce: UInt32
+    """If true, sends legacy (non-EIP-1559) transaction using maxFeePerGas as gasPrice"""
+    noEip1559: Boolean
 }
 
 type StaticTxResult {
@@ -95,33 +126,43 @@ type Module {
     address: String!
     method: String!
     args: [String!]
-    txOverrides: TxOverrides
+    options: TxOptions
   ): StaticTxResult!
 
-  encodeParams(types: [String!]!, values: [String!]!): String!
+  encodeParams(
+    types: [String!]!
+    values: [String!]!
+  ): String!
 
-  encodeFunction(method: String!, args: [String!]): String!
+  encodeFunction(
+    method: String!
+    args: [String!]
+  ): String!
 
-  decodeFunction(method: String!, data: String!): [String!]!
+  decodeFunction(
+    method: String!
+    data: String!
+  ): [String!]!
 
   getSignerAddress: String!
 
   getSignerBalance(blockTag: BigInt): BigInt!
 
-  getBalance(address: String!, blockTag: BigInt): BigInt!
+  getBalance(
+    address: String!
+    blockTag: BigInt
+  ): BigInt!
 
   sendRpc(
     method: String!
     params: [String!]!
   ): String!
 
-  getSignerTransactionCount(
-    blockTag: BigInt
-  ): BigInt!
+  getSignerTransactionCount(blockTag: BigInt): BigInt!
 
   getGasPrice: BigInt!
 
-  # getNetwork(): Network!
+  # getNetwork(): Network! # TODO: add getNetwork
 
   checkAddress(address: String!): Boolean!
 
@@ -134,21 +175,15 @@ type Module {
   #   event: String!
   #   args: [String!]
   #   timeout: UInt32
-  # ): EventNotification!
+  # ): EventNotification! # TODO: add waitForEvent
 
-  estimateTransactionGas(
-    tx: TxRequest!
-  ): BigInt!
+  estimateTransactionGas(tx: TxRequest!): BigInt!
 
   awaitTransaction(
     txHash: String!
-    confirmations: UInt32!
-    timeout: UInt32!
-  ): TxReceipt!
+  ): TxReceipt! # TODO: add timeout to awaitTransaction
 
-  sendTransaction(
-    tx: TxRequest!
-  ): TxResponse!
+  sendTransaction(tx: TxRequest!): TxResponse!
 
   sendTransactionAndWait(
     tx: TxRequest!
@@ -158,27 +193,28 @@ type Module {
     abi: String!
     bytecode: String!
     args: [String!]
+    options: TxOptions
   ): String!
 
   estimateContractCallGas(
     address: String!
     method: String!
     args: [String!]
-    txOverrides: TxOverrides
+    options: TxOptions
   ): BigInt!
 
   callContractMethod(
     address: String!
     method: String!
     args: [String!]
-    txOverrides: TxOverrides
+    options: TxOptions
   ): TxResponse!
 
   callContractMethodAndWait(
     address: String!
     method: String!
     args: [String!]
-    txOverrides: TxOverrides
+    options: TxOptions
   ): TxReceipt!
 
   signMessage(message: String!): String!

@@ -2,11 +2,10 @@ use ethers_core::{
     abi::{encode, Abi, AbiParser, HumanReadableParser, ParamType, Token},
     types::{
         transaction::eip2718::TypedTransaction, Address, BlockId, BlockNumber, Bytes, Signature,
-        Transaction, TransactionReceipt, TransactionRequest, H256, U256,
+        Transaction, TransactionReceipt, TransactionRequest, H256, U256, Eip1559TransactionRequest, NameOrAddress,
     },
     utils::{format_ether, parse_ether, serialize},
 };
-use ethers_core::types::NameOrAddress;
 use ethers_middleware::SignerMiddleware;
 use ethers_providers::{Middleware, Provider};
 use ethers_signers::Signer;
@@ -15,7 +14,7 @@ use crate::error::WrapperError;
 use crate::format::{params_to_types, tokenize_values};
 use crate::provider::PolywrapProvider;
 use crate::signer::PolywrapSigner;
-use crate::format::EthersTxOverrides;
+use crate::mapping::EthersTxOptions;
 
 pub async fn get_chain_id() -> U256 {
     let provider = Provider::new(PolywrapProvider {});
@@ -152,12 +151,8 @@ pub async fn get_transaction_receipt(tx_hash: H256) -> TransactionReceipt {
     receipt
 }
 
-pub async fn send_transaction(mut tx: TypedTransaction) -> H256 {
-    let provider = Provider::new(PolywrapProvider {});
-    let wallet = PolywrapSigner::new();
-    let address = wallet.address;
-    let client = SignerMiddleware::new(provider, wallet);
-
+pub async fn sign_and_send_transaction(client: SignerMiddleware<Provider<PolywrapProvider>, PolywrapSigner>, mut tx: TypedTransaction) -> H256 {
+    let address = client.signer().address;
     client.fill_transaction(&mut tx, None).await.unwrap();
     let signature = client.sign_transaction(&tx, address).await.unwrap();
     let signed_tx: Bytes = tx.rlp_signed(&signature);
@@ -170,11 +165,12 @@ pub async fn send_transaction(mut tx: TypedTransaction) -> H256 {
     tx_hash
 }
 
-pub fn deploy_contract(
+pub fn create_deploy_contract_transaction(
     abi: Abi,
     bytecode: Bytes,
     params: Vec<String>,
-) -> Result<TransactionRequest, WrapperError> {
+    options: &EthersTxOptions
+) -> Result<TypedTransaction, WrapperError> {
     let data: Bytes = match (abi.constructor(), params.is_empty()) {
         (None, false) => {
             return Err(WrapperError::ContractError(
@@ -188,29 +184,19 @@ pub fn deploy_contract(
             constructor.encode_input(bytecode.to_vec(), &tokens)?.into()
         }
     };
-    let tx = TransactionRequest {
-        to: None,
-        data: Some(data),
-        ..Default::default()
-    };
+    let tx: TypedTransaction = create_transaction(None, data, options);
     Ok(tx)
 }
 
-pub async fn estimate_contract_call_gas(address: &Address, method: &str, args: &Vec<String>, overrides: &EthersTxOverrides) -> U256 {
+pub async fn estimate_contract_call_gas(address: Address, method: &str, args: &Vec<String>, options: &EthersTxOptions) -> U256 {
     let provider = Provider::new(PolywrapProvider {});
     let function = AbiParser::default().parse_function(method).unwrap();
     let kinds: Vec<ParamType> = params_to_types(&function.inputs);
     let tokens: Vec<Token> = tokenize_values(&args, &kinds);
     let data: Bytes = function.encode_input(&tokens).map(Into::into).unwrap();
-    let tx = TransactionRequest {
-        to: Some(address.clone().into()),
-        data: Some(data),
-        gas: overrides.gas_limit,
-        gas_price: overrides.gas_price,
-        value: overrides.value,
-        ..Default::default()
-    };
-    let tx = tx.into();
+
+    let mut tx: TypedTransaction = create_transaction(Some(address), data, options);
+
     let gas = provider.estimate_gas(&tx).await.unwrap();
     gas
 }
@@ -221,28 +207,15 @@ pub async fn call_contract_view(address: Address, method: &str, args: Vec<String
     let tokens: Vec<Token> = tokenize_values(&args, &kinds);
     let data: Bytes = function.encode_input(&tokens).map(Into::into).unwrap();
 
-    // TODO check if chain supports EIP-1559
-    //let block = client.get_block(BlockNumber::Latest).await.unwrap().unwrap();
-    //if (block.base_fee_per_gas)
-    //let tx = ethers_core::types::Eip1559TransactionRequest {
-    //    to: Some(address.into()),
-    //    data: Some(data),
-    //    ..Default::default()
-    //};
-    let tx = TransactionRequest {
+    let tx: TypedTransaction = TransactionRequest {
         to: Some(address.into()),
         data: Some(data),
         ..Default::default()
-    };
-
-    let tx = tx.into();
+    }.into();
 
     let provider = Provider::new(PolywrapProvider {});
-
     let bytes = provider.call(&tx, None).await.unwrap();
-
     let tokens: Vec<Token> = function.decode_output(&bytes).unwrap();
-
     tokens
 }
 
@@ -250,7 +223,7 @@ pub async fn call_contract_static(
     address: Address,
     method: &str,
     args: Vec<String>,
-    overrides: &EthersTxOverrides,
+    options: &EthersTxOptions,
 ) -> Result<Vec<Token>, WrapperError> {
     let provider = Provider::new(PolywrapProvider {});
     let wallet = PolywrapSigner::new();
@@ -262,23 +235,11 @@ pub async fn call_contract_static(
 
     let data: Bytes = function.encode_input(&tokens).map(Into::into)?;
 
-    let tx = TransactionRequest {
-        to: Some(address.into()),
-        data: Some(data.clone()),
-        gas: overrides.gas_limit,
-        gas_price: overrides.gas_price,
-        value: overrides.value,
-        ..Default::default()
-    };
-
-    let mut tx: TypedTransaction = tx.into();
+    let mut tx: TypedTransaction = create_transaction(Some(address), data, options);
 
     client.fill_transaction(&mut tx, None).await?;
-
     let bytes = client.inner().call(&tx, None).await?;
-
     let tokens: Vec<Token> = function.decode_output(&bytes)?;
-
     Ok(tokens)
 }
 
@@ -286,8 +247,8 @@ pub async fn call_contract_method(
     address: Address,
     method: &str,
     args: Vec<String>,
-    overrides: &EthersTxOverrides,
-) -> (Bytes, Bytes, H256) {
+    options: &EthersTxOptions,
+) -> H256 {
     let provider = Provider::new(PolywrapProvider {});
     let wallet = PolywrapSigner::new();
     let client = SignerMiddleware::new(provider, wallet);
@@ -298,33 +259,32 @@ pub async fn call_contract_method(
 
     let data: Bytes = function.encode_input(&tokens).map(Into::into).unwrap();
 
-    // TODO check if chain supports EIP-1559
-    //let block = client.get_block(BlockNumber::Latest).await.unwrap().unwrap();
-    //if (block.base_fee_per_gas)
-    //let tx = ethers_core::types::Eip1559TransactionRequest {
-    //    to: Some(address.into()),
-    //    data: Some(data),
-    //    ..Default::default()
-    //};
-    let tx = TransactionRequest {
-        to: Some(address.into()),
-        data: Some(data.clone()),
-        gas: overrides.gas_limit,
-        gas_price: overrides.gas_price,
-        value: overrides.value,
+    let mut tx: TypedTransaction = create_transaction(Some(address), data, options);
+
+    let tx_hash: H256 = sign_and_send_transaction(client, tx).await;
+    tx_hash
+}
+
+fn create_transaction(address: Option<Address>, data: Bytes, options: &EthersTxOptions) -> TypedTransaction {
+    if options.no_eip1559 {
+        return TransactionRequest {
+            to: address.map(Into::into),
+            data: Some(data),
+            gas: options.gas_limit,
+            gas_price: options.max_fee_per_gas,
+            value: options.value,
+            nonce: options.nonce,
+            ..Default::default()
+        }.into();
+    }
+    Eip1559TransactionRequest {
+        to: address.map(Into::into),
+        data: Some(data),
+        gas: options.gas_limit,
+        max_fee_per_gas: options.max_fee_per_gas,
+        max_priority_fee_per_gas: options.max_priority_fee_per_gas,
+        value: options.value,
+        nonce: options.nonce,
         ..Default::default()
-    };
-
-    let mut tx: TypedTransaction = tx.into();
-
-    client.fill_transaction(&mut tx, None).await.unwrap();
-    let signature = client.sign_transaction(&tx, address).await.unwrap();
-    let signed_tx: Bytes = tx.rlp_signed(&signature);
-    let rlp = serialize(&signed_tx);
-    let tx_hash: H256 = client
-        .inner()
-        .request("eth_sendRawTransaction", [rlp])
-        .await
-        .unwrap();
-    (data, signed_tx, tx_hash)
+    }.into()
 }
