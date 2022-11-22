@@ -1,5 +1,5 @@
 # @polywrap/logger-plugin-js
-The Logger plugin implements the `polywrap/logger` interface (see [./src/schema.graphql](./src/schema.graphql)). By default, it logs all events using the Javascript `console` global object. You can circumvent this functionality by setting the `logFunc` property on the plugin's config (examples below).
+The Logger plugin implements the `logger-interface` @ [ens/wrappers.polywrap.eth:logger@1.0.0](https://app.ens.domains/name/wrappers.polywrap.eth/details) (see [./src/schema.graphql](./src/schema.graphql)). By default, it logs all events using the Javascript `console` global object. You can circumvent this functionality by setting the `logFunc` property on the plugin's config (examples below).
 
 ## Usage
 ### 1. Configure Client

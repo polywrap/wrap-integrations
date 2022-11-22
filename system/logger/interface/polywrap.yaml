@@ -1,8 +1,9 @@
-format: 0.2.0
+format: 0.3.0
 project:
   name: logger-interface
   type: interface
 source:
   schema: ./schema.graphql
+resources: ./resources
 extensions:
   deploy: ./polywrap.deploy.yaml
