@@ -404,7 +404,10 @@ describe("Ethereum Wrapper", () => {
         method: "deployContract",
         args: {
           abi: JSON.stringify(contracts.SimpleStorage.abi),
-          bytecode: contracts.SimpleStorage.bytecode
+          bytecode: contracts.SimpleStorage.bytecode,
+          options: {
+            noEip1559: true
+          }
         }
       });
 

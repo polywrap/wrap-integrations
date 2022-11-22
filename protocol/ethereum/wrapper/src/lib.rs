@@ -160,7 +160,8 @@ pub fn deploy_contract(input: wrap::ArgsDeployContract) -> String {
         let client = SignerMiddleware::new(provider, signer);
         let tx_hash = api::sign_and_send_transaction(client, tx.into()).await;
         let receipt = api::get_transaction_receipt(tx_hash).await;
-        receipt.contract_address.unwrap().to_string()
+        let address = receipt.contract_address.expect("Contract failed to deploy.");
+        format!("{:#x}", address)
     })
 }
 
