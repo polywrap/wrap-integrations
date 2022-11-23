@@ -1,9 +1,0 @@
-format: 0.2.0
-project:
-  name: typescript-type-generation
-  type: app/typescript
-source:
-  schema: ./schema.graphql
-  import_abis:
-  - uri: "wrap://ens/ipfs-client.wrappers.eth"
-    abi: "../../../../build/wrap.info"

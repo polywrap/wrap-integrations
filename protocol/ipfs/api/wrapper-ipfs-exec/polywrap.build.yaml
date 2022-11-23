@@ -1,7 +1,0 @@
-format: 0.1.0
-docker:
-  name: ipfs-wasm-rs
-config:
-  include:
-    - ./package.json
-    - ./src
