@@ -1,5 +1,4 @@
-import { PolywrapClient } from "@polywrap/client-js";
-import { buildWrapper } from "@polywrap/test-env-js";
+import { ClientConfigBuilder, PolywrapClient } from "@polywrap/client-js";
 import { concurrentPromisePlugin } from "../index";
 
 jest.setTimeout(300000);
@@ -9,15 +8,14 @@ describe("e2e", () => {
   let fsUri: string;
 
   beforeAll(async () => {
-    client = new PolywrapClient({
-      plugins: [
-        {
-          uri: "wrap://ens/interface.concurrent.polywrap.eth",
-          plugin: concurrentPromisePlugin({}),
-        },
-      ],
-    });
-    await buildWrapper(`${__dirname}/integration`)
+    const config = new ClientConfigBuilder()
+      .addDefaults()
+      .addPackage({
+        uri: "wrap://ens/interface.concurrent.polywrap.eth",
+        package: concurrentPromisePlugin({}),
+      })
+      .build()
+    client = new PolywrapClient(config);
     fsUri = `fs/${__dirname}/integration/build`;
   });
 

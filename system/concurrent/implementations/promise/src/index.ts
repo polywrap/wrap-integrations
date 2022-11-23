@@ -1,8 +1,5 @@
-import {
-  Client,
-  InvokeResult,
-  PluginFactory,
-} from "@polywrap/core-js";
+import { CoreClient, InvokeResult } from "@polywrap/core-js";
+import { PluginFactory, PluginPackage } from "@polywrap/plugin-js";
 import { msgpackEncode } from "@polywrap/msgpack-js"
 import {
   Args_result,
@@ -33,7 +30,7 @@ export class ConcurrentPromisePlugin extends Module<ConcurrentPromisePluginConfi
 
   public async result(
     input: Args_result,
-    client: Client
+    client: CoreClient
   ): Promise<Array<Interface_TaskResult>> {
     switch (input.returnWhen) {
       case Interface_ReturnWhenEnum.FIRST_COMPLETED: {
@@ -73,12 +70,12 @@ export class ConcurrentPromisePlugin extends Module<ConcurrentPromisePluginConfi
 
   public async status(
     input: Args_status,
-    client: Client
+    client: CoreClient
   ): Promise<Array<Interface_TaskStatus>> {
     return input.taskIds.map((id) => this._status[id]);
   }
 
-  public schedule(input: Args_schedule, client: Client): Array<Int> {
+  public schedule(input: Args_schedule, client: CoreClient): Array<Int> {
     return input.tasks.map((task) => {
       return this.scheduleTask(
         {
@@ -89,7 +86,7 @@ export class ConcurrentPromisePlugin extends Module<ConcurrentPromisePluginConfi
     });
   }
 
-  private scheduleTask(task: Interface_Task, client: Client): number {
+  private scheduleTask(task: Interface_Task, client: CoreClient): number {
     this._tasks[this._totalTasks] = client.invoke(task);
     this._status[this._totalTasks] = Interface_TaskStatusEnum.RUNNING;
     return this._totalTasks++;
@@ -128,11 +125,7 @@ export class ConcurrentPromisePlugin extends Module<ConcurrentPromisePluginConfi
 
 export const concurrentPromisePlugin: PluginFactory<
   ConcurrentPromisePluginConfig
-> = (config: ConcurrentPromisePluginConfig) => {
-  return {
-    factory: () => new ConcurrentPromisePlugin(config),
-    manifest: manifest,
-  };
-};
+> = (config: ConcurrentPromisePluginConfig) =>
+  new PluginPackage<ConcurrentPromisePluginConfig>(new ConcurrentPromisePlugin(config), manifest);
 
 export const plugin = concurrentPromisePlugin;

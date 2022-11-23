@@ -1,0 +1,10 @@
+format: 0.2.0
+project:
+  name: ipfs-resolver-client-wasm
+  type: wasm/assemblyscript
+source:
+  schema: ./src/schema.graphql
+  module: ./src/index.ts
+  import_abis:
+    - uri: "ens/http.polywrap.eth"
+      abi: ../http-plugin-timeout/schema.interface.graphql
