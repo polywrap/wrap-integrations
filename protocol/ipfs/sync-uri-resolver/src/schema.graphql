@@ -1,0 +1,26 @@
+#import { Module, MaybeUriOrManifest } into UriResolver from "ens/interface.resolver.polywrap.eth"
+#import { Module, Request, Response, ResponseType } into Http from "wrap://ens/http.polywrap.eth"
+
+type Module implements UriResolver_Module {}
+
+type Env {
+  """
+  Global timeout for IPFS actions
+  """
+  timeout: UInt32
+
+  """
+  Default provider
+  """
+  provider: String!
+
+  """
+  Fallback providers
+  """
+  fallbackProviders: [String!]
+
+  """
+  Disable querying providers in parallel when resolving URIs
+  """
+  disableParallelRequests: Boolean
+}
