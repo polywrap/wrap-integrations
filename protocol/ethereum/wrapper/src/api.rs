@@ -7,7 +7,7 @@ use ethers_core::{
     utils::{format_ether, parse_ether, serialize},
 };
 use ethers_middleware::SignerMiddleware;
-use ethers_providers::{Middleware, Provider};
+use ethers_providers::{Middleware, PendingTransaction, Provider};
 use ethers_signers::Signer;
 
 use crate::error::WrapperError;
@@ -141,13 +141,10 @@ pub async fn await_transaction(tx_hash: H256) -> Transaction {
     response
 }
 
-pub async fn get_transaction_receipt(tx_hash: H256) -> TransactionReceipt {
+pub async fn get_transaction_receipt(tx_hash: H256, confirmations: usize) -> TransactionReceipt {
     let provider = Provider::new(PolywrapProvider {});
-    let receipt = provider
-        .get_transaction_receipt(tx_hash)
-        .await
-        .unwrap()
-        .unwrap();
+    let pending_tx: PendingTransaction<PolywrapProvider> = PendingTransaction::new(tx_hash, &provider);
+    let receipt = pending_tx.confirmations(confirmations).await.unwrap().unwrap();
     receipt
 }
 

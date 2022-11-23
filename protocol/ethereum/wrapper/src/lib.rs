@@ -115,8 +115,9 @@ pub fn estimate_transaction_gas(input: wrap::ArgsEstimateTransactionGas) -> BigI
 
 pub fn await_transaction(input: wrap::ArgsAwaitTransaction) -> wrap::TxReceipt {
     block_on(async {
-        let receipt = api::get_transaction_receipt(H256::from_str(&input.tx_hash).unwrap()).await;
-        let tx_receipt = mapping::to_wrap_receipt(receipt);
+        let tx_hash = H256::from_str(&input.tx_hash).unwrap();
+        let receipt = api::get_transaction_receipt(tx_hash, input.confirmations as usize).await;
+        let tx_receipt = mapping::to_wrap_receipt(receipt, input.confirmations);
         tx_receipt
     })
 }
@@ -141,8 +142,8 @@ pub fn send_transaction_and_wait(input: wrap::ArgsSendTransactionAndWait) -> wra
         let signer = PolywrapSigner::new();
         let client = SignerMiddleware::new(provider, signer);
         let tx_hash = api::sign_and_send_transaction(client, tx).await;
-        let receipt = api::get_transaction_receipt(tx_hash).await;
-        let tx_receipt = mapping::to_wrap_receipt(receipt);
+        let receipt = api::get_transaction_receipt(tx_hash, 1).await;
+        let tx_receipt = mapping::to_wrap_receipt(receipt, 1);
         tx_receipt
     })
 }
@@ -159,7 +160,7 @@ pub fn deploy_contract(input: wrap::ArgsDeployContract) -> String {
         let signer = PolywrapSigner::new();
         let client = SignerMiddleware::new(provider, signer);
         let tx_hash = api::sign_and_send_transaction(client, tx.into()).await;
-        let receipt = api::get_transaction_receipt(tx_hash).await;
+        let receipt = api::get_transaction_receipt(tx_hash, 1).await;
         let address = receipt.contract_address.expect("Contract failed to deploy.");
         format!("{:#x}", address)
     })
@@ -238,8 +239,8 @@ pub fn call_contract_method_and_wait(
         let args: Vec<String> = input.args.unwrap_or(vec![]);
         let tx_options: mapping::EthersTxOptions = mapping::from_wrap_tx_options(input.options);
         let tx_hash = api::call_contract_method(address, &input.method, args, &tx_options).await;
-        let receipt = api::get_transaction_receipt(tx_hash).await;
-        let tx_receipt = mapping::to_wrap_receipt(receipt);
+        let receipt = api::get_transaction_receipt(tx_hash, 1).await;
+        let tx_receipt = mapping::to_wrap_receipt(receipt, 1);
         tx_receipt
     })
 }
