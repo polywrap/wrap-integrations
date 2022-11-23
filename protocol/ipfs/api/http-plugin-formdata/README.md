@@ -17,10 +17,10 @@ const response = await polywrapClient.invoke<Response>({
   uri: new Uri("wrap://ens/http.polywrap.eth"),
   method: "get",
   args: {
-    url: "http://www.example.com/api"
+    url: "http://www.example.com/api",
     request: {
-      responseType: "TEXT"
-      urlParams: [{key: "query", value: "foo"}]
+      responseType: "TEXT",
+      urlParams: [{key: "query", value: "foo"}],
       headers: [{key: "X-Request-Header", value: "req-foo"}]
     }
   }
@@ -36,11 +36,11 @@ const response = await polywrapClient.invoke<Response>({
   uri: new Uri("wrap://ens/http.polywrap.eth"),
   method: "post",
   args: {
-    url: "http://www.example.com/api"
+    url: "http://www.example.com/api",
     request: {
-      responseType: "TEXT"
-      urlParams: [{key: "query", value: "foo"}]
-      headers: [{key: "X-Request-Header", value: "req-foo"}]
+      responseType: "TEXT",
+      urlParams: [{key: "query", value: "foo"}],
+      headers: [{key: "X-Request-Header", value: "req-foo"}],
       body: "{data: 'test-request'}"
     }
   }
