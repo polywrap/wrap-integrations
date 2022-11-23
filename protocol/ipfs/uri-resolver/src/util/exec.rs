@@ -1,7 +1,7 @@
 use std::future::Future;
-use futures::future::{FutureExt, select_ok};
+use futures::future::{FutureExt, select_ok, try_select};
 use futures::executor::block_on;
-use futures::{pin_mut, TryFutureExt};
+use futures::{pin_mut, TryFutureExt, select};
 use crate::util::exec_cat::*;
 
 
@@ -27,11 +27,11 @@ pub fn exec_parallel(
     timeout: u32,
 ) -> Result<Vec<u8>, String> {
     block_on(async {
-        let primary = Box::pin(exec_cat_async(providers[0], cid, timeout));
+        let primary = Box::pin(exec_cat_async(providers[0], cid, timeout).fuse());
         let mut futures = vec![primary];
-        for i in 1..futures.len() {
+        for i in 1..providers.len() {
            let provider = providers[i];
-           let future = Box::pin(exec_cat_async(provider, cid, timeout));
+           let future = Box::pin(exec_cat_async(provider, cid, timeout).fuse());
            futures.push(future);
         }
         select_ok(futures)

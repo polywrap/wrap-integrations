@@ -8,16 +8,25 @@ import { httpPlugin } from "@polywrap/http-plugin-js";
 
 export function getClientConfig(
   provider: string,
-  timeout?: number
+  timeout?: number,
+  disableParallelRequests?: boolean
 ): PolywrapCoreClientConfig {
   const ipfsResolverPath = path.resolve(path.join(__dirname, "/../../../build"));
   const ipfsResolverUri = `wrap://fs/${ipfsResolverPath}`;
+
+  // found on https://ipfs.github.io/public-gateway-checker/
+  const slowIpfsProviders = [
+    "https://hardbin.com",
+    "https://ipns.co",
+    "https://nftstorage.link",
+    "https://storry.tv",
+  ];
 
   return new ClientConfigBuilder()
     .addEnvs([
         {
           uri: new Uri("wrap://ens/ipfs-resolver.polywrap.eth"),
-          env: { provider, timeout },
+          env: { provider: "https://ipfs.io", fallbackProviders: [...slowIpfsProviders, provider], timeout, disableParallelRequests },
         },
       ])
     .addRedirects([

@@ -41,8 +41,27 @@ describe("IPFS Plugin", () => {
     await stopInfra();
   });
 
-  it("Should successfully resolve a deployed wrapper - e2e", async () => {
+  it("Should successfully resolve a deployed wrapper - parallel requests", async () => {
     const config = getClientConfig(ipfsProvider);
+    const client = new PolywrapClient(config, { noDefaults: true });
+
+    const result = await client.tryResolveUri({ uri: wrapperIpfsUri });
+
+    if (!result.ok) {
+      fail(result.error);
+    }
+
+    if (result.value.type !== "wrapper") {
+      fail("Expected response to be a wrapper");
+    }
+
+    const manifest = result.value.wrapper.getManifest();
+
+    expect(manifest?.name).toBe("Simple");
+  });
+
+  it("Should successfully resolve a deployed wrapper - sequential requests", async () => {
+    const config = getClientConfig(ipfsProvider, undefined, true);
     const client = new PolywrapClient(config, { noDefaults: true });
 
     const result = await client.tryResolveUri({ uri: wrapperIpfsUri });
