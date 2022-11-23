@@ -1,9 +1,0 @@
-format: 0.1.0
-name: logger-wrapper
-language: wasm/assemblyscript
-schema: ./src/schema.graphql
-module: ./src/index.ts
-deploy: ./polywrap.deploy.yaml
-import_redirects:
-  - uri: wrap://ens/logger.core.polywrap.eth
-    schema: ../interface/build/schema.graphql
