@@ -1,20 +1,59 @@
-import { runCLI } from "@polywrap/test-env-js";
+import { buildWrapper, runCLI } from "@polywrap/test-env-js";
 import axios from "axios";
 import { ClientConfig } from "@polywrap/client-js";
 import { ethereumPlugin, Connections, Connection } from "@polywrap/ethereum-plugin-js";
+import path from "path";
 
-export function getPlugins(): Partial<ClientConfig> {
-  const connections: Connections = new Connections({
-    networks: {
-      mainnet: new Connection({ provider: "http://localhost:8546" }),
-    },
-    defaultNetwork: "mainnet",
-  });
+export async function buildDependencies(): Promise<{ sha3Uri: string, graphUri: string }> {
+  const relSystemWrappersPath = path.join(__dirname, "../../../../../../../../system");
+  const systemsWrappersPath = path.resolve(relSystemWrappersPath);
+  const sha3Path = path.join(systemsWrappersPath, "sha3", "wrapper");
+  const graphNodePath = path.join(systemsWrappersPath, "graph-node", "wrapper");
+  await buildWrapper(sha3Path);
+  await buildWrapper(graphNodePath);
+  const sha3Uri = `wrap://fs/${sha3Path}/build`;
+  const graphUri = `wrap://fs/${graphNodePath}/build`;
+  return { sha3Uri, graphUri };
+}
+
+export function getConfig(sha3Uri: string, graphUri: string): Partial<ClientConfig> {
   return {
+    envs: [
+      {
+        uri: "wrap://ens/graph-node.polywrap.eth",
+        env: {
+          provider: "https://api.thegraph.com",
+        },
+      },
+      {
+        uri: "wrap://ens/ipfs.polywrap.eth",
+        env:{
+          provider: "https://ipfs.wrappers.io",
+          fallbackProviders: ["https://ipfs.io", "http://localhost:48084", "http://127.0.0.1:45005"],
+        },
+      },
+    ],
+    redirects: [
+      {
+        from: "wrap://ens/sha3.polywrap.eth",
+        to: sha3Uri,
+      },
+      {
+        from: "wrap://ens/graph-node.polywrap.eth",
+        to: graphUri,
+      },
+    ],
     plugins: [
       {
         uri: "wrap://ens/ethereum.polywrap.eth",
-        plugin: ethereumPlugin({ connections }),
+        plugin: ethereumPlugin({
+          connections: new Connections({
+            networks: {
+              mainnet: new Connection({ provider: "http://localhost:8546" }),
+            },
+            defaultNetwork: "mainnet",
+          }),
+        }),
       },
     ]
   };

@@ -1,5 +1,8 @@
-format: 0.1.0
-name: near-interface
-language: wasm/interface
-schema: ./schema.graphql
-deploy: ./polywrap.deploy.yaml
+format: 0.2.0
+project:
+  name: near-interface
+  type: interface
+source:
+  schema: ./schema.graphql
+extensions:
+  deploy: ./polywrap.deploy.yaml

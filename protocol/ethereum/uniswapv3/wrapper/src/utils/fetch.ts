@@ -160,7 +160,10 @@ function fetchPoolImmutables(
 function fetchPoolState(address: string, chainId: ChainId): PoolState {
   const liquidity: string = ethCallView(address, chainId, poolAbi("liquidity"));
   const slot0Str: string = ethCallView(address, chainId, poolAbi("slot0"));
-  const slot0: string[] = slot0Str.split(",");
+  const slot0: string[] = slot0Str
+    .replaceAll('"', "")
+    .replace("[", "")
+    .split(",");
   return {
     liquidity: BigInt.fromString(liquidity),
     sqrtPriceX96: BigInt.fromString(slot0[0]),

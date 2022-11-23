@@ -119,7 +119,11 @@ export function addCallParameters(
   const deadline: string = toHex({ value: options.deadline });
 
   // create pool if needed
-  if (isMint(options) && !options.createPool.isNone) {
+  if (
+    isMint(options) &&
+    options.createPool !== null &&
+    options.createPool!.unwrap()
+  ) {
     calldatas.push(encodeCreate(position.pool));
   }
 
@@ -312,10 +316,7 @@ export function removeCallParameters(
   }
 
   if (liqPercent.eq(new Fraction(BigInt.ONE))) {
-    if (
-      options.burnToken.isNone == false &&
-      options.burnToken.unwrap() == true
-    ) {
+    if (options.burnToken !== null && options.burnToken!.unwrap()) {
       calldatas.push(
         Ethereum_Module.encodeFunction({
           method: nfpmAbi("burn"),
@@ -324,10 +325,7 @@ export function removeCallParameters(
       );
     }
   } else {
-    if (
-      options.burnToken.isNone == false &&
-      options.burnToken.unwrap() == true
-    ) {
+    if (options.burnToken !== null && options.burnToken!.unwrap()) {
       throw new Error("CANNOT_BURN");
     }
   }

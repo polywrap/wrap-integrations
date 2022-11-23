@@ -35,8 +35,8 @@ describe("js-sha3 algorithms returned values match the wrapper's", () => {
       },
     });
 
-    expect(response.error).toBeUndefined();
-    expect(response.data).toBe(expected);
+    if (response.ok == false) fail(response.error);
+    expect(response.value).toBe(expected);
   });
   
   it("sha3_384 matches", async () => {
@@ -49,8 +49,8 @@ describe("js-sha3 algorithms returned values match the wrapper's", () => {
       },
     });
 
-    expect(response.error).toBeUndefined();
-    expect(response.data).toBe(expected);
+    if (response.ok == false) fail(response.error);
+    expect(response.value).toBe(expected);
   });
 
   it("sha3_256 matches", async () => {
@@ -63,8 +63,8 @@ describe("js-sha3 algorithms returned values match the wrapper's", () => {
       },
     });
 
-    expect(response.error).toBeUndefined();
-    expect(response.data).toBe(expected);
+    if (response.ok == false) fail(response.error);
+    expect(response.value).toBe(expected);
   });
 
   it("sha3_224 matches", async () => {
@@ -77,8 +77,8 @@ describe("js-sha3 algorithms returned values match the wrapper's", () => {
       },
     });
 
-    expect(response.error).toBeUndefined();
-    expect(response.data).toBe(expected);
+    if (response.ok == false) fail(response.error);
+    expect(response.value).toBe(expected);
   });
 
   it("keccak_512 matches", async () => {
@@ -91,8 +91,8 @@ describe("js-sha3 algorithms returned values match the wrapper's", () => {
       },
     });
 
-    expect(response.error).toBeUndefined();
-    expect(response.data).toBe(expected);
+    if (response.ok == false) fail(response.error);
+    expect(response.value).toBe(expected);
   });
 
   it("keccak_384 matches", async () => {
@@ -105,8 +105,8 @@ describe("js-sha3 algorithms returned values match the wrapper's", () => {
       },
     });
 
-    expect(response.error).toBeUndefined();
-    expect(response.data).toBe(expected);
+    if (response.ok == false) fail(response.error);
+    expect(response.value).toBe(expected);
   });
 
   it("keccak_256 matches", async () => {
@@ -119,8 +119,8 @@ describe("js-sha3 algorithms returned values match the wrapper's", () => {
       },
     });
 
-    expect(response.error).toBeUndefined();
-    expect(response.data).toBe(expected);
+    if (response.ok == false) fail(response.error);
+    expect(response.value).toBe(expected);
   });
 
   it("keccak_224 matches", async () => {
@@ -133,8 +133,8 @@ describe("js-sha3 algorithms returned values match the wrapper's", () => {
       },
     });
 
-    expect(response.error).toBeUndefined();
-    expect(response.data).toBe(expected);
+    if (response.ok == false) fail(response.error);
+    expect(response.value).toBe(expected);
   });
 
   it("keccak_256 hex matches", async () => {
@@ -177,8 +177,8 @@ describe("js-sha3 algorithms returned values match the wrapper's", () => {
       },
     });
 
-    expect(response.error).toBeUndefined();
-    expect(response.data).toBe(expected);
+    if (response.ok == false) fail(response.error);
+    expect(response.value).toBe(expected);
   });
 
   it("keccak_256 buffer matches", async () => {
@@ -193,8 +193,8 @@ describe("js-sha3 algorithms returned values match the wrapper's", () => {
       },
     });
 
-    expect(response.error).toBeUndefined();
-    expect(response.data).toBe(expected);
+    if (response.ok == false) fail(response.error);
+    expect(response.value).toBe(expected);
   });
 
   it("shake_256 matches", async () => {
@@ -208,8 +208,8 @@ describe("js-sha3 algorithms returned values match the wrapper's", () => {
       },
     });
 
-    expect(response.error).toBeUndefined();
-    expect(response.data).toBe(expected);
+    if (response.ok == false) fail(response.error);
+    expect(response.value).toBe(expected);
   });
 
   it("shake_128 matches", async () => {
@@ -223,7 +223,7 @@ describe("js-sha3 algorithms returned values match the wrapper's", () => {
       },
     });
 
-    expect(response.error).toBeUndefined();
-    expect(response.data).toBe(expected);
+    if (response.ok == false) fail(response.error);
+    expect(response.value).toBe(expected);
   });
 });
