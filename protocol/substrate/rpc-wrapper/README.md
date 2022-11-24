@@ -9,7 +9,7 @@ A wrapper to be used in developing application specific Substrate wrappers.
 
 ## Using the Wrapper
 
-The Substrate core wrapper can either be used directly in an application or used to make dApp specific wrapper.
+The Substrate core wrapper can either be used directly in an application or used to make a dApp specific wrapper.
 
 ### Using directly (js example)
 
