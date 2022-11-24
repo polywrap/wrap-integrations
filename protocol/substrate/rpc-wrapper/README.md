@@ -13,7 +13,7 @@ The Substrate core wrapper can either be used directly in an application or used
 
 ### Using directly (js example)
 
-The wrapper requires a Substrate signer-provider in order to sign transactions. Current the only implementation for this is for a browser javascript host and integrates with the polkadot-js browser extension for signing. In the future other signing providers might be added.
+The wrapper requires a Substrate signer-provider in order to sign transactions. Currently the only implementation for this is for a browser javascript host and integrates with the polkadot-js browser extension for signing. In the future other signing providers might be added.
 
 In your web code create a new Polywrap client with the required plugin:
 

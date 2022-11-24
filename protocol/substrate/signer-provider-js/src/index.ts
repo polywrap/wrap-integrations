@@ -29,7 +29,7 @@ export class SubstrateSignerProviderPlugin extends Module<SubstrateSignerProvide
 
   /**
    * Return the accounts managed by the connected polkadot-js plugin.
-   * args is an empty arg just included to meet the function signature requirementss
+   * args is an empty arg just included to meet the function signature requirements
    */
   async getAccounts(
     args: Args_getAccounts,

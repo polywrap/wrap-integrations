@@ -29,9 +29,9 @@ type Module {
   chainGetBlock(url: String!, number: UInt32!): BlockOutput
 
   """
-  Retrieve a constant valud from a pallet in the connected chain
+  Retrieve a constant value from a pallet in the connected chain
   pallet: Name of pallet
-  constant: name of constant
+  constant: Name of constant
   """
   constant(url: String!, pallet: String!, name: String!): [UInt8!]
 
@@ -51,7 +51,7 @@ type Module {
   Return a value in a storage map
   pallet: Name of pallet
   storage: Name of storage map
-  key: key into storage map to retrieve
+  key: Key into storage map to retrieve
   """
   getStorageMap(url: String!, pallet: String!, storage: String!, key: JSON!): [UInt8!]
 
