@@ -1,0 +1,9 @@
+type Module {
+  request(method: String!, params: String): String!
+  """
+  Sign a transaction hash and return the signature. Throws if wallet is missing.
+  """
+  signDigest(digest: Bytes!): String!
+  address: String!
+  chainId: String!
+}

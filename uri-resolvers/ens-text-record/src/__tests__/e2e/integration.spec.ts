@@ -50,6 +50,38 @@ describe("ens-text-record-resolver e2e tests", () => {
     }
   });
 
+  it("no text record", async () => {
+    const result = await client.invoke({
+      uri: wrapperUri,
+      method: "tryResolveUri",
+      args: {
+        authority: "ens",
+        path: "uri.eth"
+      }
+    });
+
+    expect(result.ok).toBeTruthy();
+    if (result.ok) {
+      expect(result.value).toBe(null);
+    }
+  });
+
+  it("invalid uri", async () => {
+    const result = await client.invoke({
+      uri: wrapperUri,
+      method: "tryResolveUri",
+      args: {
+        authority: "ens",
+        path: "foo-bar-baz"
+      }
+    });
+
+    expect(result.ok).toBeTruthy();
+    if (result.ok) {
+      expect(result.value).toBe(null);
+    }
+  });
+
   it("found nothing", async () => {
     const result = await client.invoke({
       uri: wrapperUri,
