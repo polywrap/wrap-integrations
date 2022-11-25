@@ -120,7 +120,7 @@ fn to_wrap_log(log: &Log) -> TxLog {
     }
 }
 
-pub fn to_wrap_receipt(receipt: TransactionReceipt, confirmations: u32) -> TxReceipt {
+pub fn to_wrap_receipt(receipt: TransactionReceipt) -> TxReceipt {
     TxReceipt {
         to: match receipt.to {
             Some(addr) => addr.to_string(),
@@ -139,7 +139,6 @@ pub fn to_wrap_receipt(receipt: TransactionReceipt, confirmations: u32) -> TxRec
         logs: receipt.logs.iter().map(|v| to_wrap_log(v)).collect(),
         block_number: BigInt::from_str(&receipt.block_number.unwrap().to_string()).unwrap(),
         block_hash: receipt.block_hash.unwrap().to_string(),
-        confirmations,
         cumulative_gas_used: BigInt::from_str(&receipt.cumulative_gas_used.to_string()).unwrap(),
         effective_gas_price: BigInt::from_str(&match receipt.effective_gas_price {
             Some(price) => price.to_string(),

@@ -79,7 +79,6 @@ type TxReceipt {
     logs: [Log!]!
     blockNumber: BigInt!
     blockHash: String!
-    confirmations: UInt32!
     cumulativeGasUsed: BigInt!
     effectiveGasPrice: BigInt!
     type: UInt32!
@@ -182,8 +181,7 @@ type Module {
 
   awaitTransaction(
     txHash: String!
-    confirmations: UInt32!
-  ): TxReceipt! # TODO: add timeout
+  ): TxReceipt! # TODO: add timeout to awaitTransaction
 
   sendTransaction(tx: TxRequest!): TxResponse!
 
