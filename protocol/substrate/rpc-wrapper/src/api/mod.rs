@@ -1,7 +1,4 @@
-use crate::{
-    Error,
-    Metadata,
-};
+use crate::{Error, Metadata};
 pub use base_api::BaseApi;
 use delegate::delegate;
 use serde::de::DeserializeOwned;
@@ -14,8 +11,9 @@ mod constant_api;
 mod extrinsic_api;
 mod storage_api;
 
-/// A more complex Api which requires prefetching some fields such as Metadata, genesis_hash and
-/// runtime version
+/// Api adds additional state to a BaseApi so that
+/// the chain metadata, genesis_hash and runtime_version don't need to
+/// be retrieved for each call.
 pub struct Api {
     base_api: BaseApi,
     /// The blockchain metadata
@@ -27,7 +25,7 @@ pub struct Api {
 }
 
 impl Api {
-    // delegte function calls to BaseApi
+    // delegte base function calls to BaseApi
     delegate! {
         to self.base_api {
 
@@ -48,8 +46,6 @@ impl Api {
 
     /// Try to create an instance of this api
     /// where it fetch metadata, the genesis_hash and runtime_version
-    /// This is kind of problematic as the metadata can be pretty large and this adds overhead and
-    /// slows everything down...
     pub fn new(url: &str) -> Result<Self, Error> {
         let base_api = BaseApi::new(url);
         let metadata = match base_api.fetch_metadata()? {

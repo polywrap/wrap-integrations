@@ -1,49 +1,18 @@
-// Copyright 2019-2021 Parity Technologies (UK) Ltd. and Supercomputing Systems AG
-// and Integritee AG.
-// This file is part of subxt.
-//
-// subxt is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// subxt is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with subxt.  If not, see <http://www.gnu.org/licenses/>.
-
 //! Handle substrate chain metadata
 //!
 //! This file is mostly subxt.
 
 use crate::types::storage::GetStorage;
-use codec::{
-    Encode,
-    Error as CodecError,
-};
+use codec::{Encode, Error as CodecError};
 use frame_metadata::{
-    v14::StorageEntryType,
-    PalletConstantMetadata,
-    RuntimeMetadata,
-    RuntimeMetadataLastVersion,
-    RuntimeMetadataPrefixed,
-    StorageEntryMetadata,
+    v14::StorageEntryType, PalletConstantMetadata, RuntimeMetadata,
+    RuntimeMetadataLastVersion, RuntimeMetadataPrefixed, StorageEntryMetadata,
     META_RESERVED,
 };
-use scale_info::{
-    form::PortableForm,
-    Type,
-    Variant,
-};
+use scale_info::{form::PortableForm, Type, Variant};
 use serde::Serialize;
 use sp_core::storage::StorageKey;
-use std::{
-    collections::HashMap,
-    convert::TryFrom,
-};
+use std::{collections::HashMap, convert::TryFrom};
 
 /// Wraps an already encoded byte vector, prevents being encoded as a raw byte vector as part of
 /// the transaction payload

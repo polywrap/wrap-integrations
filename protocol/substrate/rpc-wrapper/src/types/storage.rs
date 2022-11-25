@@ -1,27 +1,10 @@
-/*
-    Copyright 2021 Integritee AG and Supercomputing Systems AG
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-        http://www.apache.org/licenses/LICENSE-2.0
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-*/
-
 //! For querying runtime storage.
 //!
 //! This file is **not** from subxt.
 
 use crate::types::metadata::MetadataError;
 use codec::Encode;
-use frame_metadata::{
-    StorageEntryMetadata,
-    StorageEntryType,
-    StorageHasher,
-};
+use frame_metadata::{StorageEntryMetadata, StorageEntryType, StorageHasher};
 use scale_info::form::PortableForm;
 use sp_core::storage::StorageKey;
 use std::marker::PhantomData;
@@ -214,12 +197,10 @@ fn key_hash<K: Encode>(key: &K, hasher: &StorageHasher) -> Vec<u8> {
         StorageHasher::Blake2_256 => sp_core::blake2_256(&encoded_key).to_vec(),
         StorageHasher::Twox128 => sp_core::twox_128(&encoded_key).to_vec(),
         StorageHasher::Twox256 => sp_core::twox_256(&encoded_key).to_vec(),
-        StorageHasher::Twox64Concat => {
-            sp_core::twox_64(&encoded_key)
-                .iter()
-                .chain(&encoded_key)
-                .cloned()
-                .collect()
-        }
+        StorageHasher::Twox64Concat => sp_core::twox_64(&encoded_key)
+            .iter()
+            .chain(&encoded_key)
+            .cloned()
+            .collect(),
     }
 }

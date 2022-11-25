@@ -1,52 +1,15 @@
-/*
-   Copyright 2019 Supercomputing Systems AG
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-
-*/
-
 //! Primitives for substrate extrinsics.
 
 use crate::{
-    error::Error,
-    types::extrinsic_params::GenericExtra,
-    utils::FromHexStr,
-    wrap::SignedExtrinsicPayload,
-    ExtrinsicPayload,
+    error::Error, types::extrinsic_params::GenericExtra, utils::FromHexStr,
+    wrap::SignedExtrinsicPayload, ExtrinsicPayload,
 };
-use codec::{
-    Decode,
-    Encode,
-    Error as CodecError,
-    Input,
-};
+use codec::{Decode, Encode, Error as CodecError, Input};
 use num_traits::ToPrimitive;
-use sp_core::{
-    crypto::Ss58Codec,
-    sr25519::Signature,
-};
-use sp_runtime::{
-    generic::Era,
-    MultiSignature,
-};
-pub use sp_runtime::{
-    AccountId32,
-    MultiAddress,
-};
-use sp_std::{
-    fmt,
-    prelude::*,
-};
+use sp_core::{crypto::Ss58Codec, sr25519::Signature};
+use sp_runtime::{generic::Era, MultiSignature};
+pub use sp_runtime::{AccountId32, MultiAddress};
+use sp_std::{fmt, prelude::*};
 
 pub type GenericAddress = sp_runtime::MultiAddress<AccountId32, ()>;
 
@@ -232,11 +195,7 @@ mod tests {
     use crate::ExtrinsicPayload;
     use polywrap_wasm_rs::BigInt;
     use sp_core::Pair;
-    use sp_runtime::{
-        generic::Era,
-        testing::sr25519,
-        MultiSignature,
-    };
+    use sp_runtime::{generic::Era, testing::sr25519, MultiSignature};
 
     #[test]
     fn encode_decode_roundtrip_works() {

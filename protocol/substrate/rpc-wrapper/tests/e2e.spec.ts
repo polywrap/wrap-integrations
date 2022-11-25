@@ -284,6 +284,11 @@ it("can get signer-provider managed accounts. Returns Alice", async () => {
     expect(isValidSignature(encodedPayload, result.data?.signature!, aliceAddr))
   });
 
+
+  // Currently the chain is not accepting the signed extrinsics.
+  // Further work is needed to debug why this is the case. Presumably it is
+  // something to do with the encoding.
+
   // it("Can send a signed extrinsic to the chain", async () => {
   //    const signerResult = await Substrate_Module.sign(
   //     {

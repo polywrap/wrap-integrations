@@ -1,16 +1,12 @@
-use crate::{
-    api::Api,
-    utils::FromHexStr,
-    Error,
-};
-use codec::{
-    Decode,
-    Encode,
-};
-use scale_info::{
-    form::PortableForm,
-    Type,
-};
+//!
+//! Constant API
+//!
+//! Extension to the API for retrieving data from on-chain storage
+//!
+
+use crate::{api::Api, utils::FromHexStr, Error};
+use codec::{Decode, Encode};
+use scale_info::{form::PortableForm, Type};
 use sp_core::storage::StorageKey;
 
 impl Api {

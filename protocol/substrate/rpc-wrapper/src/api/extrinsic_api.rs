@@ -1,27 +1,21 @@
+//!
+//! Extrinsic API
+//!
+//! Extension to the API for building, signing and submitting extrinsics
+//!
+
 use crate::{
     api::Api,
     error::Error,
     types::{
         account_info::AccountInfo,
-        extrinsic_params::{
-            GenericExtra,
-            SignedPayload,
-        },
+        extrinsic_params::{GenericExtra, SignedPayload},
     },
 };
-use codec::{
-    Compact,
-    Encode,
-};
-use sp_core::{
-    crypto::Pair,
-    H256,
-};
+use codec::{Compact, Encode};
+use sp_core::{crypto::Pair, H256};
 use sp_runtime::{
-    generic::Era,
-    traits::IdentifyAccount,
-    AccountId32,
-    MultiSigner,
+    generic::Era, traits::IdentifyAccount, AccountId32, MultiSigner,
 };
 use std::fmt;
 

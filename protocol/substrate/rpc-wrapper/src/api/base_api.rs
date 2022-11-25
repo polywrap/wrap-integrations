@@ -1,26 +1,23 @@
+//!
+//! Base API
+//!
+//! This component of the API does not require any data other than the RPC URL to operate.
+//! It just wraps some of the RPC calls to obtain information about the connected chain
+//!
+
 use crate::{
     error::Error,
     types::metadata::Metadata,
     utils::FromHexStr,
     wrap::{
-        imported::http_module,
-        HttpModule,
-        HttpRequest,
-        HttpResponse,
+        imported::http_module, HttpModule, HttpRequest, HttpResponse,
         HttpResponseType,
     },
 };
 use frame_metadata::RuntimeMetadataPrefixed;
 use polywrap_wasm_rs::Map;
-use serde::{
-    de::DeserializeOwned,
-    Deserialize,
-    Serialize,
-};
-use sp_core::{
-    Decode,
-    H256,
-};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use sp_core::{Decode, H256};
 use sp_runtime::traits::Header;
 use sp_version::RuntimeVersion;
 
@@ -39,8 +36,6 @@ pub struct JsonResult {
     result: serde_json::Value,
 }
 
-/// This api doesn't need Metadata, Runtime version to work
-/// It just fetch the content right away
 pub struct BaseApi {
     /// the url of the substrate node we are running the rpc call from
     url: String,
@@ -247,12 +242,10 @@ impl BaseApi {
         };
 
         match response {
-            Some(response) => {
-                match response.body {
-                    Some(body) => Ok(serde_json::from_str(&body)?),
-                    None => Err(Error::NoResponse),
-                }
-            }
+            Some(response) => match response.body {
+                Some(body) => Ok(serde_json::from_str(&body)?),
+                None => Err(Error::NoResponse),
+            },
             None => Err(Error::NoResponse),
         }
     }

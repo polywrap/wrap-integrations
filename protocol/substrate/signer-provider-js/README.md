@@ -12,7 +12,7 @@ It is preferable to use `signPayload` when possible as it allows the extension t
 
 ## Developer Setup
 
-After setting up the yarn workspace from the `/substrate` root:
+After setting up the yarn workspace from the `/substrate` root run:
 
 ```shell
 yarn
@@ -20,13 +20,15 @@ yarn
 
 ## Building
 
-Build uses the polywrap CLI tool.
+Build uses the polywrap CLI tool:
 
 ```shell
 yarn build
 ```
 
 ## Testing
+
+Integration tests (plugin with mock browser extension) can be run with:
 
 ```shell
 yarn test
