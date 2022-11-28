@@ -176,13 +176,13 @@ pub fn create_deploy_contract_transaction(
             return Err(WrapperError::ContractError(
                 ethers_contract::ContractError::ConstructorError,
             ))
-        }
+        },
         (None, true) => bytecode.clone(),
         (Some(constructor), _) => {
             let kinds: Vec<ParamType> = params_to_types(&constructor.inputs);
             let tokens: Vec<Token> = tokenize_values(&params, &kinds);
             constructor.encode_input(bytecode.to_vec(), &tokens)?.into()
-        }
+        },
     };
     let tx: TypedTransaction = create_transaction(None, data, options);
     Ok(tx)
@@ -266,12 +266,12 @@ pub async fn call_contract_method(
 }
 
 fn create_transaction(address: Option<Address>, data: Bytes, options: &EthersTxOptions) -> TypedTransaction {
-    if options.no_eip1559 {
+    if options.gas_price.is_some() {
         return TransactionRequest {
             to: address.map(Into::into),
             data: Some(data),
             gas: options.gas_limit,
-            gas_price: options.max_fee_per_gas,
+            gas_price: options.gas_price,
             value: options.value,
             nonce: options.nonce,
             ..Default::default()

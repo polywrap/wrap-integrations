@@ -416,7 +416,7 @@ describe("Ethereum Wrapper", () => {
           abi: JSON.stringify(contracts.SimpleStorage.abi),
           bytecode: contracts.SimpleStorage.bytecode,
           options: {
-            noEip1559: true
+            gasPrice: "379174062"
           }
         }
       });

@@ -13,9 +13,9 @@ pub struct EthersTxOptions {
     pub gas_limit: Option<U256>,
     pub max_fee_per_gas: Option<U256>,
     pub max_priority_fee_per_gas: Option<U256>,
+    pub gas_price: Option<U256>,
     pub value: Option<U256>,
     pub nonce: Option<U256>,
-    pub no_eip1559: bool,
 }
 
 pub fn from_wrap_tx_options(maybe_options: Option<TxOptions>) -> EthersTxOptions {
@@ -24,23 +24,23 @@ pub fn from_wrap_tx_options(maybe_options: Option<TxOptions>) -> EthersTxOptions
             gas_limit: options.gas_limit.map(|big_int| U256::from_str_radix(&big_int.to_string(), 10).unwrap()),
             max_fee_per_gas: options.max_fee_per_gas.map(|big_int| U256::from_str_radix(&big_int.to_string(), 10).unwrap()),
             max_priority_fee_per_gas: options.max_priority_fee_per_gas.map(|big_int| U256::from_str_radix(&big_int.to_string(), 10).unwrap()),
+            gas_price: options.gas_price.map(|big_int| U256::from_str_radix(&big_int.to_string(), 10).unwrap()),
             value: options.value.map(|big_int| U256::from_str_radix(&big_int.to_string(), 10).unwrap()),
             nonce: options.nonce.map(Into::into),
-            no_eip1559: options.no_eip1559.unwrap_or_default(),
         },
         None => EthersTxOptions {
             gas_limit: None,
             max_fee_per_gas: None,
             max_priority_fee_per_gas: None,
+            gas_price: None,
             value: None,
             nonce: None,
-            no_eip1559: false,
         }
     }
 }
 
 pub fn from_wrap_request(request: TxRequest) -> TypedTransaction {
-    if request.no_eip1559.unwrap_or_default() {
+    if request.gas_price.is_some() {
         TransactionRequest {
             from: request.from.map(|v| H160::from_str(&v).unwrap()),
             to: request
@@ -54,12 +54,12 @@ pub fn from_wrap_request(request: TxRequest) -> TypedTransaction {
                 .map(|v| U256::from_str(&v.to_string()).unwrap()),
             data: request.data.map(|v| Bytes::from_str(&v).unwrap()),
             nonce: request.nonce.map(Into::into),
+            gas_price: request
+                .gas_price
+                .map(|v| U256::from_str(&v.to_string()).unwrap()),
             chain_id: request
                 .chain_id
                 .map(|v| U64::from_str(&v.to_string()).unwrap()),
-            gas_price: request
-                .max_fee_per_gas
-                .map(|v| U256::from_str(&v.to_string()).unwrap()),
         }.into()
     } else {
         let access_list = match request.access_list {
@@ -191,8 +191,9 @@ pub async fn to_wrap_response(
         from: format!("{:?}", response.from),
         nonce: response.nonce.as_u32(),
         gas_limit: BigInt::from_str(&response.gas.to_string()).unwrap(),
-        max_fee_per_gas: if max_fee_per_gas.is_none() { gas_price } else { max_fee_per_gas },
+        max_fee_per_gas,
         max_priority_fee_per_gas,
+        gas_price,
         value: BigInt::from_str(&response.value.to_string()).unwrap(),
         chain_id: BigInt::from_str(&response.chain_id.unwrap_or(chain_id).to_string()).unwrap(),
         block_number: response

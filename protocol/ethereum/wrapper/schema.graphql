@@ -12,21 +12,24 @@ type TxRequest {
     """
     The max total fee to pay per unit of gas.
     The difference between maxFeePerGas and baseFeePerGas + maxPriorityFeePerGas is “refunded” to the user.
-    When noEip1559 is set to true, this property represents gasPrice (in wei) per unit of gas for the transaction.
+    This property is ignored when gasPrice is not null.
     """
     maxFeePerGas: BigInt
     """
     The gas price paid is baseFeePerGas + maxPriorityFeePerGas.
     The difference between maxFeePerGas and baseFeePerGas + maxPriorityFeePerGas is “refunded” to the user.
-    This property is ignored when noEip1559 is set to true.
+    This property is ignored when gasPrice is not null.
     """
     maxPriorityFeePerGas: BigInt
+    """
+    The gas price for legacy transactions.
+    If this property is not null, a legacy transaction will be sent and maxFeePerGas and maxPriorityFeePerGas will be ignored.
+    """
+    gasPrice: BigInt
     """Ether value sent with transaction"""
     value: BigInt
     """Override default nonce"""
     nonce: UInt32
-    """If true, sends legacy (non-EIP-1559) transaction using maxFeePerGas as gasPrice"""
-    noEip1559: Boolean
 }
 
 type AccessItem {
@@ -40,9 +43,9 @@ type TxResponse {
     from: String!
     nonce: UInt32!
     gasLimit: BigInt!
-    """represents gasPrice for legacy (non-EIP-1559) transactions"""
     maxFeePerGas: BigInt
     maxPriorityFeePerGas: BigInt
+    gasPrice: BigInt
     value: BigInt!
     chainId: BigInt!
     blockNumber: BigInt
@@ -92,21 +95,24 @@ type TxOptions {
     """
     The max total fee to pay per unit of gas.
     The difference between maxFeePerGas and baseFeePerGas + maxPriorityFeePerGas is “refunded” to the user.
-    When noEip1559 is set to true, this property represents gasPrice (in wei) per unit of gas for the transaction.
+    This property is ignored when gasPrice is not null.
     """
     maxFeePerGas: BigInt
     """
     The gas price paid is baseFeePerGas + maxPriorityFeePerGas.
     The difference between maxFeePerGas and baseFeePerGas + maxPriorityFeePerGas is “refunded” to the user.
-    This property is ignored when noEip1559 is set to true.
+    This property is ignored when gasPrice is not null.
     """
     maxPriorityFeePerGas: BigInt
+    """
+    The gas price for legacy transactions.
+    If this property is not null, a legacy transaction will be sent and maxFeePerGas and maxPriorityFeePerGas will be ignored.
+    """
+    gasPrice: BigInt
     """Ether value sent with transaction"""
     value: BigInt
     """Override default nonce"""
     nonce: UInt32
-    """If true, sends legacy (non-EIP-1559) transaction using maxFeePerGas as gasPrice"""
-    noEip1559: Boolean
 }
 
 type StaticTxResult {
