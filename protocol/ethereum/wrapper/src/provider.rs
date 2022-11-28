@@ -47,6 +47,7 @@ impl JsonRpcClient for PolywrapProvider {
         let res = ProviderModule::request(&ArgsRequest {
             method: method.to_string(),
             params: Some(params_s),
+            connection: None,
         })
         .map_err(|err| ClientError::Error(err))?;
         let res = serde_json::from_str(&res).map_err(|err| ClientError::SerdeJson {

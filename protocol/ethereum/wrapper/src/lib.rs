@@ -115,7 +115,8 @@ pub fn estimate_transaction_gas(input: wrap::ArgsEstimateTransactionGas) -> BigI
 
 pub fn await_transaction(input: wrap::ArgsAwaitTransaction) -> wrap::TxReceipt {
     block_on(async {
-        let receipt = api::get_transaction_receipt(H256::from_str(&input.tx_hash).unwrap()).await;
+        let tx_hash = H256::from_str(&input.tx_hash).unwrap();
+        let receipt = api::get_transaction_receipt(tx_hash).await;
         let tx_receipt = mapping::to_wrap_receipt(receipt);
         tx_receipt
     })
@@ -128,7 +129,7 @@ pub fn send_transaction(input: wrap::ArgsSendTransaction) -> wrap::TxResponse {
         let signer = PolywrapSigner::new();
         let client = SignerMiddleware::new(provider, signer);
         let tx_hash = api::sign_and_send_transaction(client, tx).await;
-        let response = api::await_transaction(tx_hash).await;
+        let response = api::get_transaction_response(tx_hash).await;
         let tx_response = mapping::to_wrap_response(response).await;
         tx_response
     })
@@ -221,7 +222,7 @@ pub fn call_contract_method(input: wrap::ArgsCallContractMethod) -> wrap::TxResp
         let args: Vec<String> = input.args.unwrap_or(vec![]);
         let tx_options: mapping::EthersTxOptions = mapping::from_wrap_tx_options(input.options);
         let tx_hash = api::call_contract_method(address, &input.method, args, &tx_options).await;
-        let response = api::await_transaction(tx_hash).await;
+        let response = api::get_transaction_response(tx_hash).await;
         let tx_response = mapping::to_wrap_response(response).await;
         tx_response
     })

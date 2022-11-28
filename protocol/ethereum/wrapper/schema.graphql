@@ -1,4 +1,4 @@
-#import { Module } into Provider from "wrap://ens/ethereum-provider.polywrap.eth"
+#import { Module, Connection } into Provider from "wrap://ens/ethereum-provider.polywrap.eth"
 
 type TxRequest {
     to: String
@@ -79,6 +79,7 @@ type TxReceipt {
     logs: [Log!]!
     blockNumber: BigInt!
     blockHash: String!
+    confirmations: UInt32!
     cumulativeGasUsed: BigInt!
     effectiveGasPrice: BigInt!
     type: UInt32!
@@ -162,8 +163,6 @@ type Module {
 
   getGasPrice: BigInt!
 
-  # getNetwork(): Network! # TODO: add getNetwork
-
   checkAddress(address: String!): Boolean!
 
   toWei(eth: String!): String!
@@ -181,7 +180,7 @@ type Module {
 
   awaitTransaction(
     txHash: String!
-  ): TxReceipt! # TODO: add timeout to awaitTransaction
+  ): TxReceipt! # TODO: add timeout and confirmations
 
   sendTransaction(tx: TxRequest!): TxResponse!
 

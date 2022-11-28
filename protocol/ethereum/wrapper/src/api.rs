@@ -135,7 +135,7 @@ pub async fn estimate_transaction_gas(tx: TypedTransaction) -> U256 {
     gas
 }
 
-pub async fn await_transaction(tx_hash: H256) -> Transaction {
+pub async fn get_transaction_response(tx_hash: H256) -> Transaction {
     let provider = Provider::new(PolywrapProvider {});
     let response = provider.get_transaction(tx_hash).await.unwrap().unwrap();
     response

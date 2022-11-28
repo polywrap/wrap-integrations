@@ -139,6 +139,7 @@ pub fn to_wrap_receipt(receipt: TransactionReceipt) -> TxReceipt {
         logs: receipt.logs.iter().map(|v| to_wrap_log(v)).collect(),
         block_number: BigInt::from_str(&receipt.block_number.unwrap().to_string()).unwrap(),
         block_hash: receipt.block_hash.unwrap().to_string(),
+        confirmations: 1,
         cumulative_gas_used: BigInt::from_str(&receipt.cumulative_gas_used.to_string()).unwrap(),
         effective_gas_price: BigInt::from_str(&match receipt.effective_gas_price {
             Some(price) => price.to_string(),

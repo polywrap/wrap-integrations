@@ -4,12 +4,11 @@ import {
   ensAddresses,
   providers,
 } from "@polywrap/test-env-js";
-import { Wallet } from "ethers";
 import * as path from 'path'
 
-import { ethers } from "ethers";
+import { ethers, Wallet } from "ethers";
 import { keccak256 } from "js-sha3";
-import { ethereumProviderPlugin } from "../../provider/src";
+import { Connection, Connections, ethereumProviderPlugin } from "../../provider/src";
 import * as Schema from "./types/wrap";
 import { initInfra, stopInfra } from "./utils/infra";
 
@@ -58,8 +57,17 @@ describe("Ethereum Wrapper", () => {
         {
           uri: "wrap://ens/ethereum-provider.polywrap.eth",
           plugin: ethereumProviderPlugin({
-            url: providers.ethereum,
-            wallet: new Wallet("0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d")
+            connections: new Connections({
+              networks: {
+                testnet: new Connection({
+                  provider: providers.ethereum,
+                  signer: new Wallet(
+                    "0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d"
+                  ),
+                })
+              },
+              defaultNetwork: "testnet",
+            })
           }),
         },
       ],
@@ -120,6 +128,8 @@ describe("Ethereum Wrapper", () => {
       if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
     });
+
+
 
     it("signMessage", async () => {
       const response = await client.invoke<string>({

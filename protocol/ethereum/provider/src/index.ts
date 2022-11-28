@@ -2,66 +2,95 @@ import {
   Module,
   manifest,
   Args_request,
-  Args_signDigest,
+  Args_signMessage,
+  Args_signTransaction,
   Args_address,
   Args_chainId,
+  Connection as SchemaConnection
 } from "./wrap";
-import { ethers, Wallet } from "ethers";
 import { Client, PluginFactory } from "@polywrap/core-js";
+import { Connection } from "./Connection";
+import { Connections } from "./Connections";
+import { ethers } from "ethers";
+export * from "./Connection";
+export * from "./Connections";
 
 export interface ProviderConfig {
-  url: string
-  wallet?: Wallet
+  connections: Connections;
 }
 
 export class EthereumProviderPlugin extends Module<ProviderConfig> {
-  _provider: ethers.providers.JsonRpcProvider;
-  _wallet?: Wallet;
+  private _connections: Connections;
 
   constructor(config: ProviderConfig) {
     super(config)
-    this._provider = new ethers.providers.JsonRpcProvider(config.url);
-    if (config.wallet) {
-      this._wallet = config.wallet;
-    }
+    this._connections = config.connections;
   }
 
   public async request(
     args: Args_request,
-    client: Client
+    _client: Client
   ): Promise<string> {
+    const connection = await this._getConnection(args.connection);
     const params = JSON.parse(args?.params ?? "[]");
-    const req = await this._provider.send(args.method, params);
+    const req = await connection.getProvider().send(args.method, params);
     return JSON.stringify(req);
   }
 
-  public async signDigest(
-    args: Args_signDigest,
-    client: Client
+  public async signMessage(
+    args: Args_signMessage,
+    _client: Client
   ): Promise<string> {
-    if (!this._wallet) {
-      throw Error("Cannot sign digest without a wallet");
-    }
-    const signature = this._wallet._signingKey().signDigest(args.digest);
-    return ethers.utils.joinSignature(signature);
+    const connection = await this._getConnection(args.connection);
+    return await connection.getSigner().signMessage(args.message);
+  }
+
+  public async signTransaction(
+    args: Args_signTransaction,
+    _client: Client
+  ): Promise<string> {
+    const connection = await this._getConnection(args.connection);
+    const request = this._parseTransaction(args.rlp);
+    const signedTxHex = await connection.getSigner().signTransaction(request);
+    const signedTx = ethers.utils.parseTransaction(signedTxHex);
+    return ethers.utils.joinSignature(signedTx as { r: string; s: string; v: number | undefined });
   }
 
   public async address(
     args: Args_address,
-    client: Client
+    _client: Client
   ): Promise<string> {
-    if (!this._wallet) {
-      throw Error("Cannot obtain signer address without a wallet");
-    }
-    return await this._wallet.getAddress();
+    const connection = await this._getConnection(args.connection);
+    return await connection.getSigner().getAddress();
   }
 
   public async chainId(
     args: Args_chainId,
-    client: Client
+    _client: Client
   ): Promise<string> {
-    const network = await this._provider.getNetwork();
+    const connection = await this._getConnection(args.connection);
+    const network = await connection.getProvider().getNetwork();
     return network.chainId.toString();
+  }
+
+  private async _getConnection(connection?: SchemaConnection | null): Promise<Connection> {
+    return this._connections.getConnection(connection ?? this.env.connection);
+  }
+
+  private _parseTransaction(rlp: Uint8Array): ethers.providers.TransactionRequest {
+    const tx = ethers.utils.parseTransaction(rlp);
+
+    // r, s, v can sometimes be set to 0, but ethers will throw if the keys exist at all
+    let request: Record<string, any> = { ...tx, r: undefined, s: undefined, v: undefined };
+
+    // remove undefined and null values
+    request = Object.keys(request).reduce((prev, curr) => {
+      const val = request[curr];
+      if (val !== undefined && val !== null) prev[curr] = val
+      return prev;
+    }, {} as Record<string, unknown>)
+
+    return request;
   }
 }
 

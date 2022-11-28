@@ -1,18 +1,32 @@
+type Connection {
+  node: String
+  networkNameOrChainId: String
+}
+
+type Env {
+  connection: Connection
+}
+
 type Module {
   """
   Send a remote RPC request to the registered provider
   """
-  request(method: String!, params: String): String!
+  request(method: String!, params: String, connection: Connection): String!
 
   """
-  Sign a transaction hash and return the signature. Throws if wallet is missing.
+  Sign a message and return the signature. Throws if signer is missing.
   """
-  signDigest(digest: Bytes!): String!
+  signMessage(message: Bytes!, connection: Connection): String!
 
   """
-  Get the ethereum address of the registered signer. Throws if wallet is missing.
+  Sign a serialized unsigned transaction and return the signature. Throws if signer is missing.
   """
-  address: String!
+  signTransaction(rlp: Bytes!, connection: Connection): String!
 
-  chainId: String!
+  """
+  Get the ethereum address of the signer. Throws if signer is missing.
+  """
+  address(connection: Connection): String!
+
+  chainId(connection: Connection): String!
 }
