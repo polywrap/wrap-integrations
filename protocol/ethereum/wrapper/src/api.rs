@@ -37,6 +37,12 @@ pub fn get_gas_price(provider: &Provider<PolywrapProvider>) -> U256 {
     })
 }
 
+pub fn estimate_eip1559_fees(provider: &Provider<PolywrapProvider>) -> (U256, U256) {
+    block_on(async {
+        provider.estimate_eip1559_fees(None).await.unwrap()
+    })
+}
+
 pub fn get_signer_balance(provider: &Provider<PolywrapProvider>, signer_address: Address, block_tag: BlockId) -> U256 {
     block_on(async {
         provider

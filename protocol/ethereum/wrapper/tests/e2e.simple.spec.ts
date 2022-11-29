@@ -128,7 +128,17 @@ describe("Ethereum Wrapper", () => {
       expect(response.value).toBeDefined();
     });
 
+    it("estimateEip1559Fees", async () => {
+      const response = await client.invoke<Schema.Eip1559FeesEstimate>({
+        uri,
+        method: "estimateEip1559Fees"
+      });
 
+      if (!response.ok) throw response.error;
+      expect(response.value).toBeDefined();
+      expect(response.value.maxFeePerGas).toBeDefined();
+      expect(response.value.maxPriorityFeePerGas).toBeDefined();
+    });
 
     it("signMessage", async () => {
       const response = await client.invoke<string>({
@@ -508,6 +518,7 @@ describe("Ethereum Wrapper", () => {
           method: "function register(bytes32 label, address owner)",
           args: [label, signer],
           options: {
+            maxPriorityFeePerGas: "40000000",
             maxFeePerGas: "400000000",
             gasLimit: "1",
           },

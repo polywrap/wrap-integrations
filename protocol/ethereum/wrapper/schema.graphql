@@ -120,6 +120,11 @@ type StaticTxResult {
     error: Boolean!
 }
 
+type Eip1559FeesEstimate {
+    maxFeePerGas: BigInt!
+    maxPriorityFeePerGas: BigInt!
+}
+
 type Module {
   getChainId(connection: Provider_Connection): String!
 
@@ -169,6 +174,10 @@ type Module {
     connection: Provider_Connection
   ): BigInt!
 
+  getGasPrice(connection: Provider_Connection): BigInt!
+
+  estimateEip1559Fees(connection: Provider_Connection): Eip1559FeesEstimate!
+
   sendRpc(
     method: String!
     params: [String!]!
@@ -179,8 +188,6 @@ type Module {
     blockTag: BigInt
     connection: Provider_Connection
   ): BigInt!
-
-  getGasPrice(connection: Provider_Connection): BigInt!
 
   checkAddress(
     address: String!

@@ -46,7 +46,15 @@ pub fn get_gas_price(args: wrap::ArgsGetGasPrice) -> BigInt {
     let provider = Provider::new(PolywrapProvider::new(&args.connection));
     let price = api::get_gas_price(&provider);
     BigInt::from_str(&price.to_string()).unwrap()
+}
 
+pub fn estimate_eip1559_fees(args: wrap::ArgsEstimateEip1559Fees) -> wrap::Eip1559FeesEstimate {
+    let provider = Provider::new(PolywrapProvider::new(&args.connection));
+    let price = api::estimate_eip1559_fees(&provider);
+    wrap::Eip1559FeesEstimate {
+        max_fee_per_gas: BigInt::from_str(&price.0.to_string()).unwrap(),
+        max_priority_fee_per_gas: BigInt::from_str(&price.1.to_string()).unwrap(),
+    }
 }
 
 pub fn get_signer_address(args: wrap::ArgsGetSignerAddress) -> String {
