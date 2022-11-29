@@ -11,7 +11,6 @@ describe("Ethereum Plugin", () => {
   const uri = "wrap://ens/ethereum-provider.polywrap.eth";
 
   beforeAll(async () => {
-
     client = new PolywrapClient({
       plugins: [
         {
@@ -30,7 +29,6 @@ describe("Ethereum Plugin", () => {
         },
       ],
     });
-
   });
 
   describe("EthereumProviderPlugin", () => {

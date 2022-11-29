@@ -17,14 +17,14 @@
   "dependencies": {
     "@ethersproject/address": "5.7.0",
     "@ethersproject/providers": "5.7.0",
-    "polywrap": "0.9.3",
-    "@polywrap/core-js": "0.9.3",
+    "polywrap": "0.9.4",
+    "@polywrap/core-js": "0.9.4",
     "ethers": "5.7.0"
   },
   "devDependencies": {
     "@types/jest": "26.0.8",
-    "@polywrap/client-js": "0.9.3",
-    "@polywrap/test-env-js": "0.9.3",
+    "@polywrap/client-js": "0.9.4",
+    "@polywrap/test-env-js": "0.9.4",
     "eth-ens-namehash": "2.0.8",
     "jest": "26.6.3",
     "js-sha3": "0.8.0",
