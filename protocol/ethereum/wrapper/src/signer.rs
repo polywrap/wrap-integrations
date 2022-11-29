@@ -1,20 +1,19 @@
-use super::wrap::imported::{ArgsRequest, ArgsAddress, ArgsChainId, ArgsSignMessage, ArgsSignTransaction};
-use super::wrap::ProviderModule;
+use super::wrap::imported::{ArgsAddress, ArgsChainId, ArgsSignMessage, ArgsSignTransaction};
+use super::wrap::{ProviderModule, ProviderConnection};
 use async_trait::async_trait;
-use ethers_core::types::{transaction::{eip2718::TypedTransaction, eip712::Eip712}, Address, Signature, H256, SignatureError, Bytes};
-use ethers_core::utils::keccak256;
+use ethers_core::types::{transaction::{eip2718::TypedTransaction, eip712::Eip712}, Address, Signature};
 use ethers_signers::{to_eip155_v, Signer};
 use std::str::FromStr;
-use ethers_core::k256::pkcs8::der::Encode;
-use serde_json::to_vec;
 use thiserror::Error;
 
 #[derive(Clone, Debug)]
 pub struct PolywrapSigner {
     /// The wallet's address
-    pub(crate) address: Address,
+    address: Address,
     /// The wallet's chain id (for EIP-155)
-    pub(crate) chain_id: u64,
+    chain_id: u64,
+    /// Ethereum connection to use
+    connection: Option<ProviderConnection>
 }
 
 #[derive(Error, Debug)]
@@ -26,24 +25,29 @@ pub enum SignerError {
 }
 
 impl PolywrapSigner {
-    pub fn new() -> Self {
-        let address = ProviderModule::address(&ArgsAddress { connection: None }).unwrap();
-        let chain_id = ProviderModule::chain_id(&ArgsChainId { connection: None })
+    pub fn new(connection: &Option<ProviderConnection>) -> Self {
+        let address = ProviderModule::address(&ArgsAddress { connection: connection.clone() }).unwrap();
+        let chain_id = ProviderModule::chain_id(&ArgsChainId { connection: connection.clone() })
             .expect("failed to obtain signer chain id from provider plugin");
         Self {
             address: Address::from_str(&address).unwrap(),
             chain_id: u64::from_str(&chain_id).unwrap(),
+            connection: connection.clone(),
         }
     }
 
     fn sign_rlp(&self, rlp: Vec<u8>) -> Result<Signature, String> {
-        let signature = ProviderModule::sign_transaction(&ArgsSignTransaction { rlp, connection: None })?;
+        let signature = ProviderModule::sign_transaction(&ArgsSignTransaction { rlp, connection: self.connection.clone(), })?;
         Ok(Signature::from_str(&signature).unwrap())
     }
 
     fn sign_bytes(&self, message: Vec<u8>) -> Result<Signature, String> {
-        let signature = ProviderModule::sign_message(&ArgsSignMessage { message, connection: None })?;
+        let signature = ProviderModule::sign_message(&ArgsSignMessage { message, connection: self.connection.clone(), })?;
         Ok(Signature::from_str(&signature).unwrap())
+    }
+
+    fn connection(&self) -> Option<ProviderConnection> {
+        self.connection.clone()
     }
 }
 

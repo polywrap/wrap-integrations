@@ -1,9 +1,8 @@
 format: 0.2.0
 project:
   name: Ethereum-Provider
-  type: plugin/typescript
+  type: app/typescript
 source:
-  module: ./src/index.ts
   schema: ../../schema.graphql
   import_abis:
   - uri: wrap://ens/ethereum-provider.polywrap.eth

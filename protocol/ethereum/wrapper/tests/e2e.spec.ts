@@ -8,7 +8,7 @@ import * as path from 'path'
 
 import { ethers, Wallet } from "ethers";
 import { keccak256 } from "js-sha3";
-import { Connection, Connections, ethereumProviderPlugin } from "../../provider/src";
+import { Connection, Connections, ethereumProviderPlugin } from "ethereum-provider-plugin";
 import * as Schema from "./types/wrap";
 import { initInfra, stopInfra } from "./utils/infra";
 
@@ -416,7 +416,8 @@ describe("Ethereum Wrapper", () => {
           abi: JSON.stringify(contracts.SimpleStorage.abi),
           bytecode: contracts.SimpleStorage.bytecode,
           options: {
-            gasPrice: "379174062"
+            maxPriorityFeePerGas: "40000000",
+            maxFeePerGas: "400000000",
           }
         }
       });
@@ -508,7 +509,7 @@ describe("Ethereum Wrapper", () => {
           method: "function register(bytes32 label, address owner)",
           args: [label, signer],
           options: {
-            maxFeePerGas: "50",
+            maxFeePerGas: "400000000",
             gasLimit: "1",
           },
         },
@@ -529,7 +530,8 @@ describe("Ethereum Wrapper", () => {
           method: "function register(bytes32 label, address owner)",
           args: [label, signer],
           options: {
-            maxFeePerGas: "50",
+            maxPriorityFeePerGas: "40000000",
+            maxFeePerGas: "400000000",
             gasLimit: "200000"
           },
         },
@@ -549,7 +551,7 @@ describe("Ethereum Wrapper", () => {
           method: "function register(bytes32 label, address owner)",
           args: [label, signer],
           options: {
-            maxFeePerGas: "50",
+            gasPrice: "400000000",
             gasLimit: "200000"
           },
         }

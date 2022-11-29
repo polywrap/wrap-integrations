@@ -1,13 +1,15 @@
 use ethers_providers::{JsonRpcClient, ProviderError};
 
 use super::wrap::imported::ArgsRequest;
-use super::wrap::ProviderModule;
+use super::wrap::{ProviderModule, ProviderConnection};
 use async_trait::async_trait;
 use serde::{de::DeserializeOwned, Serialize};
 use thiserror::Error;
 
 #[derive(Debug)]
-pub struct PolywrapProvider {}
+pub struct PolywrapProvider {
+    connection: Option<ProviderConnection>
+}
 
 #[derive(Error, Debug)]
 /// Error thrown when sending an HTTP request
@@ -47,7 +49,7 @@ impl JsonRpcClient for PolywrapProvider {
         let res = ProviderModule::request(&ArgsRequest {
             method: method.to_string(),
             params: Some(params_s),
-            connection: None,
+            connection: self.connection.clone(),
         })
         .map_err(|err| ClientError::Error(err))?;
         let res = serde_json::from_str(&res).map_err(|err| ClientError::SerdeJson {
@@ -59,13 +61,17 @@ impl JsonRpcClient for PolywrapProvider {
 }
 
 impl PolywrapProvider {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(connection: &Option<ProviderConnection>) -> Self {
+        Self { connection: connection.clone() }
+    }
+
+    pub fn connection(&self) -> Option<ProviderConnection> {
+        self.connection.clone()
     }
 }
 
 impl Clone for PolywrapProvider {
     fn clone(&self) -> Self {
-        Self {}
+        Self { connection: self.connection.clone() }
     }
 }

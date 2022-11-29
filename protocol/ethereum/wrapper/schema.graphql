@@ -121,12 +121,13 @@ type StaticTxResult {
 }
 
 type Module {
-  getChainId: String!
+  getChainId(connection: Provider_Connection): String!
 
   callContractView(
     address: String!
     method: String!
     args: [String!]
+    connection: Provider_Connection
   ): String!
 
   callContractStatic(
@@ -134,42 +135,57 @@ type Module {
     method: String!
     args: [String!]
     options: TxOptions
+    connection: Provider_Connection
   ): StaticTxResult!
 
   encodeParams(
     types: [String!]!
     values: [String!]!
+    connection: Provider_Connection
   ): String!
 
   encodeFunction(
     method: String!
     args: [String!]
+    connection: Provider_Connection
   ): String!
 
   decodeFunction(
     method: String!
     data: String!
+    connection: Provider_Connection
   ): [String!]!
 
-  getSignerAddress: String!
+  getSignerAddress(connection: Provider_Connection): String!
 
-  getSignerBalance(blockTag: BigInt): BigInt!
+  getSignerBalance(
+    blockTag: BigInt
+    connection: Provider_Connection
+  ): BigInt!
 
   getBalance(
     address: String!
     blockTag: BigInt
+    connection: Provider_Connection
   ): BigInt!
 
   sendRpc(
     method: String!
     params: [String!]!
+    connection: Provider_Connection
   ): String!
 
-  getSignerTransactionCount(blockTag: BigInt): BigInt!
+  getSignerTransactionCount(
+    blockTag: BigInt
+    connection: Provider_Connection
+  ): BigInt!
 
-  getGasPrice: BigInt!
+  getGasPrice(connection: Provider_Connection): BigInt!
 
-  checkAddress(address: String!): Boolean!
+  checkAddress(
+    address: String!
+    connection: Provider_Connection
+  ): Boolean!
 
   toWei(eth: String!): String!
 
@@ -182,16 +198,24 @@ type Module {
   #   timeout: UInt32
   # ): EventNotification! # TODO: add waitForEvent
 
-  estimateTransactionGas(tx: TxRequest!): BigInt!
+  estimateTransactionGas(
+    tx: TxRequest!
+    connection: Provider_Connection
+  ): BigInt!
 
   awaitTransaction(
     txHash: String!
+    connection: Provider_Connection
   ): TxReceipt! # TODO: add timeout and confirmations
 
-  sendTransaction(tx: TxRequest!): TxResponse!
+  sendTransaction(
+    tx: TxRequest!
+    connection: Provider_Connection
+  ): TxResponse!
 
   sendTransactionAndWait(
     tx: TxRequest!
+    connection: Provider_Connection
   ): TxReceipt!
 
   deployContract(
@@ -199,6 +223,7 @@ type Module {
     bytecode: String!
     args: [String!]
     options: TxOptions
+    connection: Provider_Connection
   ): String!
 
   estimateContractCallGas(
@@ -206,6 +231,7 @@ type Module {
     method: String!
     args: [String!]
     options: TxOptions
+    connection: Provider_Connection
   ): BigInt!
 
   callContractMethod(
@@ -213,6 +239,7 @@ type Module {
     method: String!
     args: [String!]
     options: TxOptions
+    connection: Provider_Connection
   ): TxResponse!
 
   callContractMethodAndWait(
@@ -220,7 +247,11 @@ type Module {
     method: String!
     args: [String!]
     options: TxOptions
+    connection: Provider_Connection
   ): TxReceipt!
 
-  signMessage(message: String!): String!
+  signMessage(
+    message: String!
+    connection: Provider_Connection
+  ): String!
 }
