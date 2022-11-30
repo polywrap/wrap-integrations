@@ -11,7 +11,7 @@ pub mod provider;
 pub mod signer;
 pub mod wrap;
 use wrap::*;
-use crate::provider::PolywrapProvider;
+use crate::provider::{GasWorkaround, PolywrapProvider};
 use crate::signer::PolywrapSigner;
 
 pub mod api;
@@ -172,6 +172,8 @@ pub fn deploy_contract(args: wrap::ArgsDeployContract) -> String {
     let tx_options: mapping::EthersTxOptions = mapping::from_wrap_tx_options(args.options);
 
     let mut tx = api::create_deploy_contract_transaction(abi, bytecode, &params, &tx_options).unwrap();
+    block_on(async { client.provider().fill_gas_fees(&mut tx).await.unwrap() });
+
     let tx_hash = api::sign_and_send_transaction(&client, &mut tx);
     let receipt = api::get_transaction_receipt(client.provider(), tx_hash);
     let address = receipt.contract_address.expect("Contract failed to deploy.");

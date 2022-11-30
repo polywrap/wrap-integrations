@@ -424,16 +424,13 @@ describe("Ethereum Wrapper", () => {
         args: {
           abi: JSON.stringify(contracts.SimpleStorage.abi),
           bytecode: contracts.SimpleStorage.bytecode,
-          options: {
-            maxPriorityFeePerGas: "40000000",
-            maxFeePerGas: "400000000",
-          }
         }
       });
 
       if (!response.ok) throw response.error;
       expect(response.value).toBeDefined();
       expect(response.value).toContain("0x");
+      expect(response.value.length).toBe(42);
     });
 
     it("estimateContractCallGas", async () => {

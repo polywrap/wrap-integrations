@@ -7,13 +7,13 @@ use ethers_core::{
     utils::{format_ether, parse_ether, serialize},
 };
 use ethers_middleware::SignerMiddleware;
-use ethers_providers::{Middleware, Provider};
+use ethers_providers::{Middleware, Provider, ProviderError};
 use ethers_signers::Signer;
 use crate::block_on;
 
 use crate::error::WrapperError;
 use crate::format::{params_to_types, tokenize_values};
-use crate::provider::PolywrapProvider;
+use crate::provider::{GasWorkaround, PolywrapProvider};
 use crate::signer::PolywrapSigner;
 use crate::mapping::EthersTxOptions;
 
@@ -149,6 +149,7 @@ pub fn get_transaction_receipt(provider: &Provider<PolywrapProvider>, tx_hash: H
 pub fn sign_and_send_transaction(client: &SignerMiddleware<Provider<PolywrapProvider>, PolywrapSigner>, tx: &mut TypedTransaction) -> H256 {
     block_on(async {
         let address = client.signer().address();
+        client.provider().fill_gas_fees(tx).await.unwrap();
         client.fill_transaction(tx, None).await.unwrap();
         let signature = client.sign_transaction(&tx, address).await.unwrap();
         let signed_tx: Bytes = tx.rlp_signed(&signature);
@@ -239,6 +240,7 @@ pub fn call_contract_static(
     let mut tx: TypedTransaction = create_transaction(Some(address), data, options);
 
     let bytes: Result<Bytes, WrapperError> = block_on(async {
+        client.provider().fill_gas_fees(&mut tx).await?;
         client.fill_transaction(&mut tx, None).await?;
         client.inner().call(&tx, None).await.map_err(|e| e.into())
     });
