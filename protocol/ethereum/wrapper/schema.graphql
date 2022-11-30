@@ -1,18 +1,38 @@
-#import { Module } into Provider from "wrap://ens/ethereum-provider.polywrap.eth"
+#import { Module, Connection } into Provider from "wrap://ens/ethereum-provider.polywrap.eth"
 
 type TxRequest {
     to: String
     from: String
-    nonce: UInt32
-    gasLimit: BigInt
-    gasPrice: BigInt
     data: String
-    value: BigInt
-    chainId: BigInt
     type: UInt32
+    chainId: BigInt
+    accessList: [AccessItem!]
+    """Gas supplied for the transaction"""
+    gasLimit: BigInt
+    """
+    The max total fee to pay per unit of gas.
+    The difference between maxFeePerGas and baseFeePerGas + maxPriorityFeePerGas is “refunded” to the user.
+    This property is ignored when gasPrice is not null.
+    """
+    maxFeePerGas: BigInt
+    """
+    The gas price paid is baseFeePerGas + maxPriorityFeePerGas.
+    The difference between maxFeePerGas and baseFeePerGas + maxPriorityFeePerGas is “refunded” to the user.
+    This property is ignored when gasPrice is not null.
+    """
+    maxPriorityFeePerGas: BigInt
+    """
+    The gas price for legacy transactions.
+    If this property is not null, a legacy transaction will be sent and maxFeePerGas and maxPriorityFeePerGas will be ignored.
+    """
+    gasPrice: BigInt
+    """Ether value sent with transaction"""
+    value: BigInt
+    """Override default nonce"""
+    nonce: UInt32
 }
 
-type Access {
+type AccessItem {
     address: String!
     storageKeys: [String!]!
 }
@@ -23,20 +43,19 @@ type TxResponse {
     from: String!
     nonce: UInt32!
     gasLimit: BigInt!
+    maxFeePerGas: BigInt
+    maxPriorityFeePerGas: BigInt
     gasPrice: BigInt
-    data: String!
     value: BigInt!
     chainId: BigInt!
     blockNumber: BigInt
     blockHash: String
     timestamp: UInt32
-    confirmations: UInt32!
-    raw: String
     r: String
     s: String
     v: UInt32
     type: UInt32
-    accessList: [Access!]
+    accessList: [AccessItem!]
 }
 
 type Log {
@@ -66,9 +85,34 @@ type TxReceipt {
     confirmations: UInt32!
     cumulativeGasUsed: BigInt!
     effectiveGasPrice: BigInt!
-    byzantium: Boolean!
     type: UInt32!
     status: UInt32
+}
+
+type TxOptions {
+    """Gas supplied for the transaction"""
+    gasLimit: BigInt
+    """
+    The max total fee to pay per unit of gas.
+    The difference between maxFeePerGas and baseFeePerGas + maxPriorityFeePerGas is “refunded” to the user.
+    This property is ignored when gasPrice is not null.
+    """
+    maxFeePerGas: BigInt
+    """
+    The gas price paid is baseFeePerGas + maxPriorityFeePerGas.
+    The difference between maxFeePerGas and baseFeePerGas + maxPriorityFeePerGas is “refunded” to the user.
+    This property is ignored when gasPrice is not null.
+    """
+    maxPriorityFeePerGas: BigInt
+    """
+    The gas price for legacy transactions.
+    If this property is not null, a legacy transaction will be sent and maxFeePerGas and maxPriorityFeePerGas will be ignored.
+    """
+    gasPrice: BigInt
+    """Ether value sent with transaction"""
+    value: BigInt
+    """Override default nonce"""
+    nonce: UInt32
 }
 
 type StaticTxResult {
@@ -76,47 +120,79 @@ type StaticTxResult {
     error: Boolean!
 }
 
+type Eip1559FeesEstimate {
+    maxFeePerGas: BigInt!
+    maxPriorityFeePerGas: BigInt!
+}
+
 type Module {
-  getChainId: String!
+  getChainId(connection: Provider_Connection): String!
 
   callContractView(
     address: String!
     method: String!
     args: [String!]
+    connection: Provider_Connection
   ): String!
 
   callContractStatic(
     address: String!
     method: String!
     args: [String!]
+    options: TxOptions
+    connection: Provider_Connection
   ): StaticTxResult!
 
-  encodeParams(types: [String!]!, values: [String!]!): String!
+  encodeParams(
+    types: [String!]!
+    values: [String!]!
+    connection: Provider_Connection
+  ): String!
 
-  encodeFunction(method: String!, args: [String!]): String!
+  encodeFunction(
+    method: String!
+    args: [String!]
+    connection: Provider_Connection
+  ): String!
 
-  decodeFunction(method: String!, data: String!): [String!]!
+  decodeFunction(
+    method: String!
+    data: String!
+    connection: Provider_Connection
+  ): [String!]!
 
-  getSignerAddress: String!
+  getSignerAddress(connection: Provider_Connection): String!
 
-  getSignerBalance(blockTag: BigInt): BigInt!
+  getSignerBalance(
+    blockTag: BigInt
+    connection: Provider_Connection
+  ): BigInt!
 
-  getBalance(address: String!, blockTag: BigInt): BigInt!
+  getBalance(
+    address: String!
+    blockTag: BigInt
+    connection: Provider_Connection
+  ): BigInt!
+
+  getGasPrice(connection: Provider_Connection): BigInt!
+
+  estimateEip1559Fees(connection: Provider_Connection): Eip1559FeesEstimate!
 
   sendRpc(
     method: String!
     params: [String!]!
+    connection: Provider_Connection
   ): String!
 
   getSignerTransactionCount(
     blockTag: BigInt
+    connection: Provider_Connection
   ): BigInt!
 
-  getGasPrice: BigInt!
-
-  # getNetwork(): Network!
-
-  checkAddress(address: String!): Boolean!
+  checkAddress(
+    address: String!
+    connection: Provider_Connection
+  ): Boolean!
 
   toWei(eth: String!): String!
 
@@ -127,49 +203,62 @@ type Module {
   #   event: String!
   #   args: [String!]
   #   timeout: UInt32
-  # ): EventNotification!
+  # ): EventNotification! # TODO: add waitForEvent
 
   estimateTransactionGas(
     tx: TxRequest!
+    connection: Provider_Connection
   ): BigInt!
 
   awaitTransaction(
     txHash: String!
-    confirmations: UInt32!
-    timeout: UInt32!
-  ): TxReceipt!
+    connection: Provider_Connection
+  ): TxReceipt! # TODO: add timeout and confirmations
 
   sendTransaction(
     tx: TxRequest!
+    connection: Provider_Connection
   ): TxResponse!
 
   sendTransactionAndWait(
     tx: TxRequest!
+    connection: Provider_Connection
   ): TxReceipt!
 
   deployContract(
     abi: String!
     bytecode: String!
     args: [String!]
+    options: TxOptions
+    connection: Provider_Connection
   ): String!
 
   estimateContractCallGas(
     address: String!
     method: String!
     args: [String!]
+    options: TxOptions
+    connection: Provider_Connection
   ): BigInt!
 
   callContractMethod(
     address: String!
     method: String!
     args: [String!]
+    options: TxOptions
+    connection: Provider_Connection
   ): TxResponse!
 
   callContractMethodAndWait(
     address: String!
     method: String!
     args: [String!]
+    options: TxOptions
+    connection: Provider_Connection
   ): TxReceipt!
 
-  signMessage(message: String!): String!
+  signMessage(
+    message: String!
+    connection: Provider_Connection
+  ): String!
 }
