@@ -9,7 +9,7 @@
     "test": "yarn test:e2e",
     "test:ci": "yarn build && yarn test",
     "test:e2e": "yarn test:e2e:codegen && jest --passWithNoTests --runInBand --verbose",
-    "test:e2e:codegen": "cd tests && polywrap app codegen -g wrap",
+    "test:e2e:codegen": "cd tests && polywrap codegen -g wrap",
     "clean": "rm -rf module/src/wrap && rm -rf test/wrap",
     "rebuild": "yarn clean && yarn codegen && yarn build",
     "deploy": "npx polywrap deploy -o deployment.json",

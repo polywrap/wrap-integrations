@@ -1,9 +1,5 @@
 import {
   Substrate_Module,
-  Substrate_BlockOutput,
-  Substrate_ChainMetadata,
-  Substrate_RuntimeVersion,
-  Substrate_AccountInfo,
   Substrate_SignerProvider_SignerPayloadJSON as SignerPayload,
 } from "./wrap";
 import { PolywrapClient, Uri } from "@polywrap/client-js";
@@ -16,7 +12,6 @@ import { injectExtension } from '@polkadot/extension-inject';
 import { TypeRegistry } from '@polkadot/types';
 import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-crypto';
 import { u8aToHex } from "@polkadot/util";
-
 
 jest.setTimeout(360000);
 let url: string;
@@ -64,9 +59,10 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
-    console.log(result.data);
+    expect(result.ok).toBeTruthy();
+    if (!result.ok) fail(result.error);
+    expect(result.value).toBeTruthy();
+    console.log(result.value);
   });
 
   it("retrieves genesis block parent hash is 00000", async () => {
@@ -78,9 +74,10 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
-    const block: Substrate_BlockOutput = result.data!;
+    expect(result.ok).toBeTruthy();
+    if (!result.ok) fail(result.error);
+    expect(result.value).toBeTruthy();
+    const block = result.value!;
     expect(block.block).toBeTruthy();
 
     const json_block = JSON.parse(block.block);
@@ -96,10 +93,11 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
+    expect(result.ok).toBeTruthy();
+    if (!result.ok) fail(result.error);
+    expect(result.value).toBeTruthy();
 
-    const chainMetadata: Substrate_ChainMetadata = result.data!;
+    const chainMetadata = result.value!;
     expect(chainMetadata.metadata).toBeTruthy();
     expect(chainMetadata.pallets).toBeTruthy();
     expect(chainMetadata.events).toBeTruthy();
@@ -114,9 +112,10 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result.data).toBeTruthy();
-    expect(result.error).toBeFalsy();
-    const runtimeVersion: Substrate_RuntimeVersion = result.data!;
+    expect(result.ok).toBeTruthy();
+    if (!result.ok) fail(result.error);
+    expect(result.value).toBeTruthy();
+    const runtimeVersion = result.value!;
     expect(runtimeVersion.spec_name).toStrictEqual("forum-node");
     expect(runtimeVersion.impl_name).toStrictEqual("forum-node");
     expect(runtimeVersion.authoring_version).toStrictEqual(1);
@@ -124,7 +123,6 @@ describe("e2e", () => {
     expect(runtimeVersion.impl_version).toStrictEqual(1);
     expect(runtimeVersion.state_version).toStrictEqual(1);
   });
-
 
   it("storage value", async () => {
     const result = await Substrate_Module.getStorageValue({
@@ -136,9 +134,9 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result).toBeTruthy();
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeFalsy();
+    expect(result.ok).toBeTruthy();
+    if (!result.ok) fail(result.error);
+    expect(result.value).toBeFalsy();
   });
 
   it("return constant values", async () => {
@@ -151,10 +149,10 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result).toBeTruthy();
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
-    expect(result.data).toStrictEqual([
+    expect(result.ok).toBeTruthy();
+    if (!result.ok) fail(result.error);
+    expect(result.value).toBeTruthy();
+    expect(result.value).toStrictEqual([
       244, 1, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0,
         0, 0, 0, 0
@@ -169,9 +167,10 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
-    const methods = result.data!;
+    expect(result.ok).toBeTruthy();
+    if (!result.ok) fail(result.error);
+    expect(result.value).toBeTruthy();
+    const methods = result.value!;
     //There are 85 rpc methods exposed in `examples/substrate-note-template`
     expect(methods.length).toStrictEqual(85);
   });
@@ -187,7 +186,8 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result.error).toBeFalsy();
+    expect(result.ok).toBeTruthy();
+    if (!result.ok) fail(result.error);
     expect(result).toBeTruthy();
   });
 
@@ -204,7 +204,8 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result.error).toBeFalsy();
+    expect(result.ok).toBeTruthy();
+    if (!result.ok) fail(result.error);
     expect(result).toBeTruthy();
   });
 
@@ -220,11 +221,11 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result).toBeTruthy();
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
+    expect(result.ok).toBeTruthy();
+    if (!result.ok) fail(result.error);
+    expect(result.value).toBeTruthy();
 
-    const account_info: Substrate_AccountInfo = result.data!;
+    const account_info = result.value!;
     console.log("account info: ", account_info);
   });
 
@@ -235,10 +236,10 @@ it("can get signer-provider managed accounts. Returns Alice", async () => {
       uri
     );
 
-    expect(result).toBeTruthy();
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
-    expect(result.data).toStrictEqual([
+    expect(result.ok).toBeTruthy();
+    if (!result.ok) fail(result.error);
+    expect(result.value).toBeTruthy();
+    expect(result.value).toStrictEqual([
       {
         address: aliceAddr,
         meta: { genesisHash: null, name: 'alice', source: 'mockExtension' },
@@ -272,16 +273,16 @@ it("can get signer-provider managed accounts. Returns Alice", async () => {
       uri
     );
 
-    expect(result).toBeTruthy();
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
+    expect(result.ok).toBeTruthy();
+    if (!result.ok) fail(result.error);
+    expect(result.value).toBeTruthy();
 
     // check signature is the same as if just signing in javascript
     const registry = new TypeRegistry();
     const encodedPayload = registry
       .createType('ExtrinsicPayload', testExtrinsic, { version: testExtrinsic.version })
       .toHex();
-    expect(isValidSignature(encodedPayload, result.data?.signature!, aliceAddr))
+    expect(isValidSignature(encodedPayload, result.value?.signature!, aliceAddr))
   });
 
 
