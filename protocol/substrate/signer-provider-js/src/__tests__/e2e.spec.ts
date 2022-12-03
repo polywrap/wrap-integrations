@@ -31,15 +31,16 @@ describe("e2e", () => {
   });
 
   it("getAccounts returns Alice", async () => {
-    const result = await client.invoke({
+    const result = await client.invoke<Account[]>({
       uri,
       method: "getAccounts",
       args: {},
     });
 
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
-    const accounts: Account[] = result.data as Account[];
+    expect(result.ok).toBeTruthy();
+    if (!result.ok) fail(result.error);
+    expect(result.value).toBeTruthy();
+    const accounts = result.value;
     expect(accounts.length).toBe(1);
     expect(accounts[0].meta.name).toBe("alice");
   });
@@ -48,15 +49,16 @@ describe("e2e", () => {
     const account = await getAccount();
     const data = "123"; // to be signed
 
-    const result = await client.invoke({
+    const result = await client.invoke<SignerResult>({
       uri,
       method: "signRaw",
       args: { payload: { address: account.address, data } }
     });
 
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
-    const signerResult = result.data as SignerResult;
+    expect(result.ok).toBeTruthy();
+    if (!result.ok) fail(result.error);
+    expect(result.value).toBeTruthy();
+    const signerResult = result.value;
     expect(isValidSignature(data, signerResult.signature, account.address));
   });
 
@@ -69,21 +71,24 @@ describe("e2e", () => {
       args: { payload: { address: unmanagedAddress } }
     });
 
+    expect(result.ok).toBeFalsy();
+    if (result.ok) fail("This should fail");
     expect(result.error?.message).toContain("Provider does not contain account: "+ unmanagedAddress);
   });
 
   it("signPayload produces a valid signature from test account", async () => {
     const account = await getAccount();
     const payload = testPayload(account.address)
-    const result = await client.invoke({
+    const result = await client.invoke<SignerResult>({
       uri,
       method: "signPayload",
       args: { payload }
     });
 
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
-    const signerResult = result.data as SignerResult;
+    expect(result.ok).toBeFalsy();
+    if (!result.ok) fail(result.error);
+    expect(result.value).toBeTruthy();
+    const signerResult = result.value;
 
     // To verify the signature encode the extrinsic payload as hex
     // then veify as with signRaw
@@ -104,19 +109,24 @@ describe("e2e", () => {
       args: { payload: { address: unmanagedAddress } }
     });
 
+    expect(result.ok).toBeFalsy();
+    if (result.ok) fail("This should fail.");
     expect(result.error?.message).toContain("Provider does not contain account: "+ unmanagedAddress);
   });
 
   // -- helpers -- //
 
   async function getAccount(): Promise<Account> {
-    const accountsResult = await client.invoke({
-        uri,
-        method: "getAccounts",
-        args: {},
-      });
-      const accounts: Account[] = accountsResult.data as Account[];
-      return accounts[0]
+    const accountsResult = await client.invoke<Account[]>({
+      uri,
+      method: "getAccounts",
+      args: {},
+    });
+
+    if (!accountsResult.ok) {
+      throw accountsResult.error;
+    }
+    return accountsResult.value[0];
   }
 
   async function isValidSignature(signedMessage: string, signature: string, address: string): Promise<boolean> {
