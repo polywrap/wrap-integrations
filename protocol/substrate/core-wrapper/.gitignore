@@ -1,7 +1,0 @@
-build
-target
-node_modules
-w3
-.w3
-Cargo.lock
-coverage

@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+    paths:
+      - 'protocol/substrate/**'
+
+jobs:
+  CI:
+    name: Substrate CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # need to do this or the tests won't be able to access the test-env container
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: substrate-nvm
+        working-directory: ./protocol/substrate/rpc-wrapper
+
+      - name: Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: '${{ steps.substrate-nvm.outputs.NVMRC }}'
+
+      - name: (Substrate) Install dependencies
+        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+        working-directory: ./protocol/substrate # this uses yarn workspace so can install from the root
+    
+      - name: Test signer-provider-js
+        run: yarn test:ci
+        working-directory: ./protocol/substrate/signer-provider-js
+
+      - name: Test rpc-wrapper
+        run: yarn test:ci
+        working-directory: ./protocol/substrate/rpc-wrapper

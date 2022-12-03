@@ -1,0 +1,37 @@
+{
+  "name": "substrate-signer-provider-plugin-js",
+  "description": "Substrate signer provider javascript plugin",
+  "private": true,
+  "version": "0.1.0",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "rimraf ./build && yarn codegen && tsc --project tsconfig.json",
+    "codegen": "npx polywrap plugin codegen",
+    "test": "jest --passWithNoTests --runInBand --verbose",
+    "test:ci": "yarn build && jest --passWithNoTests --runInBand --verbose",
+    "test:watch": "jest --watch --passWithNoTests --verbose"
+  },
+  "dependencies": {
+    "@polkadot/api": "^9.3.3",
+    "@polkadot/extension-dapp": "^0.44.6",
+    "@polkadot/types-codec": "^9.4.1",
+    "@polywrap/core-js": "0.5.0"
+  },
+  "devDependencies": {
+    "mock-polkadot-js-extension": "0.1.0",
+    "@polkadot/dev": "^0.67.129",
+    "@polkadot/extension-inject": "^0.44.6",
+    "@polkadot/types": "^9.3.3",
+    "@polkadot/util-crypto": "^10.1.7",
+    "@polywrap/client-js": "0.5.0",
+    "@types/jest": "26.0.8",
+    "@types/prettier": "2.6.0",
+    "jest": "^27.0.0-next.9",
+    "jest-environment-jsdom": "^27.0.0-next.9",
+    "polywrap": "0.5.0",
+    "rimraf": "3.0.2",
+    "ts-jest": "^27.0.0-next.9",
+    "ts-node": "8.10.2",
+    "typescript": "4.8.2"
+  }
+}
