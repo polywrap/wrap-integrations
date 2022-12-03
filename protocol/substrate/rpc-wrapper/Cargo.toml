@@ -13,7 +13,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-polywrap-wasm-rs = { version = "0.3.0" }
+polywrap-wasm-rs = { version = "0.9.4" }
 serde = { version = "1.0", features = ["derive"] }
 getrandom = { version = "0.2", features = ["custom"], default-features = false }
 log = "0.4"
@@ -26,10 +26,10 @@ frame-metadata = { version = "15.0.0", features = ["v14"] }
 delegate = "0.7.0"
 
 # If this 2 substrate crate can be incorporated into the code (used in base_api mod), then the rest should follow
-sp-core = { version = "6.0.0", default-features = false, features = ["full_crypto"], git = "https://github.com/paritytech/substrate.git", branch = "master" }
-sp-runtime = { version = "6.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
-sp-version = { version = "5.0.0-dev", default-features = false, features = ["serde", "impl-serde", "std"], git = "https://github.com/paritytech/substrate.git", branch = "master" }
-sp-std = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
+sp-core = { version = "6.0.0", default-features = false, features = ["full_crypto"], git = "https://github.com/paritytech/substrate", tag = "monthly-2022-10" }
+sp-runtime = { version = "6.0.0", default-features = false, git = "https://github.com/paritytech/substrate", tag = "monthly-2022-10" }
+sp-version = { version = "5.0.0", default-features = false, features = ["serde", "impl-serde", "std"], git = "https://github.com/paritytech/substrate", tag = "monthly-2022-10" }
+sp-std = { version = "4.0.0", default-features = false, git = "https://github.com/paritytech/substrate", tag = "monthly-2022-10" }
 num-traits = "0.2.15"
 
 [features]

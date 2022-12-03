@@ -1,4 +1,4 @@
-#import { Module, Request, Response, } into Http from "wrap://ens/http.polywrap.eth"
+#import * into Http from "wrap://ens/http.polywrap.eth"
 #import { Module, Account, SignerPayloadJSON } into SignerProvider from "ens/substrate-signer-provider.chainsafe.eth"
 
 type Module {
