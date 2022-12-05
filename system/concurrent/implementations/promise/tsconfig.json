@@ -4,7 +4,8 @@
       "es2020",
       "es2015",
       "es5",
-      "dom"
+      "dom",
+      "es2021.promise"
     ],
     "esModuleInterop": true,
     "outDir": "build",
@@ -25,7 +26,5 @@
     "strictNullChecks": true
   },
   "typeAcquisition": { "include": ["jest"] },
-  "exclude": [
-    "./src/__tests__/integration/**/*.ts",
-  ]
+  "include": ["./src"]
 }

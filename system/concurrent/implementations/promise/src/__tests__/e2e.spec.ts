@@ -1,41 +1,41 @@
-import { PolywrapClient } from "@polywrap/client-js";
-import {
-  buildWrapper
-} from "@polywrap/test-env-js";
-import { getClientConfig } from "./utils";
+import { ClientConfigBuilder, PolywrapClient } from "@polywrap/client-js";
+import { concurrentPromisePlugin } from "../index";
 
 jest.setTimeout(300000);
 
 describe("e2e", () => {
   let client: PolywrapClient;
-  let ensUri: string;
+  let fsUri: string;
 
   beforeAll(async () => {
-    await buildWrapper(`${__dirname}/integration`);
-    const clientConfig = getClientConfig();
-    client = new PolywrapClient(clientConfig);
-    ensUri = `fs/${__dirname}/integration/build`;
+    const config = new ClientConfigBuilder()
+      .addDefaults()
+      .addPackage({
+        uri: "wrap://ens/interface.concurrent.polywrap.eth",
+        package: concurrentPromisePlugin({}),
+      })
+      .build()
+    client = new PolywrapClient(config);
+    fsUri = `fs/${__dirname}/integration/build`;
   });
 
   test("asyncBatchFetch", async () => {
     const result = await client.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "asyncBatchFetch",
       args: { delays: ["1", "2", "3"] },
     });
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
-    expect(result.data).toHaveLength(3);
+    if (!result.ok) fail(result.error);
+    expect(result.value).toHaveLength(3);
   });
 
   test("batchFetch", async () => {
     const result = await client.invoke({
-      uri: ensUri,
+      uri: fsUri,
       method: "batchFetch",
       args: { delays: ["1", "2", "3"] },
     });
-    expect(result.error).toBeFalsy();
-    expect(result.data).toBeTruthy();
-    expect(result.data).toHaveLength(3);
+    if (!result.ok) fail(result.error);
+    expect(result.value).toHaveLength(3);
   });
 });

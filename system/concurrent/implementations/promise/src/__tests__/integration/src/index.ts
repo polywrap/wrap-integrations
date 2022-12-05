@@ -17,9 +17,7 @@ import {
 export function asyncBatchFetch(args: Args_asyncBatchFetch): FetchResult[] {
   const tasks: Concurrent_Task[] = [];
   for (let i = 0; i < args.delays.length; i++) {
-    const params: Map<string, string> = new Map();
-    params.set("seconds", args.delays[i])
-    
+    const params = new Map<string, string>().set("seconds", args.delays[i]);
     const apiCall: ArrayBuffer = serializegetArgs({
       url: "https://hub.dummyapis.com/delay",
       request: {
@@ -75,13 +73,12 @@ export function asyncBatchFetch(args: Args_asyncBatchFetch): FetchResult[] {
 export function batchFetch(args: Args_batchFetch): HTTP_Http_Response[] {
   const results: HTTP_Http_Response[] = [];
   for (let i = 0; i < args.delays.length; i++) {
-    const params: Map<string, string> = new Map()
-    params.set("seconds", args.delays[i]);
+    const param = new Map<string, string>().set("seconds", args.delays[i]);
     const apiResult = HTTP_Module.get({
       url: "https://hub.dummyapis.com/delay",
       request: {
         headers: null,
-        urlParams: params,
+        urlParams: param,
         body: "",
         responseType: HTTP_Http_ResponseType.TEXT,
       },
