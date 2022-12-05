@@ -1,0 +1,50 @@
+name: CD
+
+on:
+  pull_request:
+    types: [closed]
+    paths:
+      - "protocol/substrate/rpc-wrapper/**"
+
+jobs:
+  cd:
+    name: substrate-rpc-wrapper-cd
+    if: |
+      github.event.pull_request.merged &&
+      startsWith(github.event.pull_request.title, '[CD]') != true &&
+      github.event.pull_request.user.login != 'github-actions'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: nvm
+        working-directory: ./protocol/substrate/rpc-wrapper
+
+      - name: Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: '${{ steps.nvm.outputs.NVMRC }}'
+
+      - name: Install dependencies
+        run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
+        working-directory: ./protocol/substrate/rpc-wrapper/
+
+      - name: Build
+        run: yarn build
+        working-directory: ./protocol/substrate/rpc-wrapper/
+
+      - name: Deploy
+        run: yarn deploy
+        working-directory: ./protocol/substrate/rpc-wrapper/
+
+      - name: PR New URI
+        uses: peter-evans/create-pull-request@v3
+        with:
+          branch: substrate-rpc-wrapper-cd-pr-${{github.event.number}}
+          commit-message: "[CD] substrate/rpc-wrapper"
+          title: "[CD] substrate/rpc-wrapper"
+          body: "Triggered by: https://github.com/${{github.repository}}/pull/${{github.event.number}}"
