@@ -32,7 +32,7 @@ type Account {
 type AccountMetadata {
   genesisHash: String
   name: String
-  source: String!
+  source: String
 }
 
 type SignerPayloadJSON {
