@@ -4,9 +4,15 @@
 //! Extension to the API for retrieving chain constant data
 //!
 
-use crate::{api::Api, Error};
+use crate::{
+    api::Api,
+    Error,
+};
 use frame_metadata::PalletConstantMetadata;
-use scale_info::{form::PortableForm, Type};
+use scale_info::{
+    form::PortableForm,
+    Type,
+};
 
 impl Api {
     pub fn constant_metadata(

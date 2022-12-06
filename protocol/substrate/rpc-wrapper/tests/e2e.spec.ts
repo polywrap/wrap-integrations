@@ -2,16 +2,14 @@ import {
   Substrate_Module,
   Substrate_SignerProvider_SignerPayloadJSON as SignerPayload,
 } from "./wrap";
-import { PolywrapClient, Uri } from "@polywrap/client-js";
-import path from "path";
-import { up, down } from "substrate-polywrap-test-env";
-import { TextEncoder, TextDecoder } from "util";
 import { substrateSignerProviderPlugin } from "substrate-signer-provider-plugin-js";
-import { enableFn } from "mock-polkadot-js-extension";
-import { injectExtension } from '@polkadot/extension-inject';
+import { mockExtension } from "substrate-signer-provider-plugin-js/src/__tests__/mockExtension";
+import { PolywrapClient, Uri } from "@polywrap/client-js";
 import { TypeRegistry } from '@polkadot/types';
 import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-crypto';
 import { u8aToHex } from "@polkadot/util";
+import { TextEncoder, TextDecoder } from "util";
+import path from "path";
 
 jest.setTimeout(360000);
 let url: string;
@@ -27,14 +25,8 @@ describe("e2e", () => {
     // @ts-ignore
     global.TextDecoder = TextDecoder;
 
-    // injects the mock extension into the page for the signer-provider to use
-    await injectExtension(enableFn, { name: 'mockExtension', version: '1.0.0' });    
-
-    // start up a test chain environment
-    console.log("Starting up test chain. This can take around 1 minute..");
-    const response = await up(false);
-    url = response.node.url;
-    console.log("Test chain running at ", url);
+    // Mock the Polkadot.js extension
+    mockExtension();
 
     client = new PolywrapClient({
       plugins: [
@@ -45,10 +37,6 @@ describe("e2e", () => {
       ]
     });
   });
-
-  afterAll(async () => {
-    await down();
-  })
 
   it("blockHash", async () => {
     const result = await Substrate_Module.blockHash({

@@ -13,14 +13,21 @@ use api::BaseApi;
 pub use error::Error;
 use num_traits::cast::FromPrimitive;
 use polywrap_wasm_rs::BigNumber;
-use scale_info::{TypeDef, TypeDefPrimitive};
-use sp_core::crypto::{AccountId32, Ss58Codec};
+use scale_info::{
+    TypeDef,
+    TypeDefPrimitive,
+};
+use sp_core::crypto::{
+    AccountId32,
+    Ss58Codec,
+};
 
 use crate::types::extrinsics::UncheckedExtrinsicV4;
 pub use types::metadata::Metadata;
 use wrap::imported::*;
 pub use wrap::{
-    imported::SignerProviderSignerPayloadJSON as ExtrinsicPayload, *,
+    imported::SignerProviderSignerPayloadJSON as ExtrinsicPayload,
+    *,
 };
 
 mod api;
@@ -81,14 +88,16 @@ pub fn get_runtime_version(
         .fetch_runtime_version()
         .ok()
         .flatten()
-        .map(|v| RuntimeVersion {
-            spec_name: v.spec_name.to_string(),
-            impl_name: v.impl_name.to_string(),
-            authoring_version: v.authoring_version,
-            spec_version: v.spec_version,
-            impl_version: v.impl_version,
-            transaction_version: v.transaction_version,
-            state_version: v.state_version,
+        .map(|v| {
+            RuntimeVersion {
+                spec_name: v.spec_name.to_string(),
+                impl_name: v.impl_name.to_string(),
+                authoring_version: v.authoring_version,
+                spec_version: v.spec_version,
+                impl_version: v.impl_version,
+                transaction_version: v.transaction_version,
+                state_version: v.state_version,
+            }
         })
 }
 
@@ -364,9 +373,11 @@ pub fn sign(
             payload: extrinsic.clone(),
         },
     )
-    .map(|result| SignedExtrinsicPayload {
-        extrinsic,
-        signature: result.signature,
+    .map(|result| {
+        SignedExtrinsicPayload {
+            extrinsic,
+            signature: result.signature,
+        }
     })
     .ok()
 }
@@ -399,9 +410,11 @@ pub fn sign_and_send(
             payload: extrinsic.clone(),
         },
     )
-    .map(|result| SignedExtrinsicPayload {
-        extrinsic,
-        signature: result.signature,
+    .map(|result| {
+        SignedExtrinsicPayload {
+            extrinsic,
+            signature: result.signature,
+        }
     })
     .expect("Signed process failed");
 

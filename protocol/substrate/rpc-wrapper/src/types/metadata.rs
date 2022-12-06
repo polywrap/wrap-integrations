@@ -3,16 +3,30 @@
 //! This file is mostly subxt.
 
 use crate::types::storage::GetStorage;
-use codec::{Encode, Error as CodecError};
+use codec::{
+    Encode,
+    Error as CodecError,
+};
 use frame_metadata::{
-    v14::StorageEntryType, PalletConstantMetadata, RuntimeMetadata,
-    RuntimeMetadataLastVersion, RuntimeMetadataPrefixed, StorageEntryMetadata,
+    v14::StorageEntryType,
+    PalletConstantMetadata,
+    RuntimeMetadata,
+    RuntimeMetadataLastVersion,
+    RuntimeMetadataPrefixed,
+    StorageEntryMetadata,
     META_RESERVED,
 };
-use scale_info::{form::PortableForm, Type, Variant};
+use scale_info::{
+    form::PortableForm,
+    Type,
+    Variant,
+};
 use serde::Serialize;
 use sp_core::storage::StorageKey;
-use std::{collections::HashMap, convert::TryFrom};
+use std::{
+    collections::HashMap,
+    convert::TryFrom,
+};
 
 /// Wraps an already encoded byte vector, prevents being encoded as a raw byte vector as part of
 /// the transaction payload

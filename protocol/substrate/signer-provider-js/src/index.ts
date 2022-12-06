@@ -12,8 +12,8 @@ import { SignerProvider } from "./SignerProvider";
 import { InjectedSignerProvider } from "./providers/InjectedSignerProvider";
 
 import { SignerPayloadJSON as StringifiedSignerPayloadJSON } from '@polkadot/types/types';
-import { Client, PluginFactory } from "@polywrap/core-js";
 import { UInt } from '@polkadot/types-codec';
+import { Client, PluginFactory } from "@polywrap/core-js";
 
 export * from "./SignerProvider";
 export * from "./providers";
@@ -94,7 +94,6 @@ export class SubstrateSignerProviderPlugin extends Module<SubstrateSignerProvide
       blockNumber: new UInt(registry, payload.blockNumber, 32).toHex(),
     };
   }
-
 }
 
 export const substrateSignerProviderPlugin: PluginFactory<SubstrateSignerProviderPluginConfig> = (

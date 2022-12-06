@@ -36,7 +36,7 @@ describe("e2e", () => {
     });
 
     expect(result.ok).toBeTruthy();
-    if (!result.ok) fail(result.error);
+    if (!result.ok) throw result.error;
     expect(result.value).toBeTruthy();
     const accounts = result.value;
     expect(accounts.length).toBe(1);
@@ -53,8 +53,8 @@ describe("e2e", () => {
       args: { payload: { address: account.address, data } }
     });
 
+    if (!result.ok) throw result.error;
     expect(result.ok).toBeTruthy();
-    if (!result.ok) fail(result.error);
     expect(result.value).toBeTruthy();
     const signerResult = result.value;
     expect(isValidSignature(data, signerResult.signature, account.address));
@@ -70,7 +70,7 @@ describe("e2e", () => {
     });
 
     expect(result.ok).toBeFalsy();
-    if (result.ok) fail("This should fail");
+    if (result.ok) throw "This should fail";
     expect(result.error?.message).toContain("Provider does not contain account: "+ unmanagedAddress);
   });
 
@@ -83,8 +83,8 @@ describe("e2e", () => {
       args: { payload }
     });
 
-    expect(result.ok).toBeFalsy();
-    if (!result.ok) fail(result.error);
+    if (!result.ok) throw result.error;
+    expect(result.ok).toBeTruthy();
     expect(result.value).toBeTruthy();
     const signerResult = result.value;
 
@@ -96,7 +96,7 @@ describe("e2e", () => {
       .toHex();
 
     expect(isValidSignature(encodedPayload, signerResult.signature, account.address));
-  });  
+  });
 
   it("signPayload throws if an unmanaged account address is requested", async () => {
     const unmanagedAddress = "000000000000000000000000000000000000000000000000"; 
@@ -108,7 +108,7 @@ describe("e2e", () => {
     });
 
     expect(result.ok).toBeFalsy();
-    if (result.ok) fail("This should fail.");
+    if (result.ok) throw "This should fail.";
     expect(result.error?.message).toContain("Provider does not contain account: "+ unmanagedAddress);
   });
 

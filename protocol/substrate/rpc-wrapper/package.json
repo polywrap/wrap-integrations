@@ -2,18 +2,17 @@
   "name": "rpc-wrapper",
   "version": "0.0.1",
   "scripts": {
-    "codegen": "npx polywrap codegen",
     "build": "npx polywrap build -v",
-    "build:check": "yarn codegen && cd module && cargo check && cargo build --release --target wasm32-unknown-unknown",
-    "fmt": "cd module && cargo +nightly fmt",
-    "test": "yarn test:e2e",
+    "build:check": "yarn codegen && cargo check",
+    "codegen": "npx polywrap codegen",
+    "codegen:tests": "cd tests && polywrap codegen -g wrap",
+    "fmt": "cargo +nightly fmt",
     "test:ci": "yarn build && yarn test",
-    "test:e2e": "yarn test:e2e:codegen && jest --passWithNoTests --runInBand --verbose",
-    "test:e2e:codegen": "cd tests && polywrap codegen -g wrap",
-    "clean": "rm -rf module/src/wrap && rm -rf test/wrap",
-    "rebuild": "yarn clean && yarn codegen && yarn build",
-    "deploy": "npx polywrap deploy -o deployment.json",
-    "infra": "npx polywrap infra up --modules=eth-ens-ipfs -v"
+    "test": "yarn infra:up && yarn test:e2e && yarn infra:down",
+    "test:e2e": "yarn codegen:tests && jest --passWithNoTests --runInBand --verbose",
+    "infra:up": "npx polywrap infra up",
+    "infra:down": "npx polywrap infra down",
+    "deploy": "npx polywrap deploy -o deployment.json"
   },
   "dependencies": {
     "polywrap": "0.9.4"
@@ -29,9 +28,7 @@
     "@types/jest": "29",
     "jest": "29",
     "jest-environment-jsdom": "^29.0.3",
-    "mock-polkadot-js-extension": "0.1.0",
-    "substrate-polywrap-test-env": "0.0.1",
-    "substrate-signer-provider-plugin-js": "0.1.0",
+    "substrate-signer-provider-plugin-js": "file:../signer-provider-js",
     "ts-jest": "29",
     "ts-node": "8.10.2",
     "typescript": "4.0.7"

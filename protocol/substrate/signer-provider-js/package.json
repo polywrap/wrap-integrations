@@ -12,19 +12,17 @@
     "test:watch": "jest --watch --passWithNoTests --verbose"
   },
   "dependencies": {
-    "@polkadot/api": "^9.3.3",
-    "@polkadot/extension-dapp": "^0.44.6",
-    "@polkadot/types-codec": "^9.4.1",
+    "@polkadot/api": "9.10.1",
+    "@polkadot/extension-dapp": "0.44.6",
+    "@polkadot/types": "9.10.1",
+    "@polkadot/types-codec": "9.10.1",
+    "@polkadot/ui-keyring": "2.9.14",
+    "@polkadot/util": "10.2.1",
     "@polywrap/core-js": "0.9.4"
   },
   "devDependencies": {
-    "mock-polkadot-js-extension": "0.1.0",
-    "@polkadot/dev": "^0.67.129",
-    "@polkadot/extension-inject": "^0.44.6",
-    "@polkadot/ui-keyring": "^2.9.14",
-    "@polkadot/extension": "0.22.1",
-    "@polkadot/types": "^9.3.3",
-    "@polkadot/util-crypto": "^10.1.7",
+    "@polkadot/util-crypto": "10.2.1",
+    "@polkadot/extension-inject": "0.44.6",
     "@polywrap/client-js": "0.9.4",
     "@types/jest": "26.0.8",
     "@types/prettier": "2.6.0",

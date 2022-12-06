@@ -1,0 +1,12 @@
+version: "3.2"
+services:
+  substrate-node-template:
+    image: arjanz/substrate-node-template:latest
+    volumes:
+      - 'substrate-node:/substrate'
+    ports:
+      - '9944:9944'
+      - '9933:9933'
+    command: --dev --ws-external --rpc-cors=all --rpc-external --rpc-methods=Unsafe --no-telemetry --no-prometheus --pruning=archive
+volumes:
+  substrate-node:

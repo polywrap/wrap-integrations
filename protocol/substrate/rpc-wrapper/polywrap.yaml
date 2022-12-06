@@ -12,3 +12,4 @@ source:
       abi: ../node_modules/@polywrap/http-interface/build/wrap.info
 extensions:
   deploy: ./polywrap.deploy.yaml
+  infra: ./polywrap.infra.yaml
