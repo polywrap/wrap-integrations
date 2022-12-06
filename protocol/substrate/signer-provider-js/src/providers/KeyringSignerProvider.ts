@@ -1,18 +1,20 @@
 import { SignerProvider } from "../SignerProvider";
 import { Account } from "../wrap";
 
-import { KeyringStruct } from "@polkadot/ui-keyring/types";
+import { Keyring } from "@polkadot/ui-keyring";
 import { Signer } from '@polkadot/api/types';
 import { TypeRegistry } from '@polkadot/types';
 import { SignerPayloadJSON, SignerPayloadRaw, SignerResult } from "@polkadot/types/types";
 import { objectSpread, hexToU8a, u8aToHex } from '@polkadot/util';
+
+export type KeyringPartial = Pick<Keyring, "getAccounts" | "getPair">
 
 export class KeyringSignerProvider implements SignerProvider {
   private _registry: TypeRegistry;
   private _signers: Map<string, Signer>;
 
   constructor(
-    public keyring: KeyringStruct,
+    public keyring: KeyringPartial,
     registry?: TypeRegistry
   ) {
     this._registry = registry || new TypeRegistry();

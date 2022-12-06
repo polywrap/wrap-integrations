@@ -1,13 +1,12 @@
 import { PolywrapClient } from "@polywrap/client-js";
-import { injectExtension } from '@polkadot/extension-inject';
 import { u8aToHex } from "@polkadot/util";
 import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-crypto';
 import { TypeRegistry } from '@polkadot/types';
 
 import { substrateSignerProviderPlugin } from "../";
-import { enableFn } from "mock-polkadot-js-extension";
 import { Account, SignerResult } from '../wrap';
 import { testPayload } from './testPayload';
+import { mockExtension } from "./mockExtension";
 
 describe("e2e", () => {
 
@@ -15,9 +14,9 @@ describe("e2e", () => {
   const uri = "ens/substrate-signer-provider.chainsafe.eth";
 
   beforeAll(async () => {
-    // injects the mock extension into the page
-    await injectExtension(enableFn, { name: 'mockExtension', version: '1.0.0' });
-    
+    // mock the polkadot.js extension
+    mockExtension();
+
     // Add the samplePlugin to the PolywrapClient
     client = new PolywrapClient({
       plugins: [
@@ -27,7 +26,6 @@ describe("e2e", () => {
         }
       ]
     });
-
   });
 
   it("getAccounts returns Alice", async () => {
@@ -135,7 +133,4 @@ describe("e2e", () => {
     const hexPublicKey = u8aToHex(publicKey);
     return signatureVerify(signedMessage, signature, hexPublicKey).isValid;
   }
-
 });
-
-

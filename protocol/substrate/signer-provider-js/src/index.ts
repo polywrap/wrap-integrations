@@ -15,6 +15,9 @@ import { SignerPayloadJSON as StringifiedSignerPayloadJSON } from '@polkadot/typ
 import { Client, PluginFactory } from "@polywrap/core-js";
 import { UInt } from '@polkadot/types-codec';
 
+export * from "./SignerProvider";
+export * from "./providers";
+
 export interface SubstrateSignerProviderPluginConfig {
   provider?: SignerProvider;
 }
