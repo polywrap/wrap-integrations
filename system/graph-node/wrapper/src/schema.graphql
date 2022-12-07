@@ -1,13 +1,11 @@
 #import { Module } into http from "ens/http.polywrap.eth"
 
-type Env {
-  provider: String!
-}
-
 type Module {
+  """
+  Query subgraph using endpoint passed in as a url
+  """
   querySubgraph(
-    subgraphAuthor: String!
-    subgraphName: String!
+    url: String!
     query: String!
-  ): String! @env(required: true)
+  ): String!
 }

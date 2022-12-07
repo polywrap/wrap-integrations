@@ -1,36 +1,88 @@
-import { GraphNodePlugin, plugin } from "..";
+import { graphNodePlugin } from "..";
 import { PolywrapClient } from "@polywrap/client-js";
-
-const uri = "ens/graph-node.polywrap.eth";
-const provider = "https://api.thegraph.com";
 
 jest.setTimeout(30000);
 
 describe("Graph Node Plugin", () => {
+
+  const uri = "ens/graph-node-js.polywrap.eth";
+
   const client = new PolywrapClient({
     plugins: [{
       uri,
-      plugin: plugin({
-        provider
-      })
+      plugin: graphNodePlugin({})
     }]
   });
 
-  const graphNode = new GraphNodePlugin({
-    provider
+  test("Query works", async () => {
+    const response = await client.invoke<string>({
+      uri,
+      method: "querySubgraph",
+      args: {
+        url: "https://api.thegraph.com/subgraphs/name/ensdomains/ens",
+        query: `{
+          domains(first: 5) {
+            id
+            name
+            labelName
+            labelhash
+          }
+          transfers(first: 5) {
+            id
+            domain {
+              id
+            }
+            blockNumber
+            transactionID
+          }
+        }`
+      }
+    })
+    if (!response.ok) fail(response.error);
+
+    const result = JSON.parse(response.value);
+    expect(result.data).toBeDefined();
+    expect(result.data.domains).toBeDefined();
+    expect(result.data.transfers).toBeDefined();
   });
 
-  it("Query works", async () => {
-    const { data, errors } = await client.query({
+  it("throws if errors in querystring", async () => {
+    const response = await client.invoke<string>({
       uri,
-      query: `query {
-        querySubgraph(
-          subgraphAuthor: "ensdomains",
-          subgraphName: "ens",
-          query: $query
-        )
-      }`,
-      variables: {
+      method: "querySubgraph",
+      args: {
+        url: "https://api.thegraph.com/subgraphs/name/ensdomains/ens",
+        query: `{
+          domains(first: 5) {
+            ids
+            names
+            labelNames
+            labelhash
+          }
+          transfers(first: 5) {
+            id
+            domain {
+              id
+            }
+            blockNumber
+            transactionID
+          }
+        }`
+      }
+    });
+    expect(response.ok).toBeFalsy();
+    if (response.ok) fail("never");
+    expect(response.error?.message).toContain(`Message: Type \`Domain\` has no field \`ids\``);
+    expect(response.error?.message).toContain(`Message: Type \`Domain\` has no field \`names\``);
+    expect(response.error?.message).toContain(`Message: Type \`Domain\` has no field \`labelNames\``);
+  });
+
+  it("throws if wrong subgraph author", async () => {
+    const response = await client.invoke<string>({
+      uri,
+      method: "querySubgraph",
+      args: {
+        url: "https://api.thegraph.com/subgraphs/name/ens/ens",
         query: `{
           domains(first: 5) {
             id
@@ -49,81 +101,17 @@ describe("Graph Node Plugin", () => {
         }`
       }
     });
-
-    expect(errors).toBeUndefined();
-    expect(data).toBeDefined();
-    expect(data?.querySubgraph).toBeDefined();
-
-    const result = JSON.parse(data?.querySubgraph as string);
-
-    expect(result.data).toBeDefined();
-    expect(result.data.domains).toBeDefined();
-    expect(result.data.transfers).toBeDefined();
+    expect(response.ok).toBeFalsy();
+    if (response.ok) fail("never");
+    expect(response.error?.message).toContain("`ens/ens` does not exist");
   });
 
-  it("Throws if errors in querystring", async () => {
-    await expect(
-      graphNode.querySubgraph({
-        subgraphAuthor: "ensdomains",
-        subgraphName: "ens",
-        query: `{
-          domains(first: 5) {
-            ids
-            names
-            labelNames
-            labelhash
-          }
-          transfers(first: 5) {
-            id
-            domain {
-              id
-            }
-            blockNumber
-            transactionID
-          }
-        }`,
-      }, client)
-    ).rejects.toThrowError();
-
-    try {
-      await graphNode.querySubgraph({
-        subgraphAuthor: "ensdomains",
-        subgraphName: "ens",
-        query: `{
-          domains(first: 5) {
-            ids
-            names
-            labelNames
-            labelhash
-          }
-          transfers(first: 5) {
-            id
-            domain {
-              id
-            }
-            blockNumber
-            transactionID
-          }
-        }`,
-      }, client);
-    } catch (e) {
-      expect(e.message).toContain(
-        `Message: Type \`Domain\` has no field \`ids\``
-      );
-      expect(e.message).toContain(
-        `Message: Type \`Domain\` has no field \`names\``
-      );
-      expect(e.message).toContain(
-        `Message: Type \`Domain\` has no field \`labelNames\``
-      );
-    }
-  });
-
-  it("Throws if wrong subgraph name/author", async () => {
-    await expect(
-      graphNode.querySubgraph({
-        subgraphAuthor: "ens",
-        subgraphName: "ens",
+  it("throws if wrong subgraph name", async () => {
+    const response = await client.invoke<string>({
+      uri,
+      method: "querySubgraph",
+      args: {
+        url: "https://api.thegraph.com/subgraphs/name/ensdomains/foo",
         query: `{
           domains(first: 5) {
             id
@@ -139,41 +127,11 @@ describe("Graph Node Plugin", () => {
             blockNumber
             transactionID
           }
-        }`,
-      }, client)
-    ).rejects.toThrowError(
-      new RegExp(
-        "`ens/ens` does not exist",
-        "g"
-      )
-    );
-
-    await expect(
-      graphNode.querySubgraph({
-        subgraphAuthor: "ensdomains",
-        subgraphName: "foo",
-        query: `{
-          domains(first: 5) {
-            id
-            name
-            labelName
-            labelhash
-          }
-          transfers(first: 5) {
-            id
-            domain {
-              id
-            }
-            blockNumber
-            transactionID
-          }
-        }`,
-      }, client)
-    ).rejects.toThrowError(
-      new RegExp(
-        "`ensdomains/foo` does not exist",
-        "g"
-      )
-    );
+        }`
+      }
+    });
+    expect(response.ok).toBeFalsy();
+    if (response.ok) fail("never");
+    expect(response.error?.message).toContain("`ensdomains/foo` does not exist");
   });
 });

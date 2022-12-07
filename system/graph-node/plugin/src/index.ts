@@ -19,23 +19,17 @@ export interface RequestData {
   data: Record<string, unknown>;
 }
 
-export interface GraphNodePluginConfig {
-  provider: string;
-}
+type NoConfig = Record<string, never>;
 
-export class GraphNodePlugin extends Module<GraphNodePluginConfig> {
-  constructor(config: GraphNodePluginConfig) {
-    super(config);
-  }
-
+export class GraphNodePlugin extends Module<NoConfig> {
   public async querySubgraph(
     args: Args_querySubgraph,
     client: Client
   ): Promise<string> {
-    const { subgraphAuthor, subgraphName, query } = args;
-    const { data, error } = await HTTP_Module.post(
+    const { url, query } = args;
+    const response = await HTTP_Module.post(
       {
-        url: `${this.config.provider}/subgraphs/name/${subgraphAuthor}/${subgraphName}`,
+        url,
         request: {
           body: JSON.stringify({
             query,
@@ -46,9 +40,12 @@ export class GraphNodePlugin extends Module<GraphNodePluginConfig> {
       client
     );
 
-    if (error) {
+    if (!response.ok) {
+      const error = response.error;
       throw new Error(`GraphNodePlugin: errors encountered. Error: ${error}`);
     }
+
+    const data = response.value;
 
     if (!data) {
       throw new Error(`GraphNodePlugin: data is undefined.`);
@@ -80,11 +77,9 @@ export class GraphNodePlugin extends Module<GraphNodePluginConfig> {
   }
 }
 
-export const graphNodePlugin: PluginFactory<GraphNodePluginConfig> = (
-  config: GraphNodePluginConfig
-) => {
+export const graphNodePlugin: PluginFactory<NoConfig> = () => {
   return {
-    factory: () => new GraphNodePlugin(config),
+    factory: () => new GraphNodePlugin({}),
     manifest,
   };
 };

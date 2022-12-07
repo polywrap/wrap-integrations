@@ -13,14 +13,7 @@ describe("Graph Node Plugin", () => {
     const absPath: string = path.resolve(wrapperPath);
     uri = `wrap://fs/${absPath}`;
 
-    client = new PolywrapClient({
-      envs: [{
-        uri: uri,
-        env: {
-          provider: "https://api.thegraph.com"
-        }
-      }]
-    });
+    client = new PolywrapClient();
   });
 
   test("Query works", async () => {
@@ -28,8 +21,7 @@ describe("Graph Node Plugin", () => {
       uri,
       method: "querySubgraph",
       args: {
-        subgraphAuthor: "ensdomains",
-        subgraphName: "ens",
+        url: "https://api.thegraph.com/subgraphs/name/ensdomains/ens",
         query: `{
           domains(first: 5) {
             id
@@ -61,8 +53,7 @@ describe("Graph Node Plugin", () => {
       uri,
       method: "querySubgraph",
       args: {
-        subgraphAuthor: "ensdomains",
-        subgraphName: "ens",
+        url: "https://api.thegraph.com/subgraphs/name/ensdomains/ens",
         query: `{
           domains(first: 5) {
             ids
@@ -93,8 +84,7 @@ describe("Graph Node Plugin", () => {
       uri,
       method: "querySubgraph",
       args: {
-        subgraphAuthor: "ens",
-        subgraphName: "ens",
+        url: "https://api.thegraph.com/subgraphs/name/ens/ens",
         query: `{
           domains(first: 5) {
             id
@@ -123,8 +113,7 @@ describe("Graph Node Plugin", () => {
       uri,
       method: "querySubgraph",
       args: {
-        subgraphAuthor: "ensdomains",
-        subgraphName: "foo",
+        url: "https://api.thegraph.com/subgraphs/name/ensdomains/foo",
         query: `{
           domains(first: 5) {
             id
