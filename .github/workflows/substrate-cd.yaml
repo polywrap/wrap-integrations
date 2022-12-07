@@ -31,7 +31,7 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --nonInteractive --frozen-lockfile --prefer-offline
-        working-directory: ./protocol/substrate/rpc-wrapper/
+        working-directory: ./protocol/substrate
 
       - name: Build
         run: yarn build
