@@ -1,0 +1,127 @@
+type Module {
+  """
+  Return a list of accounts managed by the host polkadot-js plugin
+  """
+  getAccounts: [Account!]!
+
+  """
+  Sign a transaction payload
+  This will display nicely formatted transaction information to the user
+  in a prompt from the plugin.
+  """
+  signPayload(
+    payload: SignerPayloadJSON!
+  ): SignerResult!
+
+  """
+  Sign an arbitraty byte payload
+  This is less preferable as the user will only see the raw bytes and
+  will not have visibility to what they are signing.
+  """
+  signRaw(
+    payload: SignerPayloadRaw!
+  ): SignerResult!
+}
+
+type Account {
+  address: String!
+  meta: AccountMetadata!
+  type: String
+}
+
+type AccountMetadata {
+  genesisHash: String
+  name: String
+  source: String
+}
+
+type SignerPayloadJSON {
+  """
+  The ss-58 encoded address
+  """
+  address: String!
+
+  """
+  The checkpoint hash of the block, in hex with '0x' prefix
+  """
+  blockHash: String!
+
+  """
+  The checkpoint block number
+  """
+  blockNumber: UInt32!
+
+  """
+  The era for this transaction, in hex with '0x' prefix (2 bytes)
+  """
+  era: String!
+
+  """
+  The genesis hash of the chain, in hex with '0x' prefix
+  """
+  genesisHash: String!
+
+  """
+  The encoded method (with arguments) in hex with '0x' prefix
+  """
+  method: String!
+
+  """
+  The nonce for this transaction
+  """
+  nonce: UInt32!
+
+  """
+  The current spec version for the runtime
+  """
+  specVersion: UInt32!
+
+  """
+  The tip for this transaction UInt128
+  """
+  tip: BigInt!
+
+  """
+  The current transaction version for the runtime
+  """
+  transactionVersion: UInt32!
+
+  """
+  The applicable signed extensions for this runtime
+  """
+  signedExtensions: [String!]!
+
+  """
+  The version of the extrinsic we are dealing with
+  """
+  version: UInt32!
+}
+
+type SignerPayloadRaw {
+  """
+  The hex-encoded data for this request
+  """
+  data: String!
+
+  """
+  The ss-58 encoded address
+  """
+  address: String!
+
+  """
+  The type of the contained data ('bytes' | 'payload')
+  """
+  type: String!
+}
+
+type SignerResult {
+  """
+  The id for this request
+  """
+  id: UInt32!
+
+  """
+  The resulting signature in hex with 0x prefix
+  """
+  signature: String!
+}

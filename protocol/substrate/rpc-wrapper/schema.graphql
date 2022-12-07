@@ -1,0 +1,142 @@
+#import * into Http from "wrap://ens/http.polywrap.eth"
+#import { Module, Account, SignerPayloadJSON } into SignerProvider from "ens/substrate-signer-provider.chainsafe.eth"
+
+type Module {
+
+  """
+  Return accounts managed by the host
+  """
+  getSignerProviderAccounts: [SignerProvider_Account!]!
+
+  """
+  Get metadata object for the connected chain
+  """
+  chainGetMetadata(url: String!): ChainMetadata
+
+  """
+  Return the hash of a block given its number/height number
+  """
+  blockHash(url: String!, number: UInt32!): String
+
+  """
+  Return the genesis hash of the connected chain
+  """
+  genesisHash(url: String!): String
+
+  """
+  Return a block given its number/height
+  """
+  chainGetBlock(url: String!, number: UInt32!): BlockOutput
+
+  """
+  Retrieve a constant value from a pallet in the connected chain
+  pallet: Name of pallet
+  constant: Name of constant
+  """
+  constant(url: String!, pallet: String!, name: String!): [UInt8!]
+
+  """
+  Return runtime version of connected chain
+  """
+  getRuntimeVersion(url: String!): RuntimeVersion
+
+  """
+  Return a value in the chain storage (single value only)
+  pallet: Name of pallet
+  storage: Name of storage slot
+  """
+  getStorageValue(url: String!, pallet: String!, storage: String!): [UInt8!]
+
+  """
+  Return a value in a storage map
+  pallet: Name of pallet
+  storage: Name of storage map
+  key: Key into storage map to retrieve
+  """
+  getStorageMap(url: String!, pallet: String!, storage: String!, key: JSON!): [UInt8!]
+
+  """
+  Return a number of values in a storage map
+  pallet: Name of pallet
+  storage: Name of storage map
+  count: Number to return in each query
+  nextTo: Value to start the next page from
+  """
+  getStorageMapPaged(url: String!, pallet: String!, storage: String!, count: UInt32!, nextTo: JSON): [[UInt8!]!]
+
+  """
+  Return available RPC methods
+  """
+  rpcMethods(url: String!): [String!]
+
+  """
+  Return info for a given account identifier
+  """
+  accountInfo(url: String!, account: String!): AccountInfo
+
+  """
+  Return the nonce for a given account. Internally calls `accountInfo`
+  """
+  getNonceForAccount(url: String!, account: String!): UInt32
+
+  """
+  Return the index required to make a call given the pallet and name of the extrinsic to be called
+  """
+  palletCallIndex(url: String!, pallet: String!, call: String!): [UInt8!]
+
+  """
+  Sign a transaction payload. Internally uses the host signer-provider
+  """
+  sign(extrinsic: SignerProvider_SignerPayloadJSON!): SignedExtrinsicPayload
+
+  """
+  Submit a signed extrinsic to the chain using `author_submitExtrinsic` RPC call
+  """
+  send(url: String!, signedExtrinsic: SignedExtrinsicPayload!): String
+
+  """
+  Combines sign and send into a single call.
+  """
+  signAndSend(url: String!, extrinsic: SignerProvider_SignerPayloadJSON!): String
+}
+
+type SignedExtrinsicPayload {
+  extrinsic: SignerProvider_SignerPayloadJSON!
+  signature: String!
+}
+
+type ChainMetadata {
+  metadata: JSON!
+  pallets: JSON!
+  events: JSON!
+  errors: JSON!
+}
+
+type BlockOutput {
+  block: JSON!
+}
+
+type AccountData{
+    free: BigNumber!,
+    reserved: BigNumber!,
+    misc_frozen: BigNumber!,
+    fee_frozen: BigNumber!,
+}
+
+type AccountInfo {
+    nonce: UInt32!,
+    consumers: UInt32!,
+    providers: UInt32!,
+    sufficients: UInt32!,
+    data: AccountData!
+}
+
+type RuntimeVersion {
+    spec_name: String!,
+    impl_name: String!,
+    authoring_version: UInt32!,
+    spec_version: UInt32!,
+    impl_version: UInt32!,
+    transaction_version: UInt32!,
+    state_version: UInt8!,
+}
