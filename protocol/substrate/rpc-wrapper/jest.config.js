@@ -1,16 +1,20 @@
 module.exports = {
-  collectCoverage: true,
-  preset: 'ts-jest',
-  testEnvironment: 'jsdom',
-  "testMatch": [
-    "**/tests/**/*.+(spec|test).+(ts|tsx|js)",
+  roots: [
+    "<rootDir>/src"
+  ],
+  testMatch: [
+    "**/__tests__/**/*.+(spec|test).+(ts|tsx|js)",
     "**/?(*.)+(spec|test).+(ts|tsx|js)"
   ],
-  "transform": {
+  transform: {
     "\\.[j]sx?$": "babel-jest",
     "^.+\\.(ts|tsx)$": "ts-jest",
   },
   transformIgnorePatterns: [
-    "node_modules/(?!@polkadot|@babel/runtime/helpers/esm/|uuid/dist/esm-browser/)"
+    "node_modules/(?!@polkadot|@babel/runtime/helpers/esm/)"
   ],
-};
+  testPathIgnorePatterns: [
+    ".polywrap"
+  ],
+  testEnvironment: 'jsdom'
+}

@@ -1,7 +1,7 @@
 import { SignerProvider } from "../SignerProvider";
 import { Account } from "../wrap";
 
-import { web3Accounts, web3Enable, web3FromSource } from '@polkadot/extension-dapp';
+import { web3Accounts, web3Enable, web3FromAddress } from '@polkadot/extension-dapp';
 import { Signer } from '@polkadot/api/types';
 import { TypeRegistry } from '@polkadot/types';
 
@@ -25,14 +25,14 @@ export class InjectedSignerProvider implements SignerProvider {
   }
 
   public async getSigner(address: string): Promise<Signer> {
-    const accounts = await web3Accounts();
+    const accounts = await this.getAccounts();
     const signingAccount = accounts.find(acc => acc.address == address);
 
     if (!signingAccount) {
       throw new Error("Provider does not contain account: " + address);
     }
 
-    const injector = await web3FromSource(signingAccount.meta.source);
+    const injector = await web3FromAddress(signingAccount.address);
     return injector?.signer
   }
 
@@ -43,4 +43,4 @@ export class InjectedSignerProvider implements SignerProvider {
     await web3Enable("substrate-signer-provider-plugin");
     this._isProviderEnabled = true;
   }
-} 
+}

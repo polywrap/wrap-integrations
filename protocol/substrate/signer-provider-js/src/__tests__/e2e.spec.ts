@@ -17,7 +17,6 @@ describe("e2e", () => {
     // mock the polkadot.js extension
     mockExtension();
 
-    // Add the samplePlugin to the PolywrapClient
     client = new PolywrapClient({
       plugins: [
         {

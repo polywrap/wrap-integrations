@@ -5,10 +5,13 @@ import { Injected, InjectedAccount } from "@polkadot/extension-inject/types";
 import { cryptoWaitReady } from "@polkadot/util-crypto";
 import { Keyring } from "@polkadot/ui-keyring";
 
+export const suri = "//Alice";
+export const address = "5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu";
+
 export function mockExtension(): void {
   injectExtension(
     enableFn,
-    { name: "mockExtension", version: "1.0.0" }
+    { name: "mock-polkadot-js", version: "1.0.0" }
   );
 }
 
@@ -16,16 +19,18 @@ async function enableFn(_: string): Promise<Injected> {
 
   await cryptoWaitReady();
 
-  // create a keyring
+  // create a keyring & add the //Alice default account
   const keyring = new Keyring();
-  keyring.createFromUri("//Alice", undefined, "sr25519");
+  keyring.loadAll({});
+  keyring.addUri(suri);
+  keyring.getPair(address).unlock();
+
   const provider = new KeyringSignerProvider(keyring);
 
-  // These accounts must be valid sr25519 addresses or they will get filtered out by the web3Accounts function
   const accounts: InjectedAccount[] = await provider.getAccounts().then((accounts) => accounts.map(
     (account): InjectedAccount => ({
       address: account.address,
-      name: "alice",
+      name: account.meta.name || "alice",
       type: "sr25519"
     })
   ));

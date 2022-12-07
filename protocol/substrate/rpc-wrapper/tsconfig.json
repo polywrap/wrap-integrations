@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "build",
+    "esModuleInterop": true,
     "lib": [
-      "es2020",
       "es2015",
       "es5",
       "dom"
     ],
-    "esModuleInterop": true,
-    "outDir": "build",
     "moduleResolution": "node",
+    "resolveJsonModule": true,
     "declaration": true,
     "preserveSymlinks": true,
     "preserveWatchOutput": true,
@@ -20,11 +21,14 @@
     "noUnusedLocals": true,
     "module": "commonjs",
     "sourceMap": true,
-    "target": "es5",
-    "resolveJsonModule": true,
-    "strictNullChecks": true
+    "target": "ESNext",
+    "strictNullChecks": true,
+    "skipLibCheck": true
   },
   "include": [
-    "./tests/*.ts"
+    "./src/**/*"
+  ],
+  "exclude": [
+    "./src/**/__tests__"
   ]
 }

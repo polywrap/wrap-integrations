@@ -1,6 +1,6 @@
 format: 0.2.0
 project:
-  name: substrate-signer-provider-js
+  name: substrate-signer-provider-plugin-js
   type: plugin/typescript
 source:
   schema: ./src/schema.graphql

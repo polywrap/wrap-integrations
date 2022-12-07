@@ -2,9 +2,9 @@ import {
   Substrate_Module,
   Substrate_SignerProvider_SignerPayloadJSON as SignerPayload,
 } from "./wrap";
+import { mockExtension, address } from "./mockExtension";
 import { substrateSignerProviderPlugin } from "substrate-signer-provider-plugin-js";
-import { mockExtension } from "substrate-signer-provider-plugin-js/src/__tests__/mockExtension";
-import { PolywrapClient, Uri } from "@polywrap/client-js";
+import { PolywrapClient } from "@polywrap/client-js";
 import { TypeRegistry } from '@polkadot/types';
 import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-crypto';
 import { u8aToHex } from "@polkadot/util";
@@ -12,14 +12,13 @@ import { TextEncoder, TextDecoder } from "util";
 import path from "path";
 
 jest.setTimeout(360000);
-let url: string;
+const url = "http://localhost:9933";
 
 describe("e2e", () => {
   let client: PolywrapClient;
-  const uri = new Uri("file/" + path.join(__dirname, "../build")).uri;
+  const uri = "file/" + path.join(__dirname, "../../build");
 
   beforeAll(async () => {
-
     // polyfill text encoder. This is required to test in the jsdom environment
     global.TextEncoder = TextEncoder;
     // @ts-ignore
@@ -47,8 +46,8 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result.ok).toBeTruthy();
     if (!result.ok) fail(result.error);
+    expect(result.ok).toBeTruthy();
     expect(result.value).toBeTruthy();
     console.log(result.value);
   });
@@ -62,8 +61,8 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result.ok).toBeTruthy();
     if (!result.ok) fail(result.error);
+    expect(result.ok).toBeTruthy();
     expect(result.value).toBeTruthy();
     const block = result.value!;
     expect(block.block).toBeTruthy();
@@ -81,8 +80,8 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result.ok).toBeTruthy();
     if (!result.ok) fail(result.error);
+    expect(result.ok).toBeTruthy();
     expect(result.value).toBeTruthy();
 
     const chainMetadata = result.value!;
@@ -100,12 +99,12 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result.ok).toBeTruthy();
     if (!result.ok) fail(result.error);
+    expect(result.ok).toBeTruthy();
     expect(result.value).toBeTruthy();
     const runtimeVersion = result.value!;
-    expect(runtimeVersion.spec_name).toStrictEqual("forum-node");
-    expect(runtimeVersion.impl_name).toStrictEqual("forum-node");
+    expect(runtimeVersion.spec_name).toStrictEqual("node-template");
+    expect(runtimeVersion.impl_name).toStrictEqual("node-template");
     expect(runtimeVersion.authoring_version).toStrictEqual(1);
     expect(runtimeVersion.spec_version).toStrictEqual(100);
     expect(runtimeVersion.impl_version).toStrictEqual(1);
@@ -122,8 +121,8 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result.ok).toBeTruthy();
     if (!result.ok) fail(result.error);
+    expect(result.ok).toBeTruthy();
     expect(result.value).toBeFalsy();
   });
 
@@ -137,8 +136,8 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result.ok).toBeTruthy();
     if (!result.ok) fail(result.error);
+    expect(result.ok).toBeTruthy();
     expect(result.value).toBeTruthy();
     expect(result.value).toStrictEqual([
       244, 1, 0, 0, 0, 0,
@@ -155,8 +154,8 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result.ok).toBeTruthy();
     if (!result.ok) fail(result.error);
+    expect(result.ok).toBeTruthy();
     expect(result.value).toBeTruthy();
     const methods = result.value!;
     //There are 85 rpc methods exposed in `examples/substrate-note-template`
@@ -166,25 +165,24 @@ describe("e2e", () => {
   it("get storage maps", async () => {
     const result = await Substrate_Module.getStorageMap({
         url,
-        pallet: "ForumModule",
-        storage: "AllPosts",
+        pallet: "System",
+        storage: "BlockHash",
         key: "0",
       },
       client,
       uri
     );
 
-    expect(result.ok).toBeTruthy();
     if (!result.ok) fail(result.error);
-    expect(result).toBeTruthy();
+    expect(result.ok).toBeTruthy();
+    expect(result.value).toBeTruthy();
   });
-
 
   it("get storage maps paged", async () => {
     const result = await Substrate_Module.getStorageMapPaged({
         url,
-        pallet: "ForumModule",
-        storage: "AllPosts",
+        pallet: "Grandpa",
+        storage: "SetIdSession",
         count: 10,
         nextTo: null,
       },
@@ -192,45 +190,40 @@ describe("e2e", () => {
       uri
     );
 
-    expect(result.ok).toBeTruthy();
     if (!result.ok) fail(result.error);
-    expect(result).toBeTruthy();
+    expect(result.ok).toBeTruthy();
+    expect(result.value).toBeTruthy();
   });
-
-  const aliceAddr = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY";
 
   it("get account info of Alice from chain", async () => {
     const result = await Substrate_Module.accountInfo({
         url,
-        //Alice account
-        account: aliceAddr,
+        // //Alice address
+        account: address,
       },
       client,
       uri
     );
 
-    expect(result.ok).toBeTruthy();
     if (!result.ok) fail(result.error);
-    expect(result.value).toBeTruthy();
-
-    const account_info = result.value!;
-    console.log("account info: ", account_info);
+    expect(result.ok).toBeTruthy();
+    expect(result).toBeTruthy();
   });
 
-it("can get signer-provider managed accounts. Returns Alice", async () => {
+  it("can get signer-provider managed accounts. Returns Alice", async () => {
     const result = await Substrate_Module.getSignerProviderAccounts(
       {},
       client,
       uri
     );
 
-    expect(result.ok).toBeTruthy();
     if (!result.ok) fail(result.error);
+    expect(result.ok).toBeTruthy();
     expect(result.value).toBeTruthy();
     expect(result.value).toStrictEqual([
       {
-        address: aliceAddr,
-        meta: { genesisHash: null, name: 'alice', source: 'mockExtension' },
+        address: address,
+        meta: { genesisHash: null, name: 'alice', source: 'mock-polkadot-js' },
         type: 'sr25519'
       }
     ]);
@@ -238,18 +231,26 @@ it("can get signer-provider managed accounts. Returns Alice", async () => {
 
   // This is a known good payload taken from polkadot-js tests
   const testExtrinsic: SignerPayload = {
-    address: aliceAddr,
-    blockHash: "0x661f57d206d4fecda0408943427d4d25436518acbff543735e7569da9db6bdd7",
-    blockNumber: 99,
-    era: "0x0000",
-    genesisHash: "0x91820de8e05dc861baa91d75c34b23ac778f5fb4a88bd9e8480dbe3850d19a26",
-    method: "0x09003022737570206e657264732122",
+    address,
+    blockHash: '0x661f57d206d4fecda0408943427d4d25436518acbff543735e7569da9db6bdd7',
+    blockNumber: 1,
+    era: '0xb502',
+    genesisHash: '0xe143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e',
+    method: '0x0403c6111b239376e5e8b983dc2d2459cbb6caed64cc1d21723973d061ae0861ef690b00b04e2bde6f',
     nonce: 0,
-    specVersion: 100,
-    tip: "0", // BigInt is just a string in polywrap
-    transactionVersion: 1,
-    signedExtensions: [],
-    version: 4,
+    signedExtensions: [
+      'CheckSpecVersion',
+      'CheckTxVersion',
+      'CheckGenesis',
+      'CheckMortality',
+      'CheckNonce',
+      'CheckWeight',
+      'ChargeTransactionPayment'
+    ],
+    specVersion: 45,
+    tip: "0",
+    transactionVersion: 3,
+    version: 4
   }
 
   it("can sign using extension provider and get same signature as using polkadot-js directly", async () => {
@@ -261,8 +262,8 @@ it("can get signer-provider managed accounts. Returns Alice", async () => {
       uri
     );
 
-    expect(result.ok).toBeTruthy();
     if (!result.ok) fail(result.error);
+    expect(result.ok).toBeTruthy();
     expect(result.value).toBeTruthy();
 
     // check signature is the same as if just signing in javascript
@@ -270,38 +271,35 @@ it("can get signer-provider managed accounts. Returns Alice", async () => {
     const encodedPayload = registry
       .createType('ExtrinsicPayload', testExtrinsic, { version: testExtrinsic.version })
       .toHex();
-    expect(isValidSignature(encodedPayload, result.value?.signature!, aliceAddr))
+    expect(isValidSignature(encodedPayload, result.value?.signature!, address))
   });
 
+  it.skip("Can send a signed extrinsic to the chain", async () => {
+    const result = await Substrate_Module.sign(
+      {
+        extrinsic: testExtrinsic
+      },
+      client,
+      uri
+    );
+    if (!result.ok) fail(result.error);
+    expect(result.ok).toBeTruthy();
+    expect(result.value).toBeTruthy();
+    if (!result.value) throw Error("This shouldn't happen.");
+    const signedPayload = result.value;
 
-  // Currently the chain is not accepting the signed extrinsics.
-  // Further work is needed to debug why this is the case. Presumably it is
-  // something to do with the encoding.
-
-  // it("Can send a signed extrinsic to the chain", async () => {
-  //    const signerResult = await Substrate_Module.sign(
-  //     {
-  //       extrinsic: testExtrinsic
-  //     },
-  //     client,
-  //     uri
-  //   );
-  //   const signedPayload = signerResult.data!;
-
-  //   const sendResult = await Substrate_Module.send(
-  //     {
-  //       url,
-  //       signedExtrinsic: signedPayload
-  //     },
-  //     client,
-  //     uri
-  //   );
-
-  //   expect(sendResult).toBeTruthy();
-  //   expect(sendResult.error).toBeFalsy();
-  //   expect(sendResult.data).toBeTruthy();
-
-  // });
+    const sendResult = await Substrate_Module.send(
+      {
+        url,
+        signedExtrinsic: signedPayload
+      },
+      client,
+      uri
+    );
+    if (!sendResult.ok) fail(sendResult.error);
+    expect(sendResult.ok).toBeTruthy();
+    expect(sendResult).toBeTruthy();
+  });
 
   async function isValidSignature(signedMessage: string, signature: string, address: string): Promise<boolean> {
     await cryptoWaitReady();

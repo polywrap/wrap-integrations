@@ -57,7 +57,7 @@ export class SubstrateSignerProviderPlugin extends Module<SubstrateSignerProvide
     if (!signer || !signer?.signPayload) {
       throw new Error("Provider for account: " + address + " does not have payload signing capabilities");
     }
-    return signer.signPayload(
+    return await signer.signPayload(
       this._stringifyPayloadFields(args.payload)
     );
   }

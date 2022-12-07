@@ -282,7 +282,6 @@ mod tests {
         let extrinsic = UncheckedExtrinsicV4::<Vec<u8>>::decode(
             &mut payload_bytes.as_slice(),
         );
-        println!("{:?}", extrinsic);
     }
 
     fn gen_valid_signature() -> (sr25519::Pair, MultiSignature) {

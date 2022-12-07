@@ -21,6 +21,7 @@
     "@polywrap/core-js": "0.9.4"
   },
   "devDependencies": {
+    "@polkadot/dev": "0.67.167",
     "@polkadot/util-crypto": "10.2.1",
     "@polkadot/extension-inject": "0.44.6",
     "@polywrap/client-js": "0.9.4",

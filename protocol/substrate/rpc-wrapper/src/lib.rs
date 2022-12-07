@@ -35,13 +35,6 @@ mod error;
 mod types;
 mod utils;
 
-#[macro_export]
-macro_rules! debug {
-    ($($arg: expr),*) => {
-        polywrap_wasm_rs::wrap_debug_log(&format!($($arg,)*));
-    }
-}
-
 /// Wraps the signer-provider getAccounts function
 /// Returns a list of the accounts managed by the host
 pub fn get_signer_provider_accounts(
@@ -299,15 +292,10 @@ pub fn constant(
 pub fn account_info(
     ArgsAccountInfo { url, account }: ArgsAccountInfo,
 ) -> Option<AccountInfo> {
-    let account_id = AccountId32::from_ss58check(&account)
+    let account_id = AccountId32::from_string(&account)
         .expect("must be a valid ss58check format");
-    let account_info: Option<crate::types::account_info::AccountInfo> =
-        Api::new(&url)
-            .ok()
-            .map(|api| api.get_account_info(&account_id).ok().flatten())
-            .flatten();
-
-    debug!("account info: {:#?}", account_info);
+    let api = Api::new(&url).unwrap();
+    let account_info = api.get_account_info(&account_id).unwrap();
 
     if let Some(account_info) = account_info {
         Some(AccountInfo {
@@ -368,18 +356,16 @@ pub fn pallet_call_index(
 pub fn sign(
     ArgsSign { extrinsic }: ArgsSign,
 ) -> Option<SignedExtrinsicPayload> {
-    SignerProviderModule::sign_payload(
+    let res = SignerProviderModule::sign_payload(
         &signer_provider_module::ArgsSignPayload {
             payload: extrinsic.clone(),
         },
-    )
-    .map(|result| {
-        SignedExtrinsicPayload {
-            extrinsic,
-            signature: result.signature,
-        }
+    ).unwrap();
+
+    Some(SignedExtrinsicPayload {
+        extrinsic,
+        signature: res.signature,
     })
-    .ok()
 }
 
 /// Send a signed extrinsic payload to the give RPC URL
@@ -389,15 +375,17 @@ pub fn send(
         signed_extrinsic,
     }: ArgsSend,
 ) -> Option<String> {
-    BaseApi::new(&url)
-        .author_submit_extrinsic(
-            UncheckedExtrinsicV4::try_from(signed_extrinsic)
-                .unwrap()
-                .hex_encode(),
-        )
-        .ok()
-        .flatten()
-        .map(|hash| format!("{:#x}", hash))
+    let encoded_extrinsic = UncheckedExtrinsicV4::try_from(signed_extrinsic)
+        .unwrap()
+        .hex_encode();
+
+    let api = BaseApi::new(&url);
+    let res = api.author_submit_extrinsic(encoded_extrinsic).unwrap();
+
+    match res {
+        Some(res) => Some(format!("{:#x}", res)),
+        None => panic!("api.author_submit_extrinsic() returned None")
+    }
 }
 
 /// Sign an unsigned extrinsic payload and then immedietly send it
@@ -405,18 +393,15 @@ pub fn send(
 pub fn sign_and_send(
     ArgsSignAndSend { url, extrinsic }: ArgsSignAndSend,
 ) -> Option<String> {
-    let signed_extrinsic = SignerProviderModule::sign_payload(
+    let result = SignerProviderModule::sign_payload(
         &signer_provider_module::ArgsSignPayload {
             payload: extrinsic.clone(),
         },
-    )
-    .map(|result| {
-        SignedExtrinsicPayload {
-            extrinsic,
-            signature: result.signature,
-        }
-    })
-    .expect("Signed process failed");
+    ).unwrap();
+    let signed_extrinsic = SignedExtrinsicPayload {
+        extrinsic,
+        signature: result.signature,
+    };
 
     BaseApi::new(&url)
         .author_submit_extrinsic(

@@ -144,7 +144,6 @@ impl BaseApi {
         let value = self.json_request_value("chain_getHeader", vec![hash])?;
         match value {
             Some(value) => {
-                println!("value: {:?}", value);
                 Ok(Some(serde_json::from_value(value)?))
             }
             None => Ok(None),
@@ -243,8 +242,6 @@ impl BaseApi {
                     body: Some(serde_json::to_string(&param)?),
                 }),
             });
-
-        crate::debug!("response: {:#?}", response);
 
         let response = match response {
             Ok(response) => response,

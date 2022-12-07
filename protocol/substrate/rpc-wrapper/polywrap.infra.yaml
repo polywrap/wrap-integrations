@@ -1,4 +1,4 @@
 format: 0.1.0
 modules:
   substrate-test-env:
-    path: ./tests
+    path: ./test-env

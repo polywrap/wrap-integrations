@@ -108,8 +108,8 @@ impl Api {
         K: Encode,
     {
         let storage_key =
-            self.metadata.storage_map_key(module, storage_name, key)?;
-        self.fetch_opaque_storage_by_key_hash(storage_key)
+            self.metadata.storage_map_key(module, storage_name, key);
+        self.fetch_opaque_storage_by_key_hash(storage_key.unwrap())
     }
 
     fn fetch_opaque_storage_by_key_hash(
@@ -124,7 +124,6 @@ impl Api {
             Some(value) => {
                 let value_str = value.as_str().expect("must be a str");
                 let data = Vec::from_hex(value_str)?;
-                println!("data: {:?}", data);
                 Ok(Some(data))
             }
             None => Ok(None),
