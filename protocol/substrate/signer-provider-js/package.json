@@ -1,15 +1,16 @@
 {
   "name": "substrate-signer-provider-plugin-js",
-  "description": "Substrate signer provider javascript plugin",
-  "private": true,
-  "version": "0.1.0",
+  "description": "Substrate signer provider javascript plugin for use with Polywrap clients",
+  "version": "0.1.0-pre.0",
   "main": "build/index.js",
   "scripts": {
     "build": "rimraf ./build && yarn codegen && tsc --project tsconfig.json",
     "codegen": "npx polywrap codegen",
     "test": "jest --passWithNoTests --runInBand --verbose",
     "test:ci": "yarn build && jest --passWithNoTests --runInBand --verbose",
-    "test:watch": "jest --watch --passWithNoTests --verbose"
+    "test:watch": "jest --watch --passWithNoTests --verbose",
+    "publish:npm": "yarn publish --access public --non-interactive --verbose",
+    "publish:pre:npm": "yarn publish --access public --non-interactive --verbose --tag pre"
   },
   "dependencies": {
     "@polkadot/api": "9.10.1",
