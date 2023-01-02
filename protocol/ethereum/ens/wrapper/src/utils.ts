@@ -1,4 +1,4 @@
-import { UTS46_Module, SHA3_Module } from "./wrap";
+import { UTS46_Module, SHA3_Module, TxOptions, Ethereum_TxOptions } from "./wrap";
 
 export function namehash(inputName: string): string {
   let node = "";
@@ -28,4 +28,18 @@ export function normalize(name: string): string {
 
 export function keccak256 (value: string): string {
   return "0x" + SHA3_Module.keccak_256({ message: value }).unwrap()
+}
+
+export function parseTxOptions(txOptions: TxOptions | null): Ethereum_TxOptions | null {
+  if (txOptions === null) {
+    return null;
+  }
+  return {
+    value: null,
+    gasPrice: txOptions.gasPrice,
+    gasLimit: txOptions.gasLimit,
+    maxFeePerGas: txOptions.maxFeePerGas,
+    maxPriorityFeePerGas: txOptions.maxPriorityFeePerGas,
+    nonce: txOptions.nonce,
+  }
 }

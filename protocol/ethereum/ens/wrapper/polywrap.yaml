@@ -10,6 +10,10 @@ source:
       abi: ../../../../system/uts46-lite/wrapper/src/schema.graphql
     - uri: wrap://ens/sha3.polywrap.eth
       abi: ../../../../system/sha3/wrapper/src/schema.graphql
+    - uri: "wrap://ens/ethereum.polywrap.eth"
+      abi: ./schema.ethereum.graphql
+    - uri: "wrap://ens/iprovider.polywrap.eth"
+      abi: ./schema.iprovider.graphql
 extensions:
   build: ./polywrap.build.yaml
   meta: ./polywrap.meta.yaml
