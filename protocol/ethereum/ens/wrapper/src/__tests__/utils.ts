@@ -6,7 +6,7 @@ import { ClientConfigBuilder } from "@polywrap/client-js";
 import { providers as testEnvProviders } from "@polywrap/test-env-js";
 
 const wrappers = {
-  ethereum: "wrap://ipfs/QmdQmXoHEw8wXgo7mXtAQagqmNUJmuHEDhpPDhXQDXirjW",
+  ethereum: "wrap://ipfs/QmfXVjDkyRWzBvpRMKpTHE7Cu1gSvUfQJQwfKPUCubspnW",
   ethereumProviderInterface:
     "wrap://ipfs/QmRNDF5U43dmYVgNBfCswNcfjvrKzfkU1XMmTAGYHezNmy",
 };

@@ -46,11 +46,11 @@ describe("ENS Wrapper", () => {
     ethersProvider = providers.getDefaultProvider(
       testEnvProviders.ethereum
     ) as providers.JsonRpcProvider;
-    owner = await ethersProvider.getSigner(0).getAddress();
-    anotherOwner = await ethersProvider.getSigner(1).getAddress();
+    owner = (await ethersProvider.getSigner(0).getAddress()).toLowerCase();
+    anotherOwner = (await ethersProvider.getSigner(1).getAddress()).toLowerCase();
     registryAddress = ensAddresses.ensAddress;
     registrarAddress = ensAddresses.registrarAddress;
-    resolverAddress = ensAddresses.resolverAddress;
+    resolverAddress = ensAddresses.resolverAddress.toLowerCase();
     reverseRegistryAddress = ensAddresses.reverseAddress;
 
     // build sha3 wrapper
@@ -82,7 +82,7 @@ describe("ENS Wrapper", () => {
     await stopInfra();
   });
 
-  it.only("should register domain", async () => {
+  it("should register domain", async () => {
     const result = await ownerClient.invoke<string>({
       uri: fsUri,
       method: "registerDomain",
@@ -93,7 +93,7 @@ describe("ENS Wrapper", () => {
         registrarAddress: registrarAddress,
         connection: {
           networkNameOrChainId: network
-        },
+        }
       }
     });
 
