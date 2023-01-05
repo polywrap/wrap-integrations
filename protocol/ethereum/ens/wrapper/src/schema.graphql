@@ -81,7 +81,7 @@ type Module {
     resolverAddress: String!
     registryAddress: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): Ethereum_TxResponse!
 
   registerDomain(
@@ -90,7 +90,7 @@ type Module {
     registryAddress: String!
     owner: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): Ethereum_TxResponse!
 
   reverseRegisterDomain(
@@ -98,14 +98,14 @@ type Module {
     reverseRegistryAddress: String!
     owner: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): Ethereum_TxResponse!
 
   setName(
     domain: String!
     reverseRegistryAddress: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): Ethereum_TxResponse!
 
   setAddress(
@@ -113,7 +113,7 @@ type Module {
     address: String!
     resolverAddress: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): Ethereum_TxResponse!
 
   setOwner(
@@ -121,7 +121,7 @@ type Module {
     newOwner: String!
     registryAddress: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): Ethereum_TxResponse!
 
   setSubdomainOwner(
@@ -129,7 +129,7 @@ type Module {
     owner: String!
     registryAddress: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): Ethereum_TxResponse!
 
   setRecord(
@@ -139,7 +139,7 @@ type Module {
     ttl: String!
     registryAddress: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): Ethereum_TxResponse!
 
   setSubdomainRecord(
@@ -150,7 +150,7 @@ type Module {
     ttl: String!
     registryAddress: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): Ethereum_TxResponse!
 
   registerSubdomainsRecursively(
@@ -160,7 +160,7 @@ type Module {
     ttl: String!
     registryAddress: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): [RegistrationResult!]!
 
   registerDomainAndSubdomainsRecursively(
@@ -171,7 +171,7 @@ type Module {
     registrarAddress: String!
     registryAddress: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): [RegistrationResult!]!
 
   setContentHash(
@@ -179,7 +179,7 @@ type Module {
     cid: String!
     resolverAddress: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): Ethereum_TxResponse!
 
   setAddressFromDomain(
@@ -187,7 +187,7 @@ type Module {
     address: String!
     registryAddress: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): Ethereum_TxResponse!
 
   setContentHashFromDomain(
@@ -195,14 +195,14 @@ type Module {
     cid: String!
     registryAddress: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): Ethereum_TxResponse!
 
   deployFIFSRegistrar(
     registryAddress: String!
     tld: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): String!
 
   registerSubnodeOwnerWithFIFSRegistrar(
@@ -210,7 +210,7 @@ type Module {
     owner: String!
     fifsRegistrarAddress: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): Ethereum_TxResponse!
 
   setTextRecord(
@@ -219,7 +219,7 @@ type Module {
     key: String!
     value: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): Ethereum_TxResponse!
 
   configureOpenDomain(
@@ -229,7 +229,7 @@ type Module {
     resolverAddress: String!
     registrarAddress: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): ConfigureOpenDomainResponse!
 
   createSubdomainInOpenDomain(
@@ -240,7 +240,7 @@ type Module {
     registryAddress: String!
     resolverAddress: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): CreateSubdomainInOpenDomainResponse!
 
   createSubdomainInOpenDomainAndSetContentHash(
@@ -252,7 +252,7 @@ type Module {
     resolverAddress: String!
     cid: String!
     connection: Ethereum_Connection
-    txOverrides: TxOverrides
+    txOptions: TxOptions
   ): CreateSubdomainInOpenDomainAndSetContentHashResponse
 }
 
@@ -277,7 +277,26 @@ type RegistrationResult {
   tx: Ethereum_TxResponse
 }
 
-type TxOverrides {
-  gasPrice: BigInt
+type TxOptions {
+  """Gas supplied for the transaction"""
   gasLimit: BigInt
+  """
+  The max total fee to pay per unit of gas.
+  The difference between maxFeePerGas and baseFeePerGas + maxPriorityFeePerGas is “refunded” to the user.
+  This property is ignored when gasPrice is not null.
+  """
+  maxFeePerGas: BigInt
+  """
+  The gas price paid is baseFeePerGas + maxPriorityFeePerGas.
+  The difference between maxFeePerGas and baseFeePerGas + maxPriorityFeePerGas is “refunded” to the user.
+  This property is ignored when gasPrice is not null.
+  """
+  maxPriorityFeePerGas: BigInt
+  """
+  The gas price for legacy transactions.
+  If this property is not null, a legacy transaction will be sent and maxFeePerGas and maxPriorityFeePerGas will be ignored.
+  """
+  gasPrice: BigInt
+  """Override default nonce"""
+  nonce: UInt32
 }
