@@ -1,9 +1,0 @@
-format: 0.1.0
-displayName: ENS Domains
-subtext: Wrapper for ENS domains
-description: Protocol that allows you to attach your address to a human readable string
-tags:
- - ethereum
- - storage
- - example
-icon: ./meta/imgs/logo.png
