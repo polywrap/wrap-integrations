@@ -17,7 +17,7 @@ export function getSubgraphEndpoint(chainId: ChainId): SubgraphEndpoint {
   switch (chainId) {
     case ChainId.MAINNET:
     case ChainId.RINKEBY:
-      return { author: "uniswap", name: "uniswap-v3" };
+      return { author: "ianlapham", name: "uniswap-v3" };
     case ChainId.OPTIMISM:
       return { author: "ianlapham", name: "uniswap-optimism-dev" };
     case ChainId.ARBITRUM_ONE:
