@@ -897,6 +897,13 @@ type Module {
         permitV: PermitV!
     ): Int32!
 
+    mintPosition(
+      poolAddress: String!
+      amount: String!
+      deadline: BigInt!
+      chainId: ChainId!
+    ): Ethereum_TxResponse!
+
     """The address of Uniswap's pool factory contract"""
     FACTORY_ADDRESS: String!
 

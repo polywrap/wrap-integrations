@@ -9,7 +9,7 @@ import {
   Args_execCall,
   MethodParameters,
 } from "../wrap";
-import { MAX_UINT_256, ROUTER_ADDRESS } from "../utils";
+import { MAX_UINT_256, NFPM_ADDRESS, ROUTER_ADDRESS } from "../utils";
 import { toHex } from "../router";
 
 import { BigInt } from "@polywrap/wasm-as";
@@ -49,6 +49,28 @@ export function approve(args: Args_approve): Ethereum_TxResponse {
     method:
       "function approve(address spender, uint value) external returns (bool)",
     args: [ROUTER_ADDRESS, toHex({ value: amount })],
+    connection: {
+      node: null,
+      networkNameOrChainId: getChainIdKey(args.token.chainId),
+    },
+    txOverrides: {
+      value: null,
+      gasLimit: gasOptions === null ? null : gasOptions.gasLimit,
+      gasPrice: gasOptions === null ? null : gasOptions.gasPrice,
+    },
+  }).unwrap();
+}
+
+export function approveNFPM(args: Args_approve): Ethereum_TxResponse {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const amount: BigInt = args.amount === null ? MAX_UINT_256 : args.amount!;
+  const gasOptions: GasOptions | null = args.gasOptions;
+
+  return Ethereum_Module.callContractMethod({
+    address: args.token.address,
+    method:
+      "function approve(address spender, uint value) external returns (bool)",
+    args: [NFPM_ADDRESS, toHex({ value: amount })],
     connection: {
       node: null,
       networkNameOrChainId: getChainIdKey(args.token.chainId),

@@ -6,10 +6,13 @@ import {
   Args_createPositionFromAmounts,
   Args_mintAmounts,
   Args_mintAmountsWithSlippage,
+  Args_mintPosition,
   Args_positionAmount0,
   Args_positionAmount1,
   Args_positionToken0PriceLower,
   Args_positionToken0PriceUpper,
+  Ethereum_Module,
+  Ethereum_TxResponse,
   MintAmounts,
   Pool,
   Position,
@@ -20,6 +23,7 @@ import { createPool, getPoolTickSpacing } from "../pool";
 import {
   getSqrtRatioAtTick,
   getTickAtSqrtRatio,
+  nearestUsableTick,
   tickToPrice,
 } from "../tickList";
 import {
@@ -33,10 +37,18 @@ import {
   getAmount1Delta,
   Fraction,
   Price,
+  approve,
+  fetchToken,
+  fetchPoolFromAddress,
+  NFPM_ADDRESS,
+  execCall,
+  approveNFPM,
 } from "../utils";
 import { maxLiquidityForAmounts } from "./utils";
 
-import { BigInt } from "@polywrap/wasm-as";
+import { BigInt, Box, wrap_debug_log } from "@polywrap/wasm-as";
+import { addCallParameters } from "./nonfungiblePositionManager";
+import { encodeMulticall } from "../router";
 
 export * from "./nonfungiblePositionManager";
 export * from "./utils";
@@ -498,4 +510,89 @@ function ratiosAfterSlippage(
     sqrtRatioX96Upper = _MAX_SQRT_RATIO.subInt(1);
   }
   return [sqrtRatioX96Lower, sqrtRatioX96Upper];
+}
+
+export function mintPosition(
+  args: Args_mintPosition
+): Ethereum_TxResponse {
+
+  wrap_debug_log("MINTING POSITION")
+
+  let pool = fetchPoolFromAddress({
+    address: args.poolAddress,
+    chainId: args.chainId,
+    fetchTicks: false
+  })
+
+  wrap_debug_log("MINTING POSITION 2")
+
+  const tickSpacing = getPoolTickSpacing({
+    pool: pool
+  })
+
+  const lowerTick = nearestUsableTick({
+    tick: pool.tickCurrent,
+    tickSpacing: tickSpacing
+  }) - tickSpacing * 2
+
+  const upperTick = nearestUsableTick({
+    tick: pool.tickCurrent,
+    tickSpacing: tickSpacing
+  }) + tickSpacing * 2
+
+  let position = createPosition({
+    pool,
+    tickLower: lowerTick,
+    tickUpper: upperTick,
+    liquidity: Ethereum_Module.toWei({ eth: args.amount }).unwrap()
+  })
+
+  wrap_debug_log("TOKEN AMOUNT 0: " + position.token0Amount.amount.toString())
+  wrap_debug_log("TOKEN AMOUNT 1: " + position.token1Amount.amount.toString())
+
+  approveNFPM({
+    token: pool.token0,
+    amount: Ethereum_Module.toWei({ eth: "1" }).unwrap(),
+    gasOptions: null
+  })
+
+  approveNFPM({
+    token: pool.token1,
+    amount: Ethereum_Module.toWei({ eth: "1" }).unwrap(),
+    gasOptions: null
+  })
+
+  wrap_debug_log("MINTING POSITION 3")
+
+  const methodParameters = addCallParameters({
+    position,
+    options: {
+      createPool: Box.from(false),
+      recipient: Ethereum_Module.getSignerAddress({
+        connection: null
+      }).unwrap(),
+      deadline: args.deadline,
+      slippageTolerance: "0.01",
+      token0Permit: null,
+      token1Permit: null,
+      tokenId: null,
+      useNative: null
+    }
+  })
+
+  wrap_debug_log("MINTING POSITION 4")
+
+  wrap_debug_log("MINTING POSITION 5: " + methodParameters.calldata.toString())
+
+  const response = execCall({
+    parameters: methodParameters,
+    address: NFPM_ADDRESS,
+    gasOptions: {
+      gasLimit: BigInt.from("1000000"),
+      gasPrice: null
+    },
+    chainId: args.chainId
+  })
+
+  return response;
 }
