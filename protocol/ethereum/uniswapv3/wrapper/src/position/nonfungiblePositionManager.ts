@@ -33,15 +33,22 @@ import {
   _getPermitV,
   getChecksumAddress,
   Fraction,
+  NFPM_ADDRESS,
+  approveNFPM,
+  PERMIT2_ADDRESS,
 } from "../utils";
 import {
   burnAmountsWithSlippage,
   createPosition,
   mintAmountsWithSlippage,
+  PermitSimple,
+  toJsonTypedData,
+  TypedData,
+  TypedType,
 } from "./index";
 import { tokenEquals, _isNative, _wrapToken } from "../token";
 
-import { BigInt } from "@polywrap/wasm-as";
+import { BigInt, BigNumber, wrap_debug_log } from "@polywrap/wasm-as";
 
 const MAX_UINT_128_HEX = toHex({ value: BigInt.ONE.leftShift(128).subInt(1) });
 
@@ -108,11 +115,78 @@ export function addCallParameters(
   const amount0Desired: BigInt = position.mintAmounts.amount0;
   const amount1Desired: BigInt = position.mintAmounts.amount1;
 
+  
   // adjust for slippage
   const minimumAmounts: MintAmounts = mintAmountsWithSlippage({
     position,
     slippageTolerance: options.slippageTolerance,
   });
+
+  const amount0ToAprove = amount0Desired > minimumAmounts.amount0 ? amount0Desired : minimumAmounts.amount0;
+  const amount1ToAprove = amount1Desired > minimumAmounts.amount1 ? amount1Desired : minimumAmounts.amount1;
+
+  // sign happens here
+  const types: TypedType = {
+    EIP712Domain: [
+      { name: 'name', type: 'string' },
+      { name: 'chainId', type: 'uint256' },
+      { name: 'verifyingContract', type: 'address' },
+    ],
+    PermitSingle: [
+      { name: 'details', type: 'PermitDetails' },
+      { name: 'spender', type: 'address' },
+      { name: 'sigDeadline', type: 'uint256' },
+    ],
+    PermitDetails: [
+      { name: 'token', type: 'address' },
+      { name: 'amount', type: 'uint160' },
+      { name: 'expiration', type: 'uint48' },
+      { name: 'nonce', type: 'uint48' },
+    ],
+    Permit: [
+      { name: 'holder', type: 'address' },
+      { name: 'spender', type: 'address' },
+      { name: 'nonce', type: 'uint256' },
+      { name: 'expiry', type: 'uint256' },
+      { name: 'allowed', type: 'bool' },
+    ]
+  };
+
+  const nonce = Ethereum_Module.getSignerTransactionCount({ blockTag: null, connection: null }).unwrap()
+  const permit: PermitSimple = {
+    details: {
+      token: args.position.pool.token0.address,
+      amount: BigNumber.from(amount0ToAprove.toString()),
+      expiration: BigNumber.from(1800),
+      nonce: BigNumber.from(nonce)
+    },
+    spender: args.options.recipient!,
+    sigDeadline: BigNumber.from(nonce),
+  }
+  const typedData: TypedData = {
+    domain: {
+      name: "Permit2",
+      chainId: BigNumber.from(args.position.pool.token0.chainId),
+      verifyingContract: PERMIT2_ADDRESS
+    },
+    types,
+    permit,
+    primaryType: "Permit"
+  };
+
+  const payload = toJsonTypedData(typedData);
+  const signedData = Ethereum_Module.signTypedData({
+    payload,
+    connection: null
+  }).unwrap()
+  wrap_debug_log(signedData!.toString());
+
+  options.token0Permit = {
+    v: signedData!.v,
+    r: signedData!.r,
+    s: signedData!.s,
+  }
+
   const amount0Min: string = toHex({ value: minimumAmounts.amount0 });
   const amount1Min: string = toHex({ value: minimumAmounts.amount1 });
 

@@ -8,20 +8,19 @@ export class SubgraphEndpoint {
 }
 
 export class QueryArgs {
-  subgraphAuthor: string;
-  subgraphName: string;
+  url: string;
   query: string;
 }
 
-export function getSubgraphEndpoint(chainId: ChainId): SubgraphEndpoint {
+export function getSubgraphEndpoint(chainId: ChainId): string {
   switch (chainId) {
     case ChainId.MAINNET:
     case ChainId.RINKEBY:
-      return { author: "ianlapham", name: "uniswap-v3" };
+      return "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3";
     case ChainId.OPTIMISM:
-      return { author: "ianlapham", name: "uniswap-optimism-dev" };
+      return "https://api.thegraph.com/subgraphs/name/ianlapham/uniswap-optimism-dev";
     case ChainId.ARBITRUM_ONE:
-      return { author: "ianlapham", name: "arbitrum-minimal" };
+      return "https://api.thegraph.com/subgraphs/name/ianlapham/arbitrum-minimal";
     default:
       throw new Error("Unknown or Unsupported chain ID");
   }
@@ -29,8 +28,7 @@ export function getSubgraphEndpoint(chainId: ChainId): SubgraphEndpoint {
 
 export function subgraphQuery(args: QueryArgs): JSON.Obj {
   const response = Subgraph_Module.querySubgraph({
-    subgraphAuthor: args.subgraphAuthor,
-    subgraphName: args.subgraphName,
+    url: args.url,
     query: args.query,
   }).unwrap();
 
@@ -39,8 +37,7 @@ export function subgraphQuery(args: QueryArgs): JSON.Obj {
   if (!json.isObj) {
     throw new Error(
       "Subgraph response is not an object.\n" +
-        `Author: ${args.subgraphAuthor}\n` +
-        `Subgraph: ${args.subgraphName}\n` +
+        `Subgraph: ${args.url}\n` +
         `Query: ${args.query}\n` +
         `Response: ${response}`
     );

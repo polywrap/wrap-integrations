@@ -9,8 +9,8 @@ export async function buildDependencies(): Promise<{ sha3Uri: string, graphUri: 
   const systemsWrappersPath = path.resolve(relSystemWrappersPath);
   const sha3Path = path.join(systemsWrappersPath, "sha3", "wrapper");
   const graphNodePath = path.join(systemsWrappersPath, "graph-node", "wrapper");
-  await buildWrapper(sha3Path);
-  await buildWrapper(graphNodePath);
+  // await buildWrapper(sha3Path, undefined, true);
+  // await buildWrapper(graphNodePath);
   const sha3Uri = `wrap://fs/${sha3Path}/build`;
   const graphUri = `wrap://fs/${graphNodePath}/build`;
   return { sha3Uri, graphUri };
@@ -43,10 +43,10 @@ export function getConfig(sha3Uri: string, graphUri: string): Partial<ClientConf
         to: graphUri,
       },
     ],
-    plugins: [
+    packages: [
       {
         uri: "wrap://ens/ethereum.polywrap.eth",
-        plugin: ethereumPlugin({
+        package: ethereumPlugin({
           connections: new Connections({
             networks: {
               mainnet: new Connection({ provider: "http://localhost:8546" }),

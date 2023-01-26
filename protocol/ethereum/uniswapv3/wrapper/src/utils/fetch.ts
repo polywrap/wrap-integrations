@@ -176,10 +176,9 @@ function fetchPoolTicksSubgraph(
   chainId: ChainId,
   skip: i32 = 0
 ): Tick[] {
-  const endpoint: SubgraphEndpoint = getSubgraphEndpoint(chainId);
+  const endpoint: string = getSubgraphEndpoint(chainId);
   const query: JSON.Obj = subgraphQuery({
-    subgraphAuthor: endpoint.author,
-    subgraphName: endpoint.name,
+    url: endpoint,
     query: `
       query {
         ticks(first: 1000, skip: ${skip}, where: { poolAddress: "${address}" }, orderBy: tickIdx) {

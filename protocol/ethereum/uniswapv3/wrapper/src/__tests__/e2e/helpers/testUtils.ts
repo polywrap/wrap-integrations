@@ -28,29 +28,19 @@ export async function getUniPools(provider: ethers.providers.BaseProvider, fetch
 }
 
 export async function getPoolFromAddress(client: PolywrapClient, ensUri: string, address: string, fetchTicks?: boolean): Promise<Pool> {
-  const poolData = await client.query<{
-    fetchPoolFromAddress: Pool;
-  }>({
+  const poolData = await client.invoke<Pool>({
     uri: ensUri,
-    query: `
-        query {
-          fetchPoolFromAddress(
-            chainId: $chainId
-            address: $address
-            fetchTicks: $fetchTicks
-          )
-        }
-      `,
-    variables: {
+    method: "fetchPoolFromAddress",
+    args: {
       chainId: ChainIdEnum.MAINNET,
       address: address,
       fetchTicks: fetchTicks ?? false,
     },
   });
-  if (poolData.errors) {
-    throw poolData.errors;
+  if (!poolData.ok) {
+    throw poolData.error;
   }
-  return poolData.data!.fetchPoolFromAddress;
+  return poolData.value;
 }
 
 export function toUniToken(token: Token): uniCore.Token {

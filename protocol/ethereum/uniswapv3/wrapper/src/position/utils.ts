@@ -1,7 +1,7 @@
 import { Q96 } from "../utils/constants";
 import { Args_maxLiquidityForAmounts } from "../wrap";
 
-import { BigInt } from "@polywrap/wasm-as";
+import { BigInt, BigNumber, JSON, JSONEncoder } from "@polywrap/wasm-as";
 
 /**
  * Returns an imprecise maximum amount of liquidity received for a given amount of token 0.
@@ -119,4 +119,102 @@ export function maxLiquidityForAmounts(
   } else {
     return maxLiquidityForAmount1(sqrtRatioAX96, sqrtRatioBX96, amount1);
   }
+}
+
+class PermitDetails {
+  token: string;
+  amount: BigNumber;
+  expiration: BigNumber;
+  nonce: BigNumber;
+}
+
+export class PermitSimple {
+  details: PermitDetails;
+  spender: string;
+  sigDeadline: BigNumber;
+}
+
+class TypedDataField {
+  type: string;
+  name: string;
+}
+
+export class Domain {
+  name: string;
+  chainId: BigNumber;
+  verifyingContract: string;
+}
+
+export class TypedType {
+  EIP712Domain: TypedDataField[];
+  PermitSingle: TypedDataField[];
+  PermitDetails: TypedDataField[];
+  Permit: TypedDataField[];
+}
+
+export class TypedData {
+  domain: Domain;
+  permit: PermitSimple;
+  types: TypedType
+  primaryType: string;
+}
+
+export function toJsonTypedData(typedData: TypedData): JSON.Value {
+  const encoder = new JSONEncoder();
+  encoder.pushObject(null);
+
+  // Encode domain
+  encoder.pushObject("domain");
+  encoder.setString("name", typedData.domain.name);
+  encoder.setInteger("chainId", typedData.domain.chainId.toBigInt().toInt64());
+  encoder.setString("verifyingContract", typedData.domain.verifyingContract);
+  encoder.popObject();
+
+  // Encode types
+  encoder.pushObject("types");
+  encoder.pushArray("EIP712Domain");
+  for (let i = 0; i < typedData.types.EIP712Domain.length; i++) {
+    encoder.pushObject(null);
+    encoder.setString("name", typedData.types.EIP712Domain[i].name);
+    encoder.setString("type", typedData.types.EIP712Domain[i].type);
+    encoder.popObject();
+  }
+  encoder.popArray();
+  // encoder.pushArray("PermitDetails");
+  // for (let i = 0; i < typedData.types.PermitDetails.length; i++) {
+  //   encoder.pushObject(null);
+  //   encoder.setString("name", typedData.types.PermitDetails[i].name);
+  //   encoder.setString("type", typedData.types.PermitDetails[i].type);
+  //   encoder.popObject();
+  // }
+  // encoder.popArray();
+  encoder.pushArray("Permit");
+  for (let i = 0; i < typedData.types.Permit.length; i++) {
+    encoder.pushObject(null);
+    encoder.setString("name", typedData.types.Permit[i].name);
+    encoder.setString("type", typedData.types.Permit[i].type);
+    encoder.popObject();
+  }
+  encoder.popArray();
+  encoder.popObject();
+
+  encoder.setString("primaryType", typedData.primaryType);
+
+  // Encode values
+  encoder.pushObject("message");
+  encoder.setString("spender", typedData.permit.spender);
+  encoder.setString("holder", typedData.permit.spender);
+  encoder.setBoolean("allowed", true);
+  encoder.setInteger("expiry", typedData.permit.details.expiration.toBigInt().toInt64());
+  encoder.setInteger("nonce", typedData.permit.details.nonce.toBigInt().toInt64());
+
+  // encoder.pushObject("details");
+  // encoder.setString("token", typedData.permit.details.token);
+  // encoder.setString("amount", typedData.permit.details.amount.toString());
+  // encoder.popObject();
+
+  encoder.popObject();
+  encoder.popObject();
+
+  return <JSON.Value>JSON.parse(encoder.serialize());
 }

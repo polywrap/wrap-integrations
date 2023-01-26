@@ -550,17 +550,17 @@ export function mintPosition(
   wrap_debug_log("TOKEN AMOUNT 0: " + position.token0Amount.amount.toString())
   wrap_debug_log("TOKEN AMOUNT 1: " + position.token1Amount.amount.toString())
 
-  approveNFPM({
-    token: pool.token0,
-    amount: Ethereum_Module.toWei({ eth: "1" }).unwrap(),
-    gasOptions: null
-  })
+  // approveNFPM({
+  //   token: pool.token0,
+  //   amount: position.token0Amount.amount,
+  //   gasOptions: null
+  // })
 
-  approveNFPM({
-    token: pool.token1,
-    amount: Ethereum_Module.toWei({ eth: "1" }).unwrap(),
-    gasOptions: null
-  })
+  // approveNFPM({
+  //   token: pool.token1,
+  //   amount: position.token1Amount.amount,
+  //   gasOptions: null
+  // })
 
   wrap_debug_log("MINTING POSITION 3")
 

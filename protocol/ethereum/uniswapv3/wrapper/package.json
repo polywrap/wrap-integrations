@@ -25,7 +25,9 @@
   "devDependencies": {
     "@as-pect/cli": "6.2.4",
     "@polywrap/client-js": "0.10.0-pre.7",
+    "@polywrap/core-js": "0.10.0-pre.7",
     "@polywrap/test-env-js": "0.10.0-pre.7",
+    "@polywrap/wasm-js": "0.10.0-pre.7",
     "@types/jest": "^29.2.6",
     "@types/node": "12.6.9",
     "@typescript-eslint/eslint-plugin": "4.11.1",

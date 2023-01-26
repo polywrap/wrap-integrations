@@ -28,7 +28,7 @@ import {
   toHex,
 } from "./utils";
 
-import { BigInt } from "@polywrap/wasm-as";
+import { BigInt, wrap_debug_log } from "@polywrap/wasm-as";
 
 export * from "./utils";
 
@@ -82,7 +82,7 @@ export function swapCallParameters(
   const options: SwapOptions = args.options;
 
   const sampleTrade: Trade = trades[0];
-
+  wrap_debug_log("swap call init!")
   // All trades should have the same starting token.
   const tokenIn: Token = _wrapToken(sampleTrade.inputAmount.token);
   for (let i = 1; i < trades.length; i++) {
@@ -93,6 +93,9 @@ export function swapCallParameters(
       );
     }
   }
+
+  wrap_debug_log("token in accessed as expected!")
+
   // All trades should have the same ending token.
   const tokenOut: Token = _wrapToken(sampleTrade.outputAmount.token);
   for (let i = 1; i < trades.length; i++) {
@@ -103,6 +106,7 @@ export function swapCallParameters(
       );
     }
   }
+  wrap_debug_log("token out accessed as expected!")
 
   const calldatas: string[] = [];
 
@@ -115,10 +119,15 @@ export function swapCallParameters(
     }).amount;
     sumAmountOut = sumAmountOut.add(minOut);
   }
+
+  wrap_debug_log("sum amount fresh!")
+
   const totalAmountOut: TokenAmount = {
     token: trades[0].outputAmount.token,
     amount: sumAmountOut,
   };
+
+  wrap_debug_log("totalAmountOut fresh!")
 
   // flag for whether a refund needs to happen
   const mustRefund: boolean =
@@ -128,6 +137,8 @@ export function swapCallParameters(
   // flags for whether funds should be sent first to the router
   const outputIsNative: boolean = _isNative(sampleTrade.outputAmount.token);
   const routerMustCustody: boolean = outputIsNative || options.fee !== null;
+
+  wrap_debug_log("check native fresh!")
 
   let sumValue: BigInt = BigInt.ZERO;
   if (inputIsNative) {
@@ -144,6 +155,8 @@ export function swapCallParameters(
     token: trades[0].inputAmount.token,
     amount: sumValue,
   };
+  wrap_debug_log("total value fresh!")
+
 
   // encode permit if necessary
   if (options.inputTokenPermit !== null) {
@@ -160,11 +173,19 @@ export function swapCallParameters(
     );
   }
 
+  wrap_debug_log("inputTokenPermit fresh!")
+
   const recipient: string = getChecksumAddress(options.recipient);
+  wrap_debug_log("after address checksum fresh!")
+
   const deadline: string = toHex({ value: options.deadline });
+  wrap_debug_log("after deadline fresh!")
 
   for (let i = 0; i < trades.length; i++) {
+    wrap_debug_log("accessing to trades INDEED fresh!")
     const trade: Trade = trades[i];
+    wrap_debug_log("trade accessed fresh!")
+
     for (let j = 0; j < trade.swaps.length; j++) {
       const route: Route = trade.swaps[j].route;
       const inputAmount: TokenAmount = trade.swaps[j].inputAmount;
@@ -177,6 +198,8 @@ export function swapCallParameters(
           tradeType: trade.tradeType,
         }).amount,
       });
+      wrap_debug_log("got amount in fresh!")
+
       const amountOut: string = toHex({
         value: tradeMinimumAmountOut({
           slippageTolerance: options.slippageTolerance,
@@ -184,6 +207,9 @@ export function swapCallParameters(
           tradeType: trade.tradeType,
         }).amount,
       });
+
+
+      wrap_debug_log("got amount out fresh!")
 
       // flag for whether the trade is single hop or not
       const singleHop = route.pools.length == 1;
@@ -279,6 +305,8 @@ export function swapCallParameters(
     }
   }
 
+  wrap_debug_log("trade iteration fresh!")
+
   // unwrap
   if (routerMustCustody) {
     if (options.fee !== null) {
@@ -311,10 +339,14 @@ export function swapCallParameters(
     }
   }
 
+  wrap_debug_log("unwrap fresh!")
+
+
   // refund
   if (mustRefund) {
     calldatas.push(encodeRefundETH({}));
   }
+  wrap_debug_log("refund fresh!")
 
   return {
     calldata: encodeMulticall({ calldatas }),
