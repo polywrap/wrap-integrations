@@ -17,6 +17,8 @@ import {
   SafeTransferOptions,
   Token,
   TokenAmount,
+  PermitOptions,
+  ChainId,
 } from "../wrap";
 import {
   encodeMulticall,
@@ -99,32 +101,14 @@ export function createCallParameters(
   };
 }
 
-export function addCallParameters(
-  args: Args_addCallParameters
-): MethodParameters {
-  const position: Position = args.position;
-  const options: AddLiquidityOptions = args.options;
-
-  if (position.liquidity <= BigInt.ZERO) {
-    throw new Error("ZERO_LIQUIDITY: position liquidity must exceed zero");
-  }
-
-  const calldatas: string[] = [];
-
-  // get amounts
-  const amount0Desired: BigInt = position.mintAmounts.amount0;
-  const amount1Desired: BigInt = position.mintAmounts.amount1;
-
-  
-  // adjust for slippage
-  const minimumAmounts: MintAmounts = mintAmountsWithSlippage({
-    position,
-    slippageTolerance: options.slippageTolerance,
-  });
-
-  const amount0ToAprove = amount0Desired > minimumAmounts.amount0 ? amount0Desired : minimumAmounts.amount0;
-  const amount1ToAprove = amount1Desired > minimumAmounts.amount1 ? amount1Desired : minimumAmounts.amount1;
-
+export function makeTokenPermitOptions(args: {
+  tokenAddress: string,
+  amountToApprove: BigInt,
+  recipient: string,
+  deadline: BigInt,
+  expiry: BigInt,
+  chainId: ChainId,
+}): PermitOptions {
   // sign happens here
   const types: TypedType = {
     EIP712Domain: [
@@ -155,18 +139,18 @@ export function addCallParameters(
   const nonce = Ethereum_Module.getSignerTransactionCount({ blockTag: null, connection: null }).unwrap()
   const permit: PermitSimple = {
     details: {
-      token: args.position.pool.token0.address,
-      amount: BigNumber.from(amount0ToAprove.toString()),
+      token: args.tokenAddress,
+      amount: BigNumber.from(args.amountToApprove.toString()),
       expiration: BigNumber.from(1800),
       nonce: BigNumber.from(nonce)
     },
-    spender: args.options.recipient!,
+    spender: args.recipient,
     sigDeadline: BigNumber.from(nonce),
   }
   const typedData: TypedData = {
     domain: {
       name: "Permit2",
-      chainId: BigNumber.from(args.position.pool.token0.chainId),
+      chainId: BigNumber.from(args.chainId),
       verifyingContract: PERMIT2_ADDRESS
     },
     types,
@@ -179,13 +163,71 @@ export function addCallParameters(
     payload,
     connection: null
   }).unwrap()
-  wrap_debug_log(signedData!.toString());
 
-  options.token0Permit = {
-    v: signedData!.v,
-    r: signedData!.r,
-    s: signedData!.s,
+  if (signedData === null) {
+    throw new Error("SIGNATURE_FAILED: failed to sign permit");
   }
+
+  wrap_debug_log(signedData.toString());
+
+  const splitSignature = Ethereum_Module.splitSignature({
+    signature: signedData
+  }).unwrap()
+
+  return {
+    v: splitSignature.v,
+    r: splitSignature.r,
+    s: splitSignature.s,
+    amount: args.amountToApprove,
+    nonce,
+    deadline: args.deadline,
+    expiry: args.expiry
+  }
+}
+
+export function addCallParameters(
+  args: Args_addCallParameters
+): MethodParameters {
+  const position: Position = args.position;
+  const options: AddLiquidityOptions = args.options;
+
+  if (position.liquidity <= BigInt.ZERO) {
+    throw new Error("ZERO_LIQUIDITY: position liquidity must exceed zero");
+  }
+
+  const calldatas: string[] = [];
+
+  // get amounts
+  const amount0Desired: BigInt = position.mintAmounts.amount0;
+  const amount1Desired: BigInt = position.mintAmounts.amount1;
+
+  
+  // adjust for slippage
+  const minimumAmounts: MintAmounts = mintAmountsWithSlippage({
+    position,
+    slippageTolerance: options.slippageTolerance,
+  });
+
+  const amount0ToAprove = amount0Desired > minimumAmounts.amount0 ? amount0Desired : minimumAmounts.amount0;
+  const amount1ToAprove = amount1Desired > minimumAmounts.amount1 ? amount1Desired : minimumAmounts.amount1;
+
+  options.token0Permit = makeTokenPermitOptions({
+    tokenAddress: position.pool.token0.address,
+    amountToApprove: amount0ToAprove,
+    recipient: args.options.recipient!,
+    chainId: position.pool.token0.chainId,
+    deadline: options.deadline,
+    expiry: options.deadline
+  })
+
+  options.token1Permit = makeTokenPermitOptions({
+    tokenAddress: position.pool.token0.address,
+    amountToApprove: amount0ToAprove,
+    recipient: args.options.recipient!,
+    chainId: position.pool.token0.chainId,
+    deadline: options.deadline,
+    expiry: options.deadline
+  })
 
   const amount0Min: string = toHex({ value: minimumAmounts.amount0 });
   const amount1Min: string = toHex({ value: minimumAmounts.amount1 });
