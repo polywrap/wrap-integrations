@@ -27,8 +27,8 @@ describe("IDNA UTS #46", () => {
         }
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data).toBe(expected);
+      if (!response.ok) throw response.error;
+      expect(response.value).toBe(expected);
     });
 
     it("ToUnicode matches", async () => {
@@ -41,8 +41,8 @@ describe("IDNA UTS #46", () => {
         }
       });
 
-      expect(response.error).toBeUndefined();
-      expect(response.data?.value).toBe(expected);
+      if (!response.ok) throw response.error;
+      expect(response.value.value).toBe(expected);
     });
   });
 });
