@@ -9,7 +9,7 @@ import {
   Trade,
   getPoolFromAddress, getTokens,
   bestTradeExactOut, getNative,
-  getConfig, initInfra, stopInfra, buildDependencies
+  getConfig, initInfra, stopInfra, getDependencies
 } from "../helpers";
 import path from "path";
 import * as ethers from "ethers";
@@ -35,7 +35,7 @@ describe("Mint position (mainnet fork)", () => {
   beforeAll(async () => {
     await initInfra();
     // get client
-    const { sha3Uri, graphUri } = await buildDependencies();
+    const { sha3Uri, graphUri } = await getDependencies();
     const config = getConfig(sha3Uri, graphUri);
     client = new PolywrapClient(config);
     // get uri

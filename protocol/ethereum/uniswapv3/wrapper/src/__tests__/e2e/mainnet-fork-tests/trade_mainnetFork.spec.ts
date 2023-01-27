@@ -2,7 +2,7 @@ import { PolywrapClient } from "@polywrap/client-js";
 import {
   ChainIdEnum, Pool, Tick, Token, TokenAmount, Trade,
   getPools, getTokens, getUniPools,
-  getConfig, initInfra, stopInfra, buildDependencies
+  getConfig, initInfra, stopInfra, getDependencies
 } from "../helpers";
 import path from "path";
 import * as uni from "@uniswap/v3-sdk";
@@ -23,7 +23,7 @@ describe("Trade (mainnet fork)", () => {
   beforeAll(async () => {
     await initInfra();
     // get client
-    const { sha3Uri, graphUri } = await buildDependencies();
+    const { sha3Uri, graphUri } = await getDependencies();
     const config = getConfig(sha3Uri, graphUri);
     client = new PolywrapClient(config);
     // get uri

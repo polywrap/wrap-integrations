@@ -5,7 +5,7 @@ import {
   getWrappedNative,
   initInfra,
   getConfig,
-  stopInfra, buildDependencies
+  stopInfra, getDependencies
 } from "../helpers";
 import path from "path";
 import * as ethers from "ethers";
@@ -21,7 +21,7 @@ describe("Deploy pool (mainnet fork)", () => {
   beforeAll(async () => {
     await initInfra();
     // get client
-    const { sha3Uri, graphUri } = await buildDependencies();
+    const { sha3Uri, graphUri } = await getDependencies();
     const config = getConfig(sha3Uri, graphUri);
     client = new PolywrapClient(config);
     // get uri

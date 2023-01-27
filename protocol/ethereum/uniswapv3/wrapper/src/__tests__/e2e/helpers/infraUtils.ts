@@ -1,16 +1,14 @@
-import { buildWrapper, runCLI } from "@polywrap/test-env-js";
+import { runCLI } from "@polywrap/test-env-js";
 import axios from "axios";
 import { ClientConfig } from "@polywrap/client-js";
 import { ethereumPlugin, Connections, Connection } from "@polywrap/ethereum-plugin-js";
 import path from "path";
 
-export async function buildDependencies(): Promise<{ sha3Uri: string, graphUri: string }> {
+export async function getDependencies(): Promise<{ sha3Uri: string, graphUri: string }> {
   const relSystemWrappersPath = path.join(__dirname, "../../../../../../../../system");
   const systemsWrappersPath = path.resolve(relSystemWrappersPath);
   const sha3Path = path.join(systemsWrappersPath, "sha3", "wrapper");
   const graphNodePath = path.join(systemsWrappersPath, "graph-node", "wrapper");
-  // await buildWrapper(sha3Path, undefined, true);
-  // await buildWrapper(graphNodePath);
   const sha3Uri = `wrap://fs/${sha3Path}/build`;
   const graphUri = `wrap://fs/${graphNodePath}/build`;
   return { sha3Uri, graphUri };

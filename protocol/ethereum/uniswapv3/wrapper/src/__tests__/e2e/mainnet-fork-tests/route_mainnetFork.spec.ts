@@ -6,7 +6,7 @@ import * as ethers from "ethers";
 import {
   initInfra, stopInfra, getConfig,
   getUniswapPool, getPoolFromAddress, getTokens, isDefined, toUniToken,
-  Pool, Route, Token, Price, buildDependencies
+  Pool, Route, Token, Price, getDependencies
 } from "../helpers";
 
 jest.setTimeout(360000);
@@ -27,7 +27,7 @@ describe("Route (mainnet fork)", () => {
   beforeAll(async () => {
     await initInfra();
     // get client
-    const { sha3Uri, graphUri } = await buildDependencies();
+    const { sha3Uri, graphUri } = await getDependencies();
     const config = getConfig(sha3Uri, graphUri);
     client = new PolywrapClient(config);
     // get uri
@@ -60,29 +60,20 @@ describe("Route (mainnet fork)", () => {
       tokens.find((token: Token) => token.currency.symbol === "USDT"),
     ].filter(isDefined);
 
-    const routeQuery = await client.query<{
-      createRoute: Route;
-    }>({
+    const routeInvocation = await client.invoke<Route>({
       uri: fsUri,
-      query: `
-        query {
-          createRoute(
-            pools: $pools
-            inToken: $inToken
-            outToken: $outToken
-          )
-        }
-      `,
-      variables: {
+      method: "createRoute",
+      args: {
         pools: pools,
         inToken: inToken,
         outToken: outToken,
       },
     });
-    expect(routeQuery.errors).toBeFalsy();
-    expect(routeQuery.data?.createRoute).toBeTruthy();
 
-    const route: Route = routeQuery.data!.createRoute;
+    if (!routeInvocation.ok) fail(routeInvocation.error);
+    expect(routeInvocation.value).toBeTruthy();
+
+    const route: Route = routeInvocation.value;
     const uniRoute: uni.Route<uniCore.Token, uniCore.Token> = new uni.Route(uniPools, toUniToken(inToken), toUniToken(outToken));
 
     const midPriceInvocation = await client.invoke<Price>({

@@ -3,7 +3,7 @@ import {
   Pool, TokenAmount, PoolChangeResult,
   getConfig, initInfra, stopInfra,
   getUniswapPool,
-  getPoolFromAddress, getPools, buildDependencies
+  getPoolFromAddress, getPools, getDependencies
 } from "../helpers";
 import path from "path";
 import * as uni from "@uniswap/v3-sdk";
@@ -26,7 +26,7 @@ describe("Pool (mainnet fork)", () => {
   beforeAll(async () => {
     await initInfra();
     // get client
-    const { sha3Uri, graphUri } = await buildDependencies();
+    const { sha3Uri, graphUri } = await getDependencies();
     const config = getConfig(sha3Uri, graphUri);
     client = new PolywrapClient(config);
     // get uri
