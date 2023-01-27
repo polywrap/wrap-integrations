@@ -35,6 +35,8 @@ pub fn query_subgraph(args: ArgsQuerySubgraph) -> String {
         url_params: None,
         response_type: HttpResponseType::TEXT,
         body: Some(JSON::json!({ "query": &query }).to_string()),
+        form_data: None,
+        timeout: None
     });
 
     // send http request and get response body
