@@ -54,7 +54,6 @@ describe("Mint position (mainnet fork)", () => {
 
   it("execSwap: eth -> usdc", async () => {
     const recipient = await ethersProvider.getSigner(0).getAddress();
-    const t = ethersProvider.getSigner(0)
 
     const ETH: Token = await getNative(client, fsUri, ChainIdEnum.MAINNET);
     const USDC: Token = tokens.find(token => token.currency.symbol === "USDC") as Token;
@@ -73,14 +72,12 @@ describe("Mint position (mainnet fork)", () => {
       },
     });
     if (!ethUsdcInvoke.ok) fail(ethUsdcInvoke.error);
-    // console.log(ethUsdcInvoke)
 
     const ethUsdcHash: string = ethUsdcInvoke.value.hash ?? "";
     const ethUsdcTx = await ethersProvider.getTransaction(ethUsdcHash);
     const ethUsdcTxResponse = await ethUsdcTx.wait();
     expect(ethUsdcTxResponse.status).toBeTruthy();
 
-    
     const mintPositionInvoke = await client.invoke<Ethereum_TxResponse>({
       uri: fsUri,
       method: "mintPosition",

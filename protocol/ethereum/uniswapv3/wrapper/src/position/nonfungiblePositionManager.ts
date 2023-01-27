@@ -101,90 +101,6 @@ export function createCallParameters(
   };
 }
 
-export function makeTokenPermitOptions(args: {
-  tokenAddress: string,
-  amountToApprove: BigInt,
-  recipient: string,
-  deadline: BigInt,
-  expiry: BigInt,
-  chainId: ChainId,
-}): PermitOptions {
-  // sign happens here
-  const types: TypedType = {
-    EIP712Domain: [
-      { name: 'name', type: 'string' },
-      { name: 'chainId', type: 'uint256' },
-      { name: 'verifyingContract', type: 'address' },
-    ],
-    PermitSingle: [
-      { name: 'details', type: 'PermitDetails' },
-      { name: 'spender', type: 'address' },
-      { name: 'sigDeadline', type: 'uint256' },
-    ],
-    PermitDetails: [
-      { name: 'token', type: 'address' },
-      { name: 'amount', type: 'uint160' },
-      { name: 'expiration', type: 'uint48' },
-      { name: 'nonce', type: 'uint48' },
-    ],
-    Permit: [
-      { name: 'holder', type: 'address' },
-      { name: 'spender', type: 'address' },
-      { name: 'nonce', type: 'uint256' },
-      { name: 'expiry', type: 'uint256' },
-      { name: 'allowed', type: 'bool' },
-    ]
-  };
-
-  const nonce = Ethereum_Module.getSignerTransactionCount({ blockTag: null, connection: null }).unwrap()
-  const permit: PermitSimple = {
-    details: {
-      token: args.tokenAddress,
-      amount: BigNumber.from(args.amountToApprove.toString()),
-      expiration: BigNumber.from(1800),
-      nonce: BigNumber.from(nonce)
-    },
-    spender: args.recipient,
-    sigDeadline: BigNumber.from(nonce),
-  }
-  const typedData: TypedData = {
-    domain: {
-      name: "Permit2",
-      chainId: BigNumber.from(args.chainId),
-      verifyingContract: PERMIT2_ADDRESS
-    },
-    types,
-    permit,
-    primaryType: "Permit"
-  };
-
-  const payload = toJsonTypedData(typedData);
-  const signedData = Ethereum_Module.signTypedData({
-    payload,
-    connection: null
-  }).unwrap()
-
-  if (signedData === null) {
-    throw new Error("SIGNATURE_FAILED: failed to sign permit");
-  }
-
-  wrap_debug_log(signedData.toString());
-
-  const splitSignature = Ethereum_Module.splitSignature({
-    signature: signedData
-  }).unwrap()
-
-  return {
-    v: splitSignature.v,
-    r: splitSignature.r,
-    s: splitSignature.s,
-    amount: args.amountToApprove,
-    nonce,
-    deadline: args.deadline,
-    expiry: args.expiry
-  }
-}
-
 export function addCallParameters(
   args: Args_addCallParameters
 ): MethodParameters {
@@ -208,26 +124,8 @@ export function addCallParameters(
     slippageTolerance: options.slippageTolerance,
   });
 
-  const amount0ToAprove = amount0Desired > minimumAmounts.amount0 ? amount0Desired : minimumAmounts.amount0;
-  const amount1ToAprove = amount1Desired > minimumAmounts.amount1 ? amount1Desired : minimumAmounts.amount1;
-
-  options.token0Permit = makeTokenPermitOptions({
-    tokenAddress: position.pool.token0.address,
-    amountToApprove: amount0ToAprove,
-    recipient: args.options.recipient!,
-    chainId: position.pool.token0.chainId,
-    deadline: options.deadline,
-    expiry: options.deadline
-  })
-
-  options.token1Permit = makeTokenPermitOptions({
-    tokenAddress: position.pool.token0.address,
-    amountToApprove: amount0ToAprove,
-    recipient: args.options.recipient!,
-    chainId: position.pool.token0.chainId,
-    deadline: options.deadline,
-    expiry: options.deadline
-  })
+  // const amount0ToAprove = amount0Desired > minimumAmounts.amount0 ? amount0Desired : minimumAmounts.amount0;
+  // const amount1ToAprove = amount1Desired > minimumAmounts.amount1 ? amount1Desired : minimumAmounts.amount1;
 
   const amount0Min: string = toHex({ value: minimumAmounts.amount0 });
   const amount1Min: string = toHex({ value: minimumAmounts.amount1 });

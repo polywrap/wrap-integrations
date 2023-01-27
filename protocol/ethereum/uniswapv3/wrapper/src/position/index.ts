@@ -17,6 +17,7 @@ import {
   Pool,
   Position,
   Price as PriceType,
+  Token,
   TokenAmount,
 } from "../wrap";
 import { createPool, getPoolTickSpacing } from "../pool";
@@ -38,7 +39,6 @@ import {
   Fraction,
   Price,
   approve,
-  fetchToken,
   fetchPoolFromAddress,
   NFPM_ADDRESS,
   execCall,
@@ -48,7 +48,6 @@ import { maxLiquidityForAmounts } from "./utils";
 
 import { BigInt, Box, wrap_debug_log } from "@polywrap/wasm-as";
 import { addCallParameters } from "./nonfungiblePositionManager";
-import { encodeMulticall } from "../router";
 
 export * from "./nonfungiblePositionManager";
 export * from "./utils";
@@ -515,16 +514,11 @@ function ratiosAfterSlippage(
 export function mintPosition(
   args: Args_mintPosition
 ): Ethereum_TxResponse {
-
-  wrap_debug_log("MINTING POSITION")
-
   let pool = fetchPoolFromAddress({
     address: args.poolAddress,
     chainId: args.chainId,
     fetchTicks: false
   })
-
-  wrap_debug_log("MINTING POSITION 2")
 
   const tickSpacing = getPoolTickSpacing({
     pool: pool
@@ -547,22 +541,26 @@ export function mintPosition(
     liquidity: Ethereum_Module.toWei({ eth: args.amount }).unwrap()
   })
 
-  wrap_debug_log("TOKEN AMOUNT 0: " + position.token0Amount.amount.toString())
-  wrap_debug_log("TOKEN AMOUNT 1: " + position.token1Amount.amount.toString())
+  let nativeToken: Token | null = null;
+  if (pool.token0.currency.symbol == "WETH") {
+    nativeToken = pool.token0;
+  } else {
+    approveNFPM({
+      token: pool.token0,
+      amount: null,
+      gasOptions: null
+    })
+  }
 
-  // approveNFPM({
-  //   token: pool.token0,
-  //   amount: position.token0Amount.amount,
-  //   gasOptions: null
-  // })
-
-  // approveNFPM({
-  //   token: pool.token1,
-  //   amount: position.token1Amount.amount,
-  //   gasOptions: null
-  // })
-
-  wrap_debug_log("MINTING POSITION 3")
+  if (pool.token1.currency.symbol == "WETH") {
+    nativeToken = pool.token1;
+  } else {
+    approveNFPM({
+      token: pool.token1,
+      amount: null,
+      gasOptions: null
+    })
+  }
 
   const methodParameters = addCallParameters({
     position,
@@ -576,13 +574,9 @@ export function mintPosition(
       token0Permit: null,
       token1Permit: null,
       tokenId: null,
-      useNative: null
+      useNative: nativeToken
     }
   })
-
-  wrap_debug_log("MINTING POSITION 4")
-
-  wrap_debug_log("MINTING POSITION 5: " + methodParameters.calldata.toString())
 
   const response = execCall({
     parameters: methodParameters,
