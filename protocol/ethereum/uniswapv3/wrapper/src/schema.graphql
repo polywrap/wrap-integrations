@@ -899,7 +899,8 @@ type Module {
 
     mintPosition(
       poolAddress: String!
-      amount: String!
+      amount0: BigInt
+      amount1: BigInt
       deadline: BigInt!
       chainId: ChainId!
     ): Ethereum_TxResponse!

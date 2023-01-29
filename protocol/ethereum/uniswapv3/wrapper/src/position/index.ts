@@ -534,12 +534,30 @@ export function mintPosition(
     tickSpacing: tickSpacing
   }) + tickSpacing * 2
 
-  let position = createPosition({
-    pool,
-    tickLower: lowerTick,
-    tickUpper: upperTick,
-    liquidity: Ethereum_Module.toWei({ eth: args.amount }).unwrap()
-  })
+  let position: Position | null = null;
+
+  if (args.amount0) {
+    position = createPositionFromAmount0({
+      pool,
+      tickLower: lowerTick,
+      tickUpper: upperTick,
+      amount0: args.amount0,
+      useFullPrecision: false
+    })
+  } else if (args.amount1) {
+    position = createPositionFromAmount1({
+      pool,
+      tickLower: lowerTick,
+      tickUpper: upperTick,
+      amount1: args.amount1
+    })
+  } else {
+    throw new Error("Must provide either amount0 or amount1")
+  }
+
+  if (!position) {
+    throw new Error("Could not create position")
+  }
 
   let nativeToken: Token | null = null;
   if (pool.token0.currency.symbol == "WETH") {
