@@ -52,7 +52,7 @@ describe("Mint position (mainnet fork)", () => {
     await stopInfra();
   });
 
-  it("execSwap: eth -> usdc", async () => {
+  it("mint position in eth <-> usdc pool", async () => {
     const recipient = await ethersProvider.getSigner(0).getAddress();
 
     const ETH: Token = await getNative(client, fsUri, ChainIdEnum.MAINNET);
@@ -83,7 +83,7 @@ describe("Mint position (mainnet fork)", () => {
       method: "mintPosition",
       args: {
         poolAddress: USDC_ETH_03_ADDRESS,
-        amount: "0.001",
+        amount0: "200",
         chainId: tokens[0].chainId,
         deadline: (Math.floor(Date.now() / 1000) + 600).toString(),
       }

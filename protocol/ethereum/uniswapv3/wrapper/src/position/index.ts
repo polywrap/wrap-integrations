@@ -48,6 +48,7 @@ import { maxLiquidityForAmounts } from "./utils";
 
 import { BigInt, Box, wrap_debug_log } from "@polywrap/wasm-as";
 import { addCallParameters } from "./nonfungiblePositionManager";
+import { isNative } from "../token";
 
 export * from "./nonfungiblePositionManager";
 export * from "./utils";
@@ -541,7 +542,7 @@ export function mintPosition(
       pool,
       tickLower: lowerTick,
       tickUpper: upperTick,
-      amount0: args.amount0,
+      amount0: args.amount0!,
       useFullPrecision: false
     })
   } else if (args.amount1) {
@@ -549,7 +550,7 @@ export function mintPosition(
       pool,
       tickLower: lowerTick,
       tickUpper: upperTick,
-      amount1: args.amount1
+      amount1: args.amount1!
     })
   } else {
     throw new Error("Must provide either amount0 or amount1")
