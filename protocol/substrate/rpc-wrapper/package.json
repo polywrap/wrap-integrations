@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "build": "npx polywrap build -v",
+    "build": "npx polywrap build -v -s image",
     "build:check": "yarn codegen && cargo check",
     "codegen": "npx polywrap codegen",
     "codegen:tests": "cd ./src/__tests__ && polywrap codegen -g wrap",
