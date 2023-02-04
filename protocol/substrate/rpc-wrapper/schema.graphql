@@ -95,9 +95,19 @@ type Module {
   send(url: String!, signedExtrinsic: SignedExtrinsicPayload!): String
 
   """
+  Submit a signed extrinsic to the chain using `author_submitExtrinsic` RPC call
+  """
+  submit(url: String!, signedExtrinsic: String!): String
+
+  """
   Combines sign and send into a single call.
   """
   signAndSend(url: String!, extrinsic: SignerProvider_SignerPayloadJSON!): String
+
+  """
+  Create signed extrinsic.
+  """
+  createSigned(url: String!, signer: String!, pallet_name: String!, call_name: String!, args: String!): String
 }
 
 type SignedExtrinsicPayload {

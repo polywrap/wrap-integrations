@@ -1,5 +1,5 @@
 [package]
-name = "substrate-rpc-wrapper"
+name = "module"
 version = "0.0.1"
 description = "The core wrapper implementation for polywrap for substrate base chain"
 authors = [

@@ -76,7 +76,8 @@ export class SubstrateSignerProviderPlugin extends Module<SubstrateSignerProvide
     if (!signer || !signer?.signRaw) {
       throw new Error("Provider for account: " + address + " does not have raw signing capabilities");
     }
-    return signer.signRaw({ ...args.payload, type: 'bytes' });
+
+    return await signer.signRaw({ ...args.payload, type: 'bytes' });
   }
 
   /**

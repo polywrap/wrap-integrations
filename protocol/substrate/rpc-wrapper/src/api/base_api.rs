@@ -43,7 +43,7 @@ pub struct JsonReq {
 pub struct JsonResult {
     id: usize,
     jsonrpc: String,
-    result: serde_json::Value,
+    result: Option<serde_json::Value>,
 }
 
 pub struct BaseApi {
@@ -207,10 +207,14 @@ impl BaseApi {
         params: P,
     ) -> Result<Option<serde_json::Value>, Error> {
         let result = self.json_request(method, params)?;
-        if result.result.is_null() {
-            Ok(None)
+        if let Some(result) = result.result {
+            if result.is_null() {
+                Ok(None)
+            } else {
+                Ok(Some(result))
+            }
         } else {
-            Ok(Some(result.result))
+            Ok(None)
         }
     }
 

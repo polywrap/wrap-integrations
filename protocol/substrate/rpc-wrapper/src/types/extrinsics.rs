@@ -85,7 +85,8 @@ impl TryFrom<SignedExtrinsicPayload> for UncheckedExtrinsicV4<Vec<u8>> {
 
     fn try_from(payload: SignedExtrinsicPayload) -> Result<Self, Error> {
         // call is a hex string we can pass right through
-        let call = <Vec<u8>>::from_hex(payload.extrinsic.method)?;
+        let call = <Vec<u8>>::from_hex(payload.extrinsic.method)
+            .expect("Decode extrinsic method failed");
 
         // signer is ss58 encoding string
         let signer = GenericAddress::from(AccountId32::from_ss58check(
@@ -96,14 +97,14 @@ impl TryFrom<SignedExtrinsicPayload> for UncheckedExtrinsicV4<Vec<u8>> {
         // The first byte indicates the signature type
         // TODO: In future match on this to create different types.
         // For now just skip it and assume sr2559
-        let multisig_bytes = <[u8; 65]>::from_hex(&payload.signature)?;
+        let multisig_bytes = <[u8; 65]>::from_hex(&payload.signature).expect("Decode multi signature failed");
         let signature = MultiSignature::from(
-            Signature::from_raw(multisig_bytes[1..].try_into().unwrap()), // this cannot fail
+            Signature::from_raw(multisig_bytes[1..].try_into().expect("Decode signature failed")), // this cannot fail
         );
 
         // era is hex string (2 bytes exactly)
         let era_bytes = <[u8; 2]>::from_hex(&payload.extrinsic.era)?;
-        let era = Era::decode(&mut era_bytes.as_slice())?;
+        let era = Era::decode(&mut era_bytes.as_slice()).expect("Decode era failed.");
 
         let nonce = payload.extrinsic.nonce;
         let tip = payload

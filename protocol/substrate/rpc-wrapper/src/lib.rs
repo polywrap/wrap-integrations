@@ -10,25 +10,30 @@ pub mod wrap;
 pub use api::Api;
 use api::BaseApi;
 
+use codec::{Compact, Encode};
 pub use error::Error;
 use num_traits::cast::FromPrimitive;
 use polywrap_wasm_rs::BigNumber;
-use scale_info::{
-    TypeDef,
-    TypeDefPrimitive,
-};
-use sp_core::crypto::{
-    AccountId32,
-    Ss58Codec,
-};
+use scale_info::{TypeDef, TypeDefPrimitive};
+use sp_core::{crypto::{AccountId32, Ss58Codec}, sr25519::Signature};
 
-use crate::types::extrinsics::UncheckedExtrinsicV4;
+use crate::{
+    types::{
+        account_info::MultiAddress, extrinsic_params::ExtrinsicParams,
+        extrinsics::UncheckedExtrinsicV4,
+    },
+    utils::Encoded,
+};
 pub use types::metadata::Metadata;
 use wrap::imported::*;
 pub use wrap::{
-    imported::SignerProviderSignerPayloadJSON as ExtrinsicPayload,
+    imported::{
+        SignerProviderSignerPayloadJSON as ExtrinsicPayload,
+        SignerProviderSignerPayloadRaw,
+    },
     *,
 };
+use sp_runtime::MultiSignature;
 
 mod api;
 mod error;
@@ -81,16 +86,14 @@ pub fn get_runtime_version(
         .fetch_runtime_version()
         .ok()
         .flatten()
-        .map(|v| {
-            RuntimeVersion {
-                spec_name: v.spec_name.to_string(),
-                impl_name: v.impl_name.to_string(),
-                authoring_version: v.authoring_version,
-                spec_version: v.spec_version,
-                impl_version: v.impl_version,
-                transaction_version: v.transaction_version,
-                state_version: v.state_version,
-            }
+        .map(|v| RuntimeVersion {
+            spec_name: v.spec_name.to_string(),
+            impl_name: v.impl_name.to_string(),
+            authoring_version: v.authoring_version,
+            spec_version: v.spec_version,
+            impl_version: v.impl_version,
+            transaction_version: v.transaction_version,
+            state_version: v.state_version,
         })
 }
 
@@ -360,7 +363,8 @@ pub fn sign(
         &signer_provider_module::ArgsSignPayload {
             payload: extrinsic.clone(),
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     Some(SignedExtrinsicPayload {
         extrinsic,
@@ -384,7 +388,7 @@ pub fn send(
 
     match res {
         Some(res) => Some(format!("{:#x}", res)),
-        None => panic!("api.author_submit_extrinsic() returned None")
+        None => panic!("api.author_submit_extrinsic() returned None"),
     }
 }
 
@@ -397,7 +401,8 @@ pub fn sign_and_send(
         &signer_provider_module::ArgsSignPayload {
             payload: extrinsic.clone(),
         },
-    ).unwrap();
+    )
+    .unwrap();
     let signed_extrinsic = SignedExtrinsicPayload {
         extrinsic,
         signature: result.signature,
@@ -412,4 +417,125 @@ pub fn sign_and_send(
         .ok()
         .flatten()
         .map(|hash| format!("{:#x}", hash))
+}
+
+/// Create signed extrinsic.
+pub fn create_signed(
+    ArgsCreateSigned {
+        url,
+        signer,
+        pallet_name,
+        call_name,
+        args,
+    }: ArgsCreateSigned,
+) -> Option<String> {
+    let api = Api::new(&url).ok()?;
+    let base_api = BaseApi::new(&url);
+    let account_id = AccountId32::from_ss58check(&signer)
+        .expect("must be a valid ss58check format");
+
+    // 1. SCALE encode call data to bytes (pallet u8, call u8, call params).
+    let call_data = {
+        let mut out = vec![];
+        let [pallet_index, call_name] = api
+            .pallet_call_index(&pallet_name, &call_name)
+            .expect("Unknown call.");
+        let call_params = hex::decode(args.trim_start_matches("0x"))
+            .expect("Failed to decode call data");
+
+        pallet_index.encode_to(&mut out);
+        call_name.encode_to(&mut out);
+        Encoded(call_params).encode_to(&mut out);
+
+        Encoded(out)
+    };
+
+    // 2. Construct our custom additional/extra params.
+    let additional_and_extra_params = {
+        let runtime = base_api.fetch_runtime_version().ok().flatten()?;
+        let genesis_hash = base_api.fetch_genesis_hash().ok().flatten()?;
+        let nonce = api.get_nonce_for_account(&account_id).ok()?;
+        ExtrinsicParams::new(
+            nonce,
+            runtime.spec_version,
+            runtime.transaction_version,
+            genesis_hash,
+            None,
+            None,
+            None,
+        )
+    };
+
+    // 3. Construct signature. This is compatible with the Encode impl
+    //    for SignedPayload (which is this payload of bytes that we'd like)
+    //    to sign. See:
+    //    https://github.com/paritytech/substrate/blob/9a6d706d8db00abb6ba183839ec98ecd9924b1f8/primitives/runtime/src/generic/unchecked_extrinsic.rs#L215)
+    let signature = {
+        let mut bytes = Vec::new();
+        call_data.encode_to(&mut bytes);
+        additional_and_extra_params.encode_extra_to(&mut bytes);
+        additional_and_extra_params.encode_additional_to(&mut bytes);
+
+        let data = if bytes.len() > 256 {
+            sp_core::blake2_256(&bytes).to_vec()
+        } else {
+            bytes
+        };
+
+        let sig = SignerProviderModule::sign_raw(&signer_provider_module::ArgsSignRaw {
+            payload: SignerProviderSignerPayloadRaw {
+                _type: "bytes".into(),
+                address: signer,
+                data: hex::encode(data),
+            },
+        })
+        .expect("Failed to sign extrinsic.")
+        .signature;
+
+        let mut sr25519_sig = [0; 64];
+        sr25519_sig.copy_from_slice(&hex::decode(sig.trim_start_matches("0x")).expect("Invalid signature"));
+        MultiSignature::Sr25519(Signature(sr25519_sig))
+    };
+
+    polywrap_wasm_rs::debug_log::wrap_debug_log(&format!("signature: {}", hex::encode(&signature.encode())));
+
+    // 4. Encode extrinsic, now that we have the parts we need. This is compatible
+    //    with the Encode impl for UncheckedExtrinsic (protocol version 4).
+    let extrinsic = {
+        let mut encoded_inner = Vec::new();
+        // "is signed" + transaction protocol version (4)
+        (0b10000000 + 4u8).encode_to(&mut encoded_inner); // y
+        // from address for signature
+        MultiAddress::Id(account_id).encode_to(&mut encoded_inner); // n
+        // the signature bytes
+        signature.encode_to(&mut encoded_inner);
+        // attach custom extra params
+        additional_and_extra_params.encode_extra_to(&mut encoded_inner);
+        // and now, call data
+        call_data.encode_to(&mut encoded_inner);
+        // now, prefix byte length:
+        let len = Compact(
+            u32::try_from(encoded_inner.len())
+                .expect("extrinsic size expected to be <4GB"),
+        );
+        let mut encoded = Vec::new();
+        len.encode_to(&mut encoded);
+        encoded.extend(encoded_inner);
+        encoded
+    };
+
+    Some(format!("0x{}", hex::encode(extrinsic)))
+}
+
+/// Submit a signed extrinsic payload to the give RPC URL
+pub fn submit(
+    ArgsSubmit {
+        url,
+        signed_extrinsic,
+    }: ArgsSubmit,
+) -> Option<String> {
+    let api = BaseApi::new(&url);
+    let res = api.author_submit_extrinsic(signed_extrinsic).unwrap();
+
+    res.map(|res| format!("{:#x}", res))
 }

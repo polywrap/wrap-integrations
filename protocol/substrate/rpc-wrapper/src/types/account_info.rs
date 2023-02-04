@@ -2,6 +2,7 @@ use codec::{
     Decode,
     Encode,
 };
+use sp_core::crypto::AccountId32;
 
 /// Redefinition from `pallet-balances`. Currently, pallets break `no_std` builds, see:
 /// https://github.com/paritytech/substrate/issues/8891
@@ -45,4 +46,19 @@ pub struct AccountInfo {
     /// The additional data that belongs to this account. Used to store the balance(s) in a lot of
     /// chains.
     pub data: AccountData,
+}
+
+/// MultiAddress for encoding, only supports `Id` for now.
+#[derive(Encode, Decode)]
+pub enum MultiAddress {
+    /// It's an account ID (pubkey).
+    Id(AccountId32),
+    /// It's an account index.
+    Index(#[codec(compact)] u32),
+    /// It's some arbitrary raw bytes.
+    Raw(Vec<u8>),
+    /// It's a 32 byte representation.
+    Address32([u8; 32]),
+    /// Its a 20 byte representation.
+    Address20([u8; 20]),
 }

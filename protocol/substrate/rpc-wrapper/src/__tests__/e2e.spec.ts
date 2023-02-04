@@ -4,15 +4,16 @@ import {
 } from "./wrap";
 import { mockExtension, address } from "./mockExtension";
 import { substrateSignerProviderPlugin } from "substrate-signer-provider-plugin-js";
-import { PolywrapClient } from "@polywrap/client-js";
-import { TypeRegistry } from '@polkadot/types';
+import { InvokeResult, PolywrapClient } from "@polywrap/client-js";
 import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-crypto';
 import { u8aToHex } from "@polkadot/util";
 import { TextEncoder, TextDecoder } from "util";
 import path from "path";
+import { ApiPromise } from "@polkadot/api";
+import { TypeRegistry } from "@polkadot/types";
 
 jest.setTimeout(360000);
-const url = "http://localhost:9933";
+const url = "http://0.0.0.0:9933";
 
 describe("e2e", () => {
   let client: PolywrapClient;
@@ -49,7 +50,6 @@ describe("e2e", () => {
     if (!result.ok) fail(result.error);
     expect(result.ok).toBeTruthy();
     expect(result.value).toBeTruthy();
-    console.log(result.value);
   });
 
   it("retrieves genesis block parent hash is 00000", async () => {
@@ -227,7 +227,7 @@ describe("e2e", () => {
         type: 'sr25519'
       }
     ]);
-  });  
+  });
 
   // This is a known good payload taken from polkadot-js tests
   const testExtrinsic: SignerPayload = {
@@ -274,32 +274,54 @@ describe("e2e", () => {
     expect(isValidSignature(encodedPayload, result.value?.signature!, address))
   });
 
-  it.skip("Can send a signed extrinsic to the chain", async () => {
-    const result = await Substrate_Module.sign(
+  it("Can submit a signed extrinsic to the chain", async () => {
+    const api = await ApiPromise.create({
+      types: {
+        BalancesTransfer: {
+          dest: "MultiAddress",
+          value: "Compact<u128>",
+        }
+      },
+      throwOnConnect: true
+    });
+
+    const BOB_SS58 = "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty";
+    const bobBalanceBefore = await balanceOf(api, BOB_SS58);
+    const balancesTransfer = api.registry.createType("BalancesTransfer",  { dest: BOB_SS58, value: 1000000 } );
+    const ex = await Substrate_Module.createSigned(
       {
-        extrinsic: testExtrinsic
+        url,
+        signer: address,
+        pallet_name: "Balances",
+        call_name: "transfer",
+        args: balancesTransfer.toHex(),
       },
       client,
       uri
     );
+
+    const xt = checkInvokeResult(ex);
+    const result = await Substrate_Module.submit({ url, signedExtrinsic: String(xt)}, client, uri);
+    checkInvokeResult(result);
+
+    await new Promise((r) => setTimeout(r, 10000));
+    const bobBalanceAfter = await balanceOf(api, BOB_SS58);
+    expect(bobBalanceAfter).toBeGreaterThan(bobBalanceBefore);
+
+    await api.disconnect();
+  });
+
+  async function balanceOf(api: ApiPromise, address: string) {
+    const info = await api.query.system.account(address);
+    return Number((info as any).toJSON().data.free);
+  }
+
+  function checkInvokeResult<T>(result: InvokeResult<T>): T {
     if (!result.ok) fail(result.error);
     expect(result.ok).toBeTruthy();
     expect(result.value).toBeTruthy();
-    if (!result.value) throw Error("This shouldn't happen.");
-    const signedPayload = result.value;
-
-    const sendResult = await Substrate_Module.send(
-      {
-        url,
-        signedExtrinsic: signedPayload
-      },
-      client,
-      uri
-    );
-    if (!sendResult.ok) fail(sendResult.error);
-    expect(sendResult.ok).toBeTruthy();
-    expect(sendResult).toBeTruthy();
-  });
+    return result.value;
+  }
 
   async function isValidSignature(signedMessage: string, signature: string, address: string): Promise<boolean> {
     await cryptoWaitReady();
@@ -308,3 +330,5 @@ describe("e2e", () => {
     return signatureVerify(signedMessage, signature, hexPublicKey).isValid;
   }
 });
+
+

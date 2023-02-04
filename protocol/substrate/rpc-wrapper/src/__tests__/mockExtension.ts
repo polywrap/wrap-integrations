@@ -6,7 +6,7 @@ import { cryptoWaitReady } from "@polkadot/util-crypto";
 import { Keyring } from "@polkadot/ui-keyring";
 
 export const suri = "//Alice";
-export const address = "5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu";
+export const address = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY";
 
 export function mockExtension(): void {
   injectExtension(
@@ -22,11 +22,10 @@ async function enableFn(_: string): Promise<Injected> {
   // create a keyring & add the //Alice default account
   const keyring = new Keyring();
   keyring.loadAll({});
-  keyring.addUri(suri);
+  keyring.addUri(suri, "", {}, "sr25519");
   keyring.getPair(address).unlock();
 
   const provider = new KeyringSignerProvider(keyring);
-
   const accounts: InjectedAccount[] = await provider.getAccounts().then((accounts) => accounts.map(
     (account): InjectedAccount => ({
       address: account.address,

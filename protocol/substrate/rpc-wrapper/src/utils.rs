@@ -72,3 +72,15 @@ mod tests {
         );
     }
 }
+
+/// Wraps an already encoded byte vector, prevents being encoded as a raw byte vector as part of
+/// the transaction payload
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Encoded(pub Vec<u8>);
+
+impl codec::Encode for Encoded {
+    fn encode(&self) -> Vec<u8> {
+        self.0.to_owned()
+    }
+}
+
