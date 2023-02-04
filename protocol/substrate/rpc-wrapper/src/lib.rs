@@ -19,7 +19,7 @@ use sp_core::{crypto::{AccountId32, Ss58Codec}, sr25519::Signature};
 
 use crate::{
     types::{
-        account_info::MultiAddress, extrinsic_params::ExtrinsicParams,
+        extrinsic_params::ExtrinsicParams,
         extrinsics::UncheckedExtrinsicV4,
     },
     utils::Encoded,
@@ -33,7 +33,7 @@ pub use wrap::{
     },
     *,
 };
-use sp_runtime::MultiSignature;
+use sp_runtime::{MultiSignature, MultiAddress};
 
 mod api;
 mod error;
@@ -504,9 +504,9 @@ pub fn create_signed(
     let extrinsic = {
         let mut encoded_inner = Vec::new();
         // "is signed" + transaction protocol version (4)
-        (0b10000000 + 4u8).encode_to(&mut encoded_inner); // y
+        (0b10000000 + 4u8).encode_to(&mut encoded_inner);
         // from address for signature
-        MultiAddress::Id(account_id).encode_to(&mut encoded_inner); // n
+        MultiAddress::<AccountId32, u32>::Id(account_id).encode_to(&mut encoded_inner);
         // the signature bytes
         signature.encode_to(&mut encoded_inner);
         // attach custom extra params
