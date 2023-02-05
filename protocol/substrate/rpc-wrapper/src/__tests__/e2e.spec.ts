@@ -1,16 +1,10 @@
-import {
-  Substrate_Module,
-  Substrate_SignerProvider_SignerPayloadJSON as SignerPayload,
-} from "./wrap";
+import { Substrate_Module } from "./wrap";
 import { mockExtension, address } from "./mockExtension";
 import { substrateSignerProviderPlugin } from "substrate-signer-provider-plugin-js";
 import { InvokeResult, PolywrapClient } from "@polywrap/client-js";
-import { cryptoWaitReady, decodeAddress, signatureVerify } from '@polkadot/util-crypto';
-import { u8aToHex } from "@polkadot/util";
 import { TextEncoder, TextDecoder } from "util";
 import path from "path";
 import { ApiPromise } from "@polkadot/api";
-import { TypeRegistry } from "@polkadot/types";
 
 jest.setTimeout(360000);
 const url = "http://0.0.0.0:9933";
@@ -229,50 +223,6 @@ describe("e2e", () => {
     ]);
   });
 
-  // This is a known good payload taken from polkadot-js tests
-  const testExtrinsic: SignerPayload = {
-    address,
-    blockHash: '0x661f57d206d4fecda0408943427d4d25436518acbff543735e7569da9db6bdd7',
-    blockNumber: 1,
-    era: '0xb502',
-    genesisHash: '0xe143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e',
-    method: '0x0403c6111b239376e5e8b983dc2d2459cbb6caed64cc1d21723973d061ae0861ef690b00b04e2bde6f',
-    nonce: 0,
-    signedExtensions: [
-      'CheckSpecVersion',
-      'CheckTxVersion',
-      'CheckGenesis',
-      'CheckMortality',
-      'CheckNonce',
-      'CheckWeight',
-      'ChargeTransactionPayment'
-    ],
-    specVersion: 45,
-    tip: "0",
-    transactionVersion: 3,
-    version: 4
-  }
-
-  it("can sign using extension provider and get same signature as using polkadot-js directly", async () => {
-    const result = await Substrate_Module.sign(
-      {
-        extrinsic: testExtrinsic
-      },
-      client,
-      uri
-    );
-
-    if (!result.ok) fail(result.error);
-    expect(result.ok).toBeTruthy();
-    expect(result.value).toBeTruthy();
-
-    // check signature is the same as if just signing in javascript
-    const registry = new TypeRegistry();
-    const encodedPayload = registry
-      .createType('ExtrinsicPayload', testExtrinsic, { version: testExtrinsic.version })
-      .toHex();
-    expect(isValidSignature(encodedPayload, result.value?.signature!, address))
-  });
 
   it("Can submit a signed extrinsic to the chain", async () => {
     const api = await ApiPromise.create({
@@ -288,13 +238,13 @@ describe("e2e", () => {
     const BOB_SS58 = "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty";
     const bobBalanceBefore = await balanceOf(api, BOB_SS58);
     const balancesTransfer = api.registry.createType("BalancesTransfer",  { dest: BOB_SS58, value: 1000000 } );
-    const ex = await Substrate_Module.createSigned(
+    const ex = await Substrate_Module.sign(
       {
         url,
         signer: address,
         pallet_name: "Balances",
         call_name: "transfer",
-        args: balancesTransfer.toHex(),
+        call_params: balancesTransfer.toHex(),
       },
       client,
       uri
@@ -304,6 +254,7 @@ describe("e2e", () => {
     const result = await Substrate_Module.submit({ url, signedExtrinsic: String(xt)}, client, uri);
     checkInvokeResult(result);
 
+    // Wait for finalized.
     await new Promise((r) => setTimeout(r, 10000));
     const bobBalanceAfter = await balanceOf(api, BOB_SS58);
     expect(bobBalanceAfter).toBeGreaterThan(bobBalanceBefore);
@@ -321,13 +272,6 @@ describe("e2e", () => {
     expect(result.ok).toBeTruthy();
     expect(result.value).toBeTruthy();
     return result.value;
-  }
-
-  async function isValidSignature(signedMessage: string, signature: string, address: string): Promise<boolean> {
-    await cryptoWaitReady();
-    const publicKey = decodeAddress(address);
-    const hexPublicKey = u8aToHex(publicKey);
-    return signatureVerify(signedMessage, signature, hexPublicKey).isValid;
   }
 });
 

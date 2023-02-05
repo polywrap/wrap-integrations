@@ -83,4 +83,3 @@ impl codec::Encode for Encoded {
         self.0.to_owned()
     }
 }
-

@@ -8,28 +8,14 @@ use crate::{
     api::Api,
     error::Error,
     types::{
-        account_info::AccountInfo,
-        extrinsic_params::{
-            GenericExtra,
-            SignedPayload,
-        },
+        account_info::AccountInfo, extrinsic::ExtrinsicBuilder,
+        extrinsic_params::ExtrinsicParams,
     },
+    utils::Encoded,
 };
-use codec::{
-    Compact,
-    Encode,
-};
-use sp_core::{
-    crypto::Pair,
-    H256,
-};
-use sp_runtime::{
-    generic::Era,
-    traits::IdentifyAccount,
-    AccountId32,
-    MultiSigner,
-};
-use std::fmt;
+use codec::Encode;
+use sp_core::crypto::{Pair, Ss58Codec};
+use sp_runtime::{traits::IdentifyAccount, AccountId32, MultiSigner};
 
 impl Api {
     pub fn signer_account<P>(signer: &P) -> AccountId32
@@ -68,82 +54,65 @@ impl Api {
         self.fetch_storage_map("System", "Account", account_id)
     }
 
-    pub fn pallet_call_index(
+    // SCALE encode call data to bytes (pallet u8, call u8, call params).
+    fn encode_call_data(
         &self,
         pallet_name: &str,
         call_name: &str,
-    ) -> Result<[u8; 2], Error> {
-        Ok(self.metadata.pallet_call_index(pallet_name, call_name)?)
+        call_params: &str,
+    ) -> Result<Encoded, Error> {
+        let mut out = vec![];
+        let [pallet_index, call_name] =
+            self.metadata.pallet_call_index(pallet_name, call_name)?;
+        let call_params = hex::decode(call_params.trim_start_matches("0x"))
+            .expect("Failed to decode call data");
+
+        pallet_index.encode_to(&mut out);
+        call_name.encode_to(&mut out);
+        Encoded(call_params).encode_to(&mut out);
+
+        Ok(Encoded(out))
     }
 
-    pub fn compose_payload<Call>(
+    // Construct custom additional/extra params.
+    fn construct_params(
         &self,
-        call: Call,
-        extra: GenericExtra,
-        head_hash: Option<H256>,
-    ) -> Result<SignedPayload<Call>, Error>
-    where
-        Call: Encode + Clone + fmt::Debug,
-    {
-        let raw_payload: SignedPayload<Call> = SignedPayload::from_raw(
-            call,
-            extra,
-            (
-                self.runtime_version.spec_version,
-                self.runtime_version.transaction_version,
-                self.genesis_hash,
-                head_hash.unwrap_or(self.genesis_hash),
-                (),
-                (),
-                (),
-            ),
-        );
-        Ok(raw_payload)
+        account_id: &AccountId32,
+    ) -> Result<ExtrinsicParams, Error> {
+        Ok(ExtrinsicParams::new(
+            self.get_nonce_for_account(&account_id)?,
+            self.runtime_version.spec_version,
+            self.runtime_version.transaction_version,
+            self.genesis_hash,
+            None,
+            None,
+            None,
+        ))
     }
 
-    /// if Era uses some period and block number, the head_hash must be the head_has of the
-    /// block_number used in the era
-    pub fn compose_payload_and_extra<Call>(
+    /// Create signed extrinsic.
+    pub fn create_signed(
         &self,
-        nonce: u32,
-        call: Call,
-        era: Option<Era>,
-        head_hash: Option<H256>,
-        tip: Option<u128>,
-    ) -> Result<(SignedPayload<Call>, GenericExtra), Error>
-    where
-        Call: Clone + fmt::Debug + Encode,
-    {
-        let tip = tip.unwrap_or(0);
-        let era = era.unwrap_or(Era::immortal());
-        let extra = GenericExtra(era, Compact(nonce), Compact(tip));
+        signer: &str,
+        pallet_name: &str,
+        call_name: &str,
+        call_params: &str,
+    ) -> Result<Vec<u8>, Error> {
+        let account_id = AccountId32::from_ss58check(&signer)
+            .expect("must be a valid ss58check format");
 
-        let raw_payload: SignedPayload<Call> =
-            self.compose_payload(call.clone(), extra.clone(), head_hash)?;
+        // 1. SCALE encode call data to bytes (pallet u8, call u8, call params).
+        let call_data =
+            self.encode_call_data(&pallet_name, &call_name, &call_params)?;
 
-        Ok((raw_payload, extra))
-    }
+        // 2. Construct our custom additional/extra params.
+        let additional_and_extra_params = self.construct_params(&account_id)?;
 
-    /// create a payload ready for signing and the extra in opaque bytes
-    pub fn compose_opaque_payload_and_extra<Call>(
-        &self,
-        nonce: u32,
-        call: Call,
-        era: Option<Era>,
-        head_hash: Option<H256>,
-        tip: Option<u128>,
-    ) -> Result<(Vec<u8>, Vec<u8>), Error>
-    where
-        Call: Clone + fmt::Debug + Encode,
-    {
-        let (payload, extra) =
-            self.compose_payload_and_extra(nonce, call, era, head_hash, tip)?;
-        let payload_encoded = payload.encode();
-        let payload_for_signing = if payload_encoded.len() > 256 {
-            sp_core::blake2_256(&payload_encoded).to_vec()
-        } else {
-            payload_encoded
-        };
-        Ok((payload_for_signing, extra.encode()))
+        // 3. Build extrinsic, now that we have the parts we need. This is compatible
+        //    with the Encode impl for UncheckedExtrinsic (protocol version 4).
+        Ok(
+            ExtrinsicBuilder::new(call_data, additional_and_extra_params)
+                .build(account_id),
+        )
     }
 }
