@@ -84,20 +84,21 @@ type Module {
   """
   palletCallIndex(url: String!, pallet: String!, call: String!): [UInt8!]
 
+
   """
-  Sign a transaction payload. Internally uses the host signer-provider
+  Create signed extrinsic.
   """
-  sign(extrinsic: SignerProvider_SignerPayloadJSON!): SignedExtrinsicPayload
+  sign(url: String!, signer: String!, pallet_name: String!, call_name: String!, call_params: String!): String
 
   """
   Submit a signed extrinsic to the chain using `author_submitExtrinsic` RPC call
   """
-  send(url: String!, signedExtrinsic: SignedExtrinsicPayload!): String
+  submit(url: String!, signedExtrinsic: String!): String
 
   """
-  Combines sign and send into a single call.
+  Create signed extrinsic.
   """
-  signAndSend(url: String!, extrinsic: SignerProvider_SignerPayloadJSON!): String
+  sign_and_submit(url: String!, signer: String!, pallet_name: String!, call_name: String!, call_params: String!): String
 }
 
 type SignedExtrinsicPayload {

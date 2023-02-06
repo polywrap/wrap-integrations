@@ -13,20 +13,16 @@ use api::BaseApi;
 pub use error::Error;
 use num_traits::cast::FromPrimitive;
 use polywrap_wasm_rs::BigNumber;
-use scale_info::{
-    TypeDef,
-    TypeDefPrimitive,
-};
-use sp_core::crypto::{
-    AccountId32,
-    Ss58Codec,
-};
+use scale_info::{TypeDef, TypeDefPrimitive};
+use sp_core::crypto::{AccountId32, Ss58Codec};
 
-use crate::types::extrinsics::UncheckedExtrinsicV4;
 pub use types::metadata::Metadata;
 use wrap::imported::*;
 pub use wrap::{
-    imported::SignerProviderSignerPayloadJSON as ExtrinsicPayload,
+    imported::{
+        SignerProviderSignerPayloadJSON as ExtrinsicPayload,
+        SignerProviderSignerPayloadRaw,
+    },
     *,
 };
 
@@ -81,16 +77,14 @@ pub fn get_runtime_version(
         .fetch_runtime_version()
         .ok()
         .flatten()
-        .map(|v| {
-            RuntimeVersion {
-                spec_name: v.spec_name.to_string(),
-                impl_name: v.impl_name.to_string(),
-                authoring_version: v.authoring_version,
-                spec_version: v.spec_version,
-                impl_version: v.impl_version,
-                transaction_version: v.transaction_version,
-                state_version: v.state_version,
-            }
+        .map(|v| RuntimeVersion {
+            spec_name: v.spec_name.to_string(),
+            impl_name: v.impl_name.to_string(),
+            authoring_version: v.authoring_version,
+            spec_version: v.spec_version,
+            impl_version: v.impl_version,
+            transaction_version: v.transaction_version,
+            state_version: v.state_version,
         })
 }
 
@@ -344,72 +338,62 @@ pub fn pallet_call_index(
     Api::new(&url)
         .ok()
         .map(|api| {
-            api.pallet_call_index(&pallet, &call)
+            api.metadata
+                .pallet_call_index(&pallet, &call)
                 .ok()
                 .map(|v| v.to_vec())
         })
         .flatten()
 }
 
-/// Sign an extrinsic payload
-/// A wrapper around the signer-provider wrapper
+/// Create signed extrinsic.
 pub fn sign(
-    ArgsSign { extrinsic }: ArgsSign,
-) -> Option<SignedExtrinsicPayload> {
-    let res = SignerProviderModule::sign_payload(
-        &signer_provider_module::ArgsSignPayload {
-            payload: extrinsic.clone(),
-        },
-    ).unwrap();
+    ArgsSign {
+        url,
+        signer,
+        pallet_name,
+        call_name,
+        call_params,
+    }: ArgsSign,
+) -> Option<String> {
+    let api = Api::new(&url).ok()?;
+    let extrinsic = api
+        .create_signed(&signer, &pallet_name, &call_name, &call_params)
+        .ok()?;
 
-    Some(SignedExtrinsicPayload {
-        extrinsic,
-        signature: res.signature,
-    })
+    Some(format!("0x{}", hex::encode(extrinsic)))
 }
 
-/// Send a signed extrinsic payload to the give RPC URL
-pub fn send(
-    ArgsSend {
+/// Submit a signed extrinsic payload to the give RPC URL
+pub fn submit(
+    ArgsSubmit {
         url,
         signed_extrinsic,
-    }: ArgsSend,
+    }: ArgsSubmit,
 ) -> Option<String> {
-    let encoded_extrinsic = UncheckedExtrinsicV4::try_from(signed_extrinsic)
-        .unwrap()
-        .hex_encode();
-
     let api = BaseApi::new(&url);
-    let res = api.author_submit_extrinsic(encoded_extrinsic).unwrap();
+    let res = api.author_submit_extrinsic(signed_extrinsic).unwrap();
 
-    match res {
-        Some(res) => Some(format!("{:#x}", res)),
-        None => panic!("api.author_submit_extrinsic() returned None")
-    }
+    res.map(|res| format!("{:#x}", res))
 }
 
-/// Sign an unsigned extrinsic payload and then immedietly send it
-/// to the RPC. This is a common operation and saves a roundtrip
-pub fn sign_and_send(
-    ArgsSignAndSend { url, extrinsic }: ArgsSignAndSend,
+/// Sign and submit extrinsic.
+pub fn sign_and_submit(
+    ArgsSignAndSubmit {
+        url,
+        signer,
+        pallet_name,
+        call_name,
+        call_params,
+    }: ArgsSignAndSubmit,
 ) -> Option<String> {
-    let result = SignerProviderModule::sign_payload(
-        &signer_provider_module::ArgsSignPayload {
-            payload: extrinsic.clone(),
-        },
-    ).unwrap();
-    let signed_extrinsic = SignedExtrinsicPayload {
-        extrinsic,
-        signature: result.signature,
-    };
+    let api = Api::new(&url).ok()?;
+    let extrinsic = api
+        .create_signed(&signer, &pallet_name, &call_name, &call_params)
+        .ok()?;
 
-    BaseApi::new(&url)
-        .author_submit_extrinsic(
-            UncheckedExtrinsicV4::try_from(signed_extrinsic)
-                .unwrap()
-                .hex_encode(),
-        )
+    api.author_submit_extrinsic(format!("0x{}", hex::encode(extrinsic)))
         .ok()
         .flatten()
-        .map(|hash| format!("{:#x}", hash))
+        .map(|res| format!("{:#x}", res))
 }

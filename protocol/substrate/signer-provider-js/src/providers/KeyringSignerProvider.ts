@@ -52,7 +52,7 @@ export class KeyringSignerProvider implements SignerProvider {
             payload,
             { version: payload.version }
           ).sign(pair);
-  
+
           resolve(objectSpread({ id: ++id }, signed));
         });
       },
@@ -65,7 +65,7 @@ export class KeyringSignerProvider implements SignerProvider {
           const signature = u8aToHex(
             pair.sign(hexToU8a(payload.data)),
           );
-  
+
           resolve({
             id: ++id,
             signature
@@ -77,4 +77,4 @@ export class KeyringSignerProvider implements SignerProvider {
     this._signers.set(address, signer);
     return signer;
   }
-} 
+}

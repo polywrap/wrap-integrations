@@ -4,11 +4,7 @@
 
 use crate::types::metadata::MetadataError;
 use codec::Encode;
-use frame_metadata::{
-    StorageEntryMetadata,
-    StorageEntryType,
-    StorageHasher,
-};
+use frame_metadata::{StorageEntryMetadata, StorageEntryType, StorageHasher};
 use scale_info::form::PortableForm;
 use sp_core::storage::StorageKey;
 use std::marker::PhantomData;
@@ -201,12 +197,10 @@ fn key_hash<K: Encode>(key: &K, hasher: &StorageHasher) -> Vec<u8> {
         StorageHasher::Blake2_256 => sp_core::blake2_256(&encoded_key).to_vec(),
         StorageHasher::Twox128 => sp_core::twox_128(&encoded_key).to_vec(),
         StorageHasher::Twox256 => sp_core::twox_256(&encoded_key).to_vec(),
-        StorageHasher::Twox64Concat => {
-            sp_core::twox_64(&encoded_key)
-                .iter()
-                .chain(&encoded_key)
-                .cloned()
-                .collect()
-        }
+        StorageHasher::Twox64Concat => sp_core::twox_64(&encoded_key)
+            .iter()
+            .chain(&encoded_key)
+            .cloned()
+            .collect(),
     }
 }

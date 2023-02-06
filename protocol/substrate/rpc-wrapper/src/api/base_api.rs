@@ -10,24 +10,14 @@ use crate::{
     types::metadata::Metadata,
     utils::FromHexStr,
     wrap::{
-        imported::http_module,
-        HttpModule,
-        HttpRequest,
-        HttpResponse,
+        imported::http_module, HttpModule, HttpRequest, HttpResponse,
         HttpResponseType,
     },
 };
 use frame_metadata::RuntimeMetadataPrefixed;
 use polywrap_wasm_rs::Map;
-use serde::{
-    de::DeserializeOwned,
-    Deserialize,
-    Serialize,
-};
-use sp_core::{
-    Decode,
-    H256,
-};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use sp_core::{Decode, H256};
 use sp_runtime::traits::Header;
 use sp_version::RuntimeVersion;
 
@@ -43,7 +33,7 @@ pub struct JsonReq {
 pub struct JsonResult {
     id: usize,
     jsonrpc: String,
-    result: serde_json::Value,
+    result: Option<serde_json::Value>,
 }
 
 pub struct BaseApi {
@@ -143,9 +133,7 @@ impl BaseApi {
     {
         let value = self.json_request_value("chain_getHeader", vec![hash])?;
         match value {
-            Some(value) => {
-                Ok(Some(serde_json::from_value(value)?))
-            }
+            Some(value) => Ok(Some(serde_json::from_value(value)?)),
             None => Ok(None),
         }
     }
@@ -207,10 +195,14 @@ impl BaseApi {
         params: P,
     ) -> Result<Option<serde_json::Value>, Error> {
         let result = self.json_request(method, params)?;
-        if result.result.is_null() {
-            Ok(None)
+        if let Some(result) = result.result {
+            if result.is_null() {
+                Ok(None)
+            } else {
+                Ok(Some(result))
+            }
         } else {
-            Ok(Some(result.result))
+            Ok(None)
         }
     }
 
@@ -249,12 +241,10 @@ impl BaseApi {
         };
 
         match response {
-            Some(response) => {
-                match response.body {
-                    Some(body) => Ok(serde_json::from_str(&body)?),
-                    None => Err(Error::NoResponse),
-                }
-            }
+            Some(response) => match response.body {
+                Some(body) => Ok(serde_json::from_str(&body)?),
+                None => Err(Error::NoResponse),
+            },
             None => Err(Error::NoResponse),
         }
     }

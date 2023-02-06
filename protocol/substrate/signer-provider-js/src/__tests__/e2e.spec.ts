@@ -59,6 +59,25 @@ describe("e2e", () => {
     expect(isValidSignature(data, signerResult.signature, account.address));
   });
 
+  it.only("SignRaw payload work as expected", async () => {
+    const account = await getAccount();
+    const data = "0500008eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a4802093d000000006400000001000000a923ca6d5e91c862c98346afd83fddebed1c70142273fe495ea289444a520cf9a923ca6d5e91c862c98346afd83fddebed1c70142273fe495ea289444a520cf9"; // to be signed
+
+    const result = await client.invoke<SignerResult>({
+      uri,
+      method: "signRaw",
+      args: { payload: { address: account.address, data } }
+    });
+
+    console.log(result);
+
+    if (!result.ok) throw result.error;
+    expect(result.ok).toBeTruthy();
+    expect(result.value).toBeTruthy();
+    const signerResult = result.value;
+    expect(isValidSignature(data, signerResult.signature, account.address));
+  })
+
   it("signRaw throws if an unmanaged account address is requested", async () => {
     const unmanagedAddress = "000000000000000000000000000000000000000000000000"; 
 
@@ -98,7 +117,7 @@ describe("e2e", () => {
   });
 
   it("signPayload throws if an unmanaged account address is requested", async () => {
-    const unmanagedAddress = "000000000000000000000000000000000000000000000000"; 
+    const unmanagedAddress = "000000000000000000000000000000000000000000000000";
 
     const result = await client.invoke({
       uri,
