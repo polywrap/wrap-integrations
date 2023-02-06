@@ -4,8 +4,8 @@ pub use wrap::*;
 use crate::imported::{
     HttpModule,
     ArgsPost,
-    HttpHttpRequest as HttpRequest,
-    HttpHttpResponseType as HttpResponseType
+    HttpRequest,
+    HttpResponseType
 };
 use polywrap_wasm_rs::JSON;
 use serde::Deserialize;
