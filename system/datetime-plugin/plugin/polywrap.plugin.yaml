@@ -1,5 +1,0 @@
-format: 0.1.0
-name: datetime-plugin
-language: plugin/typescript
-schema: ./src/schema.graphql
-module: ./src/index.ts

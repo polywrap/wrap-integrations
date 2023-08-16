@@ -1,6 +1,0 @@
-format: 0.2.0
-project:
-  name: cache-interface
-  type: interface
-source:
-  schema: ./src/schema.graphql

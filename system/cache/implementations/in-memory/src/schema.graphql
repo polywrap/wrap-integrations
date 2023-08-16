@@ -1,3 +1,0 @@
-#import { Module } into Cache from "ens/interface.cache.polywrap.eth"
-
-type Module implements Cache_Module { }
